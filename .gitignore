@@ -51,6 +51,9 @@ htmlcov/
 **/log/*.jpg
 !example.log
 
+## usr
+usr/local/
+
 ## env
 **/.env
 .venv*
@@ -65,4 +68,3 @@ output/
 
 # MacOS
 **/.DS_Store
-
