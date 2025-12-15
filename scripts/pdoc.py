@@ -31,11 +31,11 @@ def main(modules: list[str] | None = None, output_dir: str = 'docs', open_webpag
         '-o', output_dir,
         '-d', 'google',  # Google style
         '--include-undocumented',
-        '--edit-url', 'app=https://github.com/DawnEver',
-        '--favicon', 'https://oss.hi-motor.site/web/logo/favicon.ico',
-        '--footer-text', f'Hi-Motor Winding Design v{__version__}',
-        '--logo', 'https://oss.hi-motor.site/web/logo/hi-motor.svg',
-        '--logo-link', 'https://hi-motor.site/',
+        '--edit-url', 'app=https://github.com/DawnEver/',
+        '--favicon', 'http://cdn.mingyangbao.site/logo-latest/favicon.ico',
+        '--footer-text', f'Py Project Template v{__version__}',
+        '--logo', 'http://cdn.mingyangbao.site/logo-latest/MB.svg',
+        '--logo-link', 'https://baomingyang.site/',
         '--math',
         '--mermaid',
         '--search',
@@ -44,7 +44,6 @@ def main(modules: list[str] | None = None, output_dir: str = 'docs', open_webpag
         '-h', host,
         '-p', port,
         ]
-
     # fmt: on
     subprocess.run(pdoc_args, check=False)
 
