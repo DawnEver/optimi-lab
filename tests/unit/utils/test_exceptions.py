@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from app.utils.exceptions import (
+from optimi_lab.utils.exceptions import (
     ParameterException,
     QuantityException,
     deprecated,
@@ -10,7 +10,7 @@ from app.utils.exceptions import (
 )
 
 
-@patch('app.utils.exceptions.log')
+@patch('optimi_lab.utils.exceptions.log')
 def test_parameter_exception(mock_log):
     """Test ParameterException."""
     exception = ParameterException('Invalid parameter')
@@ -18,7 +18,7 @@ def test_parameter_exception(mock_log):
     mock_log.assert_called_once_with('ParameterException: Invalid parameter', level='ERROR')
 
 
-@patch('app.utils.exceptions.log')
+@patch('optimi_lab.utils.exceptions.log')
 def test_quantity_exception(mock_log):
     """Test QuantityException."""
     exception = QuantityException('Invalid quantity')

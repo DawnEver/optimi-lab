@@ -1,11 +1,11 @@
-from app.utils import config
-from app.utils.config import Config, PathData, load_config, save_config
+from optimi_lab.utils import config
+from optimi_lab.utils.config import Config, PathData, load_config, save_config
 
 
 def test_load_config_valid_file(mocker):
     """Test loading a valid configuration file."""
     mocker.patch(
-        'app.utils.config.read_toml',
+        'optimi_lab.utils.config.read_toml',
         return_value={
             'core': {},
             'utils': {
@@ -24,7 +24,7 @@ def test_load_config_valid_file(mocker):
 
 def test_save_config(mocker, tmp_path):
     """Test saving a configuration file."""
-    mocker.patch('app.utils.config.save_toml')
+    mocker.patch('optimi_lab.utils.config.save_toml')
     config_obj = Config(
         core={},
         utils={

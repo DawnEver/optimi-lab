@@ -3,7 +3,7 @@ from io import StringIO
 
 import pytest
 
-from app.utils import logger
+from optimi_lab.utils import logger
 
 
 @pytest.fixture

@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from app.utils import visualization
-from app.utils.exceptions import ParameterException
+from optimi_lab.utils import visualization
+from optimi_lab.utils.exceptions import ParameterException
 
 
 def test_config_plt_params():

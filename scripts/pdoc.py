@@ -13,7 +13,7 @@ scripts_index = parts.index('scripts')
 root_path = Path(*parts[:scripts_index])
 
 # Ignore E402: module level import not at top of file
-from app.__version__ import __version__  # noqa: E402
+from optimi_lab.__version__ import __version__  # noqa: E402
 
 __all__ = ['main']
 
@@ -21,7 +21,7 @@ __all__ = ['main']
 def main(modules: list[str] | None = None, output_dir: str = 'docs', open_webpage: bool = False) -> None:
     """Generate API documentation."""
     if modules is None:
-        modules = ['app']
+        modules = ['optimi_lab']
     host = 'localhost'
     port = '8080'
     # fmt: off
@@ -31,7 +31,7 @@ def main(modules: list[str] | None = None, output_dir: str = 'docs', open_webpag
         '-o', output_dir,
         '-d', 'google',  # Google style
         '--include-undocumented',
-        '--edit-url', 'app=https://github.com/DawnEver/',
+        '--edit-url', 'optimi-lab=https://github.com/DawnEver/optimi-lab',
         '--favicon', 'http://cdn.mingyangbao.site/logo-latest/favicon.ico',
         '--footer-text', f'Py Project Template v{__version__}',
         '--logo', 'http://cdn.mingyangbao.site/logo-latest/MB.svg',
@@ -46,7 +46,6 @@ def main(modules: list[str] | None = None, output_dir: str = 'docs', open_webpag
         ]
     # fmt: on
     subprocess.run(pdoc_args, check=False)
-
     # Recursively copy all image files under modules to the corresponding locations in output_dir
     for module in modules:
         module_path = root_path / module

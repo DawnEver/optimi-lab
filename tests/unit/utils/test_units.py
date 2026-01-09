@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from app.utils import quantities
-from app.utils.exceptions import QuantityException
+from optimi_lab.utils import quantities
+from optimi_lab.utils.exceptions import QuantityException
 
 
 def test_2DPoint():

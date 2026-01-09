@@ -3,10 +3,10 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from app.utils.file_io import check_path, list_files_in_dir, read_toml, save_toml
+from optimi_lab.utils.file_io import check_path, list_files_in_dir, read_toml, save_toml
 
 
-@patch('app.utils.file_io.Path.open', new_callable=mock_open, read_data='key = "value"')
+@patch('optimi_lab.utils.file_io.Path.open', new_callable=mock_open, read_data='key = "value"')
 def test_read_toml_success(mock_file):
     """Test successful TOML file reading."""
     file_path = Path('test_file.toml')
@@ -15,7 +15,7 @@ def test_read_toml_success(mock_file):
     mock_file.assert_called_once_with(file_path, encoding='utf-8')
 
 
-@patch('app.utils.file_io.Path.open', new_callable=mock_open)
+@patch('optimi_lab.utils.file_io.Path.open', new_callable=mock_open)
 def test_save_toml_success(mock_file):
     """Test successful TOML file saving."""
     file_path = Path('test_file.toml')
@@ -26,7 +26,7 @@ def test_save_toml_success(mock_file):
     mock_file().write.assert_called_once_with('key = "value"\n')
 
 
-@patch('app.utils.file_io.Path.open', side_effect=OSError)
+@patch('optimi_lab.utils.file_io.Path.open', side_effect=OSError)
 def test_toml_failure(mock_open):
     """Test failure when saving and reading TOML files."""
     mock_open
@@ -38,9 +38,9 @@ def test_toml_failure(mock_open):
         read_toml(file_path)
 
 
-@patch('app.utils.file_io.copyfile')
-@patch('app.utils.file_io.Path.mkdir')
-@patch('app.utils.file_io.Path.exists', side_effect=lambda path: path == Path('default_file.txt'))
+@patch('optimi_lab.utils.file_io.copyfile')
+@patch('optimi_lab.utils.file_io.Path.mkdir')
+@patch('optimi_lab.utils.file_io.Path.exists', side_effect=lambda path: path == Path('default_file.txt'))
 def test_check_path_create_file(mock_exists, mock_mkdir, mock_copyfile):
     """Test creating file when path does not exist."""
     target_path = Path('test_dir/test_file.txt')
@@ -60,8 +60,8 @@ def test_check_path_create_file(mock_exists, mock_mkdir, mock_copyfile):
     assert result is False  # Because target_path already exists
 
 
-@patch('app.utils.file_io.Path.mkdir')
-@patch('app.utils.file_io.Path.exists', return_value=False)
+@patch('optimi_lab.utils.file_io.Path.mkdir')
+@patch('optimi_lab.utils.file_io.Path.exists', return_value=False)
 def test_check_path_create_directory(mock_exists, mock_mkdir):
     """Test creating directory when path does not exist."""
     target_path = Path('test_dir')
@@ -71,8 +71,8 @@ def test_check_path_create_directory(mock_exists, mock_mkdir):
     mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
 
-@patch('app.utils.file_io.os.walk')
-@patch('app.utils.file_io.check_path', return_value=True)
+@patch('optimi_lab.utils.file_io.os.walk')
+@patch('optimi_lab.utils.file_io.check_path', return_value=True)
 def test_list_files_in_dir(mock_check_path, mock_walk):
     """Test listing files in directory."""
     dir_path = Path('test_dir')
@@ -83,7 +83,7 @@ def test_list_files_in_dir(mock_check_path, mock_walk):
     mock_walk.assert_called_once_with(dir_path)
 
 
-@patch('app.utils.file_io.check_path', return_value=False)
+@patch('optimi_lab.utils.file_io.check_path', return_value=False)
 def test_list_files_in_dir_directory_not_exist(mock_check_path):
     """Test listing files when directory does not exist."""
     dir_path = Path('nonexistent_dir')

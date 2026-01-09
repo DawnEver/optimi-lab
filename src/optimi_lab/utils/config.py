@@ -56,6 +56,13 @@ class PathData:
     log_folder_path: Path = log_folder_parent_path / log_folder_name
     case_workdir_path: Path = log_folder_path
     report_folder_path: Path = Path('output/reports/')
+    """
+    Optimizer files
+    """
+    optimizer_filename: str = f'{filename_base_current_time_sec}.opt.toml'
+    optimizer_file_path: Path = log_folder_path / optimizer_filename
+    surrogate_model_path: Path = f'{log_folder_path}{filename_base_current_time_sec}.surrogate_model.pkl'
+    intelligent_algorithm_path: Path = f'{log_folder_path}{filename_base_current_time_sec}.intelligent_algorithm_.pkl'
 
     """
     Figures

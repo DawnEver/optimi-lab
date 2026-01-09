@@ -3,10 +3,11 @@ requires = [ "setuptools", "setuptools-scm" ]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "python_project_template"
+name = "optimi_lab"
 dynamic = [
     "version"
 ]
+license = {text = "Apache-2.0"}
 description = ""
 readme = "README.md"
 requires-python = ">=3.12"
@@ -18,8 +19,14 @@ maintainers = [
     {name = "Mingyang Bao", email = "mingyangbob@gmail.com"}
 ]
 dependencies = [
-    "rtoml","matplotlib","numpy",
-    "pint","pydantic"
+    "rtoml",
+    "matplotlib",
+    "numpy",
+    "pint",
+    "pydantic",
+    'scikit-learn',
+    'scipy',
+    'pandas'
 ]
 
 [project.optional-dependencies]
@@ -37,17 +44,16 @@ dev = [
 ]
 
 [project.scripts]
-app = "app.__main__:main"
 
 # ===================
 # Build
 # ===================
 [tool.setuptools_scm]
-version_file = "src/app/__version__.py"
+version_file = "src/optimi_lab/__version__.py"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["app*"]
+include = ["optimi_lab*"]
 
 # ===================
 # Coverage
