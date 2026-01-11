@@ -42,6 +42,9 @@ dev = [
     "pre-commit",
     "ruff",
 ]
+reminder = [
+    "resend"
+]
 
 [project.scripts]
 

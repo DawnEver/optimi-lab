@@ -6,7 +6,7 @@ import datetime
 from pathlib import Path
 
 from .file_io import check_path, read_toml, save_toml
-from .quantities import BaseModel_with_q
+from .quantities import BaseModel_with_q, pydantic_config_dict_with_q_case_insensitive
 
 __all__ = ['CONF', 'PathData', 'load_config', 'save_config']
 
@@ -101,12 +101,14 @@ class Utils(BaseModel_with_q):
     text_editor_command(str): Text editor command.
     """
 
+    model_config = pydantic_config_dict_with_q_case_insensitive
     # logs
     log_file_format: str = '%(asctime)s %(levelname)s %(message)s \tlocation: %(filename)s line%(lineno)d'
     log_console_format: str = '%(message)s %(asctime)s'
     log_app_format: str = '%(levelname)s %(message)s %(asctime)s'
     log_date_format: str = '%m/%d/%Y %H:%M:%S'
     text_editor_command: str = 'notepad.exe'
+    resend_api_key: str = ''
 
 
 class Config(BaseModel_with_q):

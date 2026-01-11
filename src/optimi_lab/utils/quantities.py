@@ -244,6 +244,12 @@ pydantic_config_dict_with_q = ConfigDict(
     extra='forbid',
     arbitrary_types_allowed=True,
 )
+pydantic_config_dict_with_q_case_insensitive = ConfigDict(
+    str_to_lower=False,
+    strict=True,
+    extra='forbid',
+    arbitrary_types_allowed=True,
+)
 
 
 class BaseModel_with_q(BaseModel):
