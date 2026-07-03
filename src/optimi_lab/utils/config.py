@@ -34,10 +34,16 @@ class PathData:
         - file absolute path
     """
 
+    # Anchor all package data / writable paths to the package root, never the
+    # current working directory: the library must import cleanly regardless of
+    # where the consumer runs from (it is consumed as a dependency, not only from
+    # the repo root). NOTE: a fuller redesign that drops the ``usr`` layer and
+    # writes user state under a proper data dir is tracked in the motronics
+    # backlog (MANUAL-20260703-176).
     root_path_abs: Path = root_path
-    usr_local_path: Path = Path('usr/local/')
-    usr_default_path: Path = Path('usr/default/')
-    usr_lib_path: Path = Path('usr/lib/')
+    usr_local_path: Path = root_path / 'usr/local/'
+    usr_default_path: Path = root_path / 'usr/default/'
+    usr_lib_path: Path = root_path / 'usr/lib/'
     default_empty_file_path: Path = usr_default_path / 'empty.toml'
 
     config_file_path: Path = usr_local_path / 'config.toml'
@@ -52,10 +58,10 @@ class PathData:
     filename_base_current_time_day: str = current_time.strftime(r'%Y-%m-%d')
     log_filename: str = f'{filename_base_current_time_hour}.log'
     log_folder_name: str = filename_base_current_time_day
-    log_folder_parent_path: Path = Path('output/logs/')
+    log_folder_parent_path: Path = root_path / 'output/logs/'
     log_folder_path: Path = log_folder_parent_path / log_folder_name
     case_workdir_path: Path = log_folder_path
-    report_folder_path: Path = Path('output/reports/')
+    report_folder_path: Path = root_path / 'output/reports/'
     """
     Optimizer files
     """
