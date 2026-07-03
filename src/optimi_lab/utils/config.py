@@ -15,8 +15,15 @@ current_time = datetime.datetime.now()
 
 script_path = Path(__file__).resolve()
 parts = script_path.parts
-src_index = parts.index('src')  # get the index of "src"
-root_path = Path(*parts[:src_index])  # get all parts before "src"
+# An editable / source checkout lives under '<root>/src/optimi_lab/...'; an
+# installed wheel lives under '<site-packages>/optimi_lab/...' with no 'src'
+# component. Anchor writable state to the repo root in the former case and to the
+# current working directory in the latter, so importing the installed package
+# never raises (and never writes into site-packages).
+if 'src' in parts:
+    root_path = Path(*parts[: parts.index('src')])
+else:
+    root_path = Path.cwd()
 
 
 class PathData:
@@ -77,14 +84,23 @@ class PathData:
     default_fig_path: Path = log_folder_path / default_fig_name
 
 
-# Create temporary folders and files
-for dir_path in [PathData.log_folder_path, PathData.report_folder_path]:
-    check_path(target_path=dir_path, is_dir=True)
+# Best-effort creation of writable scratch folders and the user config. Must never
+# be fatal at import time: a read-only or packaged install (which ships no default
+# config outside src/) simply falls back to the in-code defaults in load_config().
+def _ensure_runtime_paths() -> None:
+    try:
+        for dir_path in [PathData.log_folder_path, PathData.report_folder_path]:
+            check_path(target_path=dir_path, is_dir=True)
+        if Path(PathData.default_config_file_path).exists():
+            check_path(
+                target_path=PathData.config_file_path,
+                default_path=PathData.default_config_file_path,
+            )
+    except OSError:
+        pass
 
-for target_path, default_path in [
-    (PathData.config_file_path, PathData.default_config_file_path),
-]:
-    check_path(target_path=target_path, default_path=default_path)
+
+_ensure_runtime_paths()
 
 
 class Core(BaseModel_with_q): ...
@@ -131,8 +147,17 @@ def load_config(config_file_path: Path = PathData.config_file_path) -> Config:
         Config: Parsed configuration object
     Raises:
         ValidationError: If parsing the configuration fails.
+
+    Falls back to the in-code defaults when the config file is absent (e.g. a
+    packaged install that ships no user config), so importing the library never
+    requires a writable/pre-populated config directory.
     """
-    config_data = read_toml(config_file_path)
+    try:
+        config_data = read_toml(config_file_path)
+    except (FileNotFoundError, OSError):
+        config_data = {}
+    config_data.setdefault('core', {})
+    config_data.setdefault('utils', {})
     return Config.model_validate(config_data)
 
 
