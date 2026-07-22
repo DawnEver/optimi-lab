@@ -27,7 +27,7 @@ dependencies = [
     'scikit-learn',
     'scipy',
     'pandas',
-    "lab-commons @ git+https://github.com/DawnEver/lab-commons.git@c8c6a5e",
+    "lab-commons @ git+https://github.com/DawnEver/lab-commons.git@v0.1.0",
 ]
 
 [project.optional-dependencies]
