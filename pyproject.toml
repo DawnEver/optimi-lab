@@ -26,7 +26,8 @@ dependencies = [
     "pydantic",
     'scikit-learn',
     'scipy',
-    'pandas'
+    'pandas',
+    "lab-commons @ git+https://github.com/DawnEver/lab-commons.git@0184728",
 ]
 
 [project.optional-dependencies]

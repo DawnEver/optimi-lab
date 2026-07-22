@@ -5,6 +5,8 @@ Singleton pattern: ensure configuration consistency.
 import datetime
 from pathlib import Path
 
+from lab_commons.paths import _detect_repo_root
+
 from .file_io import check_path, read_toml, save_toml
 from .quantities import BaseModel_with_q, pydantic_config_dict_with_q_case_insensitive
 
@@ -13,17 +15,17 @@ __all__ = ['CONF', 'PathData', 'load_config', 'save_config']
 
 current_time = datetime.datetime.now()
 
-script_path = Path(__file__).resolve()
-parts = script_path.parts
 # An editable / source checkout lives under '<root>/src/optimi_lab/...'; an
 # installed wheel lives under '<site-packages>/optimi_lab/...' with no 'src'
 # component. Anchor writable state to the repo root in the former case and to the
 # current working directory in the latter, so importing the installed package
 # never raises (and never writes into site-packages).
-if 'src' in parts:
-    root_path = Path(*parts[: parts.index('src')])
-else:
-    root_path = Path.cwd()
+# NOTE: pass an in-repo anchor (`start=Path(__file__)`) explicitly -- lab_commons'
+# `_detect_repo_root()` defaults its upward search to ITS OWN `__file__`, which is
+# site-packages once lab_commons is installed as a dependency, so it would never
+# detect the optimi-lab source checkout otherwise (motronics hit the same bug first;
+# see motronics-studio's plan-lab-commons-standalone.md PHASE 2).
+root_path = _detect_repo_root(start=Path(__file__)) or Path.cwd()
 
 
 class PathData:
