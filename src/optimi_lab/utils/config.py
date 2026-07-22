@@ -2,18 +2,15 @@
 Singleton pattern: ensure configuration consistency.
 """
 
-import datetime
 from pathlib import Path
 
-from lab_commons.paths import _detect_repo_root
+from lab_commons.paths import _detect_repo_root, run_output_dir, run_stamp
 
 from .file_io import check_path, read_toml, save_toml
 from .quantities import BaseModel_with_q, pydantic_config_dict_with_q_case_insensitive
 
 __all__ = ['CONF', 'PathData', 'load_config', 'save_config']
 
-
-current_time = datetime.datetime.now()
 
 # An editable / source checkout lives under '<root>/src/optimi_lab/...'; an
 # installed wheel lives under '<site-packages>/optimi_lab/...' with no 'src'
@@ -26,6 +23,20 @@ current_time = datetime.datetime.now()
 # detect the optimi-lab source checkout otherwise (motronics hit the same bug first;
 # see motronics-studio's plan-lab-commons-standalone.md PHASE 2).
 root_path = _detect_repo_root(start=Path(__file__)) or Path.cwd()
+
+
+class classproperty:
+    """Descriptor that makes a method accessible as a class-level property.
+
+    ``PathData.log_folder_path`` reads like a class attribute but computes lazily
+    on first access, delegating to ``lab_commons.paths`` for the per-run stamp.
+    """
+
+    def __init__(self, fget) -> None:
+        self.fget = fget
+
+    def __get__(self, obj, owner=None) -> object:
+        return self.fget(owner)
 
 
 class PathData:
@@ -41,14 +52,16 @@ class PathData:
         - file relative path with extension
     - xx_path_abs
         - file absolute path
+
+    Time-dependent paths delegate to ``lab_commons.paths`` (``run_date()`` /
+    ``run_stamp()`` / ``run_output_dir()``) so every artifact of a single process
+    lands in the same per-run folder without manual datetime formatting. All such
+    attributes are lazy ``classproperty`` descriptors -- computed on first access
+    and stable for the rest of the process.
     """
 
-    # Anchor all package data / writable paths to the package root, never the
-    # current working directory: the library must import cleanly regardless of
-    # where the consumer runs from (it is consumed as a dependency, not only from
-    # the repo root). NOTE: a fuller redesign that drops the ``usr`` layer and
-    # writes user state under a proper data dir is tracked in the motronics
-    # backlog (MANUAL-20260703-176).
+    # --- Static paths (computed once at class-definition time) ---
+
     root_path_abs: Path = root_path
     usr_local_path: Path = root_path / 'usr/local/'
     usr_default_path: Path = root_path / 'usr/default/'
@@ -58,51 +71,56 @@ class PathData:
     config_file_path: Path = usr_local_path / 'config.toml'
     default_config_file_path: Path = usr_default_path / 'default.config.toml'
 
-    """
-    Log files
-    """
-    filename_base_current_time_sec: str = current_time.strftime(r'%H-%M-%S')
-    filename_base_current_time_min: str = current_time.strftime(r'%H-%M')
-    filename_base_current_time_hour: str = current_time.strftime(r'%H')
-    filename_base_current_time_day: str = current_time.strftime(r'%Y-%m-%d')
-    log_filename: str = f'{filename_base_current_time_hour}.log'
-    log_folder_name: str = filename_base_current_time_day
-    log_folder_parent_path: Path = root_path / 'output/logs/'
-    log_folder_path: Path = log_folder_parent_path / log_folder_name
-    case_workdir_path: Path = log_folder_path
     report_folder_path: Path = root_path / 'output/reports/'
-    """
-    Optimizer files
-    """
-    optimizer_filename: str = f'{filename_base_current_time_sec}.opt.toml'
-    optimizer_file_path: Path = log_folder_path / optimizer_filename
-    surrogate_model_path: Path = f'{log_folder_path}{filename_base_current_time_sec}.surrogate_model.pkl'
-    intelligent_algorithm_path: Path = f'{log_folder_path}{filename_base_current_time_sec}.intelligent_algorithm_.pkl'
 
-    """
-    Figures
-    """
-    default_fig_name: str = f'{filename_base_current_time_sec}.png'
-    default_fig_path: Path = log_folder_path / default_fig_name
+    # --- Lazy, per-run time-dependent paths ---
+    # Delegated to lab_commons.paths; each property is computed on FIRST ACCESS
+    # and stable for the rest of the process (run_date/run_stamp memoize internally).
 
+    @classproperty
+    def log_folder_path(cls) -> Path:
+        """Per-run log output directory, created on first access.
 
-# Best-effort creation of writable scratch folders and the user config. Must never
-# be fatal at import time: a read-only or packaged install (which ships no default
-# config outside src/) simply falls back to the in-code defaults in load_config().
-def _ensure_runtime_paths() -> None:
-    try:
-        for dir_path in [PathData.log_folder_path, PathData.report_folder_path]:
-            check_path(target_path=dir_path, is_dir=True)
-        if Path(PathData.default_config_file_path).exists():
-            check_path(
-                target_path=PathData.config_file_path,
-                default_path=PathData.default_config_file_path,
-            )
-    except OSError:
-        pass
+        Delegates to ``lab_commons.paths.run_output_dir()`` so the directory is
+        created lazily (no import-time filesystem write) and the path is memoized
+        per process via the shared ``run_date()`` / ``run_stamp()``.
+        """
+        return run_output_dir('optimi-lab', root=cls.root_path_abs / 'output')
 
+    @classproperty
+    def case_workdir_path(cls) -> Path:
+        """Convenience alias -- same as :attr:`log_folder_path`."""
+        return cls.log_folder_path
 
-_ensure_runtime_paths()
+    @classproperty
+    def log_filename(cls) -> str:
+        """Per-run log file name ``<HH-MM-SS>.log`` (via ``run_stamp()``)."""
+        return f'{run_stamp()}.log'
+
+    @classproperty
+    def optimizer_file_path(cls) -> Path:
+        """Per-run optimizer state path ``<log_folder>/<HH-MM-SS>.opt.toml``."""
+        return cls.log_folder_path / f'{run_stamp()}.opt.toml'
+
+    @classproperty
+    def surrogate_model_path(cls) -> Path:
+        """Per-run surrogate model path ``<log_folder>/<HH-MM-SS>.surrogate_model.pkl``."""
+        return cls.log_folder_path / f'{run_stamp()}.surrogate_model.pkl'
+
+    @classproperty
+    def intelligent_algorithm_path(cls) -> Path:
+        """Per-run intelligent algorithm path ``<log_folder>/<HH-MM-SS>.intelligent_algorithm_.pkl``."""
+        return cls.log_folder_path / f'{run_stamp()}.intelligent_algorithm_.pkl'
+
+    @classproperty
+    def default_fig_name(cls) -> str:
+        """Per-run default figure name ``<HH-MM-SS>.png`` (via ``run_stamp()``)."""
+        return f'{run_stamp()}.png'
+
+    @classproperty
+    def default_fig_path(cls) -> Path:
+        """Per-run default figure path ``<log_folder>/<HH-MM-SS>.png``."""
+        return cls.log_folder_path / cls.default_fig_name
 
 
 class Core(BaseModel_with_q): ...
