@@ -438,7 +438,7 @@ class Optimizer(BaseModel_with_q, ABC):
     # Save and load optimizer configuration
     # -------------------
     def load_optimizer(self, file_path: Path = PathData.optimizer_file_path) -> bool:
-        _dict = read_toml(file_path=file_path)
+        _dict = read_toml(file_path)
 
         self.variable_space = VariableSpace.model_validate(_dict['variable_space'])
         self.mp_params = MultiProcessingParameters.model_validate(_dict['mp_params'])
