@@ -1,5 +1,8 @@
 [build-system]
-requires = [ "setuptools", "setuptools-scm" ]
+# setuptools>=77.0.3 is the floor for the PEP 639 metadata below (SPDX `license`
+# string + `license-files`): on anything older the two keys are rejected at build
+# time, so the pin is what makes the license declaration enforceable.
+requires = [ "setuptools>=77.0.3", "setuptools-scm" ]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +10,8 @@ name = "optimi_lab"
 dynamic = [
     "version"
 ]
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 description = ""
 readme = "README.md"
 requires-python = ">=3.12"
