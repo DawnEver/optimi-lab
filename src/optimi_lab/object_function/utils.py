@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 
+from optimi_lab.utils.exceptions import ParameterException
 from optimi_lab.utils.logger import log
 
 PENALTY_VALUE = np.inf  # 2147483647 # 32bit int max value; used to fill unmet objective values
@@ -173,7 +174,25 @@ def parse_outputs(
         output_dict_list (list[dict]): List of output dictionaries from the simulation.
 
     Returns:
-        np.ndarray: A matrix containing the objective function values for each sample.
+        np.ndarray: A matrix containing the objective function values for each sample, one row
+            per declared sample in ``case_id`` order. Raising, or returning a matrix with
+            exactly ``n_sample`` complete rows, are the only two outcomes -- there is no
+            partial or default-filled row.
+
+    Raises:
+        ParameterException: If ``output_dict_list`` does not hold a COMPLETE operating-condition
+            cycle for every one of the ``n_sample`` samples, or holds results for samples the
+            caller did not declare.
+
+            A sample whose cycle is short has NO objective value, and this matrix has no way to
+            say so: its one in-band sentinel (+/-inf, via ``err_value_matrix``) already means
+            "the case ran and its value is unusable", so reusing it would make "never ran"
+            indistinguishable from "ran and failed" -- which is the distinction the caller is
+            reading the matrix for. A second sentinel (NaN) would be dropped by neither the
+            ``== PENALTY_VALUE`` row filters nor the surrogate training, so it would replace a
+            wrong number with a poison. Filling the row is therefore the one option that is
+            never honest: it used to write ZEROS, so a point that never ran arrived as the
+            number 0.
 
     Examples:
     --------
@@ -201,16 +220,42 @@ def parse_outputs(
         ... except KeyError as e:
         ...     print(e.args[0].startswith('Invalid key name obj_name_list_oc'))
         True
+        >>> try:
+        ...     parse_outputs(
+        ...         obj_name_matrix,
+        ...         err_value_matrix,
+        ...         n_obj,
+        ...         n_sample,
+        ...         [
+        ...             {'case_id': 0, 'solution_type': 'SUCCESS', 'a': 1, 'b': 2},
+        ...             {'case_id': 1, 'solution_type': 'SUCCESS', 'c': 3},
+        ...             {'case_id': 2, 'solution_type': 'SUCCESS', 'a': 4, 'b': 5},
+        ...         ],
+        ...     )
+        ... except ParameterException as e:
+        ...     print(str(e).startswith('ParameterException: sample(s) [1] never completed'))
+        True
 
     ------
 
     """
     num_oc = len(obj_name_matrix)
-    obj_value_matrix = np.zeros((n_sample, n_obj))
-    output = dict.fromkeys(range(num_oc))
+    if num_oc == 0:
+        # Guarded explicitly, because the completeness check below is expressed per operating
+        # condition: with none declared it would report every sample as incomplete with an EMPTY
+        # list of missing conditions, which is a claim about nothing. There is also no
+        # ``case_id % num_oc`` mapping to derive, so the honest answer is that the call cannot
+        # be served at all.
+        msg = 'obj_name_matrix declares no operating condition, so no result can be mapped to an objective'
+        raise ParameterException(msg)
 
-    for index, result in enumerate(output_dict_list):
-        index_oc = result['case_id'] % num_oc  # index of operating condition
+    # Collect first, decide second: nothing reaches the matrix until every declared sample has
+    # been shown to hold all of its operating conditions. Staging per SAMPLE (not in one dict
+    # reused across samples) is what makes a missing condition a refusal instead of a stale
+    # value carried over from the previous sample.
+    oc_values_by_sample: dict[int, dict[int, list[float]]] = {}
+    for result in output_dict_list:
+        sample_id, index_oc = divmod(result['case_id'], num_oc)  # index of sample / of condition
 
         obj_name_list_oc = obj_name_matrix[index_oc]
 
@@ -221,17 +266,44 @@ def parse_outputs(
             TIMEOUT: simulation timed out
             NONE: simulation not run (used for plotting only)
             """
-            output[index_oc] = err_value_matrix[index_oc]
+            oc_values = err_value_matrix[index_oc]
         else:
             try:
-                output[index_oc] = [result[key_name] for key_name in obj_name_list_oc]
+                oc_values = [result[key_name] for key_name in obj_name_list_oc]
             except KeyError as e:
                 msg = f'Invalid key name obj_name_list_oc: {obj_name_list_oc}:{e}'
                 log(msg, level='ERROR')
                 raise KeyError(msg)
 
-        if index_oc == num_oc - 1:
-            obj_value_matrix[index // num_oc] = [value for sublist in output.values() for value in sublist]
+        # A repeated case_id means the same case reported twice; the last report wins.
+        oc_values_by_sample.setdefault(sample_id, {})[index_oc] = oc_values
+
+    undeclared_samples = sorted(sample_id for sample_id in oc_values_by_sample if sample_id >= n_sample)
+    if undeclared_samples:
+        msg = (
+            f'output_dict_list holds results for sample(s) {undeclared_samples} but only n_sample={n_sample} '
+            f'were declared; the results and the sample count describe different sweeps'
+        )
+        raise ParameterException(msg)
+
+    incomplete_samples = {
+        sample_id: [index_oc for index_oc in range(num_oc) if index_oc not in oc_values_by_sample.get(sample_id, {})]
+        for sample_id in range(n_sample)
+        if len(oc_values_by_sample.get(sample_id, {})) != num_oc
+    }
+    if incomplete_samples:
+        msg = (
+            f'sample(s) {sorted(incomplete_samples)} never completed their operating-condition cycle; '
+            f'missing condition index/indices {incomplete_samples}. An unevaluated sample has no objective '
+            f'value, so no row can be returned for it -- see the Raises section.'
+        )
+        raise ParameterException(msg)
+
+    obj_value_matrix = np.zeros((n_sample, n_obj))
+    for sample_id, oc_values_by_index in oc_values_by_sample.items():
+        obj_value_matrix[sample_id] = [
+            value for index_oc in range(num_oc) for value in oc_values_by_index[index_oc]
+        ]
     return obj_value_matrix
 
 

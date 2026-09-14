@@ -9,7 +9,11 @@ what they leave out:
   never actually compared. The doctests now print the value they claim; the tests here assert
   the exception and its message;
 - ``parse_outputs``' TIMEOUT/NONE branch, its ``case_id % num_oc`` cycling and its KeyError
-  were untested, as was the row left behind by a sample that never completed a round;
+  were untested, as was the row left behind by a sample that never completed a round. That
+  last case is now a REFUSAL with its own tests: a short cycle used to leave a row of ZEROS
+  -- and, when the missing condition was not the last one, a row carrying the PREVIOUS
+  sample's values, which is a plausible objective that means the opposite of "not
+  evaluated";
 - ``generate_kwds_list`` was asserted only by ``len(kwds_list) == 4``: neither the nested-path
   traversal it exists for, nor the deep copy that keeps ``base_params_dict_list`` unmutated
   across a sweep.
@@ -19,6 +23,7 @@ import numpy as np
 import pytest
 
 from optimi_lab.object_function.utils import generate_kwds_list, parse_outputs, sort_obj_name_list
+from optimi_lab.utils.exceptions import ParameterException
 
 
 class TestSortObjNameList:
@@ -160,15 +165,75 @@ class TestParseOutputs:
         with pytest.raises(KeyError, match='Invalid key name obj_name_list_oc'):
             parse_outputs(obj_name_matrix, err_value_matrix, 3, 2, output_dict_list)
 
-    def test_a_sample_that_never_completes_a_round_leaves_a_zero_row(self, obj_name_matrix, err_value_matrix):
-        """A row is written only when its operating-condition cycle completes.
+    def test_a_sample_whose_last_condition_never_reports_is_refused(self, obj_name_matrix, err_value_matrix):
+        """A cycle that never completes RAISES; it does not leave a row of zeros behind.
 
-        A sample whose LAST operating condition never reports leaves a row of zeros -- a value
-        that means "not evaluated" but reads as a real objective. Pinned so the behaviour is a
-        decision on record rather than a surprise; `test_utils`' callers all complete a cycle.
+        A row of zeros reads as a real objective, so a sample that was never evaluated arrived
+        at the caller as the number 0 -- the one thing an objective matrix must not do. The
+        refusal names the sample instead, and the matrix is not returned at all, so no partial
+        result can be mistaken for a complete one.
         """
-        output_dict_list = [{'case_id': 0, 'solution_type': 'SUCCESS', 'a': 1, 'b': 2}]
+        output_dict_list = [
+            {'case_id': 0, 'solution_type': 'SUCCESS', 'a': 1, 'b': 2},
+            {'case_id': 1, 'solution_type': 'SUCCESS', 'c': 3},
+            {'case_id': 2, 'solution_type': 'SUCCESS', 'a': 4, 'b': 5},
+        ]
 
-        obj_value_matrix = parse_outputs(obj_name_matrix, err_value_matrix, 3, 2, output_dict_list)
+        with pytest.raises(ParameterException, match='never completed'):
+            parse_outputs(obj_name_matrix, err_value_matrix, 3, 2, output_dict_list)
 
-        assert np.allclose(obj_value_matrix, np.zeros((2, 3)))
+    def test_a_missing_condition_cannot_reuse_the_previous_sample_values(self, obj_name_matrix, err_value_matrix):
+        """A cycle missing a MIDDLE condition is refused too, and this is the sharper half.
+
+        The staging dict was never reset between cycles, so the missing condition kept the
+        PREVIOUS sample's values and the row was written anyway: sample 1 used to come back as
+        ``[1, 2, 6]`` -- sample 0's ``a`` and ``b`` -- instead of zeros. A wrong number is
+        worse than an absent one, so the completeness check is per condition, not per sample.
+        """
+        output_dict_list = [
+            {'case_id': 0, 'solution_type': 'SUCCESS', 'a': 1, 'b': 2},
+            {'case_id': 1, 'solution_type': 'SUCCESS', 'c': 3},
+            {'case_id': 3, 'solution_type': 'SUCCESS', 'c': 6},
+        ]
+
+        with pytest.raises(ParameterException, match='never completed'):
+            parse_outputs(obj_name_matrix, err_value_matrix, 3, 2, output_dict_list)
+
+    def test_an_empty_result_list_is_refused_when_samples_were_declared(self, obj_name_matrix, err_value_matrix):
+        """No results at all is the same defect at full size: every declared sample is missing."""
+        with pytest.raises(ParameterException, match='never completed'):
+            parse_outputs(obj_name_matrix, err_value_matrix, 3, 2, [])
+
+    def test_a_case_id_beyond_the_declared_samples_is_refused(self, obj_name_matrix, err_value_matrix):
+        """Results for samples the caller did not declare are refused, naming the count.
+
+        This used to be an ``IndexError`` from the row assignment -- loud, but it named numpy's
+        array bounds rather than the disagreement between the results and ``n_sample``.
+        """
+        output_dict_list = [
+            {'case_id': 0, 'solution_type': 'SUCCESS', 'a': 1, 'b': 2},
+            {'case_id': 1, 'solution_type': 'SUCCESS', 'c': 3},
+            {'case_id': 2, 'solution_type': 'SUCCESS', 'a': 4, 'b': 5},
+            {'case_id': 3, 'solution_type': 'SUCCESS', 'c': 6},
+            {'case_id': 4, 'solution_type': 'SUCCESS', 'a': 7, 'b': 8},
+            {'case_id': 5, 'solution_type': 'SUCCESS', 'c': 9},
+        ]
+
+        with pytest.raises(ParameterException, match='n_sample=2'):
+            parse_outputs(obj_name_matrix, err_value_matrix, 3, 2, output_dict_list)
+
+    def test_no_declared_samples_is_an_empty_matrix_rather_than_a_refusal(self, obj_name_matrix, err_value_matrix):
+        """``n_sample=0`` with no results is consistent, so it returns a 0-row matrix."""
+        obj_value_matrix = parse_outputs(obj_name_matrix, err_value_matrix, 3, 0, [])
+
+        assert obj_value_matrix.shape == (0, 3)
+
+    def test_no_declared_objectives_is_refused_rather_than_reported_as_incomplete(self):
+        """No operating conditions at all is refused by name, not blamed on the samples.
+
+        The per-condition completeness check has nothing to look at here, so without this guard
+        it reported every sample as incomplete with an EMPTY list of missing conditions -- a
+        claim about nothing. There is no ``case_id % num_oc`` mapping to derive either.
+        """
+        with pytest.raises(ParameterException, match='declares no operating condition'):
+            parse_outputs([], [], 0, 2, [])
