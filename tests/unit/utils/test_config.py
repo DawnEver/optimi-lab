@@ -9,6 +9,7 @@ import pytest
 
 from optimi_lab.utils import config
 from optimi_lab.utils.config import Config, PathData, load_config, save_config
+from optimi_lab.utils.file_io import read_toml
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _SRC = _REPO_ROOT / 'src'
@@ -24,6 +25,25 @@ log_app_format = "%(levelname)s %(message)s %(asctime)s"
 log_date_format = "%m/%d/%Y %H:%M:%S"
 text_editor_command = "vim"
 """
+
+
+@pytest.fixture(autouse=True)
+def config_paths_are_left_where_they_were_found():
+    """No test in this module may repoint the config paths for the rest of the session.
+
+    ``PathData.config_file_path`` is a module global, so a test that assigns to it directly -- as
+    the ``save_config`` test here used to -- leaves every LATER test and any in-process consumer
+    resolving its config from a pytest temp directory. Patch through ``mocker.patch.object`` and
+    this fixture confirms the undo happened. Nothing else in the suite reads that path in-process
+    today, which is why the leak was silent rather than a red.
+    """
+    before = PathData.config_file_path, PathData.default_config_file_path
+
+    yield
+
+    assert (PathData.config_file_path, PathData.default_config_file_path) == before, (
+        'this test left a patched config path behind'
+    )
 
 
 def test_load_config_valid_file(tmp_path: Path):
@@ -50,10 +70,16 @@ def test_load_config_falls_back_to_defaults_when_the_file_is_absent(tmp_path: Pa
     assert config_obj.utils.text_editor_command == 'notepad.exe'
 
 
-def test_save_config(mocker, tmp_path):
-    """Test saving a configuration file."""
-    mocker.patch('optimi_lab.utils.config.save_toml')
-    config_obj = Config(
+@pytest.fixture
+def config_obj() -> Config:
+    """A ``Config`` whose fields make the write visible in the file it produces.
+
+    ``log_file_format`` and ``text_editor_command`` DIFFER from the model defaults, so they must
+    reach the file; ``log_console_format`` / ``log_app_format`` / ``log_date_format`` are set to
+    the values the model already defaults to, so they must NOT -- ``load_config`` refills them on
+    the next read.
+    """
+    return Config(
         core={},
         utils={
             'log_file_format': '%(asctime)s %(levelname)s %(message)s',
@@ -63,13 +89,56 @@ def test_save_config(mocker, tmp_path):
             'text_editor_command': '',
         },
     )
-    config_file_path = tmp_path / 'config.toml'
-    save_config(config_obj, config_file_path)
-    config.save_toml(file_path=config_file_path, dict_data=config_obj.model_dump(exclude_defaults=True))
 
-    PathData.config_file_path = config_file_path
+
+# What `save_config` must put on disk for `config_obj`: the fields differing from the model
+# defaults. Written out by hand rather than derived from `model_dump`, so that the assertions
+# below cannot agree with the code by construction -- they did, while this was a no-op test:
+# `save_toml` was mocked, so the function under test wrote nothing at all, and the file the
+# assertions saw held only the DEFAULT CONFIG that `check_path` had seeded.
+_SAVED_FIELDS = {
+    'core': {},
+    'utils': {
+        'log_file_format': '%(asctime)s %(levelname)s %(message)s',
+        'text_editor_command': '',
+    },
+}
+
+
+def test_save_config_writes_the_non_default_fields_to_the_path_it_is_given(config_obj: Config, tmp_path: Path):
+    """An explicit path is written directly, and the module global is left alone.
+
+    The parent directory does not exist yet, so this also pins that the write creates it.
+    """
+    config_file_path = tmp_path / 'nested' / 'config.toml'
+    configured_path_before = PathData.config_file_path
+
+    save_config(config_obj, config_file_path)
+
+    assert read_toml(config_file_path) == _SAVED_FIELDS
+    assert PathData.config_file_path == configured_path_before, 'an explicit path must not repoint the global'
+
+
+def test_save_config_without_a_path_writes_to_the_configured_path(config_obj: Config, mocker, tmp_path: Path):
+    """``config_file_path=None`` resolves ``PathData.config_file_path`` AT CALL TIME.
+
+    The paths are patched through ``mocker.patch.object`` rather than assigned, so the module
+    global is left exactly as it was found: the bare assignment this replaces leaked a temp path
+    into every later test in the session.
+    """
+    config_file_path = tmp_path / 'usr' / 'local' / 'config.toml'
+    default_config_file_path = tmp_path / 'usr' / 'default' / 'default.config.toml'
+    default_config_file_path.parent.mkdir(parents=True)
+    default_config_file_path.write_text(
+        "[core]\n\n[utils]\nresend_api_key='your resend api key here'\ntext_editor_command='start'\n",
+        encoding='utf-8',
+    )
+    mocker.patch.object(PathData, 'config_file_path', config_file_path)
+    mocker.patch.object(PathData, 'default_config_file_path', default_config_file_path)
+
     save_config(config_obj)
-    config.save_toml(file_path=config_file_path, dict_data=config_obj.model_dump(exclude_defaults=True))
+
+    assert read_toml(config_file_path) == _SAVED_FIELDS, 'the seeded default must be overwritten, not left behind'
 
 
 def test_utils_field_validator():
