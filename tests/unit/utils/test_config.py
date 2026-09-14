@@ -13,25 +13,23 @@ from optimi_lab.utils.config import Config, PathData, load_config, save_config
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 _SRC = _REPO_ROOT / 'src'
 
+# A user config file as the loader consumes it: the block names the model's fields, with a
+# value that DIFFERS from the in-code default so the read is visible in the result.
+_CONFIG_TOML = """[core]
+
+[utils]
+log_file_format = "%(asctime)s %(levelname)s %(message)s"
+log_console_format = "%(message)s %(asctime)s"
+log_app_format = "%(levelname)s %(message)s %(asctime)s"
+log_date_format = "%m/%d/%Y %H:%M:%S"
+text_editor_command = "vim"
+"""
+
 
 def test_load_config_valid_file(tmp_path: Path):
     """A config file that IS present is read, and its values land on the model."""
     config_file_path = tmp_path / 'config.toml'
-    config_file_path.write_text(
-        '\n'.join(
-            [
-                '[core]',
-                '',
-                '[utils]',
-                'log_file_format = "%(asctime)s %(levelname)s %(message)s"',
-                'log_console_format = "%(message)s %(asctime)s"',
-                'log_app_format = "%(levelname)s %(message)s %(asctime)s"',
-                'log_date_format = "%m/%d/%Y %H:%M:%S"',
-                'text_editor_command = "vim"',
-            ]
-        ),
-        encoding='utf-8',
-    )
+    config_file_path.write_text(_CONFIG_TOML, encoding='utf-8')
 
     config_obj = load_config(config_file_path)
 

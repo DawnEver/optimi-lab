@@ -1,8 +1,8 @@
 """Tests for MODE_Algorithm implementation"""
 
+import inspect
 from collections.abc import Callable
 from math import comb
-import inspect
 
 import numpy as np
 import pytest
