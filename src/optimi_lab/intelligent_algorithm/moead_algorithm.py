@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from math import comb
 
 import numpy as np
 
@@ -7,6 +8,35 @@ from optimi_lab.intelligent_algorithm.operators.mutation import PolynomialMutati
 from optimi_lab.utils.variable_space import VariableSpace
 
 from .intelligent_algorithm_base import IntelligentAlgorithmBase
+
+
+def das_dennis_partition_count(n_obj: int, pop_size: int) -> int:
+    """Smallest partition count whose Das-Dennis grid holds at least `pop_size` points.
+
+    The grid a Das-Dennis construction with `h` partitions over `n_obj` objectives produces
+    has ``C(h + n_obj - 1, n_obj - 1)`` points, so the count that COVERS a population is a
+    property of the population, not an estimate of it. Deriving `h` here is what makes the
+    3-objective path total: the subsampling step in :func:`generate_weight_vectors` picks
+    `pop_size` of the grid's points WITHOUT replacement, which raises the moment
+    `pop_size > len(grid)`.
+
+    Args:
+        n_obj (int): Number of objectives.
+        pop_size (int): Population size to cover.
+
+    Returns:
+        int: Partition count `h >= 1`.
+
+    Examples:
+        >>> from math import comb
+        >>> all(comb(das_dennis_partition_count(3, p) + 2, 2) >= p for p in range(1, 200))
+        True
+
+    """
+    h = 1
+    while comb(h + n_obj - 1, n_obj - 1) < pop_size:
+        h += 1
+    return h
 
 
 def tchebycheff_approach(objectives: np.ndarray, weight: np.ndarray, ideal_point: np.ndarray) -> float:
@@ -42,8 +72,10 @@ def generate_weight_vectors(n_obj: int, pop_size: int) -> np.ndarray:
         weights = np.linspace(0, 1, pop_size).reshape(-1, 1)
         weights = np.hstack([weights, 1 - weights])
     elif n_obj == 3:
-        # For 3-objective problems, use triangular grid
-        h = int(np.sqrt(2 * pop_size)) + 1  # Estimate grid size
+        # For 3-objective problems, use triangular grid. The partition count is DERIVED to
+        # cover pop_size (C(h+2, 2) >= pop_size), never estimated, so the grid is never
+        # smaller than the population it is subsampled to.
+        h = das_dennis_partition_count(n_obj=n_obj, pop_size=pop_size)
         i, j = np.meshgrid(np.arange(h + 1), np.arange(h + 1))
         i = i.flatten()
         j = j.flatten()
@@ -53,9 +85,12 @@ def generate_weight_vectors(n_obj: int, pop_size: int) -> np.ndarray:
         k = h - i - j
         weights = np.stack([i / h, j / h, k / h], axis=1)
         # If the generated weight vectors are more than needed, randomly sample
-        # to select the required number of weight vectors
-        indices = np.random.choice(len(weights), pop_size, replace=False)
-        weights = weights[indices]
+        # to select the required number of weight vectors. Sampling WITHOUT replacement
+        # needs the grid to be at least pop_size big, which the partition count guarantees;
+        # an equal-size grid is used as is.
+        if len(weights) > pop_size:
+            indices = np.random.choice(len(weights), pop_size, replace=False)
+            weights = weights[indices]
     else:
         # For higher-dimensional problems, use Dirichlet distribution
         weights = np.random.dirichlet(np.ones(n_obj), pop_size)

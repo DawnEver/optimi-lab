@@ -1,13 +1,18 @@
 """Tests for MODE_Algorithm implementation"""
 
 from collections.abc import Callable
+from math import comb
 import inspect
 
 import numpy as np
 import pytest
 
 from optimi_lab.intelligent_algorithm.mode_algorithm import MODE_Algorithm
-from optimi_lab.intelligent_algorithm.moead_algorithm import MOEAD_Algorithm, generate_weight_vectors
+from optimi_lab.intelligent_algorithm.moead_algorithm import (
+    MOEAD_Algorithm,
+    das_dennis_partition_count,
+    generate_weight_vectors,
+)
 from optimi_lab.intelligent_algorithm.mopso_algorithm import MOPSO_Algorithm
 from optimi_lab.intelligent_algorithm.nsga2_algorithm import NSGA2_Algorithm
 from optimi_lab.intelligent_algorithm.nsga3_algorithm import NSGA3_Algorithm
@@ -87,6 +92,30 @@ def zdt1_problem(x: np.ndarray) -> np.ndarray:
         g = np.ones(x.shape[0])
     f2 = g * (1 - np.sqrt(f1 / g))
     return np.column_stack([f1, f2])
+
+
+def three_objective_problem(x: np.ndarray) -> np.ndarray:
+    """Three-objective test problem: three quadratic bowls on the same box.
+
+    Exists so the 3-objective code paths (MOEA/D's Das-Dennis weight vectors, NSGA-III's
+    reference directions) are exercised end to end rather than only at the helper level.
+
+    Args:
+        x: input matrix, shape (pop_size, n_var)
+
+    Returns:
+        objective values matrix, shape (pop_size, 3)
+
+    """
+    if x.ndim == 1:
+        x = x.reshape(1, -1)
+    return np.column_stack(
+        [
+            np.sum(x**2, axis=1),
+            np.sum((x - 0.5) ** 2, axis=1),
+            np.sum((x - 1.0) ** 2, axis=1),
+        ]
+    )
 
 
 def display_results(algorithm: MODE_Algorithm):
@@ -261,8 +290,70 @@ def test_generate_weight_vectors(n_obj: int, pop_size: int, expected_weights: np
         assert np.allclose(weights, expected_weights)
 
 
+@pytest.mark.parametrize('pop_size', [1, 2, 3, 6, 7, 10, 45, 100, 201, 1000, 4999])
+def test_three_objective_weight_vectors_are_total(pop_size: int):
+    """Every population size yields exactly that many 3-objective weight vectors.
+
+    The 3-objective branch subsamples a Das-Dennis grid with
+    `np.random.choice(len(weights), pop_size, replace=False)`, which RAISES as soon as
+    `pop_size > len(weights)`. The grid is therefore built to cover the population before
+    any subsampling, and this sweeps the sizes that a fixed grid cannot serve at all.
+    """
+    weights = generate_weight_vectors(n_obj=3, pop_size=pop_size)
+
+    assert weights.shape == (pop_size, 3)
+    assert np.allclose(np.sum(weights, axis=1), 1.0)
+    assert np.all(weights >= 0)
+    assert len(np.unique(weights, axis=0)) == pop_size, 'the subsample must not repeat a direction'
+
+
+@pytest.mark.parametrize('pop_size', [1, 2, 3, 6, 7, 10, 45, 100, 201, 1000, 4999])
+def test_das_dennis_partition_count_covers_and_is_minimal(pop_size: int):
+    """The partition count covers `pop_size` points and is the smallest that does.
+
+    This is the invariant the subsample above depends on: a grid of `h` partitions over 3
+    objectives holds C(h+2, 2) points, and the old ``int(sqrt(2 * pop_size)) + 1`` estimate
+    was large enough only because of arithmetic, not by construction.
+    """
+    h = das_dennis_partition_count(n_obj=3, pop_size=pop_size)
+
+    assert comb(h + 2, 2) >= pop_size, f'h={h} does not cover pop_size={pop_size}'
+    if h > 1:
+        assert comb(h + 1, 2) < pop_size, f'h={h} is not minimal for pop_size={pop_size}'
+
+
+def test_three_objective_subsampling_never_asks_for_more_than_the_grid(monkeypatch):
+    """Plant the precondition of the subsample: size <= the grid it samples from.
+
+    ``np.random.choice(len(weights), pop_size, replace=False)`` raises from inside numpy the
+    moment ``pop_size`` exceeds the grid, so the grid size is asserted where it is consumed
+    instead of trusted. The wrapped ``choice`` records every call, and the sweep proves the
+    subsampling path really runs rather than being asserted about vacuously.
+    """
+    calls = []
+    real_choice = np.random.choice
+
+    def guarded_choice(a, size=None, replace=True, p=None):
+        population = a if isinstance(a, int) else len(a)
+        calls.append((population, size))
+        assert size is None or size <= population, (
+            f'subsampling {size} without replacement from a grid of {population} -- a Das-Dennis grid must '
+            'cover the population it is subsampled to'
+        )
+        return real_choice(a, size, replace, p)
+
+    monkeypatch.setattr(np.random, 'choice', guarded_choice)
+
+    for pop_size in (3, 7, 45, 1000):
+        assert generate_weight_vectors(n_obj=3, pop_size=pop_size).shape == (pop_size, 3)
+
+    assert calls, 'the subsample path was never exercised, so this guard proved nothing'
+    assert any(size < population for population, size in calls), 'no grid larger than the population was sampled'
+
+
 @pytest.mark.parametrize(
-    ('object_function', 'n_obj', 'max_replace'), [(single_objective_problem, 1, 3), (zdt1_problem, 2, 100)]
+    ('object_function', 'n_obj', 'max_replace'),
+    [(single_objective_problem, 1, 3), (zdt1_problem, 2, 100), (three_objective_problem, 3, 3)],
 )
 def test_moead(object_function: Callable, n_obj: int, max_replace: int):
     """Test MOEA/D algorithm"""
