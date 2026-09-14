@@ -67,6 +67,29 @@ class MockSurrogateModel(SurrogateModelBase):
         self._estimator = LinearRegression()
 
 
+class ConstantModel(SurrogateModelBase):
+    """Stub surrogate that predicts one fixed value and reports fixed scores.
+
+    Lets the COMBINATION rule be observed directly: with known per-model predictions and
+    known scores, the mixture's output identifies the weighting it used. The secondary scores
+    are fields too, so a rule that consults them (rather than R2 alone) cannot produce the
+    same number by coincidence.
+    """
+
+    model_type: str = 'constant'
+    constant: float = 0.0
+    r2: float = 1.0
+    mad: float = 1e-5
+    mae: float = 1e-5
+    rmse: float = 1e-5
+
+    def _predict(self, x: np.ndarray) -> np.ndarray:
+        return np.full((len(x), 1), self.constant)
+
+    def train(self, x: np.ndarray, y: np.ndarray) -> None:
+        self._score_dict = {'r2': self.r2, 'mad': self.mad, 'mae': self.mae, 'rmse': self.rmse}
+
+
 class TestSurrogateModelBase:
     """Test SurrogateModelBase functionality."""
 
@@ -363,6 +386,40 @@ class TestMixtureSurrogateModel:
         assert 'max' in WEIGHT_METHODS
         assert len(SURROGATE_MODEL_TYPES) == len(surrogate_model_pool_dict)
         assert 'pol' in SURROGATE_MODEL_TYPES
+
+    def test_mixture_weights_are_the_cross_validated_r2(self, model_params, sample_data):
+        """The mixture is the R2-weighted mean of the pool's predictions.
+
+        The rule that ran was buried in `if 1:`, with a Dempster-Shafer combination in the
+        unreachable `else` -- which itself held an `if 0:` whose body was `...`. The dead
+        branch is gone and the surviving rule is pinned here, so "what runs" is a decision
+        rather than a leftover. Two models predicting 2.0 (R2=3) and 10.0 (R2=1) must give
+        (2*3 + 10*1) / 4 = 4.0; the second model carries much better mad/mae/rmse, so a rule
+        that mixed those in would land near 10.0 instead.
+        """
+        model = MixtureSurrogateModel(**model_params)
+        model.build_surrogate_model_pool(
+            [
+                ConstantModel(constant=2.0, r2=3.0, mad=1.0, mae=1.0, rmse=1.0, **model_params),
+                ConstantModel(constant=10.0, r2=1.0, **model_params),
+            ]
+        )
+        X, y = sample_data
+        model.train(X, y)
+
+        predictions = model.predict(X[:5])
+
+        assert np.allclose(predictions, 4.0), (
+            f'the R2-weighted mean of 2.0 (R2=3) and 10.0 (R2=1) is 4.0, got {predictions.ravel()[:1]}'
+        )
+
+    def test_empty_model_pool_raises_instead_of_returning_a_number(self, model_params, sample_data):
+        """An empty pool RAISES rather than producing a silently wrong prediction."""
+        model = MixtureSurrogateModel(**model_params)
+        X, _ = sample_data
+
+        with pytest.raises(AttributeError, match='the surrogate model pool is empty'):
+            model.predict(X[:5])
 
     def test_build_surrogate_model_pool(self, model_params, sample_data):
         """Test building surrogate model pool."""

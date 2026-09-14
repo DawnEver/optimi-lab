@@ -87,8 +87,24 @@ class MixtureSurrogateModel(SurrogateModelBase):
         return surrogate_model_pool
 
     def _predict(self, x: np.ndarray) -> np.ndarray:
-        """Based on Dempster-Shafer theory"""
+        """Combine the pool's predictions, weighted by each model's cross-validated R².
+
+        The weight is `r2` alone. A Dempster-Shafer combination (reciprocals of mad/mae/rmse,
+        normalised into masses, then multiplied) used to sit in an `if 1:`-guarded `else`
+        branch -- unreachable, and itself containing an `if 0:` with a `...` placeholder. A
+        branch no input can reach is not a documented alternative; it is a decision nobody
+        made, so it is deleted and the rule that runs is stated here and pinned by
+        `test_mixture_weights_are_the_cross_validated_r2`.
+
+        Raises:
+            AttributeError: If the pool is empty -- there is nothing to weight.
+
+        """
         n_model = len(self._surrogate_model_pool)
+        if n_model == 0:
+            msg = 'the surrogate model pool is empty, add surrogate models before predicting'
+            log(msg=msg, level='ERROR')
+            raise AttributeError(msg)
         score_array = None
         y_pred_array = None
         for i_model in range(n_model):
@@ -105,19 +121,7 @@ class MixtureSurrogateModel(SurrogateModelBase):
                 score_array = np.zeros((n_model, len(scores)))
             y_pred_array[i_model] = y_pred
             score_array[i_model] = scores
-        if 1:
-            weight_array = score_array[:, 0]  # Use r2 only as the weight
-        else:
-            score_array[:, 1:] = 1 / score_array[:, 1:]  # use reciprocals for mad, mae, rmse
-            mass_array = score_array / np.sum(score_array, axis=0)[np.newaxis, :]
-
-            mass_array[np.isnan(mass_array)] = 0
-            if 0:
-                # BetP(θ_i) = ∑ θ_i∈B m(B) |A ∩ B|/|B| , ∀B ⊆ Θ
-                ...
-            else:
-                # Combine probabilities
-                weight_array = np.prod(mass_array, axis=1)
+        weight_array = score_array[:, 0]  # Use r2 only as the weight
         if np.all(weight_array == 0):
             msg = 'all surrogate models weights are invalid, please check the surrogate models'
             log(msg=msg, level='DEBUG')
