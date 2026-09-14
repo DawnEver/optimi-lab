@@ -437,7 +437,18 @@ class Optimizer(BaseModel_with_q, ABC):
     # -------------------
     # Save and load optimizer configuration
     # -------------------
-    def load_optimizer(self, file_path: Path = PathData.optimizer_file_path) -> bool:
+    def load_optimizer(self, file_path: Path = PathData.optimizer_file_path) -> None:
+        """Load optimizer state from a TOML state file.
+
+        Returns:
+            None: There is no return value -- the truth. The annotation used to claim
+                ``bool``, which NO path ever produced, so a caller testing the result read
+                every load -- including a failed one -- as success. State that cannot be
+                read RAISES instead (``OSError`` from the reader, ``ValidationError`` from
+                the models), so a caller that needs to know whether loading worked has an
+                exception to catch, not a return value to check.
+
+        """
         _dict = read_toml(file_path)
 
         self.variable_space = VariableSpace.model_validate(_dict['variable_space'])

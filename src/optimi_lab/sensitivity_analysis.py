@@ -32,7 +32,7 @@ def correlation_analysis(data_frame: pd.DataFrame, method: str = 'pearson') -> p
 def plot_matrix(
     data_frame: pd.DataFrame = None,
     savefig: bool = False,
-    fig_path: Path = PathData.default_fig_path,
+    fig_path: Path | str | None = None,
     use_abs: bool = True,
     ticks: list | None = None,
     fontsize: int = 16,
@@ -85,7 +85,8 @@ def plot_matrix(
 
     plt.colorbar(mappable=matrix_map, ticks=ticks)
     if savefig:
-        plt.savefig(fig_path)
+        # Resolved here for the same reason as plot(): see plot.py.
+        plt.savefig(fig_path or PathData.default_fig_path)
     return plt
 
 
@@ -96,7 +97,7 @@ def pair_plot(
     hist_kwds: dict | None = None,
     density_kwds: dict | None = None,
     savefig: bool = False,
-    fig_path: Path = PathData.default_fig_path,
+    fig_path: Path | str | None = None,
 ) -> plt:
     """Plot a scatterplot matrix.
 
@@ -184,5 +185,6 @@ def pair_plot(
     axs[0][0].yaxis.set_ticklabels(locs)
 
     if savefig:
-        plt.savefig(fig_path)
+        # Resolved here for the same reason as plot(): see plot.py.
+        plt.savefig(fig_path or PathData.default_fig_path)
     return plt

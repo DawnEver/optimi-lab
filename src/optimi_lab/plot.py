@@ -1,5 +1,6 @@
 import itertools
 import random
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -65,7 +66,7 @@ def plot(
     z_axis: str | None = None,
     axises: list[str] | None = None,
     savefig: bool = False,
-    fig_path: str = PathData.default_fig_path,
+    fig_path: Path | str | None = None,
     scatter: bool = True,
     plot: bool = True,
     surface: bool = False,
@@ -170,7 +171,10 @@ def plot(
     log(msg='Plot is done', level='DEBUG')
 
     if savefig:
-        plt.savefig(fig_path)
+        # Resolved HERE, not in the signature: a default argument is evaluated when this
+        # module is imported, and `PathData.default_fig_path` is run-scoped, so as a default
+        # it created the per-run output directory for anyone who merely imported the module.
+        plt.savefig(fig_path or PathData.default_fig_path)
     return plt
 
 
@@ -184,7 +188,7 @@ def plot_moo(
     z_axis: str | None = None,
     axises: list[str] | None = None,
     savefig: bool = False,
-    fig_path: str = PathData.default_fig_path,
+    fig_path: Path | str | None = None,
     draw_pareto_point: bool = False,
     draw_pareto_front: bool = False,
     xlabel: str | None = None,
@@ -298,7 +302,10 @@ def plot_moo(
     ax.legend()
     log(msg='Plot is done', level='DEBUG')
     if savefig:
-        plt.savefig(fig_path)
+        # Resolved HERE, not in the signature: a default argument is evaluated when this
+        # module is imported, and `PathData.default_fig_path` is run-scoped, so as a default
+        # it created the per-run output directory for anyone who merely imported the module.
+        plt.savefig(fig_path or PathData.default_fig_path)
     return plt
 
 
@@ -311,7 +318,7 @@ def plot_contour(
     z_axis: str | None = None,
     axises: list[str] | None = None,
     savefig: bool = False,
-    fig_path: str = PathData.default_fig_path,
+    fig_path: Path | str | None = None,
     xlabel: str | None = None,
     ylabel: str | None = None,
     zlabel: str | None = None,
@@ -410,5 +417,8 @@ def plot_contour(
 
     plt.colorbar(mappable=conter_plot)
     if savefig:
-        plt.savefig(fig_path)
+        # Resolved HERE, not in the signature: a default argument is evaluated when this
+        # module is imported, and `PathData.default_fig_path` is run-scoped, so as a default
+        # it created the per-run output directory for anyone who merely imported the module.
+        plt.savefig(fig_path or PathData.default_fig_path)
     return plt

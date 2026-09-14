@@ -1,5 +1,6 @@
 """Core unit tests for the `Optimizer` class."""
 
+import inspect
 from collections.abc import Callable
 from pathlib import Path
 
@@ -337,6 +338,26 @@ class TestOptimizer:
         # Check loaded state matches original
         assert np.array_equal(new_optimizer._all_inputs, simple_optimizer._all_inputs)
         assert np.array_equal(new_optimizer._all_outputs, simple_optimizer._all_outputs)
+
+    def test_load_optimizer_is_declared_as_returning_nothing(self, simple_optimizer: Optimizer, tmp_path: Path):
+        """`load_optimizer` returns no value, and its annotation says so.
+
+        It was annotated `-> bool` while returning `None` on EVERY path, so a caller that
+        wrote `if optimizer.load_optimizer(path):` read a load that had succeeded as a
+        failure. What the method actually reports is that it RAISES, which is what the
+        annotation must convey.
+        """
+        signature = inspect.signature(Optimizer.load_optimizer)
+        assert signature.return_annotation in (None, 'None'), (
+            f'load_optimizer is annotated {signature.return_annotation!r} but returns no value on any path'
+        )
+
+        optimizer_path = tmp_path / 'state.toml'
+        simple_optimizer.save_optimizer(str(optimizer_path))
+        assert simple_optimizer.load_optimizer(str(optimizer_path)) is None
+
+        with pytest.raises(OSError, match='Failed to open file'):
+            simple_optimizer.load_optimizer(str(tmp_path / 'absent.toml'))
 
 
 if __name__ == '__main__':
