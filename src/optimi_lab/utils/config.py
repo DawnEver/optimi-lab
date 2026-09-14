@@ -12,17 +12,34 @@ from .quantities import BaseModel_with_q, pydantic_config_dict_with_q_case_insen
 __all__ = ['CONF', 'PathData', 'load_config', 'save_config']
 
 
-# An editable / source checkout lives under '<root>/src/optimi_lab/...'; an
-# installed wheel lives under '<site-packages>/optimi_lab/...' with no 'src'
-# component. Anchor writable state to the repo root in the former case and to the
-# current working directory in the latter, so importing the installed package
-# never raises (and never writes into site-packages).
+# An editable / source checkout lives under '<root>/src/optimi_lab/...'; an installed wheel
+# lives under '<site-packages>/optimi_lab/...' with no 'src' component. The root is a
+# property of WHERE THE CODE IS, never of who is running it:
+#
+#   - checkout  -> the repository root, so '<root>/usr/local/config.toml' and
+#                  '<root>/output/' keep working exactly as before;
+#   - wheel     -> the package's own directory ('<site-packages>/optimi_lab'), derived from
+#                  this file the same way in both cases.
+#
+# `Path.cwd()` is deliberately NOT a fallback. A config path resolved from the caller's cwd
+# points at '<cwd>/usr/local/config.toml', which is not a config file anybody wrote: on a
+# consumer box every interpreter start that imported this module logged
+# 'Failed to open file <cwd>/usr/local/config.toml!' at ERROR, and the per-run output
+# directory was created under whatever directory the host happened to be in.
 # NOTE: pass an in-repo anchor (`start=Path(__file__)`) explicitly -- lab_commons'
 # `_detect_repo_root()` defaults its upward search to ITS OWN `__file__`, which is
 # site-packages once lab_commons is installed as a dependency, so it would never
 # detect the optimi-lab source checkout otherwise (motronics hit the same bug first;
 # see motronics-studio's plan-lab-commons-standalone.md PHASE 2).
-root_path = _detect_repo_root(start=Path(__file__)) or Path.cwd()
+_repo_root = _detect_repo_root(start=Path(__file__))
+_is_checkout = _repo_root is not None
+root_path = _repo_root or Path(__file__).resolve().parents[1]
+
+# Writable per-run state is the one path that must NOT be package-relative in a wheel
+# ('<site-packages>/optimi_lab/output/...' is not ours to write to): in a checkout it stays
+# '<root>/output' as before, and in a wheel it is left to lab_commons' platform-aware
+# `output_root()` ('OPTIMI_LAB_HOME', else platformdirs). None means "let lab_commons decide".
+_output_root = (root_path / 'output') if _is_checkout else None
 
 
 class classproperty:
@@ -81,11 +98,13 @@ class PathData:
     def log_folder_path(cls) -> Path:
         """Per-run log output directory, created on first access.
 
-        Delegates to ``lab_commons.paths.run_output_dir()`` so the directory is
-        created lazily (no import-time filesystem write) and the path is memoized
-        per process via the shared ``run_date()`` / ``run_stamp()``.
+        Delegates to ``lab_commons.paths.run_output_dir()`` so the directory is created
+        lazily (no import-time filesystem write) and the path is memoized per process via
+        the shared ``run_date()`` / ``run_stamp()``. ``root`` is the checkout's ``output/``
+        when there is a checkout and is left to lab_commons (``OPTIMI_LAB_HOME``, else
+        platformdirs) in an installed wheel -- see ``_output_root``.
         """
-        return run_output_dir('optimi-lab', root=cls.root_path_abs / 'output')
+        return run_output_dir('optimi-lab', root=_output_root)
 
     @classproperty
     def case_workdir_path(cls) -> Path:
@@ -171,10 +190,16 @@ def load_config(config_file_path: Path = PathData.config_file_path) -> Config:
     Falls back to the in-code defaults when the config file is absent (e.g. a
     packaged install that ships no user config), so importing the library never
     requires a writable/pre-populated config directory.
+
+    Absence is tested EXPLICITLY instead of being caught from the reader: ``read_toml``
+    logs 'Failed to open file <path>!' at ERROR before raising its OSError, so the old
+    try/except still PRINTED that line for a file that is merely optional and absent --
+    on a consumer box, once per interpreter start. A missing optional file is the normal
+    case, not an error. A file that exists but does not parse still raises.
     """
-    try:
+    if Path(config_file_path).is_file():
         config_data = read_toml(config_file_path)
-    except (FileNotFoundError, OSError):
+    else:
         config_data = {}
     config_data.setdefault('core', {})
     config_data.setdefault('utils', {})
