@@ -213,11 +213,15 @@ class Optimizer(BaseModel_with_q, ABC):
         for surrogate_model in self.mixture_surrogate_model._surrogate_model_pool:
             surrogate_model.train(inputs, outputs)
 
-    def save_surrogate_models(self, file_path: str = PathData.surrogate_model_path):
+    def save_surrogate_models(self, file_path: Path | str | None = None):
         """Save surrogate model object to the specified path.
 
         Args:
-            file_path (str): Path to save the surrogate model (default: PathData.surrogate_model_path).
+            file_path (Path | str | None): Path to save the surrogate model; None (the
+                default) resolves ``PathData.surrogate_model_path`` AT CALL TIME. It cannot be
+                the default argument's value: a default is evaluated when this MODULE is
+                imported, and that path is run-scoped, so the default used to create the
+                per-run output directory for every consumer that merely imported the module.
 
         Raises:
             FileNotFoundError: If the path does not exist or is not writable.
@@ -227,20 +231,24 @@ class Optimizer(BaseModel_with_q, ABC):
             msg = 'Surrogate model function is not initialized. Train or load a surrogate model first.'
             log(msg, level='ERROR')
             raise AttributeError(msg)
+        file_path = PathData.surrogate_model_path if file_path is None else file_path
         with Path(file_path).open('wb') as f:
             pickle.dump(self.mixture_surrogate_model, f)
         log('Surrogate model function saved successfully.', level='DEBUG')
 
-    def load_surrogate_models(self, file_path: str = PathData.surrogate_model_path):
+    def load_surrogate_models(self, file_path: Path | str | None = None):
         """Load surrogate model object from the specified path.
 
         Args:
-            file_path (str): Path to the surrogate model file (default: PathData.surrogate_model_path).
+            file_path (Path | str | None): Path to the surrogate model file; None (the
+                default) resolves ``PathData.surrogate_model_path`` at call time -- see
+                :meth:`save_surrogate_models` for why it cannot be a default argument.
 
         Raises:
             FileNotFoundError: If the file does not exist or cannot be read.
 
         """
+        file_path = PathData.surrogate_model_path if file_path is None else file_path
         with Path(file_path).open('rb') as f:
             self.mixture_surrogate_model = pickle.load(f)  # noqa: S301
             log('Surrogate model function loaded successfully.', level='DEBUG')
@@ -437,8 +445,14 @@ class Optimizer(BaseModel_with_q, ABC):
     # -------------------
     # Save and load optimizer configuration
     # -------------------
-    def load_optimizer(self, file_path: Path = PathData.optimizer_file_path) -> None:
+    def load_optimizer(self, file_path: Path | str | None = None) -> None:
         """Load optimizer state from a TOML state file.
+
+        Args:
+            file_path (Path | str | None): State file to read; None (the default) resolves
+                ``PathData.optimizer_file_path`` at CALL time, never as a default argument --
+                a default is evaluated when this module is imported, and that path is
+                run-scoped, so it used to create the per-run output directory at import.
 
         Returns:
             None: There is no return value -- the truth. The annotation used to claim
@@ -449,6 +463,7 @@ class Optimizer(BaseModel_with_q, ABC):
                 exception to catch, not a return value to check.
 
         """
+        file_path = PathData.optimizer_file_path if file_path is None else file_path
         _dict = read_toml(file_path)
 
         self.variable_space = VariableSpace.model_validate(_dict['variable_space'])
@@ -470,7 +485,15 @@ class Optimizer(BaseModel_with_q, ABC):
 
         log('Load optimization config is done', level='DEBUG')
 
-    def save_optimizer(self, file_path: Path = PathData.optimizer_file_path):
+    def save_optimizer(self, file_path: Path | str | None = None):
+        """Save optimizer state to a TOML state file.
+
+        Args:
+            file_path (Path | str | None): State file to write; None (the default) resolves
+                ``PathData.optimizer_file_path`` at call time -- see :meth:`load_optimizer`.
+
+        """
+        file_path = PathData.optimizer_file_path if file_path is None else file_path
         _dict = {
             'variable_space': self.variable_space.model_dump(mode='python'),
             'mp_params': self.mp_params.model_dump(mode='json')
