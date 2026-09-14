@@ -1,6 +1,7 @@
 """Tests for MODE_Algorithm implementation"""
 
 from collections.abc import Callable
+import inspect
 
 import numpy as np
 import pytest
@@ -122,6 +123,24 @@ def test_no_obj_func():
         nsga2.minimize()
 
 
+@pytest.mark.parametrize(
+    'algorithm_class', [MODE_Algorithm, MOPSO_Algorithm, NSGA2_Algorithm, NSGA3_Algorithm]
+)
+def test_selection_operator_is_spelled_the_same_by_every_algorithm(algorithm_class):
+    """Every algorithm takes its environmental selector as `selection_operator`.
+
+    One spelling for one concept: MODE called it `select_operator` while its four siblings
+    said `selection_operator`, so a caller could not move a selector between algorithms.
+    """
+    parameters = inspect.signature(algorithm_class.__init__).parameters
+
+    assert 'selection_operator' in parameters, f'{algorithm_class.__name__} must accept `selection_operator`'
+    assert 'select_operator' not in parameters, (
+        f'{algorithm_class.__name__} accepts `select_operator` -- the four sibling algorithms all say '
+        '`selection_operator`, and only one spelling may survive'
+    )
+
+
 def test_callback_fires_once_per_iteration():
     """`callback` is invoked exactly once per iteration.
 
@@ -200,7 +219,7 @@ def test_mode(object_function, n_obj):
         max_iter=max_iter,
         mutation_operator=PolynomialMutation(),
         crossover_operator=BinomialCrossover(),
-        select_operator=ParetoSelection(n_selected=pop_size),
+        selection_operator=ParetoSelection(n_selected=pop_size),
     )
     # Run algorithm
     mode.minimize()

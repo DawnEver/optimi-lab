@@ -37,7 +37,7 @@ class MODE_Algorithm(IntelligentAlgorithmBase):
         object_function: Callable | None = None,
         mutation_operator: DifferentialMutation = None,
         crossover_operator: BinomialCrossover = None,
-        select_operator: ParetoCrowdingSelection = None,
+        selection_operator: ParetoCrowdingSelection = None,
     ) -> None:
         super().__init__(
             object_function=object_function,
@@ -48,7 +48,7 @@ class MODE_Algorithm(IntelligentAlgorithmBase):
         )
         self._mutation_operator = mutation_operator or DifferentialMutation()
         self._crossover_operator = crossover_operator or BinomialCrossover()
-        self._selection_operator = select_operator or ParetoCrowdingSelection(n_selected=pop_size)
+        self._selection_operator = selection_operator or ParetoCrowdingSelection(n_selected=pop_size)
 
     def _step(self):
         """Perform one iteration (implemented in parallel for performance)."""
