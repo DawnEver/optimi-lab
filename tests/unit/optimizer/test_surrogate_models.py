@@ -119,6 +119,35 @@ class TestSurrogateModelBase:
         with pytest.raises(KeyError, match='validate method invalid_method is not supported'):
             model.train(X, y)
 
+    @pytest.mark.parametrize('validate_method', VALIDATE_METHODS)
+    def test_final_model_is_trained_on_the_full_data(self, model_params, sample_data, validate_method):
+        """The model kept for prediction has seen EVERY sample, not the last fold's test split.
+
+        `train` fits one model per fold to SCORE, then fits the final model -- the one
+        `predict` uses. The comment said "Train on full data for final prediction" while the
+        code fitted that model on the last fold's TEST split: a third of the data at the
+        default `n_splits=3`, and a different third on every shuffle. The final fit's row
+        count is recorded here, so a fold-sized final fit is visible rather than inferred.
+        """
+        fit_sizes = []
+
+        class RecordingEstimator(LinearRegression):
+            def fit(self, x, y, **kwargs):
+                fit_sizes.append(len(x))
+                return super().fit(x, y, **kwargs)
+
+        params = {**model_params, 'do_calc_score': True, 'validate_method': validate_method}
+        model = MockSurrogateModel(**params)
+        model._estimator = RecordingEstimator()
+
+        X, y = sample_data
+        model.train(X, y)
+
+        assert fit_sizes[-1] == len(X), (
+            f'the final model was fitted on {fit_sizes[-1]} of {len(X)} rows -- the scoring folds must not '
+            'decide what the prediction model is fitted on'
+        )
+
 
 class TestUtils:
     """Test utility functions."""

@@ -121,11 +121,12 @@ class SurrogateModelBase(BaseModel_with_q, ABC):
                 else:
                     y_tests = np.concatenate((y_tests, y_test), axis=0)
             self._score_dict = score_regression(y_preds, y_tests, self.score_methods)
-            x_res2train, y_res2train = x_test, y_test
-        else:
-            x_res2train, y_res2train = x, y
-        # Train on full data for final prediction
-        self._train(x_res2train, y_res2train, from_zero=False)
+        # Train on full data for final prediction. The folds above exist to SCORE the model
+        # (their predictions are concatenated into `y_preds`); the model that is kept is the
+        # one the caller predicts with, so it must see every sample. It used to be fitted on
+        # the last fold's TEST split -- a third of the data under the default 3-fold setup,
+        # and a different third depending on the shuffle -- while the comment said otherwise.
+        self._train(x, y, from_zero=False)
 
     def check_valid(self, var_name_list: list[str], obj_name_list: list[str]) -> bool:
         self._valid = (var_name_list == self.var_name_list) and (obj_name_list == self.obj_name_list)
