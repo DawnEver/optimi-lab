@@ -64,6 +64,28 @@ class NSGA2_Algorithm(IntelligentAlgorithmBase):
         self._crossover_operator = crossover_operator or SimulatedBinaryCrossover()
         self._selection_operator = selection_operator or ParetoCrowdingSelection(n_selected=pop_size)
 
+    def _pair_parents(self, parent_indices: np.ndarray) -> np.ndarray:
+        """Pair the selected parents into ``(pop_size, 2)`` index pairs.
+
+        Every individual is the FIRST parent of exactly one pair, matched with its neighbour
+        in the selection order: the individual AHEAD of it for an even slot, the one BEHIND
+        it for an odd slot. The order is a RING, not a list -- with an odd population the
+        last slot is even and its "ahead" neighbour is index 0. That wrap used to be written
+        as a bare ``parent_indices[0]``, which reads as a fallback to a fixed parent rather
+        than as the ring it is; it is now the same modulo every other slot goes through, so
+        no slot can silently reuse a parent the rule did not choose.
+
+        Args:
+            parent_indices (np.ndarray): Selected parent indices in selection order, shape (pop_size,).
+
+        Returns:
+            np.ndarray: Parent index pairs, shape (pop_size, 2).
+
+        """
+        slots = np.arange(self._pop_size)
+        partner_slots = np.where(slots % 2 == 0, (slots + 1) % self._pop_size, (slots - 1) % self._pop_size)
+        return np.column_stack([parent_indices, parent_indices[partner_slots]])
+
     def _perform_crossover(self, parents_inputs: np.ndarray) -> np.ndarray:
         """Perform crossover to generate offspring.
 
@@ -95,16 +117,7 @@ class NSGA2_Algorithm(IntelligentAlgorithmBase):
         parent_indices = self._parent_selection_operator.do(fitness=self._current_outputs)
 
         # Reorganize parents into pairs with shape (pop_size, 2)
-        parent_pairs = np.zeros((self._pop_size, 2), dtype=int)
-        for i in range(self._pop_size):
-            if i % 2 == 0:
-                # Even indices: take current and next
-                parent_pairs[i, 0] = parent_indices[i]
-                parent_pairs[i, 1] = parent_indices[i + 1] if i + 1 < self._pop_size else parent_indices[0]
-            else:
-                # Odd indices: take current and previous
-                parent_pairs[i, 0] = parent_indices[i]
-                parent_pairs[i, 1] = parent_indices[i - 1]
+        parent_pairs = self._pair_parents(parent_indices)
 
         parents_inputs = self._current_inputs[parent_pairs]
 

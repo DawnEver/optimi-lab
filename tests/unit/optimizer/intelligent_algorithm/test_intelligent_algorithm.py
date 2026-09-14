@@ -192,6 +192,47 @@ def test_callback_fires_once_per_iteration():
     assert calls == list(range(max_iter)), 'callback must fire once per iteration, with the iteration index'
 
 
+@pytest.mark.parametrize('population', [4, 5, 9])
+def test_nsga2_parent_pairs_wrap_cyclically(population: int):
+    """The mating pairs are cyclic neighbours in the selection order -- including the wrap.
+
+    Planted with a NON-trivial selection order (a reversal, so no value equals its slot) and
+    asserted as a property: each individual is the first parent of exactly one pair, and its
+    partner is a cyclic neighbour. The old code's wrap was a bare `parent_indices[0]` for
+    the last even slot; on an odd population that IS the cyclic neighbour, but nothing in
+    the code said so, so a reader could not tell it from a fallback to a fixed parent.
+    """
+    algorithm = NSGA2_Algorithm(
+        variable_space=variable_space,
+        n_obj=2,
+        pop_size=population,
+        max_iter=1,
+    )
+    order = np.arange(population)[::-1]
+
+    pairs = algorithm._pair_parents(order)
+
+    # The rule, written out independently of the implementation.
+    expected = np.array(
+        [
+            (order[slot], order[(slot + 1) % population] if slot % 2 == 0 else order[(slot - 1) % population])
+            for slot in range(population)
+        ]
+    )
+    np.testing.assert_array_equal(pairs, expected)
+
+    positions = {individual: slot for slot, individual in enumerate(order)}
+    assert sorted(pairs[:, 0]) == sorted(order), 'every individual must be the first parent of exactly one pair'
+    for first, second in pairs:
+        gap = abs(positions[first] - positions[second])
+        assert min(gap, population - gap) == 1, f'{first} and {second} are not cyclic neighbours'
+
+    if population % 2 == 1:
+        last_pair = pairs[-1]
+        assert last_pair[1] == order[0], 'an odd population wraps the last slot to the first individual'
+        assert last_pair[0] == order[-1]
+
+
 @pytest.mark.parametrize(('object_function', 'n_obj'), [(single_objective_problem, 1), (zdt1_problem, 2)])
 def test_nsga2(object_function, n_obj):
     """Main test"""
