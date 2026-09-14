@@ -45,6 +45,14 @@ class NSGA3_Algorithm(NSGA2_Algorithm):
         crossover_operator: SimulatedBinaryCrossover = None,
         selection_operator: ParetoRefSelection = None,
     ) -> None:
+        # DELIBERATELY skips NSGA2_Algorithm.__init__ and calls the base directly: NSGA-III
+        # replaces every operator NSGA-II's __init__ would install, and the one it would
+        # install here -- ParetoCrowdingSelection -- is the very operator NSGA-III exists to
+        # replace, so building it only to discard it would be dead work (and an extra way to
+        # fail, since a selector requires n_selected > 1). The base call is what sets the
+        # state both algorithms share (_n_var/_n_obj/_pop_size, the empty archives).
+        # Consequence to keep in mind: this list of four operators is what NSGA-III owes the
+        # base, so a new inherited attribute that needs initialising must be handled here.
         super(NSGA2_Algorithm, self).__init__(
             object_function=object_function,
             variable_space=variable_space,

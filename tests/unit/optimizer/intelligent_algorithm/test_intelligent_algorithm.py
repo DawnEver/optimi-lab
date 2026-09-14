@@ -170,6 +170,37 @@ def test_selection_operator_is_spelled_the_same_by_every_algorithm(algorithm_cla
     )
 
 
+def test_nsga3_supplies_its_own_operators_and_skips_nsga2s_defaults():
+    """NSGA-III's `super(NSGA2_Algorithm, self).__init__(...)` is intentional, not a slip.
+
+    It replaces all four operators NSGA-II's `__init__` would install, and the one NSGA-II
+    would install -- `ParetoCrowdingSelection` -- is precisely the operator NSGA-III exists
+    to replace, so calling that `__init__` would build a selector only to throw it away.
+    Two things are asserted instead of the skip being trusted:
+
+    - the four operators really are NSGA-III's own (`ParetoRefSelection`, not
+      `ParetoCrowdingSelection`);
+    - the BASE initialisation did run, i.e. the shared state NSGA-III relies on is present.
+    """
+    nsga3 = NSGA3_Algorithm(
+        variable_space=variable_space,
+        n_obj=3,
+        pop_size=pop_size,
+        max_iter=max_iter,
+    )
+
+    assert isinstance(nsga3._selection_operator, ParetoRefSelection)
+    assert not isinstance(nsga3._selection_operator, ParetoCrowdingSelection)
+    assert isinstance(nsga3._parent_selection_operator, TournamentSelection)
+    assert isinstance(nsga3._mutation_operator, PolynomialMutation)
+    assert isinstance(nsga3._crossover_operator, SimulatedBinaryCrossover)
+    assert nsga3._n_obj == 3
+    assert nsga3._pop_size == pop_size
+    assert nsga3._n_var == n_var
+    assert nsga3._all_outputs.shape == (0, 3)
+    assert nsga3._pareto_outputs.shape == (0, 3)
+
+
 def test_callback_fires_once_per_iteration():
     """`callback` is invoked exactly once per iteration.
 
