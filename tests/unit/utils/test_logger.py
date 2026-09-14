@@ -1,3 +1,4 @@
+import importlib
 import logging
 from io import StringIO
 
@@ -5,15 +6,29 @@ import pytest
 
 from optimi_lab.utils import logger
 
+# lab_commons' active-logger global: the module-level ``log``/``timer`` helpers write to
+# ONE process-global logger, so reading AND restoring it is what keeps this fixture from
+# leaking a routing redirect into the rest of the session.
+_lab_log = importlib.import_module('lab_commons.log')
+
 
 @pytest.fixture
 def log_capture():
+    """Capture optimi-lab's log output on the ``'optimi_lab'`` named logger.
+
+    Routing is opt-in now (importing this module no longer binds anything), so the fixture
+    asks for it explicitly -- the same call ``add_handle()`` makes -- and puts the previous
+    active logger back afterwards.
+    """
+    previous_active = _lab_log._active_logger
+    logger.bind_active_logger()
     log_stream = StringIO()
     handler = logging.StreamHandler(log_stream)
     logger.logger.addHandler(handler)
     yield log_stream
     logger.logger.removeHandler(handler)
     log_stream.close()
+    _lab_log.set_active_logger(previous_active)
 
 
 def test_log_with_capture(log_capture):
