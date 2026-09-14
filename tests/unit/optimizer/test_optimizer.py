@@ -6,10 +6,12 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
 
 from optimi_lab.intelligent_algorithm.mode_algorithm import MODE_Algorithm
 from optimi_lab.optimizer import Optimizer
 from optimi_lab.surrogate_model.mixture_surrogate_model import MixtureSurrogateModel
+from optimi_lab.utils.file_io import read_toml
 from optimi_lab.utils.variable_space import VariableSpace
 
 
@@ -43,8 +45,8 @@ class TestOptimizer:
 
     @pytest.fixture(
         params=[
-            {'use_multiprocessing': False, 'log_at_opt': False},
-            {'use_multiprocessing': True, 'log_at_opt': True},
+            {'log_at_opt': False},
+            {'log_at_opt': True},
         ]
     )
     def simple_optimizer(
@@ -57,7 +59,6 @@ class TestOptimizer:
             obj_name_list=['f1@oc0@max', 'f2@oc0@min', 'f3@oc3@max'],
             base_params_dict_list=[{}],
             obj_func=simple_obj_func,
-            use_multiprocessing=cfg['use_multiprocessing'],
             use_surrogate_model=False,
             log_at_opt=cfg['log_at_opt'],
         )
@@ -81,7 +82,6 @@ class TestOptimizer:
             obj_name_list=['f1@oc0@min', 'f2@oc0@max'],
             base_params_dict_list=[{}, {}],
             obj_func=simple_obj_func,
-            use_multiprocessing=True,
             use_surrogate_model=False,
             log_at_opt=True,
         )
@@ -90,7 +90,6 @@ class TestOptimizer:
             obj_name_list=['f1@oc0@min', 'f2@oc1@max'],
             base_params_dict_list=[{}],
             obj_func=simple_obj_func,
-            use_multiprocessing=True,
             use_surrogate_model=False,
             log_at_opt=True,
         )
@@ -363,7 +362,6 @@ class TestOptimizer:
             obj_name_list=simple_optimizer.obj_name_list,
             base_params_dict_list=simple_optimizer.base_params_dict_list,
             obj_func=simple_optimizer.obj_func,
-            use_multiprocessing=simple_optimizer.use_multiprocessing,
             log_at_opt=simple_optimizer.log_at_opt,
         )
         new_optimizer.load_optimizer(str(optimizer_path))
@@ -371,6 +369,29 @@ class TestOptimizer:
         # Check loaded state matches original
         assert np.array_equal(new_optimizer._all_inputs, simple_optimizer._all_inputs)
         assert np.array_equal(new_optimizer._all_outputs, simple_optimizer._all_outputs)
+
+    def test_use_multiprocessing_is_not_a_declared_knob(self, simple_optimizer: Optimizer, tmp_path: Path):
+        """`use_multiprocessing` is gone: no code path ever read it.
+
+        It defaulted to True, was written to and read from the state TOML, and NOTHING
+        consumed it -- parallelization is the OBJECTIVE FUNCTION's, as the algorithm base
+        docstring says, so the field advertised a behaviour the code never had. Because the
+        model forbids extra fields, a caller that still passes it now RAISES instead of being
+        silently ignored, and a state file written by the old code still loads (the key is
+        simply not read).
+        """
+        assert 'use_multiprocessing' not in Optimizer.model_fields
+        with pytest.raises(ValidationError):
+            Optimizer(
+                variable_space=simple_optimizer.variable_space,
+                obj_name_list=simple_optimizer.obj_name_list,
+                obj_func=simple_optimizer.obj_func,
+                use_multiprocessing=True,
+            )
+
+        state_path = tmp_path / 'state.toml'
+        simple_optimizer.save_optimizer(str(state_path))
+        assert 'use_multiprocessing' not in read_toml(state_path), 'the state file must not carry a knob nothing reads'
 
     def test_load_optimizer_is_declared_as_returning_nothing(self, simple_optimizer: Optimizer, tmp_path: Path):
         """`load_optimizer` returns no value, and its annotation says so.

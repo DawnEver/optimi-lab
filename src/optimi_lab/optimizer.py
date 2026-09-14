@@ -36,7 +36,6 @@ class Optimizer(BaseModel_with_q, ABC):
         intelligent_algorithm (IntelligentAlgorithmBase): Algorithm object used to perform optimization.
         mixture_surrogate_model (MixtureSurrogateModel): Combined surrogate model object.
 
-        use_multiprocessing (bool): Whether to use multiprocessing.
         use_surrogate_model (bool): Whether to use surrogate models.
         log_at_opt (bool): Whether to log during optimization.
 
@@ -60,7 +59,6 @@ class Optimizer(BaseModel_with_q, ABC):
     obj_func: Callable = None
     intelligent_algorithm: IntelligentAlgorithmBase | None = None
     mixture_surrogate_model: MixtureSurrogateModel | None = None
-    use_multiprocessing: bool = True
     use_surrogate_model: bool = False
     log_at_opt: bool = True
 
@@ -472,7 +470,6 @@ class Optimizer(BaseModel_with_q, ABC):
         # self.intelligent_algorithm = _dict['intelligent_algorithm']
         # self.mixture_surrogate_model = _dict['mixture_surrogate_model']
         self.base_params_dict_list = _dict['base_params_dict_list']
-        self.use_multiprocessing = _dict['use_multiprocessing']
         self.use_surrogate_model = _dict['use_surrogate_model']
         self.log_at_opt = _dict['log_at_opt']
         self.obj_name_list = _dict['obj_name_list']
@@ -502,7 +499,6 @@ class Optimizer(BaseModel_with_q, ABC):
             # 'obj_func': self.obj_func,
             # 'intelligent_algorithm': self.intelligent_algorithm,
             # 'mixture_surrogate_model': self.mixture_surrogate_model,
-            'use_multiprocessing': self.use_multiprocessing,
             'use_surrogate_model': self.use_surrogate_model,
             'log_at_opt': self.log_at_opt,
             'obj_name_list': self.obj_name_list,
