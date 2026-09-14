@@ -215,6 +215,39 @@ class TestOptimizer:
         simple_optimizer.plot_contour(data_frame=simple_optimizer.get_dataframe(category='all'))
         simple_optimizer.plot_contour()
 
+    def test_surrogate_files_are_opened_through_a_path_instance(self, simple_optimizer: Optimizer, tmp_path: Path):
+        """Surrogate state is opened through a `Path` INSTANCE, and a `str` path works too.
+
+        The call was `Path.open(file_path, mode)`: an instance method invoked on the class,
+        which only works because `Path.__new__` swallows the first argument as `self`. Any
+        change to that construction silently changes WHICH file is opened, so the file's
+        source is scanned for the unbound form -- and the round trip is exercised with a
+        `str`, which is the other half of the parameter's declared type.
+        """
+        source = Path(inspect.getsourcefile(Optimizer)).read_text(encoding='utf-8')
+        assert 'Path.open(' not in source, (
+            'an instance method is being called on the Path class with the path as its first argument; use '
+            'Path(file_path).open(mode) so the target file is stated, not implied'
+        )
+
+        surrogate_model = MixtureSurrogateModel(
+            model_type='mixture',
+            var_name_list=simple_optimizer.variable_space.var_name_list,
+            obj_name_list=simple_optimizer.obj_name_list,
+        )
+        surrogate_model.build_surrogate_model_pool(surrogate_model_pool=[{'model_type': 'pol', 'polinomial_order': 2}])
+        simple_optimizer.mixture_surrogate_model = surrogate_model
+        simple_optimizer.sample_sweep()
+        simple_optimizer.train_surrogate_models()
+
+        str_path = str(tmp_path / 'state_as_str.pkl')
+        simple_optimizer.save_surrogate_models(str_path)
+        assert Path(str_path).exists()
+
+        simple_optimizer.mixture_surrogate_model = None
+        simple_optimizer.load_surrogate_models(str_path)
+        assert simple_optimizer.mixture_surrogate_model is not None
+
     def test_surrogate_model_prediction(self, simple_optimizer: Optimizer):
         """Test surrogate model prediction"""
         # Set up surrogate model

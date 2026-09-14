@@ -227,7 +227,7 @@ class Optimizer(BaseModel_with_q, ABC):
             msg = 'Surrogate model function is not initialized. Train or load a surrogate model first.'
             log(msg, level='ERROR')
             raise AttributeError(msg)
-        with Path.open(file_path, 'wb') as f:
+        with Path(file_path).open('wb') as f:
             pickle.dump(self.mixture_surrogate_model, f)
         log('Surrogate model function saved successfully.', level='DEBUG')
 
@@ -241,7 +241,7 @@ class Optimizer(BaseModel_with_q, ABC):
             FileNotFoundError: If the file does not exist or cannot be read.
 
         """
-        with Path.open(file_path, 'rb') as f:
+        with Path(file_path).open('rb') as f:
             self.mixture_surrogate_model = pickle.load(f)  # noqa: S301
             log('Surrogate model function loaded successfully.', level='DEBUG')
 
