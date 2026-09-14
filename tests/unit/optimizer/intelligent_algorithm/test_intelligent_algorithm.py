@@ -122,6 +122,28 @@ def test_no_obj_func():
         nsga2.minimize()
 
 
+def test_callback_fires_once_per_iteration():
+    """`callback` is invoked exactly once per iteration.
+
+    It is the hook a caller overrides to observe progress, so double-invoking it doubles
+    every side effect the override has (two log lines, two progress-bar steps per
+    iteration).
+    """
+    algorithm = MODE_Algorithm(
+        object_function=zdt1_problem,
+        variable_space=variable_space,
+        n_obj=2,
+        pop_size=pop_size,
+        max_iter=max_iter,
+    )
+    calls = []
+    algorithm.callback = lambda: calls.append(algorithm._id_iter)
+
+    algorithm.minimize()
+
+    assert calls == list(range(max_iter)), 'callback must fire once per iteration, with the iteration index'
+
+
 @pytest.mark.parametrize(('object_function', 'n_obj'), [(single_objective_problem, 1), (zdt1_problem, 2)])
 def test_nsga2(object_function, n_obj):
     """Main test"""

@@ -93,7 +93,9 @@ class IntelligentAlgorithmBase(ABC):
             self._pareto_inputs = self._all_inputs[front_indices]
             self._pareto_outputs = self._all_outputs[front_indices]
 
-            self.callback()
+            # Exactly ONE callback per iteration: an overridden callback is what a caller
+            # observes progress through, so a duplicated call is a duplicated side effect
+            # (two log lines per iteration, two progress-bar advances).
             self.callback()
             # Update iteration counter
             self._id_iter += 1
