@@ -33,8 +33,8 @@ def sort_obj_name_list(obj_name_list: list[str]) -> tuple[list[list[str]], list[
         >>> try:
         ...     sort_obj_name_list(obj_name_list)
         ... except KeyError as e:
-        ...     str(e) == "'unmatched flag invalid'"
-        True
+        ...     print(e)
+        'unmatched flag invalid'
 
 
     ------
@@ -199,7 +199,7 @@ def parse_outputs(
         ...         [{'case_id': 0, 'solution_type': 'SUCCESS'}, {'case_id': 0, 'solution_type': 'SUCCESS'}],
         ...     )
         ... except KeyError as e:
-        ...     str(e).startswith('"Invalid key name')
+        ...     print(e.args[0].startswith('Invalid key name obj_name_list_oc'))
         True
 
     ------
