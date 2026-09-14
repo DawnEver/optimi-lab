@@ -94,6 +94,79 @@ def sort_obj_name_list(obj_name_list: list[str]) -> tuple[list[list[str]], list[
     return obj_name_matrix, err_value_matrix, max_obj_flags
 
 
+# =============================================================================================
+# UNENFORCED CONVENTION: `case_id` <-> operating condition.  ANALYSIS ONLY -- NOT A CONTRACT.
+# Line numbers are this file's at the commit that added the note; the named expressions are the anchors.
+#
+# `generate_kwds_list` allocates `case_id` in the order the operating conditions FIRST APPEAR in
+# `var_name_list` (:204 `case_id = 0`; :210-213 allocate on first sight; :229 emits
+# `list(args_dict.values())`), while `parse_outputs` reads an operating condition back out of it
+# as `case_id % num_oc` (:331, with `num_oc = len(obj_name_matrix)` at :315). Nothing checks that
+# the two agree. They agree only while the `oc<N>` tags ascend, oc0 first, AND `var_name_list`
+# and `obj_name_list` declare the same operating conditions -- because `sort_obj_name_list`
+# (:84-89) builds `obj_name_matrix` in the order the oc STRINGS first appear in `obj_name_list`,
+# so index k of that matrix is the k-th oc MENTIONED, not oc k.
+#
+# A row listing oc1 before oc0 therefore mismatches names to results, in two shapes: a KeyError
+# ("Invalid key name obj_name_list_oc") when the conditions have different objective names, and
+# a SILENT SWAP of the two conditions' values when they share them.
+#
+# Reproduced, and the outputs below are the real ones:
+#
+#     >>> var_name_list = ['a.b@Hz@oc1', 'c.d@mm@oc0']        # oc1 BEFORE oc0
+#     >>> base_params_dict = {'a': {'b': '40 Hz'}, 'c': {'d': '0.4 mm'}}
+#     >>> cases = generate_kwds_list(var_name_list, np.array([[50.0, 0.5]]), [base_params_dict] * 2)
+#     >>> [(k['case_id'], 'a.b wrote' if k['a']['b'] != '40 Hz' else 'c.d wrote') for k in cases]
+#     [(0, 'a.b wrote'), (1, 'c.d wrote')]     # case_id 0 is the oc1 run, because a.b came first
+#     >>> [(k['case_id'], k['case_id'] % 2) for k in cases]
+#     [(0, 0), (1, 1)]                         # ...and parse_outputs reads it as oc0
+#
+# Silent-swap proof (same objective name in both conditions, so the lookup cannot fail):
+#
+#     obj_name_matrix, err, _ = sort_obj_name_list(['torque@oc0@max', 'torque@oc1@max'])
+#     parse_outputs(obj_name_matrix, err, 2, 1, [
+#         {'case_id': 0, 'solution_type': 'SUCCESS', 'torque': 111.0},   # the oc1 run's value
+#         {'case_id': 1, 'solution_type': 'SUCCESS', 'torque': 222.0},   # the oc0 run's value
+#     ]).tolist()
+#     -> [[111.0, 222.0]]     # the row the names ask for is [[222.0, 111.0]]
+#
+# The same break arrives from the OTHER list, with `var_name_list` ascending:
+#     sort_obj_name_list(['t_oc1@oc1@max', 't_oc0@oc0@max'])[0]  ->  [['t_oc1'], ['t_oc0']]
+#     -> index 0 of the matrix is oc1, and the oc0 result raises the same misleading KeyError.
+#
+# Candidate fixes, and what each changes FOR THE CALLER:
+#
+#   A. Give the allocator the modulus: `case_id = sample_index * num_oc + oc_id`.
+#      `case_id % num_oc == oc_id` becomes true by construction. Case ids are IDENTICAL to
+#      today's for every `var_name_list` that already ascends, so nothing that works now changes;
+#      only the out-of-order rows -- which are the broken ones -- move. Costs: this function
+#      does not know `num_oc` today (`len(base_params_dict_list)` or `max(oc_id) + 1` are the
+#      candidates), and it does NOT close the `obj_name_list` site, whose count is independent.
+#
+#   B. Stop deriving the condition at all: tag the emitted kwargs (`args_dict[oc_id]['oc_id'] =
+#      oc_id`) and read `result['oc_id']` in `parse_outputs` in place of `case_id % num_oc`.
+#      Additive for the caller (every result dict gains a key), and it removes the convention
+#      rather than aligning it -- closes all three sites at once. Costs the most: the callers'
+#      simulation harness must carry `oc_id` from the kwargs into its result dict, where today
+#      it carries only `case_id`.
+#
+#   C. Refuse the mismatch: raise when the oc tags do not ascend, and/or when
+#      `len(obj_name_matrix)` disagrees with the case_id stride. Turns the silent swap into a
+#      refusal that names the offending row, at dispatch time. Costs a red where there was a
+#      wrong number -- the point -- but the check belongs to whoever owns BOTH lists, so it can
+#      live in neither helper that decides the convention.
+#
+#   D. Document only. The swap stays silent.
+#
+# Recommendation: A now, plus C's second half in `parse_outputs` so the residual `obj_name_list`
+# site fails loudly instead of swapping. A is a no-op for every case library that runs correctly
+# today, which matters because the exposure is SHRINKING rather than stable -- the consuming
+# project is deleting the legacy objectives that depend on this encounter ordering -- so a
+# case-id contract change would be priced against a problem that is on its way out. B is the
+# right end state and the one to take when that consumer next revises its result contract.
+#
+# Not changed here: the ordering itself is what a consumer sees, and it is not this module's call.
+# =============================================================================================
 def generate_kwds_list(
     var_name_list: list[str], var_value_matrix: np.ndarray, base_params_dict_list: list[dict[str, dict]]
 ) -> list[dict]:
