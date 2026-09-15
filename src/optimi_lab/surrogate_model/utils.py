@@ -1,3 +1,14 @@
+"""Scoring a fit, always against the values that were measured.
+
+``score_regression(y_true, y_pred)`` was called with its pair SWAPPED by its only caller, so the R2
+the mixture weighted its members by was measured against the mean of the PREDICTIONS. The
+absolute-error statistics are symmetric in the pair and hid the swap; R2 is not, and R2 is what the
+weighting reads. The count-and-fraction reading that lived here as two near-identical helpers is one
+function in :mod:`~optimi_lab.surrogate_model.registry`, beside the table that applies it.
+"""
+
+from collections.abc import Callable, Sequence
+
 import numpy as np
 from sklearn.metrics import (
     mean_absolute_error,
@@ -7,70 +18,36 @@ from sklearn.metrics import (
     root_mean_squared_error,
 )
 
-from optimi_lab.utils.exceptions import ParameterException
+from optimi_lab.core.errors import refuse
 
-# score methods
-# https://scikit-learn.org/stable/api/sklearn.metrics.html
+__all__ = ['SCORE_METHODS', 'score_regression']
 
-# Score method
-# 1. Mean Squared Error
-# 2. KL(Kullback-Leibler) divergence
+SCORE_METHODS = ('r2', 'mse', 'rmse', 'mae', 'mad')
+"""The declared score methods, in one place — a refusal names this tuple rather than a constant
+in another module."""
 
-SCORE_METHODS = ['r2', 'mse', 'rmse', 'mae', 'mad']
+_SCORERS: dict[str, Callable[[np.ndarray, np.ndarray], float]] = {
+    'r2': r2_score,
+    'mse': mean_squared_error,
+    'rmse': root_mean_squared_error,
+    'mae': mean_absolute_error,
+    'mad': median_absolute_error,  # scikit-learn's median of |y_true - y_pred|, not a deviation from the median
+}
 
 
-def score_regression(y_true: np.ndarray, y_pred: np.ndarray, score_methods: list[str] | None = None) -> dict:
-    """Calculate regression scores for given true and predicted values.
+def score_regression(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    score_methods: Sequence[str] = SCORE_METHODS,
+) -> dict[str, float]:
+    """Score a prediction against the measured values, one entry per method.
 
-    Args:
-        y_true (np.ndarray): True values.
-        y_pred (np.ndarray): Predicted values.
-        score_methods (list[str]): List of score methods to calculate. Defaults to SCORE_METHODS.
-
-    Returns:
-        dict: Dictionary with score method names as keys and calculated scores as values.
-
+    The measured values come FIRST: ``r2_score`` is not symmetric in its pair, and the caller of
+    this function is the fit that produced the prediction.
     """
-    if score_methods is None:
-        score_methods = SCORE_METHODS
-
-    score_dict = {}
-    for score_method in score_methods:
-        if score_method == 'mse':
-            score = mean_squared_error(y_true, y_pred)
-        elif score_method == 'r2':
-            score = r2_score(y_true, y_pred)
-        elif score_method == 'rmse':
-            score = root_mean_squared_error(y_true, y_pred)
-        elif score_method == 'mae':
-            score = mean_absolute_error(y_true, y_pred)
-        elif score_method == 'mad':
-            # median absolute deviation
-            score = median_absolute_error(y_true, y_pred)
-        else:
-            msg = f'score method {score_method} is not supported, should be in {SCORE_METHODS}'
-            raise KeyError(msg)
-        score_dict[score_method] = score
-    return score_dict
-
-
-def float_int_1(v: float) -> float | int:
-    if v <= 1 and v > 0:
-        v = float(v)
-    elif v >= 1:
-        v = int(v)
-    else:
-        msg = f'Value should be at least 0, got {v}'
-        raise ParameterException(msg)
-    return v
-
-
-def float_int_2(v: float) -> float | int:
-    if v <= 1 and v > 0:
-        v = float(v)
-    elif v >= 2:
-        v = int(v)
-    else:
-        msg = f'Value should be at least 0, got {v}'
-        raise ParameterException(msg)
-    return v
+    measured = np.asarray(y_true, dtype=float)
+    predicted = np.asarray(y_pred, dtype=float)
+    unsupported = [method for method in score_methods if method not in _SCORERS]
+    if unsupported:
+        refuse(f'score method(s) {unsupported} are not supported; the declared methods are {list(SCORE_METHODS)}')
+    return {method: float(_SCORERS[method](measured, predicted)) for method in score_methods}

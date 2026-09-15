@@ -1,550 +1,169 @@
-"""Comprehensive tests for all surrogate model modules."""
+"""Tests for the surrogate models: one fit per registered key, and the mixture over them."""
+
+import re
+from pathlib import Path
 
 import numpy as np
 import pytest
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.linear_model import LinearRegression
 
-from optimi_lab.surrogate_model.bagging import Bagging
-from optimi_lab.surrogate_model.decision_tree_regression import DecisionTreeRegression
-from optimi_lab.surrogate_model.extra_regression import ExtraRegression
-from optimi_lab.surrogate_model.k_nearest_neighbors import KNearestNeighbors
-from optimi_lab.surrogate_model.kriging import Kriging
-from optimi_lab.surrogate_model.lasso_regression import LassoRegression
-from optimi_lab.surrogate_model.mixture_surrogate_model import (
-    SURROGATE_MODEL_TYPES,
-    WEIGHT_METHODS,
-    MixtureSurrogateModel,
-    surrogate_model_pool_dict,
-)
-from optimi_lab.surrogate_model.mlp_regression import MlpRegression
-from optimi_lab.surrogate_model.polynomial_regression import PolinomialRegression
-from optimi_lab.surrogate_model.random_forest import RandomForest
-from optimi_lab.surrogate_model.ridge_regression import RidgeRegression
-from optimi_lab.surrogate_model.surrogate_model_base import VALIDATE_METHODS, SurrogateModelBase
-from optimi_lab.surrogate_model.utils import (
+import optimi_lab.surrogate_model
+from optimi_lab.core import Refusal
+from optimi_lab.surrogate_model import (
+    REGISTRY,
     SCORE_METHODS,
-    float_int_1,
-    float_int_2,
+    SURROGATE_KEYS,
+    WEIGHT_METHODS,
+    MixtureSurrogate,
+    SurrogateModel,
+    fraction_or_count,
     score_regression,
 )
-from optimi_lab.utils.exceptions import ParameterException
 
 
-# Test Data Fixtures
-@pytest.fixture
-def sample_data():
-    np.random.seed(42)
-    X = np.random.rand(50, 3) * 10
-    y = (X[:, 0] ** 2 + X[:, 1] * X[:, 2] + np.random.normal(0, 0.1, 50)).reshape(-1, 1)
-    return X, y
+@pytest.fixture(scope='module')
+def smooth_data():
+    """A smooth two-column target on a 2-D grid that every registered estimator can be fitted to."""
+    axis = np.linspace(0.0, 1.0, 5)
+    x = np.array([[a, b] for a in axis for b in axis])
+    y = np.column_stack([np.sin(2 * np.pi * x[:, 0]) + x[:, 1] ** 2, np.cos(2 * np.pi * x[:, 1])])
+    return x, y
 
 
-@pytest.fixture
-def small_data():
-    return np.array([[1, 2, 3], [4, 5, 6]]), np.array([[10], [20]])
+def test_the_registry_declares_the_keys_a_pool_entry_may_name():
+    assert tuple(REGISTRY) == SURROGATE_KEYS
+    assert set(SURROGATE_KEYS) == {'bag', 'dec', 'extra', 'forest', 'knn', 'kri', 'las', 'mlp', 'pol', 'rid'}
 
 
-@pytest.fixture(params=VALIDATE_METHODS)
-def model_params(request):
-    validate_method = request.param
-    return {
-        'var_name_list': ['x1', 'x2', 'x3'],
-        'obj_name_list': ['y1'],
-        'do_calc_score': False,  # Disable for faster testing
-        'validate_method': validate_method,
-        'n_splits': 3,
-    }
+@pytest.mark.parametrize('key', SURROGATE_KEYS)
+def test_every_registered_key_fits_and_predicts_the_one_shape(key, smooth_data):
+    """``predict`` returns ``(n_points, n_obj)`` for every key, never a flat vector.
 
-
-# Mock Model for Base Class Testing
-class MockSurrogateModel(SurrogateModelBase):
-    model_type: str = 'mock'
-
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-
-        self._estimator = LinearRegression()
-
-
-class ConstantModel(SurrogateModelBase):
-    """Stub surrogate that predicts one fixed value and reports fixed scores.
-
-    Lets the COMBINATION rule be observed directly: with known per-model predictions and
-    known scores, the mixture's output identifies the weighting it used. The secondary scores
-    are fields too, so a rule that consults them (rather than R2 alone) cannot produce the
-    same number by coincidence.
+    ``PolinomialRegression`` and ``KNearestNeighbors`` returned ``(n, 1)`` where ``RidgeRegression``
+    returned ``(n,)``, so the mixture could not stack them and one broadcast error killed a search.
     """
+    x, y = smooth_data
+    prediction = SurrogateModel(key, n_splits=3).fit(x, y).predict(x[:5])
+    assert prediction.shape == (5, y.shape[1])
+    assert np.all(np.isfinite(prediction))
 
-    model_type: str = 'constant'
-    constant: float = 0.0
-    r2: float = 1.0
-    mad: float = 1e-5
-    mae: float = 1e-5
-    rmse: float = 1e-5
 
-    def _predict(self, x: np.ndarray) -> np.ndarray:
-        return np.full((len(x), 1), self.constant)
+def test_an_unregistered_key_is_refused_naming_every_registered_key():
+    with pytest.raises(Refusal) as refusal:
+        SurrogateModel('polynomial')
+    for key in SURROGATE_KEYS:
+        assert f"'{key}'" in str(refusal.value)
 
-    def train(self, x: np.ndarray, y: np.ndarray) -> None:
-        self._score_dict = {'r2': self.r2, 'mad': self.mad, 'mae': self.mae, 'rmse': self.rmse}
 
+def test_no_module_in_the_package_imports_pydantic():
+    """The regressors are data; the ten validators that disagreed about returning ``self`` are gone.
 
-class TestSurrogateModelBase:
-    """Test SurrogateModelBase functionality."""
-
-    def test_validators(self):
-        """Test field validators."""
-        with pytest.raises(ParameterException):
-            MockSurrogateModel(var_name_list=['x'], obj_name_list=['y'], validate_method='invalid')
-        with pytest.raises(ParameterException):
-            MockSurrogateModel(var_name_list=['x'], obj_name_list=['y'], n_splits=1)
-        with pytest.raises(ParameterException):
-            MockSurrogateModel(var_name_list=['x'], obj_name_list=['y'], score_methods=['invalid'])
-
-    def test_train_predict(self, model_params, sample_data):
-        """Test training and prediction."""
-        model = MockSurrogateModel(**model_params)
-        X, y = sample_data
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-        assert predictions.shape == (5, 1)
-
-    def test_check_valid(self, model_params):
-        """Test validity checking."""
-        model = MockSurrogateModel(**model_params)
-        assert model.check_valid(['x1', 'x2', 'x3'], ['y1']) is True
-        assert model.check_valid(['different'], ['y1']) is False
-
-    def test_show_with_scoring(self, model_params, sample_data):
-        """Test show method with scoring enabled."""
-        params = model_params.copy()
-        params['do_calc_score'] = True
-        model = MockSurrogateModel(**params)
-        X, y = sample_data
-        model.train(X, y)
-
-        score_only = model.show(only_score=True)
-        full_info = model.show(only_score=False)
-
-        assert isinstance(score_only, dict)
-        assert 'model_type' in full_info
-        assert full_info['model_type'] == 'mock'
-
-    def test_invalid_validate_method_during_training(self, model_params, sample_data):
-        """Test error handling for invalid validate method during training."""
-        model = MockSurrogateModel(**model_params)
-        # Manually set an invalid validate method to bypass validator
-        model.validate_method = 'invalid_method'
-        model.do_calc_score = True
-
-        X, y = sample_data
-        with pytest.raises(KeyError, match='validate method invalid_method is not supported'):
-            model.train(X, y)
-
-    @pytest.mark.parametrize('validate_method', VALIDATE_METHODS)
-    def test_final_model_is_trained_on_the_full_data(self, model_params, sample_data, validate_method):
-        """The model kept for prediction has seen EVERY sample, not the last fold's test split.
-
-        `train` fits one model per fold to SCORE, then fits the final model -- the one
-        `predict` uses. The comment said "Train on full data for final prediction" while the
-        code fitted that model on the last fold's TEST split: a third of the data at the
-        default `n_splits=3`, and a different third on every shuffle. The final fit's row
-        count is recorded here, so a fold-sized final fit is visible rather than inferred.
-        """
-        fit_sizes = []
-
-        class RecordingEstimator(LinearRegression):
-            def fit(self, x, y, **kwargs):
-                fit_sizes.append(len(x))
-                return super().fit(x, y, **kwargs)
-
-        params = {**model_params, 'do_calc_score': True, 'validate_method': validate_method}
-        model = MockSurrogateModel(**params)
-        model._estimator = RecordingEstimator()
-
-        X, y = sample_data
-        model.train(X, y)
-
-        assert fit_sizes[-1] == len(X), (
-            f'the final model was fitted on {fit_sizes[-1]} of {len(X)} rows -- the scoring folds must not '
-            'decide what the prediction model is fitted on'
-        )
-
-
-class TestUtils:
-    """Test utility functions."""
-
-    def test_score_regression(self):
-        """Test regression scoring."""
-        y_true = np.array([1.0, 2.0, 3.0])
-        y_pred = np.array([1.1, 1.9, 3.1])
-
-        scores = score_regression(y_true, y_pred)
-        assert all(method in scores for method in SCORE_METHODS)
-
-        # Test perfect prediction
-        perfect_scores = score_regression(y_true, y_true)
-        assert perfect_scores['r2'] == 1.0
-        assert perfect_scores['mse'] == 0.0
-
-        # Test invalid method
-        with pytest.raises(KeyError):
-            score_regression(y_true, y_pred, ['invalid'])
-
-    def test_float_validators(self):
-        """Test float/int validators."""
-        # float_int_1 tests
-        assert float_int_1(0.5) == 0.5
-        assert isinstance(float_int_1(0.5), float)
-        assert float_int_1(2.0) == 2
-        assert isinstance(float_int_1(2.0), int)
-
-        with pytest.raises(ParameterException):
-            float_int_1(0.0)
-        with pytest.raises(ParameterException):
-            float_int_1(-1.0)
-
-        # float_int_2 tests
-        assert float_int_2(0.5) == 0.5
-        assert float_int_2(2.0) == 2
-
-        with pytest.raises(ParameterException):
-            float_int_2(0.0)
-        with pytest.raises(ParameterException):
-            float_int_2(1.5)
-
-
-class TestAllSurrogateModels:
-    """Test all surrogate model implementations."""
-
-    @pytest.mark.parametrize(
-        ('model_class', 'extra_params'),
-        [
-            (PolinomialRegression, {}),
-            (KNearestNeighbors, {}),
-            (Kriging, {}),
-            (RidgeRegression, {}),
-            (LassoRegression, {}),
-            (MlpRegression, {'mlpmax_iter': 100}),  # Reduce iterations for speed
-            (DecisionTreeRegression, {}),
-            (RandomForest, {'n_estimators': 5}),  # Reduce estimators for speed
-            (Bagging, {'n_estimators': 5}),
-            (ExtraRegression, {}),  # ExtraRegression uses single tree, no n_estimators
-        ],
-    )
-    def test_model_basic_functionality(self, model_class, extra_params, model_params, sample_data):
-        """Test basic functionality for all models."""
-        params = {**model_params, **extra_params}
-        model = model_class(**params)
-        X, y = sample_data
-
-        # Test training and prediction
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-
-        # Handle both 1D and 2D prediction outputs
-        if predictions.ndim == 1:
-            assert predictions.shape == (5,)
-        else:
-            assert predictions.shape == (5, 1)
-        assert not np.any(np.isnan(predictions))
-        assert model._model is not None
-
-    def test_polynomial_regression_specific(self, model_params, sample_data):
-        """Test PolinomialRegression specific features."""
-        model = PolinomialRegression(polinomial_order=2, **model_params)
-        X, y = sample_data
-
-        # Test feature expansion
-        processed_X, _ = model._pre_process_hook(X, y)
-        assert processed_X.shape[1] > X.shape[1]  # More features after expansion
-
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-        assert predictions.shape == (5, 1)
-
-    def test_knn_specific(self, model_params, sample_data):
-        """Test KNearestNeighbors specific features."""
-        model = KNearestNeighbors(n_neighbors=5, weights='distance', **model_params)
-        X, y = sample_data
-
-        # Check n_neighbors adjustment
-        assert model._estimator.n_neighbors == min(5, len(model.var_name_list))
-
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-        assert predictions.shape == (5, 1)
-
-    def test_kriging_specific(self, model_params, small_data):
-        """Test Kriging specific features."""
-        model = Kriging(kernel=RBF(1.0), normalize_y=True, **model_params)
-        X, y = small_data
-
-        model.train(X, y)
-        predictions = model.predict(X)
-        # Handle both 1D and 2D outputs
-        if predictions.ndim == 1:
-            assert predictions.shape == (y.shape[0],)
-        else:
-            assert predictions.shape == y.shape
-
-    def test_regression_models_specific(self, model_params, sample_data):
-        """Test Ridge and Lasso regression specific features."""
-        X, y = sample_data
-
-        # Ridge regression
-        ridge = RidgeRegression(ridalpha=0.5, solver='svd', **model_params)
-        ridge.train(X, y)
-        ridge_pred = ridge.predict(X[:5])
-        if ridge_pred.ndim == 1:
-            assert ridge_pred.shape == (5,)
-        else:
-            assert ridge_pred.shape == (5, 1)
-
-        # Lasso regression
-        lasso = LassoRegression(lasalpha=0.1, selection='random', **model_params)
-        lasso.train(X, y)
-        lasso_pred = lasso.predict(X[:5])
-        if lasso_pred.ndim == 1:
-            assert lasso_pred.shape == (5,)
-        else:
-            assert lasso_pred.shape == (5, 1)
-
-    def test_mlp_specific(self, model_params, sample_data):
-        """Test MlpRegression specific features."""
-        model = MlpRegression(activation='tanh', solver='lbfgs', mlpmax_iter=1000, **model_params)
-        X, y = sample_data
-
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-        if predictions.ndim == 1:
-            assert predictions.shape == (5,)
-        else:
-            assert predictions.shape == (5, 1)
-
-    def test_tree_models_specific(self, model_params, sample_data):
-        """Test tree-based models specific features."""
-        X, y = sample_data
-
-        # Decision Tree
-        dt = DecisionTreeRegression(criterion='absolute_error', max_leaf_nodes=50, **model_params)
-        dt.train(X, y)
-        dt_pred = dt.predict(X[:5])
-        if dt_pred.ndim == 1:
-            assert dt_pred.shape == (5,)
-        else:
-            assert dt_pred.shape == (5, 1)
-
-        # Random Forest
-        rf = RandomForest(n_estimators=5, bootstrap=True, **model_params)
-        rf.train(X, y)
-        rf_pred = rf.predict(X[:5])
-        if rf_pred.ndim == 1:
-            assert rf_pred.shape == (5,)
-        else:
-            assert rf_pred.shape == (5, 1)
-
-        # Extra Trees
-        et = ExtraRegression(criterion='absolute_error', **model_params)
-        et.train(X, y)
-        et_pred = et.predict(X[:5])
-        if et_pred.ndim == 1:
-            assert et_pred.shape == (5,)
-        else:
-            assert et_pred.shape == (5, 1)
-
-    def test_bagging_specific(self, model_params, sample_data):
-        """Test Bagging specific features."""
-        model = Bagging(n_estimators=5, bootstrap=True, oob_score=False, **model_params)
-        X, y = sample_data
-
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-        if predictions.ndim == 1:
-            assert predictions.shape == (5,)
-        else:
-            assert predictions.shape == (5, 1)
-
-
-class TestMixtureSurrogateModel:
-    """Test MixtureSurrogateModel."""
-
-    def test_init_and_validation(self, model_params):
-        """Test initialization and validation."""
-        model = MixtureSurrogateModel(**model_params)
-        assert model.model_type == 'mixture'
-        assert model.weight_method == 'linear'
-
-        # Test invalid weight method
-        with pytest.raises(ParameterException):
-            MixtureSurrogateModel(weight_method='invalid', **model_params)
-
-    def test_constants(self):
-        """Test module constants."""
-        assert 'linear' in WEIGHT_METHODS
-        assert 'max' in WEIGHT_METHODS
-        assert len(SURROGATE_MODEL_TYPES) == len(surrogate_model_pool_dict)
-        assert 'pol' in SURROGATE_MODEL_TYPES
-
-    def test_mixture_weights_are_the_cross_validated_r2(self, model_params, sample_data):
-        """The mixture is the R2-weighted mean of the pool's predictions.
-
-        The rule that ran was buried in `if 1:`, with a Dempster-Shafer combination in the
-        unreachable `else` -- which itself held an `if 0:` whose body was `...`. The dead
-        branch is gone and the surviving rule is pinned here, so "what runs" is a decision
-        rather than a leftover. Two models predicting 2.0 (R2=3) and 10.0 (R2=1) must give
-        (2*3 + 10*1) / 4 = 4.0; the second model carries much better mad/mae/rmse, so a rule
-        that mixed those in would land near 10.0 instead.
-        """
-        model = MixtureSurrogateModel(**model_params)
-        model.build_surrogate_model_pool(
-            [
-                ConstantModel(constant=2.0, r2=3.0, mad=1.0, mae=1.0, rmse=1.0, **model_params),
-                ConstantModel(constant=10.0, r2=1.0, **model_params),
-            ]
-        )
-        X, y = sample_data
-        model.train(X, y)
-
-        predictions = model.predict(X[:5])
-
-        assert np.allclose(predictions, 4.0), (
-            f'the R2-weighted mean of 2.0 (R2=3) and 10.0 (R2=1) is 4.0, got {predictions.ravel()[:1]}'
-        )
-
-    def test_empty_model_pool_raises_instead_of_returning_a_number(self, model_params, sample_data):
-        """An empty pool RAISES rather than producing a silently wrong prediction."""
-        model = MixtureSurrogateModel(**model_params)
-        X, _ = sample_data
-
-        with pytest.raises(AttributeError, match='the surrogate model pool is empty'):
-            model.predict(X[:5])
-
-    def test_build_surrogate_model_pool(self, model_params, sample_data):
-        """Test building surrogate model pool."""
-        model = MixtureSurrogateModel(**model_params)
-        X, y = sample_data
-
-        # Test with dict input
-        pool_config = [{'model_type': 'pol', 'polinomial_order': 2}, {'model_type': 'knn', 'n_neighbors': 3}]
-
-        pool = model.build_surrogate_model_pool(pool_config)
-        assert len(pool) == 2
-        assert all(isinstance(m, SurrogateModelBase) for m in pool)
-
-        # Test training and prediction
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-        assert predictions.shape == (5, 1)
-
-    def test_prediction_methods(self, model_params, sample_data):
-        """Test prediction with different weight methods."""
-        X, y = sample_data
-
-        pool_config = [{'model_type': 'pol'}, {'model_type': 'knn'}]
-
-        for weight_method in ['linear', 'max']:
-            model = MixtureSurrogateModel(weight_method=weight_method, **model_params)
-            model.build_surrogate_model_pool(pool_config)
-            model.train(X, y)
-            predictions = model.predict(X[:5])
-            assert predictions.shape == (5, 1)
-
-        # Test if np.all(weight_array == 0):
-        for sub_model in model._surrogate_model_pool:
-            sub_model._score_dict = {'r2': 0.0, 'mse': 0.0}  # Set scores to zero
-        predictions = model.predict(X[:5])
-
-    def test_invalid_model_pool(self, model_params):
-        """Test invalid model pool configurations."""
-        model = MixtureSurrogateModel(**model_params)
-
-        # Test invalid model type
-        with pytest.raises(ParameterException):
-            model.build_surrogate_model_pool([{'model_type': 'invalid'}])
-
-        # Test missing model type
-        with pytest.raises(ParameterException):
-            model.build_surrogate_model_pool([{}])
-
-        # Test invalid object type (not dict or SurrogateModelBase instance)
-        with pytest.raises(ParameterException):
-            model.build_surrogate_model_pool(['invalid_string'])
-
-    def test_mixture_with_from_zero_training(self, model_params, sample_data):
-        """Test mixture model training with from_zero parameter."""
-        X, y = sample_data
-        model = MixtureSurrogateModel(**model_params)
-
-        pool_config = [{'model_type': 'pol'}]
-        model.build_surrogate_model_pool(pool_config)
-
-        # First train normally to set up the models
-        model.train(X, y)
-
-        # Test from_zero=True path (this tests the deepcopy branch)
-        model._train(X, y, from_zero=True)
-        predictions = model.predict(X[:5])
-        if predictions.ndim == 1:
-            assert predictions.shape == (5,)
-        else:
-            assert predictions.shape == (5, 1)
-
-        # Test from_zero=False path
-        model._train(X, y, from_zero=False)
-        predictions = model.predict(X[:5])
-        if predictions.ndim == 1:
-            assert predictions.shape == (5,)
-        else:
-            assert predictions.shape == (5, 1)
-
-    def test_edge_cases(self, model_params, sample_data):
-        """Test edge cases for mixture model."""
-        X, y = sample_data
-        model = MixtureSurrogateModel(**model_params)
-
-        # Test with single model
-        pool_config = [{'model_type': 'pol'}]
-        model.build_surrogate_model_pool(pool_config)
-        model.train(X, y)
-        predictions = model.predict(X[:5])
-        assert predictions.shape == (5, 1)
-
-
-def test_comprehensive_coverage():
-    """Test that all modules are importable and have expected attributes."""
-    # Test all model classes have required attributes
-    model_classes = [
-        PolinomialRegression,
-        KNearestNeighbors,
-        Kriging,
-        RidgeRegression,
-        LassoRegression,
-        MlpRegression,
-        DecisionTreeRegression,
-        RandomForest,
-        Bagging,
-        ExtraRegression,
-        MixtureSurrogateModel,
+    An IMPORT scan, not a text scan: the modules' own prose may name what they replaced.
+    """
+    sources = [
+        path.read_text(encoding='utf-8') for path in Path(optimi_lab.surrogate_model.__file__).parent.glob('*.py')
     ]
-
-    # Create dummy parameters for testing
-    test_params = {'var_name_list': ['x1'], 'obj_name_list': ['y1'], 'do_calc_score': False}
-
-    for model_class in model_classes:
-        # Test that we can create an instance and it has model_type
-        instance = model_class(**test_params)
-        assert hasattr(instance, 'model_type')
-        assert isinstance(instance.model_type, str)
-
-    # Test constants
-    assert isinstance(SCORE_METHODS, list)
-    assert len(SCORE_METHODS) > 0
-    assert isinstance(WEIGHT_METHODS, list)
-    assert isinstance(SURROGATE_MODEL_TYPES, list)
-    assert isinstance(surrogate_model_pool_dict, dict)
+    assert sources  # a scan that finds nothing is vacuous
+    assert not [source for source in sources if re.search(r'^\s*(import|from)\s+pydantic', source, re.MULTILINE)]
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+def test_the_declared_parameter_is_the_one_the_estimator_gets(smooth_data):
+    """The field and the estimator are one value: no name list decides what the estimator receives."""
+    x, y = smooth_data
+    assert SurrogateModel('knn', n_neighbors=3, n_splits=3).fit(x, y).estimator.n_neighbors == 3
+    assert SurrogateModel('bag', max_samples=0.5, n_splits=3).fit(x, y).estimator.max_samples == 0.5
+    assert SurrogateModel('dec', min_samples_leaf=3, n_splits=3).fit(x, y).estimator.min_samples_leaf == 3
+
+
+def test_a_count_and_fraction_parameter_has_one_reading():
+    assert fraction_or_count(0.5, 2, 'the split') == 0.5
+    assert isinstance(fraction_or_count(0.5, 2, 'the split'), float)
+    assert fraction_or_count(1.0, 1, 'the sample') == 1.0  # a float at 1.0 is the whole set, a fraction
+    assert fraction_or_count(2, 2, 'the split') == 2
+    assert fraction_or_count('sqrt', 1, 'the features') == 'sqrt'  # scikit-learn's own non-numeric readings
+
+
+@pytest.mark.parametrize(('value', 'floor'), [(1.5, 2), (1, 2), (0.0, 1), (-1, 2), (2.0, 2)])
+def test_a_count_and_fraction_parameter_refuses_naming_its_floor(value, floor):
+    """One rule and one message: the floor is named, where "Value should be at least 0" was not."""
+    with pytest.raises(Refusal) as refusal:
+        fraction_or_count(value, floor, 'the split')
+    message = str(refusal.value)
+    assert f'at least {floor}' in message
+    assert 'at least 0' not in message
+
+
+def test_scoring_reads_the_measured_values_first():
+    """The pair was swapped by ``fit``, so the R2 the weights read was measured backwards."""
+    measured = np.array([1.0, 2.0, 3.0, 4.0])
+    predicted = np.array([0.0, 3.0, 3.0, 6.0])
+    assert score_regression(measured, predicted)['r2'] == pytest.approx(-0.2)
+    with pytest.raises(Refusal) as refusal:
+        score_regression(measured, predicted, ['nope'])
+    assert "'r2'" in str(refusal.value)
+
+
+def test_fitting_the_mixture_fits_every_member(smooth_data):
+    """The old ``_train`` trained a ``deepcopy`` of the pool and never assigned it back."""
+    x, y = smooth_data
+    mixture = MixtureSurrogate([{'model_type': 'rid'}, {'model_type': 'knn'}]).fit(x, y)
+    for member in mixture.pool:
+        assert np.all(np.isfinite(member.predict(x[:3])))
+
+
+def test_the_mixture_is_not_the_unweighted_mean_of_its_members(smooth_data):
+    """The weighting is live: the combination is the R2-weighted mean, and it is not the plain mean."""
+    x, y = smooth_data
+    mixture = MixtureSurrogate([{'model_type': 'rid'}, {'model_type': 'knn'}]).fit(x, y)
+    members = np.stack([member.predict(x) for member in mixture.pool])
+    scored = np.maximum([member.scores['r2'] for member in mixture.pool], 0.0)
+    weights = np.array(scored) / np.sum(scored)
+    assert np.allclose(mixture.predict(x), np.tensordot(weights, members, axes=1))
+    assert not np.allclose(mixture.predict(x), members.mean(axis=0))
+
+
+def test_the_max_weight_method_returns_the_best_member(smooth_data):
+    x, y = smooth_data
+    mixture = MixtureSurrogate([{'model_type': 'rid'}, {'model_type': 'knn'}], weight_method='max').fit(x, y)
+    best = int(np.argmax([member.scores['r2'] for member in mixture.pool]))
+    assert np.allclose(mixture.predict(x), mixture.pool[best].predict(x))
+
+
+def test_a_pool_with_no_weight_left_is_refused_rather_than_averaged(smooth_data):
+    """``np.all(weights == 0)`` used to answer with a uniform array: a mean, silently, as a weight."""
+    x, y = smooth_data
+    mixture = MixtureSurrogate([{'model_type': 'rid'}, {'model_type': 'knn'}]).fit(x, y)
+    for member in mixture.pool:
+        member._scores = dict.fromkeys(SCORE_METHODS, 0.0)
+    with pytest.raises(Refusal, match='uniform mean'):
+        mixture.predict(x[:3])
+
+
+@pytest.mark.parametrize('pool', [None, []])
+def test_a_mixture_without_a_pool_is_refused_naming_the_registered_keys(pool):
+    with pytest.raises(Refusal) as refusal:
+        MixtureSurrogate(pool)
+    for key in SURROGATE_KEYS:
+        assert f"'{key}'" in str(refusal.value)
+
+
+def test_the_declared_sets_are_named_by_their_refusals():
+    with pytest.raises(Refusal) as weight_method:
+        MixtureSurrogate([{'model_type': 'rid'}], weight_method='best')
+    for method in WEIGHT_METHODS:
+        assert f"'{method}'" in str(weight_method.value)
+    with pytest.raises(Refusal, match='model_type'):
+        MixtureSurrogate(['rid'])
+
+
+def test_predicting_before_fitting_is_refused_rather_than_answering_None(smooth_data):
+    """``valid`` was True before and after training; scoring is what the mixture weighs, not a mode."""
+    x, _ = smooth_data
+    with pytest.raises(Refusal, match='has not been fitted'):
+        SurrogateModel('rid').predict(x[:2])
+    with pytest.raises(Refusal, match='has not been fitted'):
+        MixtureSurrogate([{'model_type': 'rid'}]).predict(x[:2])
+    model = SurrogateModel('rid', n_splits=3).fit(x, smooth_data[1])
+    assert not hasattr(model, 'check_valid') and not hasattr(model, '_valid')
+    assert set(model.scores) == set(SCORE_METHODS)
+    with pytest.raises(TypeError):
+        SurrogateModel('rid', do_calc_score=False).fit(x, smooth_data[1])
