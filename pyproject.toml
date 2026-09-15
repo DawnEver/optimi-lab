@@ -22,16 +22,14 @@ authors = [
 maintainers = [
     {name = "Mingyang Bao", email = "mingyangbob@gmail.com"}
 ]
+# numpy / scipy / scikit-learn, and nothing else. rtoml, pint, pydantic, pandas, matplotlib and
+# lab-commons were declared while the package read TOML state files, converted units, validated
+# models with Pydantic and plotted: all four of those roles are gone (the package is pure
+# numerics now), so a fresh install no longer pulls a plotting stack in to run an optimizer.
 dependencies = [
-    "rtoml",
-    "matplotlib",
     "numpy",
-    "pint",
-    "pydantic",
-    'scikit-learn',
-    'scipy',
-    'pandas',
-    "lab-commons @ git+https://github.com/DawnEver/lab-commons.git",
+    "scikit-learn",
+    "scipy",
 ]
 
 [project.optional-dependencies]
@@ -47,9 +45,8 @@ dev = [
     "pre-commit",
     "ruff",
 ]
-reminder = [
-    "resend"
-]
+# The `reminder` extra (resend) went with optimi_lab.utils.email_reminder: a numerics library
+# does not send mail.
 
 [project.scripts]
 
