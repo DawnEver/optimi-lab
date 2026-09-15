@@ -44,6 +44,14 @@ dev = [
     'commitizen',
     "pre-commit",
     "ruff",
+
+    # The shared DEVELOPMENT kit: `lab_commons.dev.rules` authors each development rule's universal
+    # statement, and `tests/architecture/test_optimi_lab_adopts_the_shared_registry.py` names which
+    # of them this repo enforces and which it declares absent. DEV LAYER ONLY -- lab-commons brings
+    # structlog, pint and pydantic, and this library is imported BY other libraries, so none of
+    # those may become a runtime dependency here. The URL is bare on purpose: a pin to a sha or a
+    # tag is a ceiling nobody re-argued, and a repo held at one stops being told when a rule moved.
+    "lab-commons[dev] @ git+https://github.com/DawnEver/lab-commons.git",
 ]
 # The `reminder` extra (resend) went with optimi_lab.utils.email_reminder: a numerics library
 # does not send mail.
