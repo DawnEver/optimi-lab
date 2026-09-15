@@ -30,8 +30,12 @@ reads nothing, writes nothing, and leaves the host process's globals untouched.
 
 The subpackages ``intelligent_algorithm`` (the proposers) and ``surrogate_model`` (the fits)
 are built against :mod:`optimi_lab.core.protocols` and export their own names on top of these.
+:mod:`optimi_lab.benchmarks` adds what a caller needs to JUDGE a run rather than merely make one --
+the ZDT problems with known Pareto fronts, the IGD and hypervolume metrics, and a one-call
+:func:`~optimi_lab.benchmarks.solve`.
 """
 
+from optimi_lab.benchmarks import Problem, hypervolume_2d, igd, solve, zdt1, zdt2
 from optimi_lab.core import (
     SAMPLE_KINDS,
     Direction,
@@ -63,6 +67,7 @@ __all__ = [
     'Objective',
     'ObjectiveSet',
     'Outcome',
+    'Problem',
     'Proposer',
     'Record',
     'Refusal',
@@ -72,8 +77,13 @@ __all__ = [
     'Variable',
     'VariableSet',
     'dominates',
+    'hypervolume_2d',
+    'igd',
     'non_dominated_sorting',
     'optimize',
     'partition_count',
     'sample',
+    'solve',
+    'zdt1',
+    'zdt2',
 ]
