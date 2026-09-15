@@ -1,11 +1,13 @@
 """What an evaluation produced — a value AND the outcome behind it, per cell.
 
-The old package had one way to say "this point produced nothing": fold ``PENALTY_VALUE =
-np.inf`` into the output matrix, defined byte-identically in two modules, and hand the result to
-an optimizer that read it as "very bad". Two consequences were measured: the "normalize
-infinities" lines in ``train_surrogate_models`` were no-ops because the sentinel they tested for
-WAS ``inf``, and the matrices carrying it reached scikit-learn, which raised
-``ValueError: Input y contains infinity``.
+The old package had one way to say "this point produced nothing": fold a single ``inf`` SENTINEL
+CONSTANT into the output matrix — defined byte-identically in two modules — and hand the result to
+an optimizer that read it as "very bad". Two consequences were measured: its training path's
+"normalize infinities" lines were no-ops, because the sentinel they tested for WAS ``inf``, and
+the matrices carrying it reached scikit-learn, which raised ``ValueError: Input y contains
+infinity``. That constant's spelling is retired and registered with its replacement in
+``tests/architecture/test_a_retired_spelling_stays_retired.py``, which is the one file allowed to
+write it: a worked example in a docstring is how a dead name comes back.
 
 Here an :class:`Evaluation` carries an :class:`Outcome` per cell and its constructor is the only
 way in: a cell marked :attr:`Outcome.OK` must hold a finite number or construction refuses, a

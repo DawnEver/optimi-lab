@@ -6,11 +6,14 @@ else's, and what a caller needs is the behaviour.
 
 The ask/tell loop is the substance kept from the old package, with its two leaky parts removed:
 
-* **A prediction is not an outcome.** The old loop had a ``use_surrogate_model`` flag that made
-  ``_obj_func_normalized`` score predicted values instead of measured ones, so the optimizer
-  reported a Pareto front it had never evaluated, and the flag's only trace in the output was
-  a log line. :class:`Surrogate.predict` returns a plain array: no :class:`Outcome` can be built
-  from it, so a prediction cannot be handed to :meth:`Proposer.tell` at all.
+* **A prediction is not an outcome.** The old loop carried a BOOLEAN FLAG that redirected scoring
+  onto predicted values instead of measured ones, so the optimizer reported a Pareto front it had
+  never evaluated, and the flag's only trace in the output was a log line. Its spelling is retired
+  and registered with its replacement in
+  ``tests/architecture/test_a_retired_spelling_stays_retired.py``, which is the one file allowed
+  to write it. :class:`Surrogate.predict` returns a plain array: no :class:`Outcome` can be built
+  from it, so a prediction cannot be handed to :meth:`Proposer.tell` at all — the shape, rather
+  than the flag, is what makes it impossible.
 * **Fitting is total.** ``check_valid`` compared name lists after training and its result was
   read by nobody — ``valid`` was True before and after every fit. A model exists only as what
   ``fit`` returned, so there is no validity flag to consult or to forget.

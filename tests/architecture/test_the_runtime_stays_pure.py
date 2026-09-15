@@ -75,7 +75,7 @@ def _source_files() -> list[Path]:
 
 def _distribution(requirement: str) -> str:
     """The distribution name a requirement line names, without its marker, extra or specifier."""
-    head = requirement.split(';')[0].split('@')[0].strip()
+    head = requirement.split(';', maxsplit=1)[0].split('@', maxsplit=1)[0].strip()
     for mark in ('[', '<', '>', '=', '~', '!', ' '):
         head = head.split(mark)[0]
     return head.strip()

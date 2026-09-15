@@ -1,4 +1,4 @@
-"""optimi-lab ADOPTS the shared rules registry -- 12 of 28, with the other 16 named as gaps.
+"""optimi-lab ADOPTS the shared rules registry -- 16 of 28, with the other 12 named as gaps.
 
 WHY THIS FILE EXISTS. `lab_commons.dev.rules` holds one canonical copy of the development rules
 that are not about any repo's subject. Before this file, optimi-lab had no `.claude/` at all: its
@@ -16,12 +16,41 @@ BOTH SETS ARE PINNED BY NAME AND TYPED OUT. Deriving `_ENFORCED` from `RULES` wo
 a rule added upstream instead of making this repo decide about it -- and an integer pin could not
 say WHICH rule moved, which is the failure mode the family already paid for once.
 
-WHY ONLY 12. optimi-lab is a LIBRARY, not a workflow: it has no gate runner, no agent hooks, no
-memory tree, no production CLI, no vendor arbitration and no physical units. Adopting those rules
-by writing a mechanism that checks nothing would be worse than the gap -- so they are DECLARED
-ABSENT, by name, under a ceiling that may only go down. Each entry in `_ABSENT` has its reason in
-the comment above it, and the honest ones (`MEMORY-SHAPE`, `DOCS-SPLIT`, `FIX-THE-CAUSE`) are gaps
-this repo could close rather than facts about its subject.
+WHY ONLY 16. optimi-lab is a LIBRARY, not a workflow: it has no gate runner, no agent hooks, no
+production CLI, no vendor arbitration and no physical units. Adopting those rules by writing a
+mechanism that checks nothing would be worse than the gap -- so they are DECLARED ABSENT, by name,
+under a ceiling that may only go down. Each entry in `_ABSENT` has its reason in the comment above
+it.
+
+THE AUDIT OF 2026-09-15, because a count that moved without saying why is the thing this file
+exists to prevent. The first version of this file claimed 12 of 28. Three specific overstatements
+were alleged and each was checked against the code rather than taken on trust:
+
+* **Three rules rest on a module that cannot be collected** -- REFUTED. The module is this one and
+  the three are `NAMED-SETS-NOT-COUNTS`, `ESCAPE-HATCH-CEILING`, `RATCHET-TWO-SIDES`. It imports
+  `lab_commons.dev`, which is genuinely missing from one shared venv's STALE installed
+  `lab_commons` -- but that is a fact about an install, not about the file, the dev extra declares
+  the dependency, and a missing import here is a COLLECTION ERROR, which is the loudest failure
+  pytest has. A mechanism that reds when its dependency is absent is behaving.
+* **`_SURFACE` plants nothing** -- CONFIRMED, and it was cited for SEVEN rules. Fixed rather than
+  demoted: its five scans now route through `assert_floor`, `second_homes`, `oversize`, `skipping`
+  and `pin_gap`, and a control drives each of those REAL functions on planted input.
+* **`OVERSIZE_PINS` and `LAZY_IMPORT_PINS` are empty, so the ratchet never executes** -- CONFIRMED.
+  Both are empty as correct MEASUREMENTS, so the live comparison ran an empty set against an empty
+  set. Seeding a fake pin would be the waiver-nothing-uses side of the same defect; the two-sided
+  control on `pin_gap` is what makes the empty answer mean clean rather than unread.
+
+A FOURTH one was found that the review had not named, and it is the one that cost a rule.
+`NAMED-SETS-NOT-COUNTS` cited three modules that merely OBEY it: nothing refused replacing a named
+pin with an integer. A rule exemplified by the code is not a rule enforced by it, so it now cites
+`test_a_pin_is_a_named_set.py`, which refuses a numeric module-level constant unless its name
+declares it a threshold.
+
+FOUR GAPS CLOSED in the same pass, each with a floor and a planted control: `FIX-THE-CAUSE` (the
+one-name-one-home scan was already here and unclaimed), `RETIRED-NAMES-REGISTERED` (seven names
+the two breaking refactors deleted, and the three docstrings still writing them), `MEMORY-SHAPE`
+and `DOCS-SPLIT`. So the ceiling falls 16 -> 12 -- and had the audit gone the other way it would
+have RISEN, which is the correct direction for an honesty pass and is not a thing to hide.
 """
 
 from __future__ import annotations
@@ -45,6 +74,10 @@ _PURITY: Final = 'tests/architecture/test_the_runtime_stays_pure.py'
 _SURFACE: Final = 'tests/architecture/test_the_public_surface_is_declared.py'
 _STRANGER: Final = 'tests/architecture/test_a_declared_set_refuses_a_stranger.py'
 _ADOPTION: Final = 'tests/architecture/test_optimi_lab_adopts_the_shared_registry.py'
+_PIN_SHAPE: Final = 'tests/architecture/test_a_pin_is_a_named_set.py'
+_RETIRED: Final = 'tests/architecture/test_a_retired_spelling_stays_retired.py'
+_MEMORY: Final = 'tests/architecture/test_memory_lives_under_a_date.py'
+_RULES_RATCHET: Final = 'tests/architecture/test_the_rules_pages_are_a_ratchet.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -53,10 +86,13 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # The package docstring claims a three-distribution runtime; the guard reads the dependency
     # table and the import graph instead of believing it.
     'DECLARATION-LIES': (_PURITY,),
-    # The purity guard is called on a PLANTED import of each dependency this package dropped.
-    'PLANTED-CONTROL': (_PURITY,),
-    # Both scanners refuse to report green over a file list shorter than their measured floor.
-    'FLOOR-ON-EVERY-SCAN': (_PURITY, _SURFACE),
+    # Every guard is called on PLANTED input: a dropped dependency's import, a silent module, a
+    # second home for one name, a deferred import, an oversize module, a skip, a count pin, a
+    # forked memory path, a stale frontmatter date, a resurrected spelling, each ratchet direction.
+    'PLANTED-CONTROL': (_PURITY, _SURFACE, _STRANGER, _PIN_SHAPE, _RETIRED, _MEMORY, _RULES_RATCHET),
+    # No scanner reports green over a file list shorter than its measured floor, and `assert_floor`
+    # is one function with one control rather than a line repeated per scan.
+    'FLOOR-ON-EVERY-SCAN': (_PURITY, _SURFACE, _PIN_SHAPE, _RETIRED, _MEMORY, _RULES_RATCHET),
     # No upper bound on a runtime requirement, and lab-commons is a bare git+https URL, never a sha.
     'LATEST-DEPENDENCIES': (_PURITY,),
     # `__all__` in every shipped module, and one public name with exactly one home.
@@ -69,14 +105,26 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'XFAIL-NOT-SKIP': (_SURFACE,),
     # An unregistered surrogate key or sample kind RAISES `Refusal` and the message quotes the set.
     'UNSUPPORTED-RAISES': (_STRANGER,),
-    # Every pin in this repo is a named set: the adoption sets here, the oversize and lazy-import
-    # pins in the surface guard, the runtime distribution set in the purity guard.
-    'NAMED-SETS-NOT-COUNTS': (_ADOPTION, _SURFACE, _PURITY),
+    # A numeric module-level constant in any architecture module is REFUSED unless its name
+    # declares it a threshold. The three modules previously cited here merely obeyed the rule,
+    # which is exemplification and not enforcement -- see the audit note in the docstring.
+    'NAMED-SETS-NOT-COUNTS': (_PIN_SHAPE,),
     # The absent set carries `_ABSENT_CEILING`, which may only go down.
     'ESCAPE-HATCH-CEILING': (_ADOPTION,),
-    # Two-sided pins: an arrival reds, and so does a waiver nothing uses -- in the surface guard's
-    # oversize and lazy-import sets, and in both adoption sets below.
-    'RATCHET-TWO-SIDES': (_ADOPTION, _SURFACE),
+    # Two-sided pins: an arrival reds, and so does a waiver nothing uses. `pin_gap` and
+    # `ratchet_breaks` each answer in BOTH directions and each has a control that drives them so,
+    # which is what the live empty pin sets cannot do for themselves.
+    'RATCHET-TWO-SIDES': (_ADOPTION, _SURFACE, _RULES_RATCHET),
+    # One public name has one home: a second spelling is how a patched symptom outlives its cause,
+    # and the scan reads the merged tree, which is the only place the clash is visible.
+    'FIX-THE-CAUSE': (_SURFACE,),
+    # Seven names the two breaking refactors deleted, each with its replacement, and a scan that
+    # reaches PROSE -- where a retired spelling survives longest -- as well as code.
+    'RETIRED-NAMES-REGISTERED': (_RETIRED,),
+    # `.claude/memory/YYYY/MM/DD/`, plus the frontmatter date agreeing with the path it sits on.
+    'MEMORY-SHAPE': (_MEMORY,),
+    # The always-loaded rule pages are pinned per file, ratcheting down only.
+    'DOCS-SPLIT': (_RULES_RATCHET,),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -93,11 +141,11 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #: * WORKFLOW RULES WITH NO MACHINERY HERE -- optimi-lab has no gate runner, no hooks directory and
 #:   no agent deny-list: SHARED-CHECKOUT, VERDICT-BAR-IS-THE-INCREMENT, REFUSAL-NAMES-THE-REMEDY,
 #:   NETWORK-RETRY-THEN-REPORT, HOOKS-ARE-WIRED, AGENT-GUARD.
-#: * REAL GAPS, closable without importing anything -- these are work items, not facts:
-#:   FIX-THE-CAUSE and RETIRED-NAMES-REGISTERED (no `retired.py` registry exists yet, so the two
-#:   renames in `refactor(core)!` are recorded only in a commit message), MEMORY-SHAPE (no
-#:   `.claude/memory/` tree yet), DOCS-SPLIT (the two rules pages exist but no line ratchet keeps
-#:   mechanism out of them).
+#:
+#: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
+#: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
+#: were deleted here in the same edit that lowered the ceiling, which is the only way this number
+#: is allowed to move.
 _ABSENT: Final = frozenset({
     'BAR-IS-A-CONSTANT',
     'IMPLEMENT-EVERYTHING',
@@ -111,19 +159,15 @@ _ABSENT: Final = frozenset({
     'NETWORK-RETRY-THEN-REPORT',
     'HOOKS-ARE-WIRED',
     'AGENT-GUARD',
-    'FIX-THE-CAUSE',
-    'RETIRED-NAMES-REGISTERED',
-    'MEMORY-SHAPE',
-    'DOCS-SPLIT',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN: the hand
 #: that builds a mechanism deletes the name above and lowers this number in the same edit.
-_ABSENT_CEILING: Final = 16
+_ABSENT_CEILING: Final = 12
 
 
 def _adoption() -> Adoption:
-    """This repo's adoption: its own mechanisms, plus the gaps it has on record."""
+    """The repo's adoption: its own mechanisms, plus the gaps it has on record."""
     mechanisms = {rule: tuple(TestPath(path) for path in paths) for rule, paths in _MECHANISMS.items()}
     return Adoption(app_name='optimi_lab', mechanisms=mechanisms, declared_absent=_ABSENT)
 
