@@ -1,4 +1,4 @@
-"""optimi-lab ADOPTS the shared rules registry -- 18 of 32, with the other 14 named as gaps.
+"""optimi-lab ADOPTS the shared rules registry -- 21 of 32, with the other 11 named as gaps.
 
 WHY THIS FILE EXISTS. `lab_commons.dev.rules` holds one canonical copy of the development rules
 that are not about any repo's subject. Before this file, optimi-lab had no `.claude/` at all: its
@@ -89,6 +89,9 @@ _MEMORY: Final = 'tests/architecture/test_memory_lives_under_a_date.py'
 _RULES_RATCHET: Final = 'tests/architecture/test_the_rules_pages_are_a_ratchet.py'
 _NO_CJK: Final = 'tests/architecture/test_no_cjk_in_tracked_source.py'
 _DOC_WIDTH: Final = 'tests/architecture/test_injected_doc_width_ceiling.py'
+_HOOKS: Final = 'tests/architecture/test_the_declared_hooks_are_installed.py'
+_BOUNDED: Final = 'tests/architecture/test_a_bounded_wait_names_its_remedy.py'
+_ORIGIN: Final = 'tests/architecture/test_this_checkout_is_visible_on_origin.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -144,6 +147,26 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # 2026-09-16 at zero lines past 120 columns. It is the WIDTH dimension the line-count ratchet
     # in `_RULES_RATCHET` cannot see, over the same pages.
     'INJECTED-DOC-WIDTH-CEILING': (_DOC_WIDTH, _RULES_RATCHET),
+    # CLOSED 2026-09-16, and it was VIOLATED here rather than merely unenforced: the reason on
+    # record said this repo has no hooks directory, while `.pre-commit-config.yaml` declared 19
+    # hooks and ZERO were installed in the directory git consults. The mechanism is the family's
+    # (`lab_commons.dev.hook_install`, which ASKS GIT for that directory instead of string-building
+    # it); what is this repo's is the tree asked about, the one-stage named pin, and controls that
+    # plant absent / installed / foreign in a real repository.
+    'HOOKS-ARE-WIRED': (_HOOKS,),
+    # CLOSED 2026-09-16. The old reason -- "no gate runner" -- answered about a RUNNER while the
+    # rule is about a WAIT, and this package starts subprocesses. The wall is driven against a
+    # planted GRANDCHILD that really inherits stdout (the shape `subprocess.run`'s timeout cannot
+    # bound), the reaper is asked to kill this process's own tree and must refuse while still
+    # reaping a planted stranger, and the refusal must name a DIFFERENT remedy in each of its three
+    # states.
+    'REFUSAL-NAMES-THE-REMEDY': (_BOUNDED,),
+    # CLOSED 2026-09-16, and the first honest run of it found real debris: `fix/p0-integration-
+    # blockers`, a branch with no origin counterpart, no upstream and no worktree. The old reason
+    # was a wrong conclusion from a true premise -- the push obligation IS a fact about origin, and
+    # git answers it without a network call. Named sets on both sides, and the stale-local-trunk
+    # trap planted on real repositories with a real remote.
+    'SHARED-CHECKOUT': (_ORIGIN,),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -157,9 +180,9 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   and UNITS-GO-THROUGH-PINT (`Variable.unit` is a free-text LABEL this package never computes
 #:   with -- it is SI-agnostic pure numerics and pint is not a dependency it may take),
 #:   REGISTRY-OWNS-THE-DECISION (there is one registry and the surrogate keys already live in it).
-#: * WORKFLOW RULES WITH NO MACHINERY HERE -- optimi-lab has no gate runner, no hooks directory and
-#:   no agent deny-list: SHARED-CHECKOUT, VERDICT-BAR-IS-THE-INCREMENT, REFUSAL-NAMES-THE-REMEDY,
-#:   NETWORK-RETRY-THEN-REPORT, HOOKS-ARE-WIRED, AGENT-GUARD, and -- added 2026-09-16 -- the two
+#: * WORKFLOW RULES WITH NO MACHINERY HERE -- optimi-lab has no gate runner, no retry wrapper and
+#:   no agent deny-list: VERDICT-BAR-IS-THE-INCREMENT,
+#:   NETWORK-RETRY-THEN-REPORT, AGENT-GUARD, and -- added 2026-09-16 -- the two
 #:   rules ENV-MUTATION-THROUGH-THE-DOOR and ONE-BOX-ONE-LOCK: both are about a SHARED box and a
 #:   SHARED environment, and this repo has neither. Its `.venv` is its own, nothing here issues a
 #:   verdict another party cites, and there is no runner to queue on a box lock. A mechanism for
@@ -176,11 +199,8 @@ _ABSENT: Final = frozenset({
     'TOLERANCE-CARRIES-A-UNIT',
     'UNITS-GO-THROUGH-PINT',
     'REGISTRY-OWNS-THE-DECISION',
-    'SHARED-CHECKOUT',
     'VERDICT-BAR-IS-THE-INCREMENT',
-    'REFUSAL-NAMES-THE-REMEDY',
     'NETWORK-RETRY-THEN-REPORT',
-    'HOOKS-ARE-WIRED',
     'AGENT-GUARD',
     'ENV-MUTATION-THROUGH-THE-DOOR',
     'ONE-BOX-ONE-LOCK',
@@ -198,7 +218,13 @@ _ABSENT: Final = frozenset({
 #: rule with no subject here would be cleared by the only move left: deleting it from `_ABSENT`,
 #: which is the silent gap this file exists to prevent. So the ceiling absorbs the two it must and
 #: nothing else -- every gap this repo could close is still on record, and none was reopened.
-_ABSENT_CEILING: Final = 14
+#:
+#: AND DOWN AGAIN, 14 -> 11 later the same day, when three of the six workflow rules stopped being
+#: machinery this repo does not have. Their MECHANISMS moved into `lab_commons.dev`
+#: (`hook_install`, `bounded`, `checkout`) and this repo wired each one to its own tree.
+#: HOOKS-ARE-WIRED was the sharpest: the reason on record claimed there was no subject here, and
+#: there were 19 declared hooks with none installed.
+_ABSENT_CEILING: Final = 11
 
 
 def _adoption() -> Adoption:
