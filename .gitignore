@@ -35,6 +35,9 @@ htmlcov/
 ## pytest
 .pytest_cache/
 
+## lab_commons.dev.verify log dir
+.verify/
+
 ## mypy
 .mypy_cache/
 

@@ -56,8 +56,29 @@ adoption:
 purity:
 	python -m pytest tests/architecture/test_the_runtime_stays_pure.py -v
 
+# THE SINGLE VERIFY ENTRY POINT, and it is the FAMILY'S rather than this repo's: it calls
+# `lab_commons.dev.verify`, the same module motronics, wdg-lab and lab-commons call. That module
+# builds a real Verdict -- INCONCLUSIVE by default, PROMOTED only on proof that the run covered
+# what it selected -- where `lint fmt-check test` handed back nothing but three exit codes, which
+# cannot say whether the suite covered anything or merely collected nothing and left happy.
+#
+# `lint` AND `fmt-check` ARE GONE AS PREREQUISITES BECAUSE THEY ARE NOW DUPLICATES, not because
+# they stopped mattering: verify's own `RUFF_STEPS` run `ruff check .` and `ruff format --check .`
+# over this same tree, character-for-character the two targets above, and it runs them through
+# `sys.executable -m` -- the same interpreter that runs the suite. Keeping them as prerequisites
+# would lint the tree twice per invocation and, worse, put the FIRST verdict outside the log that
+# is supposed to carry it. The targets stay for `make lint` / `make fmt-check` on their own.
+# (wdg-lab keeps its `lint` prerequisite: that one also runs `cargo fmt`/`clippy`, which verify
+# does not cover. Here there is no second language, so there is nothing left over.)
+#
+# NO `-m 'not slow'` TIER, and that is a finding rather than an omission. This repo declares no
+# `slow` marker -- not in `pyproject.toml`, not in any test -- so the split wdg-lab needed for its
+# 44-minute load benchmark would be a waiver nothing uses: a tier with an empty slow half reads
+# as "something heavy is being deselected" and deselects nothing. Add the marker first if a slow
+# test ever lands here.
 .PHONY: verify
-verify: lint fmt-check test
+verify:
+	python -m lab_commons.dev.verify
 
 # NO `open` BELOW, and that is the whole point of the split. A target that launches a browser on
 # every run is an interruption rather than feedback: it steals focus on every GREEN run, and it
