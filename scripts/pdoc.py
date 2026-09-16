@@ -4,6 +4,7 @@ See https://pdoc.dev/docs/pdoc.html.
 
 import shutil
 import subprocess
+import sys
 import webbrowser
 from pathlib import Path
 
@@ -26,6 +27,15 @@ def main(modules: list[str] | None = None, output_dir: str = 'docs', open_webpag
     port = '8080'
     # fmt: off
     pdoc_args = [
+        # THE SAME INTERPRETER, NOT A NAME ON PATH. `'pdoc'` as a bare argv[0] resolves only when
+        # the venv is ACTIVATED, so this worked from an activated shell and on CI (which activates)
+        # and raised `FileNotFoundError` under every invocation that calls the interpreter by
+        # absolute path -- which is how the family's own verify entry point runs, and how an agent
+        # runs anything. MEASURED 2026-09-16: `pdoc.exe` was present in `.venv/Scripts/` the whole
+        # time, so the failure read as a missing dependency while the dependency was installed.
+        # `-m` resolves through the interpreter already running us and cannot disagree with it.
+        sys.executable,
+        '-m',
         'pdoc',
         *modules,
         '-o', output_dir,
