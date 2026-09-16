@@ -1,4 +1,4 @@
-"""optimi-lab ADOPTS the shared rules registry -- 16 of 28, with the other 12 named as gaps.
+"""optimi-lab ADOPTS the shared rules registry -- 18 of 32, with the other 14 named as gaps.
 
 WHY THIS FILE EXISTS. `lab_commons.dev.rules` holds one canonical copy of the development rules
 that are not about any repo's subject. Before this file, optimi-lab had no `.claude/` at all: its
@@ -21,6 +21,15 @@ production CLI, no vendor arbitration and no physical units. Adopting those rule
 mechanism that checks nothing would be worse than the gap -- so they are DECLARED ABSENT, by name,
 under a ceiling that may only go down. Each entry in `_ABSENT` has its reason in the comment above
 it.
+
+TWO RULES ARRIVED UPSTREAM AND WERE ADOPTED ON THE SAME DAY, 2026-09-16:
+`NO-CJK-IN-TRACKED-SOURCE` and `INJECTED-DOC-WIDTH-CEILING`, each driving the SHARED scanner in
+`lab_commons.dev.cjk` / `lab_commons.dev.docwidth` over this tree's own corpus. Both measured CLEAN
+here (53 files scanned, zero CJK; two injected docs, zero lines past 120 columns), so both declared
+sets are EMPTY and each carries a FLOOR pinned at its measurement -- an empty declaration over an
+unread corpus is the one way those guards could be vacuous. Two more arrived the same day with no
+subject in this repo and went to `_ABSENT`, which is why the ceiling below moved UP; that move has
+its own note where the number lives.
 
 THE AUDIT OF 2026-09-15, because a count that moved without saying why is the thing this file
 exists to prevent. The first version of this file claimed 12 of 28. Three specific overstatements
@@ -78,6 +87,8 @@ _PIN_SHAPE: Final = 'tests/architecture/test_a_pin_is_a_named_set.py'
 _RETIRED: Final = 'tests/architecture/test_a_retired_spelling_stays_retired.py'
 _MEMORY: Final = 'tests/architecture/test_memory_lives_under_a_date.py'
 _RULES_RATCHET: Final = 'tests/architecture/test_the_rules_pages_are_a_ratchet.py'
+_NO_CJK: Final = 'tests/architecture/test_no_cjk_in_tracked_source.py'
+_DOC_WIDTH: Final = 'tests/architecture/test_injected_doc_width_ceiling.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -125,6 +136,14 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'MEMORY-SHAPE': (_MEMORY,),
     # The always-loaded rule pages are pinned per file, ratcheting down only.
     'DOCS-SPLIT': (_RULES_RATCHET,),
+    # The shared scanner over this tree's whole tracked corpus, with the declared set EMPTY --
+    # measured 2026-09-16 at 53 files scanned and zero CJK characters. Adopted at zero, so the
+    # declaration's job is to refuse the FIRST arrival rather than to record a debt.
+    'NO-CJK-IN-TRACKED-SOURCE': (_NO_CJK,),
+    # The same shape over the injected-doc corpus (here: the two `.claude/rules/` pages), measured
+    # 2026-09-16 at zero lines past 120 columns. It is the WIDTH dimension the line-count ratchet
+    # in `_RULES_RATCHET` cannot see, over the same pages.
+    'INJECTED-DOC-WIDTH-CEILING': (_DOC_WIDTH, _RULES_RATCHET),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -140,7 +159,11 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   REGISTRY-OWNS-THE-DECISION (there is one registry and the surrogate keys already live in it).
 #: * WORKFLOW RULES WITH NO MACHINERY HERE -- optimi-lab has no gate runner, no hooks directory and
 #:   no agent deny-list: SHARED-CHECKOUT, VERDICT-BAR-IS-THE-INCREMENT, REFUSAL-NAMES-THE-REMEDY,
-#:   NETWORK-RETRY-THEN-REPORT, HOOKS-ARE-WIRED, AGENT-GUARD.
+#:   NETWORK-RETRY-THEN-REPORT, HOOKS-ARE-WIRED, AGENT-GUARD, and -- added 2026-09-16 -- the two
+#:   rules ENV-MUTATION-THROUGH-THE-DOOR and ONE-BOX-ONE-LOCK: both are about a SHARED box and a
+#:   SHARED environment, and this repo has neither. Its `.venv` is its own, nothing here issues a
+#:   verdict another party cites, and there is no runner to queue on a box lock. A mechanism for
+#:   either would be a check over an empty set.
 #:
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
@@ -159,11 +182,23 @@ _ABSENT: Final = frozenset({
     'NETWORK-RETRY-THEN-REPORT',
     'HOOKS-ARE-WIRED',
     'AGENT-GUARD',
+    'ENV-MUTATION-THROUGH-THE-DOOR',
+    'ONE-BOX-ONE-LOCK',
 })
 
-#: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN: the hand
-#: that builds a mechanism deletes the name above and lowers this number in the same edit.
-_ABSENT_CEILING: Final = 12
+#: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
+#: THIS REPO ALREADY CARRIED: the hand that builds a mechanism deletes the name above and lowers
+#: this number in the same edit.
+#:
+#: IT MOVED UP ONCE, 12 -> 14 on 2026-09-16, and the reason is stated here rather than left to be
+#: read off the digit. The registry grew by FOUR rules that day. Two of them --
+#: NO-CJK-IN-TRACKED-SOURCE and INJECTED-DOC-WIDTH-CEILING -- were ADOPTED in the same commit, with
+#: mechanisms above, so they never touched this number. The other two are about a shared box and a
+#: shared environment, neither of which exists here, and a ceiling that cannot admit an upstream
+#: rule with no subject here would be cleared by the only move left: deleting it from `_ABSENT`,
+#: which is the silent gap this file exists to prevent. So the ceiling absorbs the two it must and
+#: nothing else -- every gap this repo could close is still on record, and none was reopened.
+_ABSENT_CEILING: Final = 14
 
 
 def _adoption() -> Adoption:
