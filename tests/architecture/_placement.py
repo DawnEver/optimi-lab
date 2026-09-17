@@ -63,11 +63,13 @@ than a gap (measured 2026-09-17 -- this tree imports `agent_guard`, `agenthooks`
   package's registries. But measured 2026-09-17, nothing under `scripts/` or `tests/architecture/`
   times anything, interleaves anything or reports a median -- so there is no file to place, and
   saying where the subject actually lives is the row.
-* `testfacts` -- NO HAND-ROLLED COPY HERE, which is the difference from the sibling. wdg-lab reads
-  its test files' declarations with a regex; this tree reads its own with `ast` in
-  `test_a_relative_tolerance_carries_its_floor.py` and `test_the_public_surface_is_declared.py`,
-  for a DIFFERENT question (an `approx` ratio with no floor under it, an `__all__` that resolves),
-  neither of which `testfacts` answers. Correctly absent.
+* `testfacts` -- NO HAND-ROLLED COPY HERE, AND NONE IS OWED, which is the difference from the
+  sibling: that repo has a guard asking which modules SKIP and how many times, which is exactly the
+  question `testfacts` answers, and it now delegates the whole reading. This tree reads its own test
+  files with `ast` in `test_a_relative_tolerance_carries_its_floor.py` and
+  `test_the_public_surface_is_declared.py` for a DIFFERENT question (an `approx` ratio with no floor
+  under it, an `__all__` that resolves), neither of which `testfacts` answers. Correctly absent --
+  the reason is the QUESTION being different, not the reading technique being different.
 """
 
 from __future__ import annotations

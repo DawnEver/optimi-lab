@@ -23,10 +23,13 @@ delta -- the delta renders AFTER the base and gitignore is last-match-wins, so k
 silently reinstate exactly the rule the base replaced.
 
 WHAT THIS REPO DOES NOT HAVE, and it is worth one sentence because the sibling lab does. There is no
-`**/.claude/**` block here and no re-inclusions, so the last-match-wins hazard that forces wdg-lab to
-keep `__pycache__/` as its FINAL line does not arise: nothing in this delta re-includes anything.
-That is a fact about this tree today rather than a guarantee, so the ordering property in the test
-module is written to bite if a negation is ever added.
+`**/.claude/**` block here and no re-inclusions, so the last-match-wins hazard does not arise at all:
+a delta that re-includes nothing has nothing to close again below. That is a fact about this tree
+today rather than a guarantee, so the ordering property in the test module is written to bite if a
+negation is ever added -- and since 2026-09-17 it bites through the kit rather than through anything
+written here, because `assert_no_rule_is_reopened` refuses a base directory rule re-stated ABOVE a
+subtree negation that re-includes it. The condition is BELOW EVERY RE-INCLUSION IT CLOSES; naming a
+particular line as the FINAL one was a sufficient approximation of it that no repo needs any more.
 
 `.pre-commit-config.yaml` IS ADOPTED AS OF 2026-09-17, and the waiver that used to sit here is gone
 with its subject. Both causes it named are dead: `Delta.anchored` places a line INSIDE a rendered
