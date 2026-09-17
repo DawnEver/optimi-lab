@@ -221,6 +221,19 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'already named: the machinery is family, the rows are ours. Measured 2026-09-17: own=417 '
         'repo=32 -> 7.67%.',
     ),
+    'tests/architecture/_famconfig.py': Placement(
+        STAYS,
+        'PURE DECLARATION, AND IT IS ENTIRELY THIS REPO. The mechanism -- base, renderer, delta, '
+        'ceiling, drop-with-a-reason -- already lives once in `lab_commons.dev.famconfig`, so what '
+        'is left here is the lines that are facts about optimi-lab: the `usr/local/` tree, the '
+        'viztracer `result.json`, the coredumpy `dumps/`, the eight stock hook ids this repo takes '
+        'beyond the family eleven, and the reason `.pre-commit-config.yaml` is refused. There is no '
+        'family half left to cut, which is exactly why the seam upstream was worth cutting. MEASURED '
+        '2026-09-17: own=66 repo=2 -> 3.03%, which clears the 3.0% bar by a THIRD OF A POINT, so the '
+        'honest reading is that the density admits this row rather than argues it -- the real '
+        'evidence is that every added line resolves against this tree and no other, and a gitignore '
+        'pattern names a directory, which is the shape a noun scan cannot see.',
+    ),
     'tests/architecture/test_a_bounded_wait_names_its_remedy.py': Placement(
         SPLITS,
         'THE SEAM IS CONTROL VERSUS SUBJECT. FAMILY: the wall that terminates a process TREE, the '
@@ -326,6 +339,17 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "wdg-lab's twin are identical (394 total, 136 differing), and it names ZERO repo nouns in "
         'code. What is repo-specific about the answer -- which rules ship here -- lives in '
         '`scripts/deny_rules.py`, which has its own row and STAYS.',
+    ),
+    'tests/architecture/test_the_family_config_is_rendered.py': Placement(
+        MOVES,
+        'THE CONVERSE HOLDS AND THE FILE ASSERTS NOTHING OF ITS OWN. MEASURED 2026-09-17: own=75 '
+        'repo=0 -> 0.00%, and ZERO repo nouns in CODE -- every artefact name, every ceiling and '
+        'every drop reason it checks is read at run time off `_famconfig`, the sibling that STAYS. '
+        'Eight properties, all generic: the declared-or-refused completeness pin, the re-render '
+        'comparison, the anti-fork arm, the last-match-wins negation property, the waiver that must '
+        'still refuse, the waiver subject read off the live YAML, the planted control and the '
+        'mode pin. MEASURED the same day, wdg-lab wrote six of these eight against a different '
+        'delta, which is the definition of a move rather than a copy.',
     ),
     'tests/architecture/test_the_declared_hooks_are_installed.py': Placement(
         MOVES,

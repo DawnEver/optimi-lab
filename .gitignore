@@ -1,73 +1,49 @@
-##############################
-# build
-##############################
-*.egg-info
-**/__pycache__
+# Rendered by lab_commons.dev.famconfig from the family base for .gitignore.
+# Hand edits RED. The base is data in lab_commons.dev._famconfig_rows;
+# this repo's own lines are its declared delta. Change one, re-render, commit.
+
+**/.env
+**/__pycache__/
+**/log/*.log
+**/log/*.log.error
+**/temp/**
+*.c
+*.egg-info/
+*.spec
+.coverage*
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv*
+uv.lock
+
+# --- optimi-lab delta, 29 of 32 allowed ---
+## Build and distribution
 build/
 dist/
 **/__version__.py
 
-## cython
-*.c
-
-## pyinstaller
-*.spec
-
-##############################
-# dev tools
-##############################
-uv.lock
-
-## pdoc
+## Development tools
+## Documentation (pdoc)
 **/docs/
-
 ## viztracer
 result.json
-
 ## coredumpy
 dumps/
 
-## coverage
-.coverage*
+## Quality and testing
 report/
 htmlcov/
-
-## pytest
-.pytest_cache/
-
-## lab_commons.dev.verify log dir
+# Logs written by the family verify entry point (`lab_commons.dev.verify`).
 .verify/
 
-## mypy
-.mypy_cache/
-
-## ruff
-.ruff_cache/
-
-##############################
-# runtime
-##############################
-## log
-**/log/*.log
-**/log/*.log.error
+## Runtime and environment
 **/log/*.png
 **/log/*.jpg
 !example.log
-
-## usr
 usr/local/
-
-## env
-**/.env
-.venv*
-
 output/
 
-##############################
-# other
-##############################
+## System and others
 **/ignore/
-**/temp/**
-
-# MacOS
 **/.DS_Store
