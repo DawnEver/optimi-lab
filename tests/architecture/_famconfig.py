@@ -62,6 +62,7 @@ __all__ = [
     'GITIGNORE_DELTA',
     'MAKEFILE_DELTA',
     'PRECOMMIT_DELTA',
+    'PRECOMMIT_STAGE_MOVE',
     'REPO',
 ]
 
@@ -122,6 +123,36 @@ EXTRA_HOOK_IDS: Final[tuple[str, ...]] = (
     'check-vcs-permalinks',
     'destroyed-symlinks',
     'fix-byte-order-marker',
+    'requirements-txt-fixer',
+)
+
+#: THE ONE BEHAVIOUR CHANGE THE ADOPTION MAKES, MEASURED through `pre_commit.repository.all_hooks`
+#: on 2026-09-17 rather than assumed. Before: no `default_stages` here, so every stock hook whose
+#: UPSTREAM manifest declares no stages of its own inherited all eleven. After: the base's
+#: `default_stages: [pre-commit]` narrows these thirteen to pre-commit alone.
+#:
+#: IT IS NOT A DROP AND IT COSTS THIS CHECKOUT NOTHING, which is a fact about the checkout rather
+#: than an argument: the only git hook installed here is `pre-commit`, so the ten stages it removes
+#: had nothing to run at. The sibling lab records the IDENTICAL change against the IDENTICAL base as
+#: a real loss, because it has a pre-push hook -- so the test module pins the premise as well as the
+#: set, in both directions.
+#:
+#: DECLARED 2026-09-17 WITH THE FAMILY BODY, and its absence until then was a one-sided reading: the
+#: file pinned which hooks KEPT pre-push and nothing named which ones MOVED, so a hook joining the
+#: narrowing would have arrived in silence. A ratchet has two sides.
+PRECOMMIT_STAGE_MOVE: Final[tuple[str, ...]] = (
+    'check-ast',
+    'check-builtin-literals',
+    'check-case-conflict',
+    'check-illegal-windows-names',
+    'check-json',
+    'check-merge-conflict',
+    'check-symlinks',
+    'check-toml',
+    'check-vcs-permalinks',
+    'debug-statements',
+    'fix-byte-order-marker',
+    'mixed-line-ending',
     'requirements-txt-fixer',
 )
 

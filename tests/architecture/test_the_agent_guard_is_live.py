@@ -16,6 +16,18 @@ pre-commit hooks with zero installed, which
 `tests/architecture/test_the_declared_hooks_are_installed.py` was written to end. This file is the
 same shape one layer up, over the hook that governs an AGENT's commands rather than a human's.
 
+THE BODY IS THE FAMILY'S AS OF 2026-09-17, AND THE SIBLING LAB'S STRUCTURE IS THE ONE IT TOOK. The
+seven arms below are `lab_commons.dev.famtests.agentguard`; what stayed here is the answers no other
+checkout can give -- which declaration file this repo renders from, which rules it may honestly
+ship, which commands it refuses, and which exit it must leave open.
+
+THE DENY ARM NOW NAMES THE RULE IT EXPECTS, WHICH IS A STRENGTHENING THIS REPO DID NOT HAVE. Asking
+only "was it refused" cannot tell a working rule from one a neighbour is covering for: upstream
+plants two real rules whose patterns both match `git push --force`, and with the wrong one first the
+weak question answers yes while the rule under test has stopped firing entirely. That is the
+count-pin failure in a different spelling, and it is measured rather than argued -- the sibling lab
+learned it the day `GIT-NETWORK-VERB` shipped and shadowed both of its push rules.
+
 WHAT IS PROVEN, in arms that fail for different reasons, because a single "is it live" assertion
 cannot tell a missing engine from a stale rule file:
 
@@ -48,17 +60,12 @@ declaration-lie the guard exists to remove.
 
 from __future__ import annotations
 
-import json
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev.agent_guard import GUARDED, RULES_REL, guard_installation
-from lab_commons.dev.hook_adoption import assert_shippable, render
-from lab_commons.dev.rules import tracked_files
+from lab_commons.dev.famtests import agentguard
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -77,8 +84,6 @@ _SHIPPED: Final = frozenset({
     'WORKTREE-BASE-IS-EXPLICIT',
 })
 
-_NODE: Final = shutil.which('node')
-
 #: A heredoc body written to a FILE is data, not a command, even when it spells a denied shape.
 #: Built here rather than inline so the row below stays readable.
 _PROSE_ABOUT_A_DENIED_SHAPE: Final = "cat > notes.md <<'MD'\npytest is denied here; use the verdict entry point.\nMD"
@@ -93,82 +98,47 @@ def test_node_is_on_path() -> None:
     thing under test cannot run at all". A suite that goes quiet precisely when the engine is
     unrunnable reports green for the state it exists to detect.
     """
-    assert _NODE is not None, (
-        'node is not on PATH, so nothing executes `.claude/hooks/deny-commands.js` and the agent guard '
-        'in this checkout refuses nothing -- whatever `agent_guard` reports about the files being in '
-        'place. Install node, or accept that this repo is unguarded and say so somewhere a reader looks.'
-    )
-
-
-def _decide(command: str) -> dict | None:
-    """Feed one Bash tool call to the real hook; a deny comes back parsed, an allow as None."""
-    assert _NODE is not None, 'node is on PATH -- `test_node_is_on_path` is what says so first'
-    payload = json.dumps({'tool_name': 'Bash', 'tool_input': {'command': command}, 'cwd': str(_ROOT)})
-    proc = subprocess.run(
-        [_NODE, str(_ROOT / '.claude' / 'hooks' / 'deny-commands.js'), str(_ROOT / RULES_REL)],
-        input=payload,
-        capture_output=True,
-        text=True,
-        timeout=30,
-        check=True,
-    )
-    return json.loads(proc.stdout) if proc.stdout.strip() else None
+    agentguard.assert_node_is_available()
 
 
 def test_the_guard_is_live() -> None:
     """Engine, rules and wiring are all the installed ones -- and a red names the part that is not."""
-    report = guard_installation(_ROOT)
-    detail = '\n  '.join(f'{part.part}: {part.status} -- {part.detail}' for part in report.parts)
-    assert report.verdict == GUARDED, (
-        f'the agent guard in {_ROOT} is {report.verdict}, not {GUARDED}:\n  {detail}\n'
-        f'Install it with `python -m lab_commons.dev.agent_guard --install --repo .`. A declared guard that '
-        f'is not live refuses nothing while reading as protection.'
-    )
+    agentguard.assert_the_guard_is_live(root=_ROOT)
 
 
 def test_the_committed_rules_are_the_rendered_rules() -> None:
     """The file the engine reads IS the declaration in `scripts/deny_rules.py`, byte for byte."""
-    committed = (_ROOT / RULES_REL).read_text(encoding='utf-8')
-    assert committed == render(ADOPTION), (
-        f'{RULES_REL} has drifted from `render(ADOPTION)`. Re-render it with '
-        f'`python scripts/deny_rules.py` and commit the result: the declaration is the half a reader '
-        f'trusts, and the JSON is the half the engine obeys.'
-    )
+    agentguard.assert_committed_rules_are_rendered(root=_ROOT, adoption=ADOPTION)
 
 
 def test_every_rule_is_accounted_for_and_every_remedy_exists() -> None:
     """No silently-dropped rule, no typo'd ID, and no exit naming a file this tree does not track."""
-    assert_shippable(ADOPTION, tracked_files(_ROOT))
+    agentguard.assert_every_rule_is_accounted_for(root=_ROOT, adoption=ADOPTION)
 
 
 def test_the_shipped_set_is_pinned_by_name() -> None:
     """THE FLOOR. An empty rules file would satisfy every other arm in this module."""
-    shipped = frozenset(rule['name'] for rule in json.loads((_ROOT / RULES_REL).read_text(encoding='utf-8')))
-    assert shipped == _SHIPPED, (
-        f'the shipped rule set moved: gained {sorted(shipped - _SHIPPED)}, lost {sorted(_SHIPPED - shipped)}. '
-        f'Update `_SHIPPED` in the same edit that changes `scripts/deny_rules.py`, and say which rule moved '
-        f'-- a count could not.'
-    )
+    agentguard.assert_the_shipped_set_is_pinned(root=_ROOT, declared=_SHIPPED)
 
 
 @pytest.mark.parametrize(
-    'command',
+    ('command', 'rule'),
     [
-        'pytest tests/architecture',
-        'python -m pytest -q',
-        'git stash',
-        'git push origin main --force-with-lease',
-        'git push --no-verify',
-        'git worktree add ../scratch',
+        ('pytest tests/architecture', 'BARE-TEST-INVOCATION'),
+        ('python -m pytest -q', 'BARE-TEST-INVOCATION'),
+        ('git stash', 'GIT-STASH'),
+        # THESE TWO ARE WHERE NAMING THE RULE EARNS ITS KEEP. This repo does NOT ship
+        # GIT-NETWORK-VERB, so nothing here shadows the two push rules today -- and the day it does,
+        # the sibling lab's measurement says these rows would keep passing under the weaker
+        # question while PUSH-FORCE and PUSH-NO-VERIFY stopped firing.
+        ('git push origin main --force-with-lease', 'PUSH-FORCE'),
+        ('git push --no-verify', 'PUSH-NO-VERIFY'),
+        ('git worktree add ../scratch', 'WORKTREE-BASE-IS-EXPLICIT'),
     ],
 )
-def test_a_forbidden_shape_is_refused_and_told_what_to_type(command: str) -> None:
+def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rule: str) -> None:
     """A hook nobody has seen deny is not yet a hook -- and a refusal with no exit is a sealed road."""
-    decision = _decide(command)
-    assert decision is not None, f'{command!r} passed the guard, and a rule shipped for it says it must not'
-    hook = decision['hookSpecificOutput']
-    assert hook['permissionDecision'] == 'deny', f'{command!r} was not denied: {hook}'
-    assert hook['permissionDecisionReason'].strip(), f'{command!r} was denied with no reason to act on'
+    agentguard.assert_refused_by(root=_ROOT, command=command, rule=rule)
 
 
 @pytest.mark.parametrize(
@@ -185,4 +155,4 @@ def test_a_forbidden_shape_is_refused_and_told_what_to_type(command: str) -> Non
 )
 def test_a_sanctioned_shape_is_allowed(command: str) -> None:
     """The other side of the ratchet: a guard that refuses everything passes every arm above."""
-    assert _decide(command) is None, f'{command!r} is sanctioned here and the guard refused it'
+    agentguard.assert_sanctioned(root=_ROOT, command=command)

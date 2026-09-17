@@ -310,24 +310,32 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '50-line ceiling alone.',
     ),
     'tests/architecture/test_memory_lives_under_a_date.py': Placement(
-        MOVES,
-        'THREE COPIES OF ONE FLEET CONVENTION. `.claude/memory/YYYY/MM/DD/` with frontmatter that '
-        "agrees with the directory it sits in is a family shape, and this file, wdg-lab's twin "
-        "(MEASURED 2026-09-17: 380 lines together, 246 differing) and motronics-studio's "
-        '`tests/architecture/docs/test_memory_files_live_under_a_dated_directory.py` are three '
-        'independent answers to it. It names ZERO repo nouns in code, so the converse holds -- and '
-        'that is the measurable difference from the wdg-lab twin, which holds two in-package memory '
-        'trees as data and is therefore a SPLITS there. The trees this one declares are top-level '
-        'and are configuration a shared mechanism would take as an argument.',
+        SPLITS,
+        'CORRECTED 2026-09-17, AND THE TWO ROSTERS HAD DISAGREED ABOUT THE SAME FILE. This row read '
+        "MOVES while wdg-lab's twin read SPLITS, and the measurement supports wdg-lab: the two "
+        'copies are 33.2% identical -- the LOWEST pair in the whole census, against 88.9% for the '
+        'allow guard -- and the difference is STRUCTURAL, five declared memory trees there against '
+        'one here. A shape that has to be re-derived per tree is not one file waiting to move. '
+        'FAMILY: `.claude/memory/YYYY/MM/DD/` with frontmatter agreeing with the directory it sits '
+        'in is a fleet convention answered independently in three repos. LOCAL: the tree this repo '
+        'declares. RE-MEASURED against the density bar rather than relabelled after wdg-lab: '
+        'own=87 repo=0 -> 0.00%, so it joins `BELOW_THE_BAR` with its numbers instead of arriving '
+        'as a clean SPLITS -- the label had to answer the same bar as STAYS, and it does not yet.',
     ),
     'tests/architecture/test_no_allow_entry_names_a_denied_shape.py': Placement(
-        MOVES,
-        'THE SECOND-STRONGEST DUPLICATION EVIDENCE IN THIS TABLE: MEASURED 2026-09-17, this file and '
-        "wdg-lab's twin are 324 lines together with 36 differing -- 88.9% identical. The subject is "
-        'the contradiction between `.claude/settings.json` and `.claude/hooks/deny-rules.json`, two '
-        'hand-written files about which commands an agent may issue, and neither is about '
-        'optimisation. It names ZERO repo nouns in code. The natural home is beside '
-        '`lab_commons.dev.hook_adoption`, which already owns the render half of the same pair.',
+        SPLITS,
+        'EXECUTED 2026-09-17, AND CLOSING THE HOLE CAUGHT THIS REPO. The body is '
+        '`lab_commons.dev.famtests.allowguard` and the local copy is deleted; the census that '
+        "decided it measured this file and wdg-lab's twin 88.9% identical over 324 lines with ZERO "
+        'repo nouns in code. FAMILY: the glob instantiation and its cases (the `Bash(...)` spelling '
+        'belongs to the agent client, not to any repo), the engine driving, and the `probed` floor '
+        'that now refuses a scan of zero rows. LOCAL: the sanctioned exit a red is redirected to '
+        "and the two planted rows, which are this repo's because `deny_rules.py` DROPS a rule "
+        'whose remedy a repo lacks -- a row denied here is permitted elsewhere. THE FIRST HONEST '
+        'RUN REDDED: `.claude/settings.json` declares no `permissions` block at all, so this guard '
+        'has been green over ZERO probed rows for its whole life, and the property arm is a strict '
+        'xfail carrying that measurement until a human adds the first allow row. RE-MEASURED: '
+        'own=22 repo=0 -> 0.00%, down from own=77, admitted by the 50-line binder ceiling.',
     ),
     'tests/architecture/test_no_cjk_in_tracked_source.py': Placement(
         SPLITS,
@@ -349,34 +357,39 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'and neither spelling is a noun this scan can see.',
     ),
     'tests/architecture/test_the_agent_guard_is_live.py': Placement(
-        MOVES,
-        'THE MECHANISM IS ALREADY PUBLISHED AND THE FILE ONLY DRIVES IT: engine, rules and wiring '
-        'reported BY NAME is `lab_commons.dev.agent_guard`, and this file asserts its three parts '
-        'are installed in this checkout. MEASURED 2026-09-17: 65% of the lines across this file and '
-        "wdg-lab's twin are identical (394 total, 136 differing), and it names ZERO repo nouns in "
-        'code. What is repo-specific about the answer -- which rules ship here -- lives in '
-        '`scripts/deny_rules.py`, which has its own row and STAYS.',
+        SPLITS,
+        'EXECUTED 2026-09-17, AND THIS REPO GAINED AN ARM RATHER THAN ONLY LOSING LINES. The seven '
+        'arms are `lab_commons.dev.famtests.agentguard` and the local copy is deleted. THE FAMILY '
+        "BODY TOOK WDG-LAB'S STRUCTURE, which is the integration rule applied to assertions: the "
+        'deny arm now NAMES the rule it expects, where this file asked only whether SOMETHING '
+        'refused -- a question upstream measured being fooled by registry order on two real rules '
+        'that both match `git push --force`. LOCAL: the five-name shipped set, the six '
+        'command-plus-rule rows and the four sanctioned exits. RE-MEASURED after the adoption: '
+        'own=42 repo=0 -> 0.00%, down from own=79, admitted by the 50-line binder ceiling.',
     ),
     'tests/architecture/test_the_family_config_is_rendered.py': Placement(
-        MOVES,
-        'THE CONVERSE HOLDS AND THE FILE ASSERTS NOTHING OF ITS OWN. MEASURED 2026-09-17: own=75 '
-        'repo=0 -> 0.00%, and ZERO repo nouns in CODE -- every artefact name, every ceiling and '
-        'every drop reason it checks is read at run time off `_famconfig`, the sibling that STAYS. '
-        'Eight properties, all generic: the declared-or-refused completeness pin, the re-render '
-        'comparison, the anti-fork arm, the last-match-wins negation property, the waiver that must '
-        'still refuse, the waiver subject read off the live YAML, the planted control and the '
-        'mode pin. MEASURED the same day, wdg-lab wrote six of these eight against a different '
-        'delta, which is the definition of a move rather than a copy.',
+        SPLITS,
+        'EXECUTED 2026-09-17, AND THE CHEAPEST OF THE FIVE BECAUSE THE SEAM WAS ALREADY CUT HERE. '
+        'This file already imported `DELTAS`/`EXTRA_HOOK_IDS`/`REPO` from a local `_famconfig`; '
+        'what was missing was the other side, and it is now '
+        '`lab_commons.dev.famtests.configrender`. LOCAL: the two floors, the re-render remedy, the '
+        'planted edit, the five ids that keep pre-push, the pre-push bit, the pin-resolution arm -- '
+        'and, new today, `PRECOMMIT_STAGE_MOVE`, the thirteen ids the narrowing takes, which this '
+        'repo had never pinned and could not have seen a hook silently JOINING without. THREE ARMS '
+        'WERE DELETED rather than ported: the kit already drives all three anchor refusals against '
+        'this same base. RE-MEASURED: own=67 repo=0 -> 0.00%, down from own=118, a `BELOW_THE_BAR` '
+        'row.',
     ),
     'tests/architecture/test_the_declared_hooks_are_installed.py': Placement(
-        MOVES,
-        'A DECLARATION-VERSUS-INSTALLATION CHECK WITH NO SUBJECT OF ITS OWN: a '
-        '`.pre-commit-config.yaml` declares hooks, `pre-commit install` is a separate act on a '
-        'separate machine, and `lab_commons.dev.hook_install` already owns the reading of both '
-        "sides. MEASURED 2026-09-17: 66% of the lines across this file and wdg-lab's twin are "
-        'identical (295 total, 99 differing), and it names ZERO repo nouns in code. Its numbers (19 '
-        'hooks at pre-commit, zero installed on 2026-09-16) are read off the configuration at run '
-        'time rather than restated, so the move carries no data with it.',
+        SPLITS,
+        'EXECUTED 2026-09-17, AND HALF OF IT HAD ALREADY MOVED. `lab_commons.dev.hook_install` has '
+        'owned the MEASUREMENT since 2026-09-16; what was still forked three ways was the six-arm '
+        'TEST, now `lab_commons.dev.famtests.hookinstall`. LOCAL: the tree under test and the '
+        'two-stage named set -- and nothing else, which is why this is a BINDER. ONE ARM WAS '
+        'DELETED and its absence is the finding: `assert all(stage.hook_ids ...)` cannot fail, '
+        'because `declared_stages` groups ids BY stage and the empty case is unreachable through '
+        'the only path that builds a report. RE-MEASURED after the adoption: own=11 repo=0 -> '
+        '0.00%, down from own=55, admitted by the 50-line binder ceiling.',
     ),
     'tests/architecture/test_the_dependency_door_is_wired.py': Placement(
         SPLITS,
@@ -445,14 +458,18 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'that permits exactly that line. Measured: own=55 repo=2 -> 3.64%, which clears the bar.',
     ),
     'tests/architecture/test_this_checkout_is_visible_on_origin.py': Placement(
-        MOVES,
-        'THREE COPIES AND A PUBLISHED MECHANISM. `lab_commons.dev.checkout` already answers "what is '
-        'here that origin does not have" -- measured against the REMOTE and with `git cherry` rather '
-        'than ancestry, because those are the two ways this audit has been observed to lie. This '
-        "file, wdg-lab's twin (MEASURED 2026-09-17: 346 lines together, 178 differing) and "
-        "motronics-studio's `tests/architecture/repo/test_a_working_lane_is_visible_on_origin.py` "
-        'are three answers to it. It names ZERO repo nouns in code: the push obligation is a fact '
-        'about origin, and nothing in it is a fact about optimisation.',
+        SPLITS,
+        'EXECUTED 2026-09-17, AND THE SEAM WAS NARROWER THAN THIS ROW USED TO READ. '
+        '`lab_commons.dev.checkout` already answered "what is here that origin does not have" and '
+        'this file already imported it; what was still forked were the assertions and, above all, '
+        'the two planted git FIXTURES -- factored out here and inlined per function in the sibling '
+        'lab, which is a control written twice and therefore a control that can be wrong in one '
+        'copy. `lab_commons.dev.famtests.visibility` now ships `plant_checkout` and `commit` beside '
+        'the assertions. LOCAL, each a keyword with NO DEFAULT upstream: the trunk NAME (the '
+        '`LAB_CZ_BASE_REF` shape -- a repo judged against a guessed `main` reports itself clean), '
+        'and the two two-sided branch pins, one of which still names '
+        '`fix/p0-integration-blockers`. RE-MEASURED after the adoption: own=13 repo=0 -> 0.00%, '
+        'down from own=74, admitted by the 50-line binder ceiling.',
     ),
 }
 
@@ -626,10 +643,37 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'the two measured floors and the scope statement that keeps `UNITS-GO-THROUGH-PINT` '
         'honestly absent rather than answered by a narrowed scan.'
     ),
+    'tests/architecture/test_memory_lives_under_a_date.py': (
+        'MEASURED 2026-09-17 WHEN THE ROW WAS CORRECTED FROM MOVES TO SPLITS: own=87 repo=0 -> '
+        '0.00%, thirty-seven lines over the binder ceiling. The label moved because the two labs '
+        'copies are 33.2% identical, the lowest pair in the census, and the correction was '
+        'RE-MEASURED here rather than copied from wdg-lab -- which is why it arrives as a '
+        'shortfall rather than as a clean SPLITS. THE SPLIT IT OWES: the dated-directory shape and '
+        'the frontmatter agreement exist three times in the family and belong once, in '
+        '`lab_commons.dev`. What stays is the tree this repo declares -- a PATH, which is exactly '
+        'the shape the noun scan cannot see, so the zero is an honest under-reading rather than a '
+        'misclassification.'
+    ),
+    'tests/architecture/test_the_family_config_is_rendered.py': (
+        'MEASURED 2026-09-17 AFTER ADOPTING `famtests.configrender`: own=67 repo=0 -> 0.00%, down '
+        'from own=118. A NEW ROW WHOSE DIRECTION IS THE FINDING: the verdict half left and the '
+        'declaration half stayed, so this is the residue rather than a mechanism. THE READING IS '
+        'HONEST: what is left is two FLOORS, a re-render remedy, a planted edit pair, a boolean '
+        'about an installed hook and hook IDS -- numbers and strings to the last one, the same '
+        'shape `_famconfig.py` beside it is recorded under. THE SPLIT IT STILL OWES: the '
+        'pin-resolution arm, whose question (does every declared id still RESOLVE at the base pin) '
+        'is a family question this repo happens to be the first to ask, and belongs beside '
+        '`assert_declared_ids_survive` upstream.'
+    ),
     'tests/architecture/_famconfig.py': (
-        'MEASURED 2026-09-17 AFTER ADOPTING THE `.pre-commit-config.yaml` BASE: own=65 repo=1 -> '
-        '1.54%, fifteen lines over the binder ceiling. THE READING IS HONEST AND THE ROW SAYS WHAT '
-        'MOVED. Before the adoption this file read own=66 repo=2 -> 3.03%, a hair over the bar on a '
+        'RE-MEASURED 2026-09-17 AFTER DECLARING `PRECOMMIT_STAGE_MOVE`: own=81 repo=1 -> 1.23%, '
+        'thirty-one lines over the binder ceiling, up from own=65 repo=1 -> 1.54% at the '
+        '`.pre-commit-config.yaml` adoption. The thirteen new lines are the ids the stage narrowing '
+        'takes, which the family body requires as an EQUALITY and this repo had never pinned. THE '
+        'DIRECTION IS EXPECTED AND IS NOT A REGRESSION: this file is DATA, so it grows when a fact '
+        'is declared rather than when a mechanism is written. THE READING IS HONEST AND THE ROW '
+        'SAYS WHAT MOVED BEFORE THAT TOO: before the `.pre-commit-config.yaml` adoption this file '
+        'read own=66 repo=2 -> 3.03%, a hair over the bar on a '
         'margin of ONE line -- and that line was the reason string of the refusal this adoption '
         'deleted, which named '
         'the repo only because a waiver is prose. Deleting the waiver with its subject deleted the '
