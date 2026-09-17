@@ -1,7 +1,7 @@
 [
   {
     "name": "BARE-TEST-INVOCATION",
-    "pattern": "(?:\\S*python[\\w.]*\\s+-m\\s+pytest\\b|uv\\s+run\\s+pytest\\b|pytest\\b)",
+    "pattern": "(?:\\S*python[\\w.]*\\s+-m\\s+pytest\\b|pytest\\b)",
     "matches": "command",
     "reason": "a hand-written test line has no VERDICT. An exit code cannot say whether the run COVERED what it selected, so a dead worker, a truncated run or a collection error that reported nothing all read as green -- and the reader has merged \"the tests passed\" with \"nobody knows\". Re-issue through the entry point that produces a verdict: ./.venv/Scripts/python.exe -m lab_commons.dev.verify"
   },
