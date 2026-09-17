@@ -257,9 +257,16 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   the only hook installed here is `pre-commit`, `.pre-commit-config.yaml` declares no `pre-push`
 #:   stage, and `lab_commons.dev.verify` judges the SELECTION it was given rather than an increment
 #:   -- there is no increment for a bar to be);
-#:   NETWORK-RETRY-THEN-REPORT (the rule's remedy is a retry wrapper; there is none in this tree and
-#:   none in `lab_commons.dev`, so there is nothing to route a network verb through and a guard
-#:   demanding one would name a file that cannot exist);
+#:   NETWORK-RETRY-THEN-REPORT (this repo issues NO network verb of its own: measured 2026-09-17,
+#:   every `git clone/fetch/pull/push/ls-remote` spelling anywhere under `scripts/`, `src/` and
+#:   `tests/` is a STRING FIXTURE inside `test_the_agent_guard_is_live.py`, fed to the deny engine
+#:   rather than executed, so there is no verb here for a wrapper to wrap. THE REASON WAS REWRITTEN
+#:   on 2026-09-17: it used to read "there is none in this tree and none in `lab_commons.dev`", and
+#:   the second half became false when `lab_commons.dev.netverb` shipped -- it imports in this venv
+#:   today. The conclusion outlived its premise, which is the trap this registry exists to refuse: a
+#:   row whose stated reason is false reads as re-measured when nobody has re-measured it. wdg-lab
+#:   carried the same sentence and the FIRST half was the false one there -- it has the subject,
+#:   adopted `netverb`, and that row became a MECHANISM. Ours is absent for the other reason alone);
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
 #: were deleted here in the same edit that lowered the ceiling, which is the only way this number
