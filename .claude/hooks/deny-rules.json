@@ -1,0 +1,33 @@
+[
+  {
+    "name": "BARE-TEST-INVOCATION",
+    "pattern": "(?:\\S*python[\\w.]*\\s+-m\\s+pytest\\b|uv\\s+run\\s+pytest\\b|pytest\\b)",
+    "matches": "command",
+    "reason": "a hand-written test line has no VERDICT. An exit code cannot say whether the run COVERED what it selected, so a dead worker, a truncated run or a collection error that reported nothing all read as green -- and the reader has merged \"the tests passed\" with \"nobody knows\". Re-issue through the entry point that produces a verdict: ./.venv/Scripts/python.exe -m lab_commons.dev.verify"
+  },
+  {
+    "name": "GIT-STASH",
+    "pattern": "\\bgit\\s+stash(?:\\s|$)",
+    "matches": "command",
+    "reason": "`refs/stash` is REPO-WIDE. It is one ref per repository, not per worktree, so a stash taken in one checkout is popped by whoever pops next -- in a family whose premise is a shared, possibly concurrent checkout, that is another agent losing work it never knew existed. Keep the work where its owner can see it. Either commit it on your own lane branch (a scratch commit is cheap and is named), or take a throwaway checkout: git worktree add --detach <path> <sha>"
+  },
+  {
+    "name": "PUSH-FORCE",
+    "pattern": "\\bpush\\b[^\\n]*\\s(?:--force\\b|--force-with-lease\\b|-f\\b)",
+    "matches": "argument",
+    "reason": "every branch here is read by someone else, and rewriting a ref silently invalidates any verdict already taken against the old tree -- the verdict still cites a `tree=` address, and the tree it names no longer exists. `--force-with-lease` is refused with the rest: it protects against a ref that MOVED, not against a reader who already judged the ref as it was. Do not rewrite a shared ref: land the change FORWARD as a new commit on your own lane, then push without the force flag. If the history really must change, it changes on a branch nobody has judged yet."
+  },
+  {
+    "name": "PUSH-NO-VERIFY",
+    "pattern": "\\bpush\\b[^\\n]*--no-verify\\b",
+    "matches": "argument",
+    "reason": "`--no-verify` skips the pre-push hook, and the hook is where the verdict is taken. A push that skipped it vouches for nothing, while looking exactly like one that did not -- the commit lands with no evidence attached and nobody downstream can tell which kind it was. Take the verdict first, and push once it is green: ./.venv/Scripts/python.exe -m lab_commons.dev.verify"
+  },
+  {
+    "name": "WORKTREE-BASE-IS-EXPLICIT",
+    "pattern": "\\bgit\\s+worktree\\s+add\\b",
+    "matches": "command",
+    "reason": "`git worktree add <path>` with no commit-ish silently takes the CURRENT HEAD, which on a shared checkout is routinely not the tree you meant. MEASURED 2026-09-01: two agents were handed trees based on the wrong branch and each reasoned about a codebase nobody runs -- one of them for 130k tokens -- before noticing. A bare `HEAD` is accepted because it is a choice rather than an omission, but it is the weakest one available: HEAD moves, so two trees cut from it minutes apart can differ. Prefer the sha. Name the commit the tree starts from: git worktree add --detach <path> <sha>",
+    "allow": "\\bgit\\s+worktree\\s+add\\b[^\\n]*\\s(?:[0-9a-f]{7,40}|origin/\\S+|refs/\\S+|HEAD(?:[~^@]\\S*)?)\\s*$"
+  }
+]

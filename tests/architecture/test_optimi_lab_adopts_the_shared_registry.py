@@ -1,4 +1,4 @@
-"""optimi-lab ADOPTS the shared rules registry -- 24 of 32, with the other 8 named as gaps.
+"""optimi-lab ADOPTS the shared rules registry -- 25 of 32, with the other 7 named as gaps.
 
 WHY THIS FILE EXISTS. `lab_commons.dev.rules` holds one canonical copy of the development rules
 that are not about any repo's subject. Before this file, optimi-lab had no `.claude/` at all: its
@@ -97,6 +97,8 @@ _BOX: Final = 'tests/architecture/test_the_verdict_run_takes_the_box.py'
 _DOOR: Final = 'tests/architecture/test_the_dependency_door_is_wired.py'
 _DOOR_PORT: Final = 'scripts/dep.py'
 _TOLERANCE: Final = 'tests/architecture/test_a_relative_tolerance_carries_its_floor.py'
+_GUARD: Final = 'tests/architecture/test_the_agent_guard_is_live.py'
+_GUARD_RULES: Final = 'scripts/deny_rules.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -208,6 +210,19 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # `approx` call is PARSED, adopted at zero (two call sites, both bare) with a floor on the
     # call sites read and a control that plants all four shapes.
     'TOLERANCE-CARRIES-A-UNIT': (_TOLERANCE,),
+    # CLOSED 2026-09-17, and the reason on record was RETIRED BY ITS OWN TERMS rather than refuted.
+    # It said the shared deny registry existed but "its ENGINE does not: the engine the registry's
+    # own recipe points at is a `.js` file in another repo", and named the missing piece as "an
+    # engine in the family rather than a file here". That engine landed as
+    # `lab_commons.dev.agenthooks`, installed and verified by `lab_commons.dev.agent_guard`, so the
+    # blocker is gone. Measured here before the change: NOTHING DECLARED, exit 2 -- no settings, no
+    # matcher, no engine. The mechanism is the family's; what is this repo's is WHICH rules it may
+    # honestly ship, which is `scripts/deny_rules.py`: five shipped, two (GIT-NETWORK-VERB,
+    # RAW-PROCESS-KILL) declared absent because their exits -- a retry wrapper, a typeable
+    # process-tree killer -- do not exist here. `_GUARD` pins the shipped set BY NAME, drives the
+    # real engine under node in both directions, and its sanctioned row is this repo's own verdict
+    # command, so the guard cannot seal the only road out of itself.
+    'AGENT-GUARD': (_GUARD, _GUARD_RULES),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -238,14 +253,6 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   NETWORK-RETRY-THEN-REPORT (the rule's remedy is a retry wrapper; there is none in this tree and
 #:   none in `lab_commons.dev`, so there is nothing to route a network verb through and a guard
 #:   demanding one would name a file that cannot exist);
-#:   AGENT-GUARD (the shared deny REGISTRY exists -- `lab_commons.dev.hooks` plus
-#:   `hook_adoption.render` -- but its ENGINE does not: `lab_commons` ships no executable matcher,
-#:   the engine the registry's own recipe points at is a `.js` file in another repo, and this repo
-#:   has no `.claude/settings.json` and no `PreToolUse` matcher. Rendering `deny-rules.json` with
-#:   nothing to read it would be an inert declaration reading as a guard, which is the exact defect
-#:   this registry exists to remove. This row is the one worth closing next, and the missing piece
-#:   is an engine in the family rather than a file here.)
-#:
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
 #: were deleted here in the same edit that lowered the ceiling, which is the only way this number
@@ -258,7 +265,6 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'VERDICT-BAR-IS-THE-INCREMENT',
     'NETWORK-RETRY-THEN-REPORT',
-    'AGENT-GUARD',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -290,7 +296,14 @@ _ABSENT: Final = frozenset({
 #:
 #: FOUR ROWS WERE RE-MEASURED AND LEFT OPEN, which is the other honest outcome and not a lesser one.
 #: The reasons above each of them now state a measurement rather than an assertion.
-_ABSENT_CEILING: Final = 8
+#:
+#: AND 8 -> 7 later on 2026-09-17, for AGENT-GUARD, on a third route: neither a refuted premise nor
+#: a re-measured one, but a reason that NAMED ITS OWN EXPIRY. It said the blocker was that the deny
+#: engine lived in another repo as a `.js` file and that the missing piece was "an engine in the
+#: family rather than a file here" -- and the family shipped one. A reason that states the condition
+#: under which it stops applying is the cheapest kind to retire, and writing them that way is why
+#: this number could move today without anybody re-litigating the gap.
+_ABSENT_CEILING: Final = 7
 
 
 def _adoption() -> Adoption:
