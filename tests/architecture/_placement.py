@@ -438,7 +438,20 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'movements, and pin PER FILE rather than as a total -- has nothing about optimisation in it '
         'and names ZERO repo nouns in code, so the converse holds. Its `_MEASURED` budgets are DATA '
         'a shared mechanism would take as an argument, which is what makes this a move rather than a '
-        'split.',
+        'split. THE DESTINATION NOW EXISTS AND THE MOVE IS DUE: `lab_commons.dev.famtests.rulespages` '
+        'publishes `page_lines`, `ratchet_breaks` and `assert_rules_ratchet`, takes the budgets as '
+        'the argument this row predicted, and ADDS the one reading this copy lacks -- a TOTAL '
+        'ceiling, without which each per-page pin is its own local decision and nothing caps their '
+        'sum. This row is therefore no longer "a move with no home"; it is an ADOPTION not yet '
+        'executed, and it is the only row in this roster in that state. '
+        'THE CENSUS MISSED IT, AND THE MISS IS WORTH MORE THAN THE ROW: `supersede.take_census` '
+        'graded it UNTOUCHED on kit `0.2.2.dev71+gf6c46bb90` because BOTH detectors need something '
+        'this pair does not have -- `rulespages` names no consumer path in its docstring, so '
+        'PROVENANCE cannot fire, and this file imports nothing from the kit, so IMPORT cannot '
+        'either. That is exactly the live-fork-that-imports-nothing shape the instrument names as '
+        'the worst case it was built for, and it is invisible whenever provenance is ALSO absent. '
+        'A ruler would have seen it: the surface overlap here is real. Found by HAND, recorded '
+        'rather than reclassified.',
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': Placement(
         STAYS,
