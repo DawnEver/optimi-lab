@@ -1,4 +1,4 @@
-"""optimi-lab ADOPTS the shared rules registry -- 21 of 32, with the other 11 named as gaps.
+"""optimi-lab ADOPTS the shared rules registry -- 24 of 32, with the other 8 named as gaps.
 
 WHY THIS FILE EXISTS. `lab_commons.dev.rules` holds one canonical copy of the development rules
 that are not about any repo's subject. Before this file, optimi-lab had no `.claude/` at all: its
@@ -16,11 +16,12 @@ BOTH SETS ARE PINNED BY NAME AND TYPED OUT. Deriving `_ENFORCED` from `RULES` wo
 a rule added upstream instead of making this repo decide about it -- and an integer pin could not
 say WHICH rule moved, which is the failure mode the family already paid for once.
 
-WHY ONLY 16. optimi-lab is a LIBRARY, not a workflow: it has no gate runner, no agent hooks, no
-production CLI, no vendor arbitration and no physical units. Adopting those rules by writing a
-mechanism that checks nothing would be worse than the gap -- so they are DECLARED ABSENT, by name,
-under a ceiling that may only go down. Each entry in `_ABSENT` has its reason in the comment above
-it.
+WHY NOT ALL OF THEM. optimi-lab is a LIBRARY, not a workflow: it has no push gate, no deny-hook
+engine, no retry wrapper, no production CLI, no vendor arbitration and no physical units. Adopting
+those rules by writing a mechanism that checks nothing would be worse than the gap -- so they are
+DECLARED ABSENT, by name, under a ceiling that may only go down. Each entry in `_ABSENT` has its
+reason in the comment above it, and on 2026-09-17 every one of those reasons was RE-MEASURED rather
+than re-read: three of them did not survive it and became mechanisms.
 
 TWO RULES ARRIVED UPSTREAM AND WERE ADOPTED ON THE SAME DAY, 2026-09-16:
 `NO-CJK-IN-TRACKED-SOURCE` and `INJECTED-DOC-WIDTH-CEILING`, each driving the SHARED scanner in
@@ -92,6 +93,10 @@ _DOC_WIDTH: Final = 'tests/architecture/test_injected_doc_width_ceiling.py'
 _HOOKS: Final = 'tests/architecture/test_the_declared_hooks_are_installed.py'
 _BOUNDED: Final = 'tests/architecture/test_a_bounded_wait_names_its_remedy.py'
 _ORIGIN: Final = 'tests/architecture/test_this_checkout_is_visible_on_origin.py'
+_BOX: Final = 'tests/architecture/test_the_verdict_run_takes_the_box.py'
+_DOOR: Final = 'tests/architecture/test_the_dependency_door_is_wired.py'
+_DOOR_PORT: Final = 'scripts/dep.py'
+_TOLERANCE: Final = 'tests/architecture/test_a_relative_tolerance_carries_its_floor.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -102,11 +107,24 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'DECLARATION-LIES': (_PURITY,),
     # Every guard is called on PLANTED input: a dropped dependency's import, a silent module, a
     # second home for one name, a deferred import, an oversize module, a skip, a count pin, a
-    # forked memory path, a stale frontmatter date, a resurrected spelling, each ratchet direction.
-    'PLANTED-CONTROL': (_PURITY, _SURFACE, _STRANGER, _PIN_SHAPE, _RETIRED, _MEMORY, _RULES_RATCHET),
+    # forked memory path, a stale frontmatter date, a resurrected spelling, each ratchet direction,
+    # a second run contending for a real box seat, a verdict held while the environment is pushed,
+    # a tolerance written as a bare ratio.
+    'PLANTED-CONTROL': (
+        _PURITY,
+        _SURFACE,
+        _STRANGER,
+        _PIN_SHAPE,
+        _RETIRED,
+        _MEMORY,
+        _RULES_RATCHET,
+        _BOX,
+        _DOOR,
+        _TOLERANCE,
+    ),
     # No scanner reports green over a file list shorter than its measured floor, and `assert_floor`
     # is one function with one control rather than a line repeated per scan.
-    'FLOOR-ON-EVERY-SCAN': (_PURITY, _SURFACE, _PIN_SHAPE, _RETIRED, _MEMORY, _RULES_RATCHET),
+    'FLOOR-ON-EVERY-SCAN': (_PURITY, _SURFACE, _PIN_SHAPE, _RETIRED, _MEMORY, _RULES_RATCHET, _TOLERANCE),
     # No upper bound on a runtime requirement, and lab-commons is a bare git+https URL, never a sha.
     'LATEST-DEPENDENCIES': (_PURITY,),
     # `__all__` in every shipped module, and one public name with exactly one home.
@@ -167,26 +185,66 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # git answers it without a network call. Named sets on both sides, and the stale-local-trunk
     # trap planted on real repositories with a real remote.
     'SHARED-CHECKOUT': (_ORIGIN,),
+    # CLOSED 2026-09-17, and the reason on record was refuted by this repo's own entry point: it
+    # said there is "no runner to queue on a box lock", which answers about a RUNNER while
+    # `lab_commons.dev.verify` -- the only verdict command this repo has -- already calls
+    # `hold_the_box` and holds the box-scoped seat across ruff and pytest. So this repo was already
+    # a party to the rendezvous and had nothing that could notice the seat being dropped. The
+    # mechanism is the family's (`boxlock`/`boxwait`); what is local is the assertion that THIS
+    # repo's entry point takes it, contention planted on real locks in an isolated records
+    # directory, and the PATH half -- a job under a pool name of its own is refused anyway.
+    'ONE-BOX-ONE-LOCK': (_BOX,),
+    # CLOSED 2026-09-17. The old reason said nothing here issues a verdict another party cites;
+    # `.verify/verify-*.log` carries an `env=` key computed when the run ENDS, which is exactly the
+    # invariant the door exists for, and `lab_commons.dev.dep`'s own docstring named this repo as
+    # the one supplying neither adapter. `scripts/dep.py` supplies both -- the box seat as the
+    # exclusion, the verdict logs as the anchors -- so the report renders NEITHER gap, against a
+    # control port that supplies neither and must render BOTH.
+    'ENV-MUTATION-THROUGH-THE-DOOR': (_DOOR, _DOOR_PORT),
+    # CLOSED 2026-09-17, in the one half of the rule that has a subject in a unitless package. The
+    # unit half of the old reason still stands and is untouched; what does not need a unit is
+    # `never write a rel= without the abs= floor it is combined with`, and this package compares
+    # quantities that pass through zero, where a ratio admits only exactly zero. Every tracked
+    # `approx` call is PARSED, adopted at zero (two call sites, both bare) with a floor on the
+    # call sites read and a control that plants all four shapes.
+    'TOLERANCE-CARRIES-A-UNIT': (_TOLERANCE,),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
 
-#: NOT ENFORCED HERE, each with its reason. Three kinds, and the kind matters:
+#: NOT ENFORCED HERE, each with its reason -- and every reason below was RE-MEASURED on 2026-09-17
+#: rather than re-read, because a reason that has never been re-measured is a claim and not a fact.
+#: That pass is what moved three names out of this set; these eight survived it. Two kinds:
 #:
-#: * NO SUBJECT IN THIS REPO -- a mechanism would check an empty set, which is the vacuous green
-#:   this family refuses: BAR-IS-A-CONSTANT and IMPLEMENT-EVERYTHING (no reference ladder and no
-#:   accuracy matrix: a metric here is exact arithmetic, not a measurement against a vendor),
-#:   PRODUCTION-ENTRY-POINT (the API IS the entry point; there is no CLI), TOLERANCE-CARRIES-A-UNIT
-#:   and UNITS-GO-THROUGH-PINT (`Variable.unit` is a free-text LABEL this package never computes
-#:   with -- it is SI-agnostic pure numerics and pint is not a dependency it may take),
-#:   REGISTRY-OWNS-THE-DECISION (there is one registry and the surrogate keys already live in it).
-#: * WORKFLOW RULES WITH NO MACHINERY HERE -- optimi-lab has no gate runner, no retry wrapper and
-#:   no agent deny-list: VERDICT-BAR-IS-THE-INCREMENT,
-#:   NETWORK-RETRY-THEN-REPORT, AGENT-GUARD, and -- added 2026-09-16 -- the two
-#:   rules ENV-MUTATION-THROUGH-THE-DOOR and ONE-BOX-ONE-LOCK: both are about a SHARED box and a
-#:   SHARED environment, and this repo has neither. Its `.venv` is its own, nothing here issues a
-#:   verdict another party cites, and there is no runner to queue on a box lock. A mechanism for
-#:   either would be a check over an empty set.
+#: * NO SUBJECT IN THIS REPO, measured: BAR-IS-A-CONSTANT and IMPLEMENT-EVERYTHING (no reference
+#:   ladder and no accuracy matrix -- a metric here is exact arithmetic, not a measurement against a
+#:   vendor, and there is no capability table a combination could be kept out of);
+#:   PRODUCTION-ENTRY-POINT (the API IS the entry point and `pyproject.toml` declares no console
+#:   script; the enforceable half of the rule is the placement scan, and `scripts/` holds two files,
+#:   both of which drive a family mechanism and neither of which imports `optimi_lab` -- a corpus
+#:   that small makes a placement guard's floor the guard's whole content);
+#:   UNITS-GO-THROUGH-PINT (`Variable.unit` is a free-text LABEL this package never computes with,
+#:   and `pyproject.toml` declares numpy/scipy/scikit-learn and nothing else -- pint is a dependency
+#:   this library may not take, and narrowing some other scan to say otherwise would be a fake
+#:   closure); REGISTRY-OWNS-THE-DECISION (there is one registry,
+#:   `src/optimi_lab/surrogate_model/registry.py`, the surrogate keys already live in it, and
+#:   `test_a_declared_set_refuses_a_stranger.py` already refuses an unregistered key -- what is
+#:   missing is a SECOND kind to branch on, not a guard).
+#: * WORKFLOW MACHINERY THIS REPO GENUINELY DOES NOT HAVE, measured at the filesystem rather than
+#:   asserted: VERDICT-BAR-IS-THE-INCREMENT (the rule is about a verdict scoped to a push increment;
+#:   the only hook installed here is `pre-commit`, `.pre-commit-config.yaml` declares no `pre-push`
+#:   stage, and `lab_commons.dev.verify` judges the SELECTION it was given rather than an increment
+#:   -- there is no increment for a bar to be);
+#:   NETWORK-RETRY-THEN-REPORT (the rule's remedy is a retry wrapper; there is none in this tree and
+#:   none in `lab_commons.dev`, so there is nothing to route a network verb through and a guard
+#:   demanding one would name a file that cannot exist);
+#:   AGENT-GUARD (the shared deny REGISTRY exists -- `lab_commons.dev.hooks` plus
+#:   `hook_adoption.render` -- but its ENGINE does not: `lab_commons` ships no executable matcher,
+#:   the engine the registry's own recipe points at is a `.js` file in another repo, and this repo
+#:   has no `.claude/settings.json` and no `PreToolUse` matcher. Rendering `deny-rules.json` with
+#:   nothing to read it would be an inert declaration reading as a guard, which is the exact defect
+#:   this registry exists to remove. This row is the one worth closing next, and the missing piece
+#:   is an engine in the family rather than a file here.)
 #:
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
@@ -196,14 +254,11 @@ _ABSENT: Final = frozenset({
     'BAR-IS-A-CONSTANT',
     'IMPLEMENT-EVERYTHING',
     'PRODUCTION-ENTRY-POINT',
-    'TOLERANCE-CARRIES-A-UNIT',
     'UNITS-GO-THROUGH-PINT',
     'REGISTRY-OWNS-THE-DECISION',
     'VERDICT-BAR-IS-THE-INCREMENT',
     'NETWORK-RETRY-THEN-REPORT',
     'AGENT-GUARD',
-    'ENV-MUTATION-THROUGH-THE-DOOR',
-    'ONE-BOX-ONE-LOCK',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -224,7 +279,18 @@ _ABSENT: Final = frozenset({
 #: (`hook_install`, `bounded`, `checkout`) and this repo wired each one to its own tree.
 #: HOOKS-ARE-WIRED was the sharpest: the reason on record claimed there was no subject here, and
 #: there were 19 declared hooks with none installed.
-_ABSENT_CEILING: Final = 11
+#:
+#: AND 11 -> 8 on 2026-09-17, on the same method applied to the rows that were left: MEASURE the
+#: premise rather than reading it. Two of the three were the same mistake as HOOKS-ARE-WIRED in a
+#: different spelling -- a reason that answered about machinery this repo does not have
+#: (a gate runner, a shared box) while the rule is about a property this repo's ONE verdict command
+#: already has (it takes the box seat; it writes a log carrying an `env=` key). The third,
+#: TOLERANCE-CARRIES-A-UNIT, was true as far as it went and did not go far enough: the unit half has
+#: no subject here and the `rel=` without `abs=` half needs no unit.
+#:
+#: FOUR ROWS WERE RE-MEASURED AND LEFT OPEN, which is the other honest outcome and not a lesser one.
+#: The reasons above each of them now state a measurement rather than an assertion.
+_ABSENT_CEILING: Final = 8
 
 
 def _adoption() -> Adoption:
