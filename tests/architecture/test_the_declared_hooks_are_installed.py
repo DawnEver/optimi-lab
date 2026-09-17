@@ -52,7 +52,17 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 #: The floor on this scan, and it is the SET rather than a count -- a count cannot say WHICH stage
 #: moved. A configuration that parsed to nothing would let this file agree with any tree at all.
 #: MEASURED 2026-09-16. Two-sided: a stage added and not installed reds, a stage removed reds.
-DECLARED_STAGES: Final = frozenset({'pre-commit'})
+#:
+#: `commit-msg` ARRIVED ON 2026-09-17 AND THE GAP IT NAMES WAS ALWAYS HERE. Adopting the family
+#: `.pre-commit-config.yaml` base spells commitizen's stage out -- `stages: [commit-msg]` -- where
+#: this repo had left it implicit. WHICH stage commitizen runs at did not change: MEASURED through
+#: `pre_commit.repository.all_hooks` before and after, it resolved to `commit-msg` both times,
+#: because the upstream manifest already said so. What changed is that this guard reads the
+#: CONFIGURATION TEXT, so an implicit stage was invisible to it -- and the commit-msg shim had never
+#: been installed, which means every commit message through this checkout had gone unchecked while
+#: the tree read as guarded. The adoption did not create the stage, it made the hole legible, and
+#: the hole was closed in the same commit with the argv the failure message below derives.
+DECLARED_STAGES: Final = frozenset({'commit-msg', 'pre-commit'})
 
 
 def test_this_repository_declares_hooks_at_all() -> None:
@@ -129,6 +139,13 @@ def test_a_foreign_hook_is_not_an_installed_one(tmp_path: Path) -> None:
 
     Re-installing over a hand-written hook DELETES it, so "somebody else's hook" and "pre-commit's
     hook, stale" are two findings with two different remedies and may not be collapsed into one.
+
+    THE PLANT IS DERIVED FROM THE CONFIGURATION, never spelled. A fixture that hard-coded
+    `pre-commit` was measuring one stage and reporting about all of them, which the 2026-09-17
+    adoption caught: the base spells commitizen's `commit-msg` out, a second stage appeared, and the
+    unplanted one answered `declared-but-absent` -- a TRUE finding about the fixture and a false one
+    about the status under test. Planting every declared stage is what keeps this reading about
+    FOREIGNNESS.
     """
     fixture = tmp_path / 'checkout'
     fixture.mkdir()
@@ -138,7 +155,10 @@ def test_a_foreign_hook_is_not_an_installed_one(tmp_path: Path) -> None:
     )
     directory = hooks_dir(fixture)
     directory.mkdir(parents=True, exist_ok=True)
-    (directory / 'pre-commit').write_text('#!/bin/sh\necho mine\n', encoding='utf-8')
+    planted = sorted(declared_stages(fixture / DEFAULT_CONFIG_NAME))
+    assert planted, 'the fixture configuration declares no stage, so this plants nothing'
+    for stage in planted:
+        (directory / stage).write_text('#!/bin/sh\necho mine\n', encoding='utf-8')
 
     statuses = {stage.status for stage in hook_installation(fixture, config_name=DEFAULT_CONFIG_NAME).stages}
     assert statuses == {'present-but-not-pre-commits'}

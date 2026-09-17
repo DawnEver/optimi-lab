@@ -15,11 +15,21 @@ exist. It says nothing about whether any rule or target is CORRECT.
 
 THE RATCHET HAS TWO SIDES AND BOTH ARE HERE. A base line cannot silently vanish, because a missing
 one with no declared drop reds; and a delta cannot silently grow into a fork, because every delta
-carries a ceiling and a delta re-stating a base line is refused at render time. The third side is
-the one a single repo can still get wrong -- an artefact quietly left unadopted -- so
-`_famconfig.PRECOMMIT_BLOCKED` is a DECLARATION rather than an absence, and the test below re-drives
-the refusal it names. The day the renderer can express a nested addition, that test reds and the
-artefact gets adopted; a waiver nothing uses is as wrong as a capability that disappears.
+carries a ceiling -- anchored lines included -- and a delta re-stating a base CONTENT line is refused
+at render time.
+
+`.pre-commit-config.yaml` WAS THE THIRD SIDE UNTIL 2026-09-17: an artefact quietly left unadopted,
+held visible by a NAMED REFUSAL whose reason a test here re-drove. `Delta.anchored` killed both
+causes that refusal stated, so the artefact is adopted and the refusal and its test are gone WITH
+their subject, in the same commit -- a reason that outlives its cause is the declaration that lies.
+
+WHAT REPLACED THEM IS NOT PROSE. The adoption moves this repo's two upstream pins and narrows every
+hook the base's `default_stages` governs, and both are read back below off the REAL hook engine
+rather than off this file's YAML: a hook with no `stages:` key inherits them from the manifest of
+the repo it comes from, so a table computed here would be a guess about another repository wearing a
+measurement's clothes. The narrowing costs this checkout nothing because only `pre-commit` is
+installed here -- and THAT is asserted too, because the day a pre-push hook is installed the
+narrowing stops being free and this repo should find out from a red rather than from a miss.
 """
 
 from __future__ import annotations
@@ -28,7 +38,7 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from _famconfig import DELTAS, EXTRA_HOOK_IDS, PRECOMMIT_BLOCKED, REPO
+from _famconfig import DELTAS, EXTRA_HOOK_IDS, REPO
 from lab_commons.dev.famconfig import (
     BASES,
     INSTALLED,
@@ -41,10 +51,36 @@ from lab_commons.dev.famconfig import (
     measured_delta,
     render,
 )
+from lab_commons.dev.hook_install import DEFAULT_CONFIG_NAME, hook_installation, hooks_dir
+from pre_commit.clientlib import load_config
+from pre_commit.repository import all_hooks
+from pre_commit.store import Store
 
 #: THE TREE UNDER TEST, not the working directory: a scan rooted at the CWD answers, plausibly,
 #: about somebody else's checkout.
 _ROOT: Final = Path(__file__).resolve().parents[2]
+
+#: The artefact the stage tests read. Named once so a rename cannot leave one of them measuring a
+#: path that no longer exists and reporting nothing found as nothing wrong.
+_PRECOMMIT: Final = '.pre-commit-config.yaml'
+
+#: The floor under a stage reading. A config the engine resolved to nothing is consistent with every
+#: claim about which hooks narrowed, so finding nothing there is vacuous rather than green. Set below
+#: the 19 this repo declares: a floor refuses an unread file, it is not a second pin on the count.
+_HOOK_FLOOR: Final = 15
+
+#: The hooks that still reach pre-push after the adoption, MEASURED 2026-09-17 through
+#: `pre_commit.repository.all_hooks`. All five are stock and all five are here for the same reason:
+#: their UPSTREAM manifest declares `[pre-commit, pre-push, manual]`, so the base's
+#: `default_stages: [pre-commit]` never governed them. This repo declares no hook of its own, so
+#: there is nothing else on the list.
+_KEEPS_PRE_PUSH: Final = (
+    'check-added-large-files',
+    'check-shebang-scripts-are-executable',
+    'destroyed-symlinks',
+    'end-of-file-fixer',
+    'trailing-whitespace',
+)
 
 
 def test_every_family_base_is_either_declared_or_refused() -> None:
@@ -54,16 +90,12 @@ def test_every_family_base_is_either_declared_or_refused() -> None:
     repo has not adopted from one the kit has not published. So the two named sets must together
     cover the kit's, exactly -- and neither may name an artefact the kit does not own.
     """
-    accounted = set(DELTAS) | set(PRECOMMIT_BLOCKED)
-    assert accounted == set(BASES), (
-        f"{REPO} accounts for {sorted(accounted)} against the kit's {sorted(BASES)}. A base the kit "
+    assert set(DELTAS) == set(BASES), (
+        f"{REPO} accounts for {sorted(DELTAS)} against the kit's {sorted(BASES)}. A base the kit "
         f'publishes and this repo neither adopts nor refuses is an artefact drifting with nobody '
-        f'saying so: add a Delta to _famconfig.DELTAS, or a row to PRECOMMIT_BLOCKED with the reason.'
-    )
-    assert not (set(DELTAS) & set(PRECOMMIT_BLOCKED)), 'an artefact cannot be both adopted and refused'
-    assert all(reason.strip() for reason in PRECOMMIT_BLOCKED.values()), (
-        'a refusal with an empty reason is an absence wearing a declaration. A removal and a drift '
-        'are the same bytes on disk; the reason is the only thing that tells them apart.'
+        f'saying so: add a Delta to _famconfig.DELTAS, or -- if it genuinely cannot be adopted -- a '
+        f'named refusal carrying the reason, which is the shape this repo held '
+        f'.pre-commit-config.yaml in until the kit learned to anchor an addition on 2026-09-17.'
     )
 
 
@@ -142,28 +174,117 @@ def test_a_negation_in_the_delta_cannot_quietly_reopen_a_base_rule() -> None:
     )
 
 
-def test_the_refused_artefact_is_still_actually_refused() -> None:
-    """THE WAIVER'S OTHER SIDE. A reason that outlives its cause is a declaration that lies.
+def _resolved_stages() -> dict[str, frozenset[str]]:
+    """Which stages each hook in the live artefact runs at, resolved by pre-commit's OWN engine.
 
-    This drives the REAL renderer with the minimal delta `.pre-commit-config.yaml` would need -- one
-    structural YAML line that any second repo entry repeats -- and asserts it is still refused. When
-    `famconfig` learns to express a nested addition this reds, and the remedy is to adopt the
-    artefact rather than to delete this test.
+    Not by parsing the YAML here: a hook with no `stages:` key inherits them from the UPSTREAM
+    manifest of the repo it comes from, so a reading taken off this file alone would be a guess about
+    another repository dressed as a measurement. This is the code the git hook itself runs.
     """
-    base = artefact_base('.pre-commit-config.yaml')
-    assert base.mode == RENDERED, 'the refusal below is about RENDERED byte equality'
-    assert EXTRA_HOOK_IDS, 'the refusal claims this repo runs extra stock hook ids; it must name them'
-    structural = '    hooks:'
-    assert structural in base.lines, (
-        f'{structural!r} is no longer a base line, so the collision this waiver names has moved. '
-        f'Re-measure the refusal before trusting it.'
+    return {hook.id: frozenset(hook.stages) for hook in all_hooks(load_config(str(_ROOT / _PRECOMMIT)), Store())}
+
+
+def test_the_stage_narrowing_the_adoption_made_is_what_the_hook_engine_reads() -> None:
+    """THE BEHAVIOUR CHANGE, MEASURED against the real engine rather than asserted in a docstring.
+
+    Before adoption this repo declared no `default_stages`, so any hook whose UPSTREAM manifest
+    declares none either inherited all eleven stages. The base declares `default_stages:
+    [pre-commit]`, which narrows them to one. Five stock ids keep `[pre-commit, pre-push, manual]`
+    because their own manifest says so and an explicit declaration beats a default, and `commitizen`
+    keeps `commit-msg` the same way.
+
+    A FLOOR, because a table read off a config the engine resolved to nothing agrees with every claim
+    made about it, and both sides, because a set that only named what narrowed could not see a hook
+    silently JOINING the narrowing.
+    """
+    hooks = _resolved_stages()
+    assert len(hooks) >= _HOOK_FLOOR, (
+        f'the engine resolved {len(hooks)} hooks from {_PRECOMMIT}, below the {_HOOK_FLOOR} floor. '
+        f'A stage table read off an empty config agrees with every claim made about it.'
     )
-    probe = Delta(repo=REPO, added=(structural,), dropped={structural: 'redeclared with the extra ids'}, ceiling=1)
-    assert delta_problems(base, probe), (
-        'a second repo entry is now expressible, so _famconfig.PRECOMMIT_BLOCKED is stale. Adopt '
-        '.pre-commit-config.yaml: declare the eight EXTRA_HOOK_IDS as a Delta, render it, and delete '
-        'this test with the waiver it guards.'
+    measured = frozenset(hook_id for hook_id, stages in hooks.items() if 'pre-push' in stages)
+    assert measured == frozenset(_KEEPS_PRE_PUSH), (
+        f'the hooks still reaching pre-push are {sorted(measured)}, and this repo declares '
+        f'{sorted(_KEEPS_PRE_PUSH)}. Extra in the engine is a hook that kept a stage nobody recorded; '
+        f"extra in the declaration is a reason that outlived its cause. Either way the adoption's "
+        f'measurement has stopped describing the file.'
     )
+
+
+def test_the_narrowing_is_free_here_only_while_no_pre_push_hook_is_installed() -> None:
+    """WHY THE NARROWING IS ADOPTED WITHOUT A DROP REASON, and the condition it rests on, PINNED.
+
+    Thirteen stock hooks lose ten stages each, and that costs this checkout nothing for one reason
+    only: the sole git hook installed here is `pre-commit`, so those stages had nothing to run at.
+    The sibling lab takes the identical base and records the identical change as a REAL loss,
+    because it has a pre-push hook. The difference is the installation, not the config.
+
+    So the premise is asserted rather than described. Install a pre-push hook and this reds, which is
+    the correct moment to decide whether those thirteen should carry `stages:` of their own -- far
+    better than the narrowing silently becoming a loss nobody re-derived.
+    """
+    report = hook_installation(_ROOT, config_name=DEFAULT_CONFIG_NAME)
+    assert report.config is not None, f'no {DEFAULT_CONFIG_NAME} at {_ROOT}; this guard is watching nothing'
+    live = hooks_dir(_ROOT)
+    assert live.is_dir(), f'no hooks directory resolved at {live}; this guard looked nowhere'
+    assert not (live / 'pre-push').exists(), (
+        f'a pre-push hook is installed at {report.hooks_dir}, so the ten stages the base takes off '
+        f'thirteen stock hooks are no longer free here. Re-measure the adoption: either declare '
+        f'`stages:` on the hooks this repo wants at push, or record the loss as a DROP with a reason '
+        f'the way the sibling lab does in _famconfig.PRECOMMIT_STAGE_MOVE.'
+    )
+
+
+def test_the_pins_the_adoption_moved_are_the_bases_own() -> None:
+    """THE OTHER THING THE ADOPTION MOVED, and it is a pin bump that must not pass unremarked.
+
+    This repo held `pre-commit-hooks` at v5.0.0 and `commitizen` at v4.6.0; the base takes the newest
+    measured pin of the three consumers, v6.0.0 and v4.13.9. Nothing in the rendered-bytes property
+    would distinguish a base whose pin moved from one whose hook LIST moved, so the thing worth
+    checking is that every id this repo declared before still RESOLVES at the new pin -- a stock hook
+    renamed or removed upstream would otherwise arrive as a config that validates and a guard that
+    quietly stopped running.
+    """
+    hooks = _resolved_stages()
+    lost = sorted(set(EXTRA_HOOK_IDS) - set(hooks))
+    assert not lost, (
+        f'{lost} no longer resolve at the pins the base declares. A stock hook that vanished in an '
+        f'upstream release is a guard this repo lost by upgrading, not a line to delete.'
+    )
+    assert 'commitizen' in hooks, 'commitizen did not resolve at the pin the base declares'
+
+
+def test_an_anchor_that_names_no_position_is_still_refused() -> None:
+    """PLANTED CONTROL FOR THE CAPABILITY THIS ADOPTION RESTS ON, driven through the REAL renderer.
+
+    `Delta.anchored` is what made `.pre-commit-config.yaml` adoptable, and a positioning mechanism
+    that accepted anything would be a fork with better manners. So its refusals are planted here
+    rather than trusted upstream: an anchor on a line the base REPEATS names no position at all --
+    `    hooks:` occurs twice in this base, so picking one would be a coin flip the reader cannot
+    see -- and an anchor carrying no lines is a waiver nothing uses.
+
+    This repo's real anchor is the control's other side: it must be accepted, or the test would be
+    asserting that anchoring never works.
+    """
+    base = artefact_base(_PRECOMMIT)
+    repeated = '    hooks:'
+    assert base.occurrences(repeated) > 1, (
+        f'{repeated!r} occurs {base.occurrences(repeated)} time(s) in the base, so the ambiguity this '
+        f'plants no longer exists there. Pick another repeated line or drop the control.'
+    )
+    assert delta_problems(base, Delta(repo=REPO, added=(), dropped={}, ceiling=1, anchored={repeated: ('x',)})), (
+        'an anchor on a line the base repeats was accepted -- it names no position, so the rendered '
+        'result is a coin flip nothing in the artefact records'
+    )
+    absent = '      - id: a-hook-no-base-declares'
+    assert delta_problems(base, Delta(repo=REPO, added=(), dropped={}, ceiling=1, anchored={absent: ('x',)})), (
+        'an anchor on a line the base does not have was accepted -- a declaration outliving its subject'
+    )
+    empty = '      - id: check-added-large-files'
+    assert delta_problems(base, Delta(repo=REPO, added=(), dropped={}, ceiling=1, anchored={empty: ()})), (
+        'an anchor adding nothing was accepted -- a waiver nothing uses is as wrong as a capability that disappears'
+    )
+    assert not delta_problems(base, DELTAS[_PRECOMMIT]), "and this repo's real anchor must be accepted"
 
 
 def test_the_extra_hook_ids_are_really_declared_in_this_repo() -> None:

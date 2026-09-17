@@ -17,6 +17,14 @@ correct for a second reason (pip re-clones a direct URL rather than treating it 
 SO THIS FILE EXISTS TO KEEP THAT TRUE RATHER THAN TO REPAIR ANYTHING, and the difference matters
 because the sibling repo that DID revert did it through a git hook nobody had listed as a door. The
 day a `uv sync` or a bare `uv run` is added to this Makefile or to a hook here, this reds.
+
+THE DOOR SET IS OPTIMI-LAB'S OWN AND THAT IS WHY THIS FILE STAYS HERE, which `_placement` records as
+the deciding fact. Which files in a tree can move an environment is not portable: this repo installs
+through a `.github/workflows/ci.yml` the sibling lab does not have, and the sibling installs through
+a `generate-changelog` git hook and an update script that optimi-lab does not have. The MECHANISM
+around the set -- `scan_doors`, `floating_requirements`, `reverting`, `assert_doors_deliver` -- is
+entirely `lab_commons.dev.installdoor`, so what is genuinely this package's is the five paths in
+`_DOORS` and the floor under them, and that is the whole of it.
 """
 
 from __future__ import annotations

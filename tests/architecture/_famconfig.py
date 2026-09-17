@@ -28,10 +28,26 @@ keep `__pycache__/` as its FINAL line does not arise: nothing in this delta re-i
 That is a fact about this tree today rather than a guarantee, so the ordering property in the test
 module is written to bite if a negation is ever added.
 
-`.pre-commit-config.yaml` IS DECLARED UNADOPTABLE HERE -- see :data:`PRECOMMIT_BLOCKED`. It is the
-third family base and this repo takes neither it nor a delta against it; the reason is a property of
-the RENDERER rather than of this repo, and the test module keeps the refusal live so that the day it
-is lifted, this row reds instead of resting.
+`.pre-commit-config.yaml` IS ADOPTED AS OF 2026-09-17, and the waiver that used to sit here is gone
+with its subject. Both causes it named are dead: `Delta.anchored` places a line INSIDE a rendered
+block without restating one, and `delta_problems` now compares against `content_lines`, so a blank
+is no longer read as a re-statement. See :data:`PRECOMMIT_DELTA`.
+
+THE ADOPTION MOVES THREE THINGS HERE AND EACH IS MEASURED IN THE TEST MODULE RATHER THAN ASSERTED:
+the `pre-commit-hooks` pin from v5.0.0 to v6.0.0 and the `commitizen` pin from v4.6.0 to v4.13.9,
+which is the base taking the newest measured pin of the three consumers; and `default_stages:
+[pre-commit]`, which narrows every hook whose upstream manifest declares no stages of its own from
+eleven stages to one. THE NARROWING COSTS THIS REPO NOTHING, and that is a fact about this checkout
+rather than an argument: MEASURED 2026-09-17, the only git hook installed here is `pre-commit`, so
+the ten stages the narrowing removes had no hook to run at. The sibling lab, which HAS a pre-push
+hook, records the same change as a real one -- the base is identical and the consequence is not.
+
+A FOURTH THING DISAPPEARS AND IT IS ONLY COMMENTS. This repo's `.pre-commit-config.yaml` carried a
+commented-out `- repo: local` block -- `generate-changelog`, `lint-python`, `fmt-python`, `codespell`,
+`mypy`, `pytest`, none of them live. A rendered artefact holds the base plus this repo's declared
+delta, so a commented draft of hooks nobody runs is not carried across. Nothing executed it before
+and nothing executes it now; what is lost is a menu, and `Makefile` already holds the live spelling
+of every item on it.
 """
 
 from __future__ import annotations
@@ -45,7 +61,7 @@ __all__ = [
     'EXTRA_HOOK_IDS',
     'GITIGNORE_DELTA',
     'MAKEFILE_DELTA',
-    'PRECOMMIT_BLOCKED',
+    'PRECOMMIT_DELTA',
     'REPO',
 ]
 
@@ -95,8 +111,9 @@ GITIGNORE_DELTA: Final = Delta(
 )
 
 #: The `pre-commit-hooks` ids this repo runs BEYOND the family's eleven, MEASURED 2026-09-17 against
-#: the live file. Held as data because it is the subject of :data:`PRECOMMIT_BLOCKED`: these seven
-#: are the lines that have nowhere to go under an append-only delta.
+#: the live file. Held as data because it is the SUBJECT of the anchor in :data:`PRECOMMIT_DELTA`:
+#: these eight are the lines that had nowhere to go while a delta could only append, and the test
+#: module reads them back off the rendered artefact so the named set cannot drift from the file.
 EXTRA_HOOK_IDS: Final[tuple[str, ...]] = (
     'check-builtin-literals',
     'check-illegal-windows-names',
@@ -108,36 +125,27 @@ EXTRA_HOOK_IDS: Final[tuple[str, ...]] = (
     'requirements-txt-fixer',
 )
 
-#: WHY THIS REPO TAKES NO DELTA AGAINST `.pre-commit-config.yaml`, and it is a DROP with a reason
-#: rather than an omission. MEASURED 2026-09-17 by driving `famconfig.delta_problems` with the real
-#: base; the test module re-drives it, so this text cannot outlive the refusal it describes.
+#: What this repo adds to the family's `.pre-commit-config.yaml`, and it adds nothing at the END.
+#: Every one of :data:`EXTRA_HOOK_IDS` belongs INSIDE the `pre-commit-hooks` entry the base renders,
+#: which is what `Delta.anchored` is for: the ids hang off `check-added-large-files`, a base line
+#: that occurs exactly ONCE, which is what makes it a position an anchor can name at all. Nothing is
+#: restated, so the anti-fork arm is undiminished.
 #:
-#: TWO INDEPENDENT CAUSES, and either alone is enough:
-#:
-#: 1. A DELTA MAY ONLY APPEND. The eight ids in :data:`EXTRA_HOOK_IDS` belong INSIDE the
-#:    `pre-commit-hooks` repo entry the base renders, and an append cannot reach into a rendered
-#:    block.
-#: 2. `delta_problems` REFUSES ANY DELTA LINE EQUAL TO A BASE LINE, comparing against `base.lines`
-#:    rather than `base.content_lines`. In a `.gitignore` a line is a whole statement and that is
-#:    exactly right. In YAML the structural lines repeat by construction: `    hooks:`,
-#:    `    rev: v6.0.0` and the BLANK separator all recur in any second repo entry, so the workaround
-#:    for cause 1 -- a second `pre-commit-hooks` entry, which `pre-commit validate-config` accepts as
-#:    VALID, measured -- is refused too, and so is drop-then-redeclare, because a dropped line is
-#:    still in `base.lines`.
-#:
-#: THE PIN PAIR IS A SEPARATE QUESTION AND IS NOT BLOCKED BY THIS. The base takes the newest measured
-#: pins and this repo was behind on both; moving to them is its own commit with its own measurement,
-#: because a pin bump hidden inside a config-unification change is the shape that makes the next
-#: regression unattributable.
-PRECOMMIT_BLOCKED: Final[dict[str, str]] = {
-    '.pre-commit-config.yaml': (
-        'the append-only delta cannot reach inside the rendered pre-commit-hooks entry, where this '
-        "repo's eight extra stock ids live; and delta_problems compares against base.lines rather "
-        'than base.content_lines, so the structural YAML lines a second repo entry needs are refused '
-        'as re-statements. Both are renderer properties, not facts about optimi-lab. Adopt when '
-        'lab_commons.dev.famconfig can express a nested addition.'
-    ),
-}
+#: THERE IS NO `- repo: local` ENTRY HERE and that is why this delta is eight lines while the sibling
+#: lab's is sixty-two. This repo runs no hook of its own: `lint`, `fmt` and `test` are Makefile
+#: targets a human invokes, not git hooks, and the commented-out block the old file carried was a
+#: draft nobody had ever enabled.
+PRECOMMIT_DELTA: Final = Delta(
+    repo=REPO,
+    added=(),
+    dropped={},
+    anchored={'      - id: check-added-large-files': tuple(f'      - id: {hook_id}' for hook_id in EXTRA_HOOK_IDS)},
+    #: Eight declared lines, one per extra id, and anchored lines count against a ceiling or
+    #: anchoring would be a ceiling nobody chose. Four of headroom: this repo adds stock hook ids and
+    #: nothing else, so a delta reaching thirteen would mean it had started running hooks of its own,
+    #: which is a decision to take deliberately rather than to discover here.
+    ceiling=12,
+)
 
 #: The Makefile base is REQUIRED rather than RENDERED -- target NAMES must be present and the recipes
 #: are this repo's. So this repo adds no lines and drops none: MEASURED 2026-09-17, all nine base
@@ -145,10 +153,11 @@ PRECOMMIT_BLOCKED: Final[dict[str, str]] = {
 #: verbatim because this repo declares no `slow` marker to tier against.
 MAKEFILE_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
 
-#: Every artefact this repo declares a delta against, by name. `.pre-commit-config.yaml` is absent
-#: BY DECLARATION -- :data:`PRECOMMIT_BLOCKED` holds the reason and the test pins that the two sets
-#: together cover every base the kit publishes, so a fourth base cannot arrive unnoticed.
+#: Every artefact this repo declares a delta against, by name. All three of the kit's bases are
+#: here as of 2026-09-17, and the test pins that this set covers the kit's EXACTLY, so a fourth
+#: base cannot arrive unnoticed.
 DELTAS: Final[dict[str, Delta]] = {
     '.gitignore': GITIGNORE_DELTA,
+    '.pre-commit-config.yaml': PRECOMMIT_DELTA,
     'Makefile': MAKEFILE_DELTA,
 }

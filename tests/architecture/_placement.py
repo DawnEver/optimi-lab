@@ -35,7 +35,7 @@ WHAT THE MEASUREMENT CANNOT SEE, stated so a reader does not supply "everything"
 * IT COUNTS LINES, NOT MEANING, and property 4 reads CODE rather than prose: a docstring naming
   optimisation forty times counts zero.
 * THE IDENTIFIER BOUNDARY CUTS BOTH WAYS. A repo fact written as a PATH, a NUMBER or a STRING
-  LITERAL is invisible here. Four rows below are honest `BELOW_THE_BAR` entries for exactly that
+  LITERAL is invisible here. Five rows below are honest `BELOW_THE_BAR` entries for exactly that
   reason and say so.
 * IT IS PYTHON-ONLY, which costs nothing here: measured 2026-09-17, `scripts/` holds three `.py`
   files and one `README.md`, and there is no shell script in either scanned tree. The wdg-lab twin
@@ -197,6 +197,23 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`.verify/verify-*.log`. Measured 2026-09-17: own=22 lines, under the ceiling. The seam is '
         'ALREADY CUT here, which is why this is a `STAYS` and not a `SPLITS`: `Port` is the shape '
         'upstream defined for exactly this residue, and this file is the residue.',
+    ),
+    'tests/architecture/test_the_install_doors_deliver_the_declared_kit.py': Placement(
+        STAYS,
+        'THE DECIDING FACT IS THE DOOR SET, WHICH IS FIVE PATHS IN THIS CHECKOUT AND NOTHING ELSE: '
+        '`Makefile`, `README.md`, `.pre-commit-config.yaml`, `.github/workflows/ci.yml` and '
+        '`scripts/dep.py`. Which files in a tree can move an environment is not portable -- the '
+        'sibling lab has a git hook and an update script where this one has a CI workflow -- so the '
+        "named set IS the deliverable. Everything around it is the family's: `scan_doors`, "
+        '`floating_requirements`, `reverting` and `assert_doors_deliver` are all '
+        '`lab_commons.dev.installdoor`, which is why this is a BINDER and a `STAYS` rather than a '
+        '`SPLITS` -- the seam is already cut upstream, exactly as it is for `scripts/dep.py`. THE '
+        'SIDE WAS MEASURED, NOT PICKED, 2026-09-17: own=21 repo=0 -> 0.00%, which is under the 3.0% '
+        'bar and comfortably under the 50-line binder ceiling, so it is admitted by the BINDER arm '
+        'alone and needs no BELOW_THE_BAR row. THE ZERO IS HONEST RATHER THAN A MISCLASSIFICATION: '
+        'every repo fact in the file is a PATH STRING in `_DOORS` or a NUMBER in `_DOOR_FLOOR`, and '
+        'an identifier scan cannot see either. MOVES was refused by the door set -- moving it would '
+        'put five paths that are true of this checkout only into a package three repos share.',
     ),
     'scripts/pdoc.py': Placement(
         STAYS,
@@ -608,6 +625,21 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'the sibling repos would get it too -- neither of them has this check at all. What stays is '
         'the two measured floors and the scope statement that keeps `UNITS-GO-THROUGH-PINT` '
         'honestly absent rather than answered by a narrowed scan.'
+    ),
+    'tests/architecture/_famconfig.py': (
+        'MEASURED 2026-09-17 AFTER ADOPTING THE `.pre-commit-config.yaml` BASE: own=65 repo=1 -> '
+        '1.54%, fifteen lines over the binder ceiling. THE READING IS HONEST AND THE ROW SAYS WHAT '
+        'MOVED. Before the adoption this file read own=66 repo=2 -> 3.03%, a hair over the bar on a '
+        'margin of ONE line -- and that line was the reason string of the refusal this adoption '
+        'deleted, which named '
+        'the repo only because a waiver is prose. Deleting the waiver with its subject deleted the '
+        'density too, which is the clearest possible demonstration that 3.03% was never evidence of '
+        'anything. THE REMEDY IS NOT A MOVE AND NOT A THINNING: this file is DATA computed by '
+        'nothing, and its repo facts are `.gitignore` PATTERNS (`usr/local/`, `result.json`, '
+        '`dumps/`), YAML HOOK IDS and a CEILING -- strings and numbers to the last one, which the '
+        'module docstring above already names as the boundary this scan cannot cross. THE SEAM IT '
+        'OWES IS ALREADY CUT: every mechanism it touches is `lab_commons.dev.famconfig`, and what '
+        'is left is the residue. It sits under a bar written for a different shape.'
     ),
     'tests/architecture/test_the_public_surface_is_declared.py': (
         'MEASURED 2026-09-17: own=153 repo=1 -> 0.65%, far under the bar and far over the ceiling. '
