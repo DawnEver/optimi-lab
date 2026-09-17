@@ -96,6 +96,7 @@ _ORIGIN: Final = 'tests/architecture/test_this_checkout_is_visible_on_origin.py'
 _BOX: Final = 'tests/architecture/test_the_verdict_run_takes_the_box.py'
 _DOOR: Final = 'tests/architecture/test_the_dependency_door_is_wired.py'
 _DOOR_PORT: Final = 'scripts/dep.py'
+_INSTALL_DOORS: Final = 'tests/architecture/test_the_install_doors_deliver_the_declared_kit.py'
 _TOLERANCE: Final = 'tests/architecture/test_a_relative_tolerance_carries_its_floor.py'
 _GUARD: Final = 'tests/architecture/test_the_agent_guard_is_live.py'
 _GUARD_RULES: Final = 'scripts/deny_rules.py'
@@ -203,6 +204,12 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # exclusion, the verdict logs as the anchors -- so the report renders NEITHER gap, against a
     # control port that supplies neither and must render BOTH.
     'ENV-MUTATION-THROUGH-THE-DOOR': (_DOOR, _DOOR_PORT),
+    # ADOPTED 2026-09-17, and this repo is the one that needed NO repair -- which is a measurement
+    # rather than a skip. All 22 installer commands in its declared door files are `uv pip install` /
+    # `pip install`, both of which re-resolve a bare git URL every time; none consults `uv.lock`, so
+    # none can serve the `0.2.2.dev26+gba3bf6de` this checkout's untracked lock still pins. The guard
+    # is what keeps that true: a `uv sync` or a bare `uv run` added to a target or a hook reds.
+    'INSTALL-DOOR-DELIVERS-THE-DECLARATION': (_INSTALL_DOORS,),
     # CLOSED 2026-09-17, in the one half of the rule that has a subject in a unitless package. The
     # unit half of the old reason still stands and is untouched; what does not need a unit is
     # `never write a rel= without the abs= floor it is combined with`, and this package compares
