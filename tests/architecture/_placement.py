@@ -430,28 +430,45 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '-> 0.65%, a `BELOW_THE_BAR` row.',
     ),
     'tests/architecture/test_the_rules_pages_are_a_ratchet.py': Placement(
-        MOVES,
-        'A SECOND COPY OF A SHAPE MOTRONICS-STUDIO ALREADY HOLDS: its '
-        '`tests/architecture/ratchets/test_rules_line_ratchet.py` pins the same thing, that '
-        '`.claude/rules/*.md` is re-read on every turn so every line is a cost paid on every '
-        'request. The mechanism -- count the lines of each always-loaded page, refuse all four '
-        'movements, and pin PER FILE rather than as a total -- has nothing about optimisation in it '
-        'and names ZERO repo nouns in code, so the converse holds. Its `_MEASURED` budgets are DATA '
-        'a shared mechanism would take as an argument, which is what makes this a move rather than a '
-        'split. THE DESTINATION NOW EXISTS AND THE MOVE IS DUE: `lab_commons.dev.famtests.rulespages` '
-        'publishes `page_lines`, `ratchet_breaks` and `assert_rules_ratchet`, takes the budgets as '
-        'the argument this row predicted, and ADDS the one reading this copy lacks -- a TOTAL '
-        'ceiling, without which each per-page pin is its own local decision and nothing caps their '
-        'sum. This row is therefore no longer "a move with no home"; it is an ADOPTION not yet '
-        'executed, and it is the only row in this roster in that state. '
-        'THE CENSUS MISSED IT, AND THE MISS IS WORTH MORE THAN THE ROW: `supersede.take_census` '
-        'graded it UNTOUCHED on kit `0.2.2.dev71+gf6c46bb90` because BOTH detectors need something '
-        'this pair does not have -- `rulespages` names no consumer path in its docstring, so '
-        'PROVENANCE cannot fire, and this file imports nothing from the kit, so IMPORT cannot '
-        'either. That is exactly the live-fork-that-imports-nothing shape the instrument names as '
-        'the worst case it was built for, and it is invisible whenever provenance is ALSO absent. '
-        'A ruler would have seen it: the surface overlap here is real. Found by HAND, recorded '
-        'rather than reclassified.',
+        SPLITS,
+        'EXECUTED 2026-09-18, kit `0.2.2.dev74+ga177ba62f`. This row spent two days as the only '
+        'ADOPTION-NOT-YET-EXECUTED in the roster; the whole of its local mechanism is now DELETED '
+        'and `lab_commons.dev.famtests.rulespages` drives the verdict. FAMILY: the reading, the '
+        'four-movement comparison, the vacuity floor and -- NEW HERE -- the TOTAL CEILING, which '
+        'is the one arm this copy never had and the reason the swap is not a wash: every per-page '
+        'pin is a LOCAL decision, so nothing capped their sum and a third and fourth page would '
+        'have been two defensible pins and one document nobody sized. LOCAL: the corpus definition '
+        '(this repo WALKS `.claude/rules/`, lab-commons takes its own from git, and the kit ships '
+        'no default because neither is right for the other), the two pins, the ceiling and the '
+        'floor. BOTH CONTROLS WENT UPSTREAM to `tests/test_famtests_rulespages.py` rather than '
+        'being copied: a duplicate control that cannot diverge from its original is maintenance '
+        'cost with no evidence value. THE SWAP WAS NOT A RENAME: exactly ONE of the six public '
+        'names survived the move (`ratchet_breaks`; `rule_pages` became `page_lines`, and every '
+        'repo fact became a keyword with no default), so every call site was re-read against the '
+        'new signatures rather than mapped. RE-MEASURED: own=25 repo=0 -> 0.00%, well under the '
+        '50-line binder ceiling and justified as a binder rather than by density; what is left is '
+        'four numbers and two paths, the shape the noun scan cannot see. '
+        'THE CENSUS MISS THIS ROW RECORDED IS CLOSED, AND THE RECORD IS KEPT BECAUSE THE MISS WAS '
+        'WORTH MORE THAN THE ROW. On kit `0.2.2.dev71+gf6c46bb90` `supersede.take_census` graded '
+        'this pair UNTOUCHED while it was already upstream, because BOTH detectors were blind at '
+        'once -- `rulespages` named no consumer path, so PROVENANCE could not fire, and this file '
+        'imported nothing from the kit, so IMPORT could not either. That is the '
+        'live-fork-that-imports-nothing shape the instrument names as the worst case it was built '
+        'for, invisible whenever provenance is ALSO absent. BOTH HALVES ARE NOW FIXED AND BY '
+        'DIFFERENT ROUTES: upstream turned provenance into DATA (`_provenance_rows.py`, audited by '
+        '`undeclared_modules`, so a published module naming nobody REDS -- forgetting is the '
+        'failure rather than the absence of one) and declares this pair `supersedes` with this '
+        "exact path; and this file now imports the kit, so IMPORT fires too. The registry's three "
+        'kinds are why that declaration is readable at all: `supersedes` (the consumer file was '
+        'replaced -- the only kind that opens a case), `adopted_by` (the consumer delegates and '
+        'STAYS) and `original` (no consumer fork). Prose could not tell the first two apart, which '
+        'is how a mention of `scripts/gate/runner.py` became a false positive. '
+        'ONE UPSTREAM EXPECTATION IS NOW HISTORICAL AND IS REPORTED RATHER THAN EDITED: '
+        "lab-commons's `tests/_supersede_rows.py` pins this file as a fixture case, hand-read "
+        '`already_in_the_kit` and expected PARTIAL on the strength of its three `test_*` functions '
+        'plus `PAGE_FLOOR` and `rule_pages` being remainder. Those are exactly what this commit '
+        'deleted, so the fixture now describes a file that no longer has that remainder. That is '
+        "lab-commons's row to re-take, not this roster's to edit.",
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': Placement(
         STAYS,

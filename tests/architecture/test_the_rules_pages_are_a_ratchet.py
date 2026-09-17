@@ -1,12 +1,31 @@
-"""The always-loaded rule pages may only SHRINK, and they are pinned per file, not as a total.
+"""The always-loaded rule pages may only SHRINK, and their SUM is capped -- this repo's answers only.
 
 `.claude/rules/*.md` is re-read on every turn, so every line in it is a cost paid on every
-request. Nothing measured that cost in this repo until now, which is the whole of the DOCS-SPLIT
-gap: the two pages existed and could grow without limit, and mechanism could migrate into them
-from the module docstrings that own it.
+request. Nothing measured that cost in this repo until 2026-09-15, which was the whole of the
+DOCS-SPLIT gap: the two pages existed and could grow without limit, and mechanism could migrate
+into them from the module docstrings that own it.
 
-THE ADMISSION CRITERION for a line in an always-loaded file, and the way past this ratchet is
-never to raise a number:
+THE MECHANISM IS NO LONGER HERE. `lab_commons.dev.famtests.rulespages` owns the reading, the
+four-movement comparison, the total budget and the vacuity floor; this file declares the four facts
+that are about optimi-lab and nothing else -- WHICH FILES ARE PAGES, what each is pinned at, what
+their sum may be, and how small a scan may get before it is refused. The kit takes every one of
+them as a keyword with NO DEFAULT, precisely so that a repo with no measurement cannot be handed
+another repo's and have it reported back as measured.
+
+THE ADOPTION ADDED AN ARM THIS FILE NEVER HAD, and it is the reason the swap is not a wash. A
+per-page pin is a LOCAL decision: each of these two numbers is separately defensible and NOTHING
+capped their sum, so a third and fourth page arriving at 30 lines each would be four defensible
+pins and one 115-line document nobody sized. `CEILING` is that missing half. It is the
+`DEBT`/`DEBT_CEILING` shape this repo already uses elsewhere -- the names are the population, the
+sum is the budget.
+
+WHAT WENT UPSTREAM WITH THE MECHANISM: both of this file's controls. The four planted movements and
+the planted-page scan are `tests/test_famtests_rulespages.py` in lab-commons, driven against the
+same functions this file calls, so keeping copies here would be duplicate evidence that cannot
+diverge from its original.
+
+THE ADMISSION CRITERION for a line in an always-loaded file, and the way past a pin is never to
+raise a number:
 
 1. **NOT ENFORCED.** If a test already refuses it, the prose goes and the test stays. Every guard
    in `tests/architecture/` is a line these pages do not have to carry.
@@ -15,12 +34,10 @@ never to raise a number:
    consults it. A declaration next to its enforcement cannot drift; prose in a rule page can.
 4. **COSTLY IF WRONG.** Without the line the DEFAULT behaviour is wrong, not merely suboptimal.
 
-PINNED PER FILE, and the reason is the one this family has already paid for: a total cannot say
-WHICH page grew, so a rule migrating from one file to the other -- which changes nothing about the
-cost and hides the movement -- would be absorbed silently. The per-file map is also TWO-SIDED: a
-page that arrives unpinned reds, and a pin naming a page that no longer exists reds too, because a
-budget a deletion freed is given back in the same edit rather than banked as slack for the next
-arrival.
+WIDTH IS SOMEBODY ELSE'S JOB, and deliberately so: `test_injected_doc_width_ceiling.py` scans this
+exact corpus through `lab_commons.dev.docwidth`, with its own ceiling, named set and floor. A count
+pin is one unit per line however long the line is, so the two pins measure different dimensions --
+but measuring width twice would be two statements of one rule.
 """
 
 from __future__ import annotations
@@ -28,92 +45,67 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
+from lab_commons.dev.famtests import rulespages
+
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _RULES: Final = _ROOT / '.claude' / 'rules'
 
-#: Every always-loaded page, to its line count MEASURED 2026-09-15. Each number RATCHETS DOWN:
-#: lower it in the commit that shrinks the page, never raise it. Raising one is a claim that a new
-#: rule could not be expressed inside the budget AND that no existing line fails a criterion above,
-#: and that claim belongs in the commit message where a reader can refuse it.
-_MEASURED: Final[dict[str, int]] = {
-    # The domain facts no test catches: what this library refuses to become. 33 lines.
+
+#: WHICH FILES ARE PAGES, and it is a repo decision rather than an obvious one. This repo WALKS the
+#: directory: the cost `.claude/rules/` imposes is paid by whatever is on disk when the turn starts,
+#: so an untracked page is a page. lab-commons takes its corpus from `git ls-files` instead, on the
+#: opposite and equally good ground that what is not tracked is not the fleet's. Neither default
+#: would be right for the other, which is why the kit has none.
+def _pages() -> list[Path]:
+    """THE CORPUS: every markdown file under `.claude/rules/`, recursively, sorted."""
+    return sorted(_RULES.rglob('*.md'))
+
+
+#: Every always-loaded page, to its line count RE-MEASURED 2026-09-18 and unchanged since
+#: 2026-09-15. Each number RATCHETS DOWN: lower it in the commit that shrinks the page, never raise
+#: it. Raising one is a claim that a new rule could not be expressed inside the budget AND that no
+#: existing line fails a criterion above, and that claim belongs in the commit message where a
+#: reader can refuse it.
+PINNED: Final[dict[str, int]] = {
+    # The domain facts no test catches: what this library refuses to become. 33 lines, and JUDGED
+    # rather than recorded -- every line is a refusal the code cannot make for itself, and the
+    # longest section is the reference-ladder ruling that has already been mis-applied once.
     '.claude/rules/invariant.md': 33,
-    # How work gets done here. 22 lines.
+    # How work gets done here. 22 lines, and the tightest page in the family at that size.
     '.claude/rules/workflow.md': 22,
 }
 
-#: A floor on the scan: below this the walk did not reach `.claude/rules/` at all, and an empty
-#: page set is indistinguishable from a compressed one.
+#: THE TOTAL BUDGET, and it is pinned AT the measurement with ZERO headroom -- 33 + 22 = 55,
+#: re-measured 2026-09-18. Headroom is the one thing this arm must not have. Slack in a total is
+#: budget nobody argued for, spent by whoever arrives next, and handing it out in advance is the
+#: exact failure the ceiling exists to refuse; a zero-headroom ceiling says instead that a new page
+#: is paid for out of an existing one. The two arms are then never in tension, because the per-page
+#: ratchet already drives a pin DOWN in the edit that shrinks its page, so the sum tracks the pins
+#: exactly and the ceiling binds at precisely one moment: when somebody wants a line back.
+CEILING: Final = 55
+
+#: A floor on the scan: below this the walk did not reach `.claude/rules/` at all, and an empty page
+#: set is indistinguishable from a compressed one. Pinned AT the measured 2 -- this corpus can only
+#: grow, so a page that stops being seen is a defect rather than noise.
 PAGE_FLOOR: Final = 2
 
 
-def rule_pages(root: Path) -> dict[str, int]:
-    """THE SCAN. Every markdown page under *root*, by repo-relative path, to its line count."""
-    return {
-        path.relative_to(_ROOT).as_posix() if path.is_relative_to(_ROOT) else path.as_posix(): len(
-            path.read_text(encoding='utf-8').splitlines()
-        )
-        for path in sorted(root.rglob('*.md'))
-    }
+def test_the_rule_pages_hold_their_measured_budget_per_page_and_in_total() -> None:
+    """THE CHECK: the floor first, then the named set, then the sum -- the kit orders them.
 
-
-def ratchet_breaks(measured: dict[str, int], pinned: dict[str, int]) -> dict[str, str]:
-    """THE COMPARISON, both directions at once: an unpinned page, a stale pin, a page that grew.
-
-    A page that SHRANK is also named, because the freed budget is paid back in the same edit. That
-    is the half of a ratchet that goes missing: without it a compression pass banks slack and the
-    next arrival spends it without anyone deciding to.
+    The floor comes first because a ratchet over a directory the walk did not enter reports exactly
+    what a compressed one reports, so the two later verdicts are only given once the reading is
+    known to be a reading.
     """
-    breaks: dict[str, str] = {}
-    for page, lines in sorted(measured.items()):
-        if page not in pinned:
-            breaks[page] = f'{lines} lines and unpinned -- an always-loaded page nobody budgeted'
-        elif lines > pinned[page]:
-            breaks[page] = f'grew {pinned[page]} -> {lines}; find a line failing an admission criterion'
-        elif lines < pinned[page]:
-            breaks[page] = f'shrank {pinned[page]} -> {lines}; lower the pin in this same edit'
-    for page in sorted(set(pinned) - set(measured)):
-        breaks[page] = 'pinned and gone -- delete the pin with the page, or the waiver outlives it'
-    return breaks
-
-
-def test_the_rule_pages_hold_their_measured_budget() -> None:
-    """THE CHECK, with the number of pages actually read asserted before any verdict is given."""
-    assert _RULES.is_dir(), f'{_RULES} does not exist -- this test scanned nothing.'
-    measured = rule_pages(_RULES)
-    assert len(measured) >= PAGE_FLOOR, (
-        f'the scan reached {len(measured)} rule page(s), below the {PAGE_FLOOR} floor. A ratchet over a '
-        f'directory the walk did not enter reports exactly what a compressed one reports.'
+    measured = rulespages.assert_rules_ratchet(
+        pages=_pages(),
+        root=_ROOT,
+        pinned=PINNED,
+        ceiling=CEILING,
+        floor=PAGE_FLOOR,
     )
-    breaks = ratchet_breaks(measured, _MEASURED)
-    assert not breaks, (
-        f'the always-loaded rule set moved: {breaks}. Every line here is read on every turn, so the way '
-        f'past this number is to spend an existing line, never to raise the budget.'
-    )
-
-
-def test_the_ratchet_refuses_all_four_movements() -> None:
-    """THE CONTROL. Plant each movement and call the REAL comparison, not a copy of it.
-
-    Four shapes, and the two that are easy to leave out are the last two: a pin with no page, and
-    a page that shrank without its pin following. Both are the waiver-nothing-uses side.
-    """
-    pinned = {'a.md': 10, 'b.md': 20}
-    assert ratchet_breaks({'a.md': 10, 'b.md': 20}, pinned) == {}, 'the clean case must be silent.'
-    assert 'grew 10 -> 11' in ratchet_breaks({'a.md': 11, 'b.md': 20}, pinned)['a.md']
-    assert 'shrank 20 -> 4' in ratchet_breaks({'a.md': 10, 'b.md': 4}, pinned)['b.md']
-    assert 'unpinned' in ratchet_breaks({'a.md': 10, 'b.md': 20, 'c.md': 7}, pinned)['c.md']
-    assert 'pinned and gone' in ratchet_breaks({'a.md': 10}, pinned)['b.md']
-
-
-def test_the_scan_counts_a_planted_page(tmp_path: Path) -> None:
-    """THE CONTROL FOR THE SCAN ITSELF: an unread page and a zero-line page are different answers."""
-    (tmp_path / 'nested').mkdir()
-    (tmp_path / 'one.md').write_text('a\nb\nc\n', encoding='utf-8')
-    (tmp_path / 'nested' / 'two.md').write_text('', encoding='utf-8')
-    (tmp_path / 'three.txt').write_text('not markdown\n', encoding='utf-8')
-    counted = {Path(name).name: lines for name, lines in rule_pages(tmp_path).items()}
-    assert counted == {'one.md': 3, 'two.md': 0}, (
-        f'the scan answered {counted}. It must recurse, count lines exactly, and read only markdown -- '
-        f'a page it cannot see is a budget nobody is spending.'
+    assert sum(measured.values()) == CEILING, (
+        f'the pages sum to {sum(measured.values())} against a {CEILING} ceiling. This repo pins the '
+        f'ceiling AT the measurement, so slack here is budget nobody decided to spend: lower '
+        f'CEILING in the same edit that lowered the pin which freed it.'
     )

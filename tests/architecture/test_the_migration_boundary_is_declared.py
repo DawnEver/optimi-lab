@@ -14,7 +14,10 @@ FIVE SECTIONS, and each one fails on a mistake somebody would actually make:
 2. `STAYS` NEEDS EVIDENCE -- a file said to be ours that names nothing we own is a guess with a
    label on it.
 3. `MOVES` MUST SURVIVE THE CONVERSE -- a file said to be vendor-neutral whose CODE names an
-   optimisation fact would carry that fact into a shared package.
+   optimisation fact would carry that fact into a shared package. THE POPULATION IS EMPTY as of
+   2026-09-18 and is pinned as a NAMED SET rather than held above a floor: this roster's one and
+   only `MOVES` row was the rules-page ratchet, whose destination did not exist yet, and that
+   adoption is now executed. A floor there would have made FINISHING the migration a red.
 4. DENSITY -- `STAYS` and `SPLITS` answer to the same bar, with the planted controls that prove the
    measurement can still red at all.
 5. THE PYTHON-ONLY LIMIT HAS A CEILING -- section 4 parses an AST, so a file it cannot parse would
@@ -137,8 +140,7 @@ def test_a_file_that_STAYS_names_something_this_repo_owns(rel: str) -> None:
 # --------------------------------------------------------------------------- 3. MOVES must survive it
 
 
-@pytest.mark.parametrize('rel', sorted(rel for rel, row in PLACEMENT.items() if row.side == MOVES))
-def test_a_file_that_MOVES_carries_no_repo_noun(rel: str) -> None:
+def test_a_file_that_MOVES_carries_no_repo_noun() -> None:
     """Refuse a move that would carry an optimisation fact into a vendor-neutral package.
 
     THE DISCRIMINATING PROPERTY, and the one that fails on a mistake somebody would actually make:
@@ -149,11 +151,20 @@ def test_a_file_that_MOVES_carries_no_repo_noun(rel: str) -> None:
 
     A hit is not an order to reclassify. It is a demand to either strip the noun (usually: take it
     as data) or move the row to `SPLITS` with the seam named.
+
+    NOT PARAMETRIZED, and that is a consequence of the set below going EMPTY on 2026-09-18. A
+    parametrize over zero rows is a pytest SKIP, and a skip is a selected test that reported
+    nothing -- the verdict runner refuses one, and rightly: it reads exactly like a table whose
+    every move survived the converse. Looping reports the same per-row facts and always RUNS.
     """
-    carried = sorted(nouns_in_code(rel, _ROOT))
+    carried = {
+        rel: sorted(nouns_in_code(rel, _ROOT))
+        for rel, row in sorted(PLACEMENT.items())
+        if row.side == MOVES and nouns_in_code(rel, _ROOT)
+    }
     assert not carried, (
-        f'{rel} is declared vendor-neutral but names this repo: {carried}. Strip the noun (take it '
-        f'as data), or reclassify as SPLITS with the seam named.'
+        f'declared vendor-neutral but naming this repo: {carried}. Strip the noun (take it as '
+        f'data), or reclassify as SPLITS with the seam named.'
     )
 
 
@@ -173,13 +184,31 @@ def test_property_3_reads_code_and_property_2_reads_prose() -> None:
     assert nouns_in_code(in_code, _ROOT), 'the code reader stopped seeing a noun that is genuinely in code'
 
 
-def test_the_MOVES_arm_is_not_empty() -> None:
-    """Put a floor under section 3, because over zero `MOVES` rows it proves nothing.
+#: THE `MOVES` POPULATION, AS A NAMED SET RATHER THAN A FLOOR, and it is EMPTY as of 2026-09-18.
+#: This roster carried exactly one `MOVES` row for its whole life --
+#: `test_the_rules_pages_are_a_ratchet.py`, a mechanism whose destination did not exist yet -- and
+#: that adoption is now EXECUTED, so the row is a `SPLITS` and the migration this table declares has
+#: nothing left to move. The floor that used to stand here asserted the population was non-empty,
+#: which made FINISHING the migration a red: a floor whose only satisfying state is unfinished work
+#: is the waiver-nothing-uses failure wearing the other face. A named set is two-sided instead -- a
+#: `MOVES` row ARRIVING reds until it is declared here, and one DISAPPEARING reds too.
+#:
+#: THE ANTI-VACUITY JOB THE FLOOR WAS DOING IS ALREADY CARRIED, and by a stronger arm than a
+#: population count: `test_property_3_reads_code_and_property_2_reads_prose` drives the REAL
+#: converse reader in BOTH directions on two live files -- one that names this repo in code and must
+#: be caught, one that names it only in prose and must not be. That holds at zero rows and at fifty,
+#: which a floor never did: a table of rows that all pass is equally consistent with a reader
+#: returning nothing.
+DECLARED_MOVES: frozenset[str] = frozenset()
 
-    A vacuous green there reads exactly like a table whose every move survived the converse.
-    """
-    moves = sorted(rel for rel, row in PLACEMENT.items() if row.side == MOVES)
-    assert moves, 'no MOVES row exists, so section 3 is measuring nothing'
+
+def test_the_MOVES_population_is_the_one_this_roster_declares() -> None:
+    """Pin the named set in both directions; the anti-vacuity job moved to the planted control."""
+    live = frozenset(rel for rel, row in PLACEMENT.items() if row.side == MOVES)
+    assert live == DECLARED_MOVES, (
+        f'the MOVES population moved: arrived {sorted(live - DECLARED_MOVES)}, gone '
+        f'{sorted(DECLARED_MOVES - live)}. Declare it here in the edit that classifies it.'
+    )
 
 
 # --------------------------------------------------------------------------- 4. density
