@@ -6,6 +6,12 @@
     "reason": "a hand-written test line has no VERDICT. An exit code cannot say whether the run COVERED what it selected, so a dead worker, a truncated run or a collection error that reported nothing all read as green -- and the reader has merged \"the tests passed\" with \"nobody knows\". Re-issue through the entry point that produces a verdict: ./.venv/Scripts/python.exe -m lab_commons.dev.verify"
   },
   {
+    "name": "GIT-COMMIT-AMEND",
+    "pattern": "\\bcommit\\b[^\\n]*\\s--amend\\b",
+    "matches": "argument",
+    "reason": "`--amend` does not act on YOUR last commit, it acts on HEAD -- and on a shared lane HEAD belongs to whoever committed most recently. This family has NO single-agent mode, so \"I just committed\" is not a safety argument; it is the exact condition under which this fires. MEASURED 2026-09-18 on `feat/optimi-lab`: agent A committed, agent B committed 40 seconds later, and A amended to fix two digits in its OWN message -- rewriting B's commit and replacing B's message with A's. It was caught inside a minute through `git reflog` and the tree recovered byte-identical, so only the SHA moved; nothing about the recovery made that outcome likelier than losing the work. Do not rewrite -- land the correction FORWARD. Read what HEAD actually is first: git log -1 --format=\"%h %an %s\". If the CONTENT is wrong, commit the fix on top. If only the message is wrong and nothing a reader acts on changes, record the correction where the work is reported and leave the commit alone; that is the right call once anything sits on top of it."
+  },
+  {
     "name": "GIT-STASH",
     "pattern": "\\bgit\\s+stash(?:\\s|$)",
     "matches": "command",

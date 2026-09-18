@@ -73,11 +73,20 @@ sys.path.insert(0, str(_ROOT / 'scripts'))
 from deny_rules import ADOPTION  # noqa: E402
 
 #: The rules this repo ships, BY NAME. Two carry `./.venv/Scripts/python.exe -m
-#: lab_commons.dev.verify` as their exit; the other three need nothing from a repo and ship
+#: lab_commons.dev.verify` as their exit; the other four need nothing from a repo and ship
 #: everywhere. `GIT-NETWORK-VERB` and `RAW-PROCESS-KILL` are absent ON RECORD -- see
 #: `scripts/deny_rules.py` for the measurement behind each.
+#:
+#: `GIT-COMMIT-AMEND` ARRIVED WITH THE KIT ON 2026-09-18 and is the case this pin was written for.
+#: It is a FAMILY rule this repo neither authored nor configures, so it reached the committed JSON
+#: purely by upgrading `lab-commons` -- the one route by which the file the engine obeys can change
+#: with nothing in this tree edited. A COUNT PIN WOULD HAVE GONE FROM 5 TO 6 AND SAID NOTHING ABOUT
+#: WHICH ROW MOVED, and the honest-looking repair would have been to edit the digit; the named set
+#: forced the arrival to be read and typed out. Its subject is `git commit --amend` on a shared
+#: lane, which this checkout has no single-agent mode to exempt it from.
 _SHIPPED: Final = frozenset({
     'BARE-TEST-INVOCATION',
+    'GIT-COMMIT-AMEND',
     'GIT-STASH',
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
