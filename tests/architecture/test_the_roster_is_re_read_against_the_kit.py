@@ -40,7 +40,7 @@ from pathlib import Path
 from typing import Final
 
 from _placement import PLACEMENT
-from lab_commons.dev import floors, supersede
+from lab_commons.dev import supersede
 from lab_commons.dev.famtests import rostercensus
 from lab_commons.dev.famtests.placement import MOVES
 
@@ -53,23 +53,27 @@ ROOT: Final = Path(__file__).resolve().parents[2]
 #: -- which is what a fully forked tree reports. `take_census` refuses that rather than returning it.
 KIT_PACKAGE: Final = 'lab_commons.dev'
 
-#: THE KIT FLOOR, RE-MEASURED 2026-09-18 against `0.2.2.dev98+ga330b5561`: `kit_modules` reads 57
-#: modules -- 46 when this floor was first set, 51 earlier today, 57 now. The floor must sit below
-#: that with room for a module being renamed or withdrawn, and far above the zero a mis-resolved
-#: package returns -- against which every row grades UNTOUCHED, the answer a finished migration gives.
+#: THE KIT FLOOR, RE-MEASURED 2026-09-18 against `0.2.2.dev108+ga6af0069b`: `kit_modules` reads 61
+#: modules -- 46 when this floor was first set, 51 and then 57 earlier the same day, 61 now. The
+#: floor must sit below that with room for a module being renamed or withdrawn, and far above the
+#: zero a mis-resolved package returns -- against which every row grades UNTOUCHED, the answer a
+#: finished migration gives.
 #:
-#: IT IS RE-TAKEN AT 48 RATHER THAN LEFT AT 35, and the reason is the arm below it. `assert_reach`
-#: takes a `module_floor` and NO headroom, so it is structurally one-sided: it refuses an under-read
-#: kit and says nothing whatever about a floor the kit has outgrown. At 35 against 57 this floor had
-#: 22 modules of slack and would have passed a kit that had lost three fifths of itself -- it had
-#: stopped being a guard. The remedy for a floor that has stopped binding is to RE-MEASURE THE
-#: FLOOR, never to widen the headroom.
+#: IT WAS RE-TAKEN AT 48 RATHER THAN LEFT AT 35 because at 35 against 57 it had 22 modules of slack
+#: and would have passed a kit that had lost three fifths of itself -- it had stopped being a guard.
+#: The remedy for a floor that has stopped binding is to RE-MEASURE THE FLOOR, never to widen the
+#: headroom, and 48 still binds against 61.
 KIT_MODULE_FLOOR: Final = 48
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
-#: 48 + 16 = 64 against today's 57. This is the side `assert_reach` does not have, taken here through
-#: `lab_commons.dev.floors` so that the next modules the kit gains red this constant rather than
-#: ageing it quietly, which is exactly how 35 survived two kit growths without anyone noticing.
+#: 48 + 16 = 64 against today's 61.
+#:
+#: THIS SIDE IS NOW THE KIT'S AND IS HANDED STRAIGHT TO `assert_reach`. It used to be enforced by a
+#: second arm calling `lab_commons.dev.floors` beside the kit's one-sided one, because `assert_reach`
+#: took a `module_floor` and no headroom at all -- a signature that was structurally one-sided, and
+#: the same hand-written wrapper had to be written in wdg-lab too. The kit closed that in `4a8faf9`
+#: and `assert_reach` now REQUIRES `module_headroom`, so the local wrapper is DELETED rather than
+#: kept beside the import: a shim next to the thing it shimmed is the adoption not having happened.
 KIT_MODULE_HEADROOM: Final = 16
 
 
@@ -86,24 +90,19 @@ def census() -> supersede.Census:
 
 
 def test_the_census_reaches_the_whole_roster_and_a_kit_that_is_really_there() -> None:
-    """THE FLOOR'S OWN ARM: every row is judged, and finding nothing must not read as green."""
-    rostercensus.assert_reach(census(), rows_declared=len(PLACEMENT), module_floor=KIT_MODULE_FLOOR)
+    """THE FLOOR'S OWN ARM, NOW TWO-SIDED IN THE KIT: every row is judged, an under-read kit is
+    refused, AND a floor the kit has outgrown is refused too.
 
-
-def test_the_kit_floor_still_binds() -> None:
-    """THE SIDE `assert_reach` DOES NOT HAVE: a floor the kit has outgrown proves only that it exists.
-
-    `assert_reach` refuses an under-read kit and is silent about slack, so without this arm
-    `KIT_MODULE_FLOOR` can drift arbitrarily far below the real count and still report green -- which
-    is what it did, twice, while the kit grew 46 -> 51 -> 57. The remedy this refusal names is to
-    re-measure the floor, and the refusal is what makes anyone take it.
+    The second side used to be a local arm standing beside this call because `assert_reach` did not
+    take a headroom. It does now, so the two halves are one argument again rather than one imported
+    and one written by hand -- which is what let 35 survive two kit growths here without anyone
+    noticing.
     """
-    modules = supersede.kit_modules(rostercensus.kit_directory(package=KIT_PACKAGE))
-    floors.assert_floor_still_binds(
-        len(modules),
-        floor=KIT_MODULE_FLOOR,
-        headroom=KIT_MODULE_HEADROOM,
-        what='KIT-MODULE-FLOOR',
+    rostercensus.assert_reach(
+        census(),
+        rows_declared=len(PLACEMENT),
+        module_floor=KIT_MODULE_FLOOR,
+        module_headroom=KIT_MODULE_HEADROOM,
     )
 
 
