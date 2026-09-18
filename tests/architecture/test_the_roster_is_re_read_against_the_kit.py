@@ -39,9 +39,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from _placement import MOVES, PLACEMENT
+from _placement import PLACEMENT
 from lab_commons.dev import supersede
 from lab_commons.dev.famtests import rostercensus
+from lab_commons.dev.famtests.placement import MOVES
 
 #: This checkout: `tests/architecture/<this file>` sits two directories below it.
 ROOT: Final = Path(__file__).resolve().parents[2]

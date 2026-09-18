@@ -74,51 +74,39 @@ than a gap (measured 2026-09-17 -- this tree imports `agent_guard`, `agenthooks`
 
 from __future__ import annotations
 
-import ast
-import io
-import re
-import tokenize
-from collections.abc import Iterator
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
 import pytest
+from lab_commons.dev.famtests import density, placement
+from lab_commons.dev.famtests.placement import SPLITS, STAYS, Placement
 
 __all__ = [
     'BELOW_THE_BAR',
-    'FAMILY_PACKAGE',
+    'CEILING_ADMITS',
+    'CEILING_REFUSES',
+    'DELEGATION_HOMES',
+    'MINIMUM_ADMITS',
+    'MINIMUM_REFUSES',
     'MIN_REPO_DENSITY_PCT',
-    'MOVES',
+    'NOT_PLACED',
+    'NOUN',
     'OWN_MECHANISM_CEILING',
     'PLACEMENT',
     'PLACEMENT_FLOOR',
+    'PLACEMENT_HEADROOM',
     'REPO_NOUNS',
     'RUNNABLE_SUFFIXES',
     'SCANNED',
-    'SPLITS',
-    'STAYS',
-    'Density',
-    'Placement',
-    'measure_density',
-    'nouns_in',
+    'SHELL_ROWS',
+    'is_justified',
+    'measure',
     'nouns_in_code',
+    'nouns_in_prose',
     'placed_files',
     'repo_root',
     'stays_rows',
 ]
-
-STAYS: Final = 'stays'
-MOVES: Final = 'moves'
-SPLITS: Final = 'splits'
-
-
-@dataclass(frozen=True)
-class Placement:
-    """One file's side, and the FACT that decides it. The reason is the deliverable."""
-
-    side: str
-    why: str
 
 
 def repo_root() -> Path:
@@ -135,13 +123,10 @@ SCANNED: Final = ('scripts', 'tests/architecture')
 #: shell script would report that fact whether or not it stayed true.
 RUNNABLE_SUFFIXES: Final = ('.py', '.sh')
 
-#: Never authored, or carrying no knowledge to place: build output, agent memory, and the empty
-#: package markers whose placement is whatever their directory does.
-_NOT_PLACED: Final = ('__pycache__', '.claude')
-
-#: The family package every row is measured against. A line that merely CALLS something imported
-#: from it is delegation, not this file's own mechanism -- which is what makes a binder legible.
-FAMILY_PACKAGE: Final = 'lab_commons'
+#: Never authored, or carrying no knowledge to place: build output and agent memory. `__init__.py`
+#: is NOT here: the kit's walk always omits it, because it carries no knowledge and so follows
+#: whatever its directory does.
+NOT_PLACED: Final = ('__pycache__', '.claude')
 
 #: Words that make a file THIS repo's rather than any repo's. A HIT IS EVIDENCE, NOT A VERDICT:
 #: nothing here classifies anything, and every row below was written by a human who read the file.
@@ -166,7 +151,18 @@ REPO_NOUNS: Final = (
     'moea',
 )
 
-_NOUN: Final = re.compile(r'(?<![A-Za-z0-9_])(' + '|'.join(REPO_NOUNS) + r')(?![A-Za-z0-9_])', re.IGNORECASE)
+#: THE ALTERNATION, built by `density.noun_pattern` with this repo's BOUNDARY POLICY stated rather
+#: than baked into a regex nobody re-reads. `match_identifier_parts=False` is optimi-lab's answer and
+#: the family does not agree on it: both labs and one motronics roster match WHOLE identifiers, so
+#: `sampler` does not fire inside `resampler`, while motronics' scripts roster widened to identifier
+#: PARTS after measuring a file at 0.00% with its noun sitting inside a longer name. The kit refuses
+#: the empty vocabulary outright, which a hand-built alternation could not.
+NOUN: Final = density.noun_pattern(REPO_NOUNS, match_identifier_parts=False)
+
+#: WHAT COUNTS AS DELEGATION rather than this file's own mechanism. A line merely CALLING something
+#: imported from here is wiring, and counting it scores a COMPLETED migration as new local code --
+#: measured upstream on a real re-point as own 39 -> 40 where the honest reading is 39 -> 31.
+DELEGATION_HOMES: Final = ('lab_commons',)
 
 #: MEASURED 2026-09-17: `scripts/` holds 3 runnable files and `tests/architecture/` holds 20 modules
 #: once this roster's own two files are counted, for 23 rows. RE-MEASURED 2026-09-18 at 27 rows,
@@ -176,6 +172,20 @@ _NOUN: Final = re.compile(r'(?<![A-Za-z0-9_])(' + '|'.join(REPO_NOUNS) + r')(?![
 #: for ordinary deletion and far above the zero a broken walk returns. Finding NOTHING is vacuous
 #: rather than green.
 PLACEMENT_FLOOR: Final = 18
+
+#: THE OTHER SIDE OF ``PLACEMENT_FLOOR``, which no roster in this family ever wrote: how far past its
+#: floor the population may grow before the number stops separating a classified tree from an unread
+#: walk and must be RE-MEASURED. Today's reading is 27 - 18 = 9.
+PLACEMENT_HEADROOM: Final = 15
+
+#: THE SHELL ROWS, NAMED, AND EMPTY. `measure` parses Python, so a `.sh` file in a scanned tree
+#: cannot be measured by section 4 at all -- and this tree declares `.sh` RUNNABLE while holding
+#: NONE of them. Before this set existed, the day one arrived `stays_rows` would have handed it to
+#: `ast.parse` and section 4 would have ERRORED rather than failed: the worst of the three outcomes,
+#: because it names no file and reads as a broken test rather than as an unmeasured row. wdg-lab's
+#: roster has the answering shape and this is it. EMPTY is legal and is the state to be in; what it
+#: buys is that a `.sh` row leaves section 4 by NAME rather than by crashing it.
+SHELL_ROWS: Final[frozenset[str]] = frozenset()
 
 
 # --------------------------------------------------------------------------- THE MANIFEST
@@ -237,11 +247,14 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'optimi-lab facts -- which registries, which retired spellings, which runtime, which rules '
         'pages -- and the noun density comes from the row KEYS and reasons, which are code here '
         'rather than prose. The measurement machinery beside them is the family shape and the '
-        'module docstring says so; it lives here rather than upstream because motronics-studio '
-        'holds its own copy and a third repo is not yet evidence that one home would fit all three. '
-        'If `lab_commons.dev` grows a `placement` module this row becomes a SPLITS, and the seam is '
-        'already named: the machinery is family, the rows are ours. Measured 2026-09-17: own=417 '
-        'repo=32 -> 7.67%.',
+        'module docstring says so. THE PREDICTION THIS ROW CARRIED IS WHAT HAPPENED: it said that if '
+        '`lab_commons.dev` grew a `placement` module the machinery would go and the rows would stay. '
+        '`famtests.placement` and `famtests.density` shipped on 2026-09-18 and the walk, the docstring '
+        'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
+        'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
+        'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
+        'family half in it to split off. RE-MEASURED 2026-09-18 after the adoption: own=402 '
+        'project=30 -> 7.46%.',
     ),
     'tests/architecture/_famconfig.py': Placement(
         STAYS,
@@ -413,15 +426,18 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'is already cut across two files. FAMILY: all five sections -- completeness with a floor, '
         'STAYS-needs-evidence, the MOVES converse, the density bar with SPLITS held to it, and the '
         'planted controls that prove the measurement can still red -- are the shape motronics-studio '
-        "proved in `tests/architecture/layering/`, and wdg-lab's copy of this file is the third. "
-        'LOCAL: nothing but the import of `_placement`. MEASURED 2026-09-17, in the commit that '
-        'created it: own=154 repo=6 -> 3.90%, which clears the bar -- AND ALL SIX HITS ARE PLANTED '
-        'CONTROL FIXTURES, the strings a control writes into a temporary tree to prove the noun '
-        'scan can still fire, not facts this file asserts about optimi-lab. The number is TRUE and '
-        'the reading behind it is weak, which is stated here rather than left for the density to '
-        'imply: the split is owed on the machinery, not refuted by this margin. THE FIRST DRAFT OF '
-        'THIS ROW PREDICTED 0.00% AND WAS WRONG, and the strict xfail it was given XPASSED -- which '
-        'is the ratchet working in the direction nobody plans for.',
+        "proved in `tests/architecture/layering/`, and wdg-lab's copy of this file is the third. THE "
+        'FAMILY HALF IS NOW PAID: the completeness arm, both sides of the placement floor, the '
+        'stale-debt refusal, the two bar-bounding arms and the meter control are `famtests.placement` '
+        'and `famtests.density`, and four hand-written density controls collapsed into one kit call. '
+        'LOCAL: the shell-row ceiling with its planted control, the prose-versus-code asymmetry pinned '
+        'on two live rows, and the two planted shapes that use this repo`s nouns. RE-MEASURED '
+        '2026-09-18: own=156 project=5 -> 3.21%, which clears the bar -- AND ALL FIVE HITS ARE PLANTED '
+        'CONTROL FIXTURES, the strings a control writes into a temporary tree to prove the noun scan '
+        'can still fire, not facts this file asserts about optimi-lab. The number is TRUE and the '
+        'reading behind it is weak, which is stated here rather than left for the density to imply. '
+        'THE FIRST DRAFT OF THIS ROW PREDICTED 0.00% AND WAS WRONG, and the strict xfail it was given '
+        'XPASSED -- which is the ratchet working in the direction nobody plans for.',
     ),
     'tests/architecture/test_the_public_surface_is_declared.py': Placement(
         STAYS,
@@ -528,40 +544,41 @@ PLACEMENT: Final[dict[str, Placement]] = {
 
 
 # --------------------------------------------------------------------------- THE MEASUREMENT
+#
+# THE READERS AND THE METER ARE `lab_commons.dev.famtests.{placement,density}`. Everything below is a
+# BINDER: it supplies the repo-shaped arguments the kit refuses to default, and holds no mechanism of
+# its own. What used to be here -- the walk, the docstring/comment blanker, the delegation-import
+# reader, the `Density` dataclass and `measure_density` -- was one of FOUR hand-rolled copies of one
+# body in this family, and it is DELETED rather than wrapped.
 
 
-def placed_files(root: Path | None = None) -> Iterator[str]:
-    """Every runnable file this table must classify, as repo-relative POSIX paths."""
-    base = root or repo_root()
-    for tree in SCANNED:
-        for path in sorted((base / tree).rglob('*')):
-            if not path.is_file() or path.suffix not in RUNNABLE_SUFFIXES:
-                continue
-            if any(part in _NOT_PLACED for part in path.parts) or path.name == '__init__.py':
-                continue
-            yield path.relative_to(base).as_posix()
+def placed_files(root: Path | None = None) -> tuple[str, ...]:
+    """Every runnable file this table must classify, as sorted repo-relative POSIX paths."""
+    return placement.placed_files(root or repo_root(), trees=SCANNED, suffixes=RUNNABLE_SUFFIXES, not_placed=NOT_PLACED)
 
 
-def nouns_in(rel: str, root: Path | None = None) -> set[str]:
+def nouns_in_prose(rel: str, root: Path | None = None) -> set[str]:
     """Every repo noun anywhere in *rel*, PROSE INCLUDED -- what property 2 reads.
 
     Property 2 asks only whether evidence EXISTS, and it is deliberately the generous reading: a
     file that explains in its docstring which optimisation fact it is about has said something true.
     That generosity is exactly why property 4 exists, and section 4's own controls pin that prose
-    buys no DENSITY.
+    buys no DENSITY. Renamed from `nouns_in` in the same edit that adopted the kit, because the kit
+    publishes a `nouns_in` that takes TEXT and this one takes a PATH -- one spelling for two
+    signatures is how a caller passes the wrong thing and gets an answer anyway.
     """
     text = (root or repo_root()).joinpath(rel).read_text(encoding='utf-8', errors='replace')
-    return {match.group(1).lower() for match in _NOUN.finditer(text)}
+    return density.nouns_in(text, noun=NOUN)
 
 
 def nouns_in_code(rel: str, root: Path | None = None) -> set[str]:
     """Every repo noun in *rel*'s CODE, docstrings and comments blanked -- what property 3 reads.
 
-    THE ASYMMETRY WITH `nouns_in` IS DELIBERATE AND IT WAS MEASURED IN THE SIBLING. Property 3's
-    hazard is carrying a repo fact into a vendor-neutral package, and a fact only a SENTENCE carries
-    is rewritten by the move itself. Reading prose there produces FALSE REFUSALS: on the first run
-    of wdg-lab's copy of this guard, 2026-09-17, three correct `MOVES` rows were refused because
-    their docstrings used the English word "slot" and named their own repo while explaining where a
+    THE ASYMMETRY WITH `nouns_in_prose` IS DELIBERATE AND IT WAS MEASURED IN THE SIBLING. Property
+    3's hazard is carrying a repo fact into a vendor-neutral package, and a fact only a SENTENCE
+    carries is rewritten by the move itself. Reading prose there produces FALSE REFUSALS: on the
+    first run of wdg-lab's copy of this guard, 2026-09-17, three correct `MOVES` rows were refused
+    because their docstrings used an English word and named their own repo while explaining where a
     contradiction had been found. None of those is a domain fact.
 
     A non-Python file has no AST, so its whole text is its code: a shell script carries no docstring
@@ -570,81 +587,18 @@ def nouns_in_code(rel: str, root: Path | None = None) -> set[str]:
     path = (root or repo_root()).joinpath(rel)
     text = path.read_text(encoding='utf-8', errors='replace')
     if path.suffix != '.py':
-        return {match.group(1).lower() for match in _NOUN.finditer(text)}
-    code, _ = _code_and_delegation(text)
-    return {match.group(1).lower() for line in code for match in _NOUN.finditer(line)}
+        return density.nouns_in(text, noun=NOUN)
+    return density.nouns_in('\n'.join(density.code_only(text)), noun=NOUN)
 
 
-def _code_and_delegation(source: str) -> tuple[list[str], set[str]]:
-    """Lines with comments and docstrings blanked, plus the names bound from the family package."""
-    tree = ast.parse(source)
-    docstrings = set()
-    for node in ast.walk(tree):
-        body = getattr(node, 'body', None)
-        if not isinstance(node, ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef) or not body:
-            continue
-        head = body[0]
-        if isinstance(head, ast.Expr) and isinstance(head.value, ast.Constant) and isinstance(head.value.value, str):
-            docstrings.add((head.lineno, head.col_offset))
-
-    lines = source.splitlines()
-    for token in tokenize.generate_tokens(io.StringIO(source).readline):
-        prose = token.type == tokenize.COMMENT or (token.type == tokenize.STRING and token.start in docstrings)
-        if not prose:
-            continue
-        (first, start_col), (last, end_col) = token.start, token.end
-        for row in range(first, last + 1):
-            text = lines[row - 1]
-            begin = start_col if row == first else 0
-            end = end_col if row == last else len(text)
-            lines[row - 1] = text[:begin] + ' ' * (end - begin) + text[end:]
-
-    bound: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom):
-            if FAMILY_PACKAGE in (node.module or '').split('.'):
-                bound.update(alias.asname or alias.name for alias in node.names)
-                bound.add(FAMILY_PACKAGE)
-        elif isinstance(node, ast.Import):
-            for alias in node.names:
-                if FAMILY_PACKAGE in alias.name.split('.'):
-                    bound.add(alias.asname or alias.name.split('.')[-1])
-                    bound.add(FAMILY_PACKAGE)
-    return [line for line in lines if line.strip()], bound
+def measure(source: str) -> density.Density:
+    """The density reading for *source*, with this repo's signal and delegation home supplied."""
+    return density.measure_density(source, signals=(NOUN,), delegation_homes=DELEGATION_HOMES)
 
 
-@dataclass(frozen=True)
-class Density:
-    """What the density guard measured about one file. A REASON, not a bool, so a failure prints it."""
-
-    #: Code lines that are neither prose nor a delegation to the family package.
-    own: int
-    #: Of those, the ones naming a repo noun.
-    repo: int
-
-    @property
-    def percent(self) -> float:
-        return 100.0 * self.repo / self.own if self.own else 0.0
-
-    @property
-    def justified(self) -> bool:
-        """Justified by being OURS or by being a BINDER, and by nothing in between."""
-        return self.own <= OWN_MECHANISM_CEILING or self.percent >= MIN_REPO_DENSITY_PCT
-
-
-def measure_density(source: str) -> Density:
-    """Run the whole measurement on TEXT, so a control can plant a shape instead of a file."""
-    code, delegated = _code_and_delegation(source)
-    if delegated:
-        delegation = re.compile(
-            r'(?<![A-Za-z0-9_])(' + '|'.join(re.escape(name) for name in sorted(delegated)) + r')(?![A-Za-z0-9_])'
-        )
-        own = [line for line in code if not delegation.search(line)]
-    else:
-        # No family import, so nothing to subtract: an empty alternation matches at position zero
-        # on EVERY line, which would read every file in the tree as a binder.
-        own = list(code)
-    return Density(own=len(own), repo=sum(1 for line in own if _NOUN.search(line)))
+def is_justified(reading: density.Density) -> bool:
+    """Whether a row clears THIS repo's two bars -- OURS or a BINDER, and nothing between."""
+    return density.justified(reading, ceiling=OWN_MECHANISM_CEILING, minimum_pct=MIN_REPO_DENSITY_PCT)
 
 
 #: CALIBRATED ON THIS TREE, 2026-09-17, and BOUNDED BY MEASUREMENT ON BOTH SIDES rather than chosen.
@@ -656,31 +610,60 @@ def measure_density(source: str) -> Density:
 #:     REFUSE  test_a_pin_is_a_named_set.py                own= 67  repo=0   carries its own scan
 #:     REFUSE  test_a_relative_tolerance_carries_its_floor own= 71  repo=0   carries its own scan
 #:
-#: The ceiling must exceed 43 and fall below 67; 50 is the round number in that interval. It is the
-#: same value motronics-studio measured independently in its own tree and the same one wdg-lab's
-#: roster measured in its own, which is evidence that the bar is a family property rather than a
-#: number tuned to make today's rows pass -- four rows do not clear the density bar, and they are
-#: recorded in
-#: `BELOW_THE_BAR` rather than bought off by moving this to 90.
+#: The ceiling must exceed 43 and fall below 67; 50 is the round number in that interval.
+#:
+#: IT IS NOT A FAMILY CONSTANT AND THE KIT DELIBERATELY DOES NOT SHIP ONE, which is the finding the
+#: placement half exists to carry. Three of the family's four rosters read 50 and the fourth --
+#: motronics' `scripts/` -- reads 40 over an interval of (35, 42) that EXCLUDES 50, while this
+#: tree's (43, 67) excludes 40. A module shipping one number would have been wrong for one consumer
+#: on that consumer's own evidence, and wrong in the ADMITTING direction, which is the silent one.
+#: What ships instead is `assert_ceiling_is_bounded`, and the two readings below are its arguments --
+#: until now this bracket lived in the comment above, where nothing could check it and where a bar
+#: quietly widens to absorb the row that reds.
 OWN_MECHANISM_CEILING: Final = 50
+
+#: `test_a_bounded_wait_names_its_remedy.py`, own=43 -- the LARGEST reading the ceiling must ADMIT.
+CEILING_ADMITS: Final = 43
+
+#: `test_a_pin_is_a_named_set.py`, own=67 when the interval was bounded -- the SMALLEST reading the
+#: ceiling must REFUSE. The calibration reading is not re-taken: a ceiling re-derived from today's
+#: files is a number tuned to pass them.
+CEILING_REFUSES: Final = 67
 
 #: BOUNDED THE SAME WAY, measured 2026-09-17: above `test_the_public_surface_is_declared.py` (0.65%,
 #: which scans this package and still reads near zero) and at or below
 #: `test_optimi_lab_adopts_the_shared_registry.py` (3.06%, which is this repo's adoption table and
 #: could not belong anywhere else). 3.0 is the round number in that interval, and the interval here
 #: is TIGHT -- 3.06% clears it by six hundredths -- which is stated rather than hidden: a bar this
-#: close to a live row is a bar whose next re-measurement may move a label.
+#: close to a live row is a bar whose next re-measurement may move a label. All four rosters in the
+#: family measured 3.0 independently and the kit STILL does not ship it: four independent
+#: measurements of a number are evidence FOR the number, not a licence to stop measuring it.
 MIN_REPO_DENSITY_PCT: Final = 3.0
 
-#: THE SHORTFALL ON RECORD. Four `STAYS`/`SPLITS` rows fail the density guard today. They are
-#: xfailed STRICTLY with their measurement and its date, so each must be REMOVED in the same commit
-#: that fixes its file, and no new row can join the list by accident. Loosening either bar to absorb
-#: them was available and is refused: it would delete the finding rather than record it.
+#: `test_optimi_lab_adopts_the_shared_registry.py`, 3.06% -- the SMALLEST percentage the bar must
+#: ADMIT, and the tightest bracket in the family.
+MINIMUM_ADMITS: Final = 3.06
+
+#: `test_the_public_surface_is_declared.py`, 0.65% -- the LARGEST percentage the bar must REFUSE.
+MINIMUM_REFUSES: Final = 0.65
+
+#: THE SHORTFALL ON RECORD. Six `STAYS`/`SPLITS` rows fail the density guard today.
 #:
-#: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. Two read 0.00%, which is the same reading
-#: a genuine misclassification gives. `test_the_runtime_stays_pure.py` (2.33%) and
-#: `test_the_public_surface_is_declared.py` (0.65%) sit under the bar with hits, and for those this
-#: says "no evidence of density", never "this row is wrong".
+#: TWO ROWS LEFT THIS SET ON 2026-09-18 AND THEY LEFT BY BEING DELETED rather than re-worded:
+#: `test_memory_lives_under_a_date.py` (own 87 -> 21) and
+#: `test_the_roster_is_re_read_against_the_kit.py` (own 88 -> 21) both adopted their family halves
+#: and fell under the binder ceiling. A strict xfail that starts passing is a row to REMOVE, which is
+#: the direction this ratchet exists to make cheap. Two others JOINED for the opposite reason: their
+#: own counts rose when the kit adoption gave them headroom constants and planted controls to carry.
+#:
+#: Every row is xfailed STRICTLY with its measurement and its date, so each must be REMOVED in the
+#: same commit that fixes its file, and no new row can join the list by accident. Loosening either
+#: bar to absorb them was available and is refused: it would delete the finding rather than record it.
+#:
+#: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. Four read 0.00%, which is the same reading a
+#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (2.38%),
+#: `test_the_public_surface_is_declared.py` (0.62%) and `_famconfig.py` (1.23%) sit under the bar
+#: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
     'tests/architecture/test_a_pin_is_a_named_set.py': (
         'MEASURED 2026-09-17: own=67 repo=0 -> 0.00%, seventeen lines over the binder ceiling. THE '
@@ -695,17 +678,6 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'the sibling repos would get it too -- neither of them has this check at all. What stays is '
         'the two measured floors and the scope statement that keeps `UNITS-GO-THROUGH-PINT` '
         'honestly absent rather than answered by a narrowed scan.'
-    ),
-    'tests/architecture/test_memory_lives_under_a_date.py': (
-        'MEASURED 2026-09-17 WHEN THE ROW WAS CORRECTED FROM MOVES TO SPLITS: own=87 repo=0 -> '
-        '0.00%, thirty-seven lines over the binder ceiling. The label moved because the two labs '
-        'copies are 33.2% identical, the lowest pair in the census, and the correction was '
-        'RE-MEASURED here rather than copied from wdg-lab -- which is why it arrives as a '
-        'shortfall rather than as a clean SPLITS. THE SPLIT IT OWES: the dated-directory shape and '
-        'the frontmatter agreement exist three times in the family and belong once, in '
-        '`lab_commons.dev`. What stays is the tree this repo declares -- a PATH, which is exactly '
-        'the shape the noun scan cannot see, so the zero is an honest under-reading rather than a '
-        'misclassification.'
     ),
     'tests/architecture/test_the_family_config_is_rendered.py': (
         'MEASURED 2026-09-17 AFTER ADOPTING `famtests.configrender`: own=67 repo=0 -> 0.00%, down '
@@ -746,16 +718,6 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'this file and wdg-lab\'s same-named module differ). At 0.65% this is "no evidence of '
         'density", not "this row is wrong".'
     ),
-    'tests/architecture/test_the_roster_is_re_read_against_the_kit.py': (
-        'MEASURED 2026-09-18 ON ARRIVAL: own=88 repo=0 -> 0.00%, and the row is recorded here in '
-        'the same commit that creates the file rather than after someone notices. THE READING IS '
-        'HONEST ABOUT WHY IT IS ZERO: every optimi-lab fact in this file is a repo-relative PATH, '
-        'a dotted package STRING or an INTEGER floor -- the three shapes the noun scan cannot '
-        'cross, the same reason `_famconfig.py` and `test_a_pin_is_a_named_set.py` are recorded '
-        'beside it. THE SPLIT IT OWES is named in its placement row and is real rather than '
-        'formal: the assertion body is generic over any repo holding a roster, and the four '
-        'answers it supplies are the only part that could not be written upstream.'
-    ),
     'tests/architecture/test_the_runtime_stays_pure.py': (
         'MEASURED 2026-09-17: own=86 repo=2 -> 2.33%, under the 3.0% bar and over the ceiling. The '
         'reading is honest: the fact this file enforces is WHICH THREE DISTRIBUTIONS are permitted, '
@@ -778,7 +740,8 @@ def stays_rows() -> list:
     picked decide the standard -- and a label the author picks is not a measurement.
     """
     params = []
-    for rel in sorted(rel for rel, placement in PLACEMENT.items() if placement.side in (STAYS, SPLITS)):
+    rows = sorted(rel for rel, row in PLACEMENT.items() if row.side in (STAYS, SPLITS) and rel not in SHELL_ROWS)
+    for rel in rows:
         reason = BELOW_THE_BAR.get(rel)
         marks = [pytest.mark.xfail(strict=True, reason=reason)] if reason else []
         params.append(pytest.param(rel, marks=marks))

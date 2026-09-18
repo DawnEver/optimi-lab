@@ -21,7 +21,9 @@ FIVE SECTIONS, and each one fails on a mistake somebody would actually make:
 4. DENSITY -- `STAYS` and `SPLITS` answer to the same bar, with the planted controls that prove the
    measurement can still red at all.
 5. THE PYTHON-ONLY LIMIT HAS A CEILING -- section 4 parses an AST, so a file it cannot parse would
-   be unmeasured. This tree holds none today, and that is asserted rather than assumed.
+   be unmeasured. The shell rows are a NAMED SET, EMPTY today, and `stays_rows` excludes it: before
+   that, a `.sh` file arriving here would have been handed to `ast.parse` and section 4 would have
+   ERRORED rather than failed.
 """
 
 from __future__ import annotations
@@ -32,22 +34,28 @@ import _placement
 import pytest
 from _placement import (
     BELOW_THE_BAR,
+    CEILING_ADMITS,
+    CEILING_REFUSES,
     MIN_REPO_DENSITY_PCT,
-    MOVES,
+    MINIMUM_ADMITS,
+    MINIMUM_REFUSES,
     OWN_MECHANISM_CEILING,
     PLACEMENT,
     PLACEMENT_FLOOR,
+    PLACEMENT_HEADROOM,
     RUNNABLE_SUFFIXES,
-    SPLITS,
-    STAYS,
-    Placement,
-    measure_density,
-    nouns_in,
+    SHELL_ROWS,
+    is_justified,
+    measure,
     nouns_in_code,
+    nouns_in_prose,
     placed_files,
     repo_root,
     stays_rows,
 )
+from lab_commons.dev import floors
+from lab_commons.dev.famtests import density, placement
+from lab_commons.dev.famtests.placement import MOVES, SPLITS, STAYS, Placement
 
 _ROOT = repo_root()
 _FILES = tuple(placed_files(_ROOT))
@@ -56,17 +64,23 @@ _FILES = tuple(placed_files(_ROOT))
 # --------------------------------------------------------------------------- 1. completeness
 
 
-def test_the_scan_read_a_real_population() -> None:
-    """Refuse a scan that read fewer files than this tree holds -- the FLOOR, and it comes first.
+def test_the_roster_and_its_tree_agree_with_both_sides_of_the_floor() -> None:
+    """COMPLETENESS, BOTH DIRECTIONS, over a walk bound to BOTH sides of its floor first.
 
-    Every assertion below is over `_FILES`; if that walk reached nothing, all of them would pass and
-    the table would be describing an empty tree. Finding NOTHING is vacuous rather than green.
+    THE FLOOR COMES FIRST. Every assertion in this file is over `_FILES`; if that walk reached
+    nothing, all of them would pass and the table would be describing an empty tree. THE HIGH SIDE
+    COMES WITH IT, and it is the half no roster in this family ever wrote: a floor the tree has
+    outgrown refuses only a total collapse.
+
+    The two per-row arms below stay parametrized so an offender fails under its OWN name -- this one
+    is the aggregate the kit ships, and it catches both directions at once.
     """
-    assert len(_FILES) >= PLACEMENT_FLOOR, (
-        f'the placement scan read {len(_FILES)} runnable files, below its measured floor of '
-        f'{PLACEMENT_FLOOR}. A walk that stopped early, a tree that moved, or a widened exclusion '
-        f'all report what a fully classified tree reports. Fix the walk, or lower the floor IN THE '
-        f'SAME EDIT that deletes the files it counted.'
+    placement.assert_every_file_is_placed(
+        _FILES,
+        declared=PLACEMENT,
+        floor=PLACEMENT_FLOOR,
+        headroom=PLACEMENT_HEADROOM,
+        what='optimi-lab placement',
     )
 
 
@@ -95,9 +109,9 @@ def test_the_table_names_no_file_that_is_gone(rel: str) -> None:
 @pytest.mark.parametrize('rel', sorted(PLACEMENT))
 def test_every_row_states_a_reason(rel: str) -> None:
     """Refuse a label with no fact behind it -- a row without a reason outlives the guesser."""
-    placement = PLACEMENT[rel]
-    assert placement.side in {STAYS, MOVES, SPLITS}, rel
-    assert len(placement.why) > 60, f'{rel}: a placement without a reason is a guess with a label'
+    row = PLACEMENT[rel]
+    assert row.side in {STAYS, MOVES, SPLITS}, rel
+    assert len(row.why) > 60, f'{rel}: a placement without a reason is a guess with a label'
 
 
 def test_the_scan_places_a_planted_file(tmp_path: Path) -> None:
@@ -121,8 +135,47 @@ def test_the_scan_places_a_planted_file(tmp_path: Path) -> None:
 
 
 def test_the_floor_refuses_an_unread_tree(tmp_path: Path) -> None:
-    """Hold the other half of the floor: an empty tree must not read as a fully classified one."""
-    assert len(tuple(placed_files(tmp_path))) < PLACEMENT_FLOOR
+    """THE PLANTED CONTROL FOR THE FLOOR: an empty tree must not read as a fully classified one."""
+    assert len(placed_files(tmp_path)) < PLACEMENT_FLOOR
+    with pytest.raises(floors.FloorUnmet):
+        placement.assert_every_file_is_placed(
+            placed_files(tmp_path),
+            declared=PLACEMENT,
+            floor=PLACEMENT_FLOOR,
+            headroom=PLACEMENT_HEADROOM,
+            what='optimi-lab placement',
+        )
+
+
+def test_no_recorded_shortfall_names_a_file_the_manifest_no_longer_places() -> None:
+    """A DEBT ROW WHOSE FILE IS GONE DESCRIBES NOTHING -- the half no roster in this family wrote.
+
+    It still reads as a live shortfall, and its strict xfail can never fire: the parametrize that
+    would have run it no longer holds the row, so the one arm that would have caught it is the arm
+    the deletion removed. `test_every_recorded_shortfall_names_a_real_row` below asks a NEIGHBOURING
+    question -- that the row is a STAYS or SPLITS -- and is parametrized over `BELOW_THE_BAR`, so it
+    too goes quiet rather than red when the manifest drops the key. This is the aggregate that does
+    not.
+    """
+    placement.assert_no_stale_debt(declared=PLACEMENT, debt=BELOW_THE_BAR, what='optimi-lab placement')
+
+
+def test_each_bar_sits_inside_the_interval_its_own_two_measured_rows_draw() -> None:
+    """THE BARS ARE BOUNDED BY EVIDENCE, and until now that bracket lived in a COMMENT.
+
+    Neither bar is a family constant and the kit deliberately ships neither as a value: motronics'
+    `scripts/` roster bounds the ceiling at 40 over an interval excluding 50, while this tree's
+    excludes 40. What the kit ships is the ARM, which takes this repo's value together with the two
+    real files that bracket it -- and a comment is exactly where a bar quietly widens to absorb the
+    row that reds. The density minimum's bracket here is the tightest in the family, at six
+    hundredths of a percent.
+    """
+    placement.assert_ceiling_is_bounded(
+        OWN_MECHANISM_CEILING, admits=CEILING_ADMITS, refuses=CEILING_REFUSES, what='optimi-lab own-mechanism'
+    )
+    placement.assert_minimum_is_bounded(
+        MIN_REPO_DENSITY_PCT, admits=MINIMUM_ADMITS, refuses=MINIMUM_REFUSES, what='optimi-lab repo-density'
+    )
 
 
 # --------------------------------------------------------------------------- 2. STAYS needs evidence
@@ -134,7 +187,7 @@ def test_a_file_that_STAYS_names_something_this_repo_owns(rel: str) -> None:
 
     The file never moves, and nobody afterwards can tell whether that was a decision.
     """
-    assert nouns_in(rel, _ROOT), f"{rel} is classified as this repo's but names nothing it owns"
+    assert nouns_in_prose(rel, _ROOT), f"{rel} is classified as this repo's but names nothing it owns"
 
 
 # --------------------------------------------------------------------------- 3. MOVES must survive it
@@ -177,7 +230,7 @@ def test_property_3_reads_code_and_property_2_reads_prose() -> None:
     live rows rather than describing them.
     """
     prose_only = 'tests/architecture/test_the_declared_hooks_are_installed.py'
-    assert nouns_in(prose_only, _ROOT), 'the prose reader stopped reading prose'
+    assert nouns_in_prose(prose_only, _ROOT), 'the prose reader stopped reading prose'
     assert not nouns_in_code(prose_only, _ROOT), 'the code reader started reading prose'
 
     in_code = 'tests/architecture/test_a_declared_set_refuses_a_stranger.py'
@@ -223,10 +276,10 @@ def test_a_file_that_STAYS_or_SPLITS_is_MOSTLY_this_repo(rel: str) -> None:
     two ways and no third -- the file is OURS (dense enough) or it is a BINDER (small enough that
     there is no room in it for a mechanism somebody else should own).
     """
-    density = measure_density((_ROOT / rel).read_text(encoding='utf-8', errors='replace'))
-    assert density.justified, (
-        f'{rel} claims {PLACEMENT[rel].side.upper()} on {density.repo} of {density.own} own code '
-        f"lines ({density.percent:.2f}%). That is neither dense enough to be this repo's "
+    reading = measure((_ROOT / rel).read_text(encoding='utf-8', errors='replace'))
+    assert is_justified(reading), (
+        f'{rel} claims {PLACEMENT[rel].side.upper()} on {reading.hits} of {reading.own} own code '
+        f"lines ({reading.percent:.2f}%). That is neither dense enough to be this repo's "
         f'(>= {MIN_REPO_DENSITY_PCT}%) nor small enough to be a binder '
         f'(<= {OWN_MECHANISM_CEILING} own lines). Thin it against `lab_commons.dev` until only the '
         f'repo fact is left, or record it in BELOW_THE_BAR with its measurement and the seam it '
@@ -281,7 +334,7 @@ def test_the_SPLITS_arm_would_be_MISSED_if_it_were_dropped(monkeypatch: pytest.M
 
 # ------------------------------------------------- the planted controls for section 4
 #
-# THESE PLANT THE SHAPE AND CALL THE REAL `measure_density`. A control that re-derived the traversal
+# THESE PLANT THE SHAPE AND CALL THE REAL `measure`. A control that re-derived the traversal
 # could only agree with itself, and a green section 4 over a tree whose rows all happen to pass
 # proves nothing about whether the measurement can red at all.
 
@@ -303,72 +356,87 @@ def test_the_density_guard_REJECTS_a_mechanism_with_one_repo_constant() -> None:
     """Refuse 71 own lines carrying one repo constant -- the DISCRIMINATING control.
 
     Property 2 is satisfied by that shape and this must not be. If this ever passes, section 4 has
-    stopped filtering.
+    stopped filtering. It stays local because it is the one control that reads THIS repo's ceiling.
     """
-    density = measure_density(_A_MECHANISM_WITH_A_NOUN_WELDED_IN)
-    assert density.own > OWN_MECHANISM_CEILING
-    assert not density.justified, f'a {density.own}-line mechanism with one constant was admitted'
+    reading = measure(_A_MECHANISM_WITH_A_NOUN_WELDED_IN)
+    assert reading.own > OWN_MECHANISM_CEILING
+    assert not is_justified(reading), f'a {reading.own}-line mechanism with one constant was admitted'
 
 
-def test_prose_is_not_evidence_and_the_docstring_proves_it() -> None:
-    """Count zero for a docstring naming four repo nouns, or section 4 is property 2 again."""
-    prose_only = '"""optimi_lab sampler regressor pareto surrogate."""\n' + ''.join(f'V{i} = {i}\n' for i in range(70))
-    assert measure_density(prose_only).repo == 0
+def test_the_meter_still_convicts_prose_a_hit_and_a_delegation() -> None:
+    """THE FAMILY CONTROL, driving the INSTALLED meter over three planted shapes in OUR OWN WORDS.
 
+    This replaces four hand-written controls that said the same three things: prose buys no density,
+    a code line naming a repo noun is a hit, and a line delegating to `lab_commons` is wiring rather
+    than this file's mechanism. The last is the one with a measured cost -- counting delegation as
+    own mechanism scores a COMPLETED migration as new local code, read on a real re-point upstream
+    as own 39 -> 40 where the honest answer is 39 -> 31.
 
-def test_a_comment_is_not_evidence_either() -> None:
-    """Count zero for comments too -- a `# optimi_lab` above every line would buy any density."""
-    commented = ''.join(f'# optimi_lab owns this\nV{i} = {i}\n' for i in range(70))
-    assert measure_density(commented).repo == 0
-
-
-def test_the_density_guard_ADMITS_a_binder() -> None:
-    """Admit the shape a FINISHED migration leaves behind, which is not decoration.
-
-    A guard that rejected binders too would force `scripts/dep.py` and `scripts/deny_rules.py` to be
-    reclassified as a mechanism they are not -- the opposite mistake, and equally invisible.
+    The witness and the home are THIS repo's: a kit inventing either would drive the meter over its
+    own idea of a noun instead of ours.
     """
-    assert measure_density(_A_BINDER).justified
-
-
-def test_delegation_is_excluded_from_a_files_OWN_mechanism() -> None:
-    """Separate a binder from a mechanism: a line CALLING a `lab_commons` name is delegation."""
-    assert measure_density(_A_BINDER).own <= 4, measure_density(_A_BINDER)
+    density.assert_the_meter_still_convicts(noun_witness='sampler', delegation_home='lab_commons')
 
 
 def test_the_density_guard_ADMITS_a_large_file_that_is_genuinely_ours() -> None:
     """Admit length when the density is there, so section 4 does not simply punish size."""
     ours = ''.join(f'OPTIMI_{i} = "sampler"\nV{i} = {i}\n' for i in range(60))
-    density = measure_density(ours)
-    assert density.own > OWN_MECHANISM_CEILING
-    assert density.justified
+    reading = measure(ours)
+    assert reading.own > OWN_MECHANISM_CEILING
+    assert is_justified(reading)
 
 
 # --------------------------------------------------------------------------- 5. the parse ceiling
 
 
-def test_the_scanned_trees_hold_no_unmeasurable_file() -> None:
-    """Refuse a file section 4 cannot parse, because an unmeasurable file is an unmeasured one.
+def test_the_shell_rows_are_exactly_the_named_set() -> None:
+    """SECTION 4 IS PYTHON-ONLY, SO THE EXEMPTION IS NAMED AND TWO-SIDED -- and it is EMPTY today.
 
-    `measure_density` reads an AST, so a shell script in a scanned tree would carry a placement that
-    no measurement ever tested. wdg-lab's roster has two and names them in a `SHELL_ROWS` set; this
-    tree has NONE, and that is asserted rather than assumed -- the day a `.sh` file lands here, this
-    reds and forces the same named-set decision rather than letting it in silently.
+    THE DEFECT THIS CLOSES was live rather than hypothetical. This roster declares `.sh` RUNNABLE and
+    holds none, and the arm it used to have merely asserted the absence. `stays_rows` had no shell
+    exclusion, so the day a shell script landed it would have been parametrized into section 4,
+    handed to `ast.parse` and the guard would have ERRORED rather than failed -- naming no file and
+    reading as a broken test rather than as an unmeasured row. wdg-lab's `SHELL_ROWS` is the shape
+    that answers it and this is now the same shape: `stays_rows` excludes the named set, and the set
+    is compared by EQUALITY, so an arriving `.sh` file is a decision somebody makes here.
+
+    EMPTY IS LEGAL AND IS THE STATE TO BE IN. The anti-vacuity job is carried by the suffix arm
+    below, which pins that the scan can still SEE a shell script at all.
     """
-    unmeasurable = sorted(rel for rel in _FILES if not rel.endswith('.py'))
-    assert not unmeasurable, (
-        f'{unmeasurable} are in a scanned tree and cannot be parsed by `measure_density`, so their '
-        f'rows would be exempt from section 4. Declare them in a named set with the exemption '
-        f'stated, as wdg-lab does, or give section 4 a reader for them.'
+    found = frozenset(rel for rel in _FILES if rel.endswith('.sh'))
+    assert found == SHELL_ROWS, (
+        f'shell files not named in SHELL_ROWS: {sorted(found - SHELL_ROWS)}; named but absent: '
+        f'{sorted(SHELL_ROWS - found)}. Section 4 cannot measure a shell script, so each one is '
+        f'declared here by name with its exemption stated -- adding one is an edit somebody means.'
     )
 
 
+def test_a_shell_row_is_excluded_from_section_4_by_NAME_rather_than_by_crashing_it() -> None:
+    """THE PLANTED CONTROL FOR THE EXEMPTION, because `SHELL_ROWS` is empty and proves nothing alone.
+
+    An empty named set cannot show that the exclusion WORKS, and an exclusion that does not work is
+    exactly the `ast.parse` error this arm exists to prevent. So plant a manifest holding one shell
+    row and call the REAL `stays_rows`: the row must not come back as a section-4 parameter.
+    """
+    planted = {
+        'scripts/planted.sh': Placement(STAYS, 'planted: a shell row no AST reader can measure, stated at length')
+    }
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(_placement, 'PLACEMENT', planted)
+        patch.setattr(_placement, 'BELOW_THE_BAR', {})
+        patch.setattr(_placement, 'SHELL_ROWS', frozenset(planted))
+        assert [param.values[0] for param in stays_rows()] == [], (
+            'a shell row reached section 4, where `measure` will hand it to `ast.parse` and the '
+            'guard will ERROR rather than name the file'
+        )
+
+
 def test_the_runnable_suffixes_can_still_SEE_a_file_this_tree_lacks() -> None:
-    """Pin both directions of the suffix set, because narrowing it would GREEN the test above.
+    """Pin both directions of the suffix set, because narrowing it would GREEN the arm above.
 
     If `RUNNABLE_SUFFIXES` dropped `.sh`, a shell script arriving in `scripts/` would simply vanish
-    from `_FILES`: section 1 would not demand a row for it and section 5 would find nothing to
-    refuse. The scan must be able to SEE the thing it reports the absence of.
+    from `_FILES`: section 1 would not demand a row for it and the named set above would find nothing
+    to compare. The scan must be able to SEE the thing it reports the absence of.
     """
     assert '.sh' in RUNNABLE_SUFFIXES, (
         'the scan can no longer see a shell script, so "this tree holds none" became unfalsifiable'
