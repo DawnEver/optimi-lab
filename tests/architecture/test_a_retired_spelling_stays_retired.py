@@ -33,6 +33,8 @@ import re
 from pathlib import Path
 from typing import Final
 
+from lab_commons.dev import floors
+
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
 #: A retired spelling to its REPLACEMENT -- what a reader who reaches for the old name writes now.
@@ -69,8 +71,19 @@ SCANNED: Final = ('src', 'tests', 'scripts', '.claude')
 
 #: Floors. Both directions matter: a registry with nothing in it proves nothing, and a scan that
 #: reached three files reports exactly what a clean tree reports. Measured 2026-09-15.
+#: RE-MEASURED 2026-09-18: 7 spellings registered.
 REGISTRY_FLOOR: Final = 6
-SCANNED_FILE_FLOOR: Final = 25
+
+#: THE OTHER SIDE OF ``REGISTRY_FLOOR``. Today's reading is 7 - 6 = 1.
+REGISTRY_HEADROOM: Final = 5
+
+#: RE-MEASURED 2026-09-18: the scan reaches 63 files. THE OLD NUMBER WAS 25, a slack of 38 that
+#: would have passed a walk reaching two fifths of the tree; re-measured rather than absorbed by a
+#: wider headroom.
+SCANNED_FILE_FLOOR: Final = 50
+
+#: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
+SCANNED_FILE_HEADROOM: Final = 25
 
 #: The one file allowed to write these spellings: this one. Every other mention is a resurrection,
 #: including a comment explaining the retirement.
@@ -112,9 +125,9 @@ def resurrections(files: list[Path], retired: dict[str, str]) -> dict[str, list[
 
 def test_the_registry_has_a_subject() -> None:
     """A registry with nothing in it is not an enforcement, it is a file shaped like one."""
-    assert len(RETIRED) >= REGISTRY_FLOOR, (
-        f'{len(RETIRED)} spellings registered, below the {REGISTRY_FLOOR} floor. An empty registry '
-        f'passes the scan below over nothing at all.'
+    floors.assert_floor(len(RETIRED), floor=REGISTRY_FLOOR, what='RETIRED-SPELLING registry')
+    floors.assert_floor_still_binds(
+        len(RETIRED), floor=REGISTRY_FLOOR, headroom=REGISTRY_HEADROOM, what='RETIRED-SPELLING registry'
     )
     unexplained = sorted(name for name, replacement in RETIRED.items() if not replacement.strip())
     assert not unexplained, (
@@ -126,9 +139,9 @@ def test_the_registry_has_a_subject() -> None:
 def test_no_retired_spelling_is_written_anywhere() -> None:
     """THE CHECK, over every scanned tree, with the size of the scan asserted before its verdict."""
     files = scanned_files(_ROOT)
-    assert len(files) >= SCANNED_FILE_FLOOR, (
-        f'the scan reached {len(files)} files across {SCANNED}, below the {SCANNED_FILE_FLOOR} floor. A '
-        f'clean result over a list this short is a walk that did not reach the tree.'
+    floors.assert_floor(len(files), floor=SCANNED_FILE_FLOOR, what='RETIRED-SPELLING (scanned trees)')
+    floors.assert_floor_still_binds(
+        len(files), floor=SCANNED_FILE_FLOOR, headroom=SCANNED_FILE_HEADROOM, what='RETIRED-SPELLING (scanned trees)'
     )
     found = resurrections(files, RETIRED)
     assert not found, '\n'.join(

@@ -37,14 +37,29 @@ from pathlib import Path
 from typing import Final
 
 import pytest
+from lab_commons.dev import floors
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
 _TESTS: Final = _ROOT / 'tests'
 
-#: Floors. Measured when this file was written: 17 shipped modules, 4 test modules.
+#: RE-MEASURED 2026-09-18: 22 shipped modules and 26 test modules.
 SOURCE_FILE_FLOOR: Final = 15
-TEST_FILE_FLOOR: Final = 3
+
+#: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``, which nothing here ever guarded: how far past its floor
+#: the population may grow before the number stops separating a clean scan from a walk that did not
+#: reach the package. Today's reading is 22 - 15 = 7.
+SOURCE_FILE_HEADROOM: Final = 12
+
+#: RE-MEASURED 2026-09-18: 26 test modules. THE OLD NUMBER WAS 3, measured against 4 when this file
+#: was written, and adopting :func:`lab_commons.dev.floors.assert_floor_still_binds` is what found
+#: it: a slack of 23 means the floor refused only a walk that reached almost nothing, and would have
+#: passed one that lost seven eighths of the suite. The kit's remedy is to RE-MEASURE, never to widen
+#: the headroom.
+TEST_FILE_FLOOR: Final = 20
+
+#: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 26 - 20 = 6.
+TEST_FILE_HEADROOM: Final = 10
 
 #: The size band, in lines. Past it a module is refactored, or it is pinned below by name with the
 #: reason it may not be -- the band is not a suggestion and the pin is not a default.
@@ -87,17 +102,31 @@ def _name(path: Path) -> str:
         return path.as_posix()
 
 
-def assert_floor(files: Iterable[Path], floor: int, what: str) -> list[Path]:
-    """THE FLOOR, as one function every scan below calls, so one control answers for all of them.
+def bind_source_floor(files: Iterable[Path]) -> list[Path]:
+    """BOTH SIDES of :data:`SOURCE_FILE_FLOOR`, carried to the kit with this repo's own headroom.
 
-    Returns the file list when it is long enough and raises otherwise. A scan that walked the
-    wrong directory finds nothing and reports exactly what a clean tree reports; this is the line
-    that tells the two apart.
+    The refusal is :mod:`lab_commons.dev.floors`' and is not restated here: the four lines it
+    replaces were the NINTH copy of one body in this family. What this adds is the only part the kit
+    refuses to guess -- which two numbers -- and it adds them TOGETHER, so a scan cannot bind the low
+    side and quietly leave the high side off.
     """
     found = list(files)
-    assert len(found) >= floor, (
-        f'the scan reached {len(found)} {what}, below the {floor} floor -- a green over a list this '
-        f'short says nothing about the package, it says the walk did not reach it.'
+    floors.assert_floor(len(found), floor=SOURCE_FILE_FLOOR, what='PUBLIC-SURFACE (shipped modules)')
+    floors.assert_floor_still_binds(
+        len(found),
+        floor=SOURCE_FILE_FLOOR,
+        headroom=SOURCE_FILE_HEADROOM,
+        what='PUBLIC-SURFACE (shipped modules)',
+    )
+    return found
+
+
+def bind_test_floor(files: Iterable[Path]) -> list[Path]:
+    """BOTH SIDES of :data:`TEST_FILE_FLOOR` -- see :func:`bind_source_floor`, which it mirrors."""
+    found = list(files)
+    floors.assert_floor(len(found), floor=TEST_FILE_FLOOR, what='PUBLIC-SURFACE (test modules)')
+    floors.assert_floor_still_binds(
+        len(found), floor=TEST_FILE_FLOOR, headroom=TEST_FILE_HEADROOM, what='PUBLIC-SURFACE (test modules)'
     )
     return found
 
@@ -167,7 +196,7 @@ def pin_gap(found: Iterable[str], pins: Iterable[str]) -> tuple[list[str], list[
 
 def test_every_shipped_module_declares_its_public_surface() -> None:
     """A module that declares nothing exports everything it happens to hold, including its imports."""
-    files = assert_floor(_shipped(), SOURCE_FILE_FLOOR, 'modules')
+    files = bind_source_floor(_shipped())
     silent = [_name(p) for p in files if declared_names(_tree(p)) is None]
     assert not silent, (
         f'{silent} declare no `__all__`, so their public surface is whatever they happen to hold -- '
@@ -177,7 +206,7 @@ def test_every_shipped_module_declares_its_public_surface() -> None:
 
 def test_no_public_name_has_two_definitions() -> None:
     """One name, one home -- the cause fixed at the source, not a caller taught which import to take."""
-    files = assert_floor(_shipped(), SOURCE_FILE_FLOOR, 'modules')
+    files = bind_source_floor(_shipped())
     clashes = second_homes(files)
     assert not clashes, (
         f'{clashes} are each exported from more than one module. Two definitions of one name is the '
@@ -187,7 +216,7 @@ def test_no_public_name_has_two_definitions() -> None:
 
 def test_no_module_imports_lazily() -> None:
     """An import graph a reader (or a cost model) reads must be exact; a deferred import makes it a guess."""
-    files = assert_floor(_shipped(), SOURCE_FILE_FLOOR, 'modules')
+    files = bind_source_floor(_shipped())
     found = {f'{_name(path)}::{name}' for path in files for name in lazy_imports(_tree(path))}
     unpinned, stale = pin_gap(found, LAZY_IMPORT_PINS)
     assert not unpinned and not stale, (
@@ -199,7 +228,7 @@ def test_no_module_imports_lazily() -> None:
 
 def test_every_module_is_inside_the_size_band() -> None:
     """Two-sided: a module that grows past the band reds, and so does a pin nothing needs."""
-    files = assert_floor(_shipped(), SOURCE_FILE_FLOOR, 'modules')
+    files = bind_source_floor(_shipped())
     unpinned, stale = pin_gap(oversize(files, MODULE_SIZE_BAND), OVERSIZE_PINS)
     assert not unpinned and not stale, (
         f'past the {MODULE_SIZE_BAND}-line band and unpinned: {unpinned} -- split it, or pin it here '
@@ -210,7 +239,7 @@ def test_every_module_is_inside_the_size_band() -> None:
 
 def test_no_test_is_skipped() -> None:
     """A skip records nothing: it makes work that stopped working look like work never started."""
-    files = assert_floor(_test_modules(), TEST_FILE_FLOOR, 'test modules')
+    files = bind_test_floor(_test_modules())
     skipped = sorted(skipping(files))
     assert not skipped, (
         f'{skipped} skip a test. A known failure is an `xfail` carrying the reason it fails, so the day '
@@ -227,9 +256,11 @@ def test_no_test_is_skipped() -> None:
 
 def test_the_floor_refuses_a_walk_that_reached_nothing() -> None:
     """THE CONTROL FOR EVERY FLOOR, since all five scans route through one function."""
-    with pytest.raises(AssertionError, match='below the 15 floor'):
-        assert_floor([Path('a.py'), Path('b.py')], SOURCE_FILE_FLOOR, 'modules')
-    assert len(assert_floor([Path(f'{i}.py') for i in range(15)], SOURCE_FILE_FLOOR, 'modules')) == 15
+    with pytest.raises(floors.FloorUnmet, match='below its measured floor of 15'):
+        bind_source_floor([Path('a.py'), Path('b.py')])
+    assert len(bind_source_floor([Path(f'{i}.py') for i in range(20)])) == 20
+    with pytest.raises(floors.SlackFloor, match='past the 12 headroom'):
+        bind_source_floor([Path(f'{i}.py') for i in range(40)])
 
 
 def test_the_surface_guard_names_a_planted_silent_module() -> None:

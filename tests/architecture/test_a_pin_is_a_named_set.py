@@ -26,16 +26,37 @@ import ast
 from pathlib import Path
 from typing import Final
 
+from lab_commons.dev import floors
+
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _ARCHITECTURE: Final = Path(__file__).resolve().parent
 
 #: Suffixes that make a numeric constant legitimate: its content IS the magnitude, and there is no
 #: set of rows a number could have failed to name. Everything else numeric is a count pin.
-THRESHOLD_SUFFIXES: Final = ('_FLOOR', '_CEILING', '_BAND', '_DEPTH', '_MAX', '_MIN', '_LIMIT')
+#:
+#: `_HEADROOM` JOINED 2026-09-18 WITH THE FAMILY FLOOR. A headroom is the largest slack a floor may
+#: carry before it must be re-measured -- `lab_commons.dev.floors.assert_floor_still_binds`' second
+#: argument -- so its content IS a magnitude and there is no set of rows it could have named instead.
+#: It is the most magnitude-shaped constant in this tree: it exists precisely to stop a number from
+#: silently ceasing to mean anything.
+THRESHOLD_SUFFIXES: Final = ('_FLOOR', '_CEILING', '_BAND', '_DEPTH', '_MAX', '_MIN', '_LIMIT', '_HEADROOM')
+
+#: THE SAME WORDS STANDING ALONE. A module whose single threshold is just `CEILING` is making
+#: exactly the claim a suffix makes, and refusing it taught nothing except to add a prefix. Measured
+#: 2026-09-18: `test_the_rules_pages_are_a_ratchet.CEILING` is the one such constant in this tree,
+#: and it was a live red the day the suffix rule was written.
+THRESHOLD_NAMES: Final = frozenset(suffix.lstrip('_') for suffix in THRESHOLD_SUFFIXES)
 
 #: The floor on the scan, measured 2026-09-15: the architecture modules carry well over twenty
 #: module-level constants between them. Below this the walk did not reach the tree it reports on.
-CONSTANT_FLOOR: Final = 15
+#: RE-MEASURED 2026-09-18: 117 module-level constants across the architecture modules. THE OLD
+#: NUMBER WAS 15, and adopting `floors.assert_floor_still_binds` is what found it: a slack of 102
+#: refused only a total collapse. The kit`s remedy is to re-measure the floor, never to widen the
+#: headroom.
+CONSTANT_FLOOR: Final = 90
+
+#: THE OTHER SIDE OF ``CONSTANT_FLOOR``. Today's reading is 117 - 90 = 27.
+CONSTANT_HEADROOM: Final = 40
 
 
 def _architecture_modules() -> list[Path]:
@@ -73,6 +94,7 @@ def count_pins(module: ast.Module) -> frozenset[str]:
         and isinstance(value.value, (int, float))
         and not isinstance(value.value, bool)
         and not name.upper().endswith(THRESHOLD_SUFFIXES)
+        and name.upper().strip('_') not in THRESHOLD_NAMES
     )
 
 
@@ -81,9 +103,9 @@ def test_no_architecture_constant_is_a_count_pin() -> None:
     modules = _architecture_modules()
     trees = {path: ast.parse(path.read_text(encoding='utf-8')) for path in modules}
     read = sum(len(module_constants(tree)) for tree in trees.values())
-    assert read >= CONSTANT_FLOOR, (
-        f'the scan read {read} module-level constants across {len(modules)} architecture modules, below '
-        f'the {CONSTANT_FLOOR} floor. Finding no count pin in a tree nobody parsed is not a clean tree.'
+    floors.assert_floor(read, floor=CONSTANT_FLOOR, what='COUNT-PIN (architecture constants)')
+    floors.assert_floor_still_binds(
+        read, floor=CONSTANT_FLOOR, headroom=CONSTANT_HEADROOM, what='COUNT-PIN (architecture constants)'
     )
     offenders = {
         path.relative_to(_ROOT).as_posix(): sorted(found) for path, tree in trees.items() if (found := count_pins(tree))

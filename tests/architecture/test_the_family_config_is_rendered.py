@@ -46,6 +46,7 @@ from typing import Final
 
 import pytest
 from _famconfig import DELTAS, EXTRA_HOOK_IDS, PRECOMMIT_STAGE_MOVE, REPO
+from lab_commons.dev import floors
 from lab_commons.dev.famconfig import RENDERED, REQUIRED, artefact_base
 from lab_commons.dev.famtests import configrender
 from lab_commons.dev.hook_install import hooks_dir
@@ -65,6 +66,10 @@ _PRECOMMIT: Final = '.pre-commit-config.yaml'
 #: claim about which hooks narrowed, so finding nothing there is vacuous rather than green. Set below
 #: the 19 this repo declares: a floor refuses an unread file, it is not a second pin on the count.
 _HOOK_FLOOR: Final = 15
+
+#: THE OTHER SIDE OF ``_HOOK_FLOOR``, re-measured 2026-09-18 at 19 resolved hooks: today's
+#: reading is 19 - 15 = 4.
+_HOOK_HEADROOM: Final = 10
 
 #: The floor under the reopening scan, and it is a fact about the BASE rather than about this repo:
 #: MEASURED 2026-09-17, the `.gitignore` base carries five directory rules (`**/__pycache__/`,
@@ -203,9 +208,9 @@ def test_the_pins_the_adoption_moved_are_the_bases_own() -> None:
     HUMAN can see in the file.
     """
     hooks = configrender.resolved_stages(_ROOT / _PRECOMMIT, resolve=_resolve)
-    assert len(hooks) >= _HOOK_FLOOR, (
-        f'the engine resolved {len(hooks)} hooks from {_PRECOMMIT}, below the {_HOOK_FLOOR} floor; '
-        f'a set difference taken against nothing reports every id as still resolving'
+    floors.assert_floor(len(hooks), floor=_HOOK_FLOOR, what='FAMILY-CONFIG (resolved hooks)')
+    floors.assert_floor_still_binds(
+        len(hooks), floor=_HOOK_FLOOR, headroom=_HOOK_HEADROOM, what='FAMILY-CONFIG (resolved hooks)'
     )
     lost = sorted(set(EXTRA_HOOK_IDS) - set(hooks))
     assert not lost, (

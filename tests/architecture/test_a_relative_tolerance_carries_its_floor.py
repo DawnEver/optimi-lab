@@ -36,6 +36,8 @@ import subprocess
 from pathlib import Path
 from typing import Final
 
+from lab_commons.dev import floors
+
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
 #: The git executable, resolved rather than looked up on PATH at call time.
@@ -46,8 +48,16 @@ _GIT: Final = shutil.which('git') or 'git'
 #: a statement about an empty list.
 APPROX_CALL_FLOOR: Final = 2
 
+#: THE OTHER SIDE OF ``APPROX_CALL_FLOOR``, re-measured 2026-09-18 at exactly 2 call sites: the
+#: floor sits ON the population, so any growth at all is worth re-reading.
+APPROX_CALL_HEADROOM: Final = 5
+
 #: The floor on the corpus itself, so a scan that parsed nothing cannot report clean either.
+#: RE-MEASURED 2026-09-18: 55 tracked Python files.
 PYTHON_FILE_FLOOR: Final = 40
+
+#: THE OTHER SIDE OF ``PYTHON_FILE_FLOOR``. Today's reading is 55 - 40 = 15.
+PYTHON_FILE_HEADROOM: Final = 25
 
 
 def tracked_python_files() -> list[Path]:
@@ -95,15 +105,15 @@ def unfloored(tree: ast.AST) -> tuple[int, ...]:
 def test_no_relative_tolerance_is_written_without_its_floor() -> None:
     """THE CHECK, over the tracked corpus, with what the scan actually read asserted first."""
     files = tracked_python_files()
-    assert len(files) >= PYTHON_FILE_FLOOR, (
-        f'the scan listed {len(files)} tracked Python files, below the {PYTHON_FILE_FLOOR} floor. Finding no '
-        f'bare tolerance in a corpus nobody parsed is not a clean corpus.'
+    floors.assert_floor(len(files), floor=PYTHON_FILE_FLOOR, what='RELATIVE-TOLERANCE (tracked corpus)')
+    floors.assert_floor_still_binds(
+        len(files), floor=PYTHON_FILE_FLOOR, headroom=PYTHON_FILE_HEADROOM, what='RELATIVE-TOLERANCE (tracked corpus)'
     )
     trees = {path: ast.parse(path.read_text(encoding='utf-8')) for path in files}
     seen = sum(len(approx_calls(tree)) for tree in trees.values())
-    assert seen >= APPROX_CALL_FLOOR, (
-        f'the scan parsed {seen} `approx` call sites, below the {APPROX_CALL_FLOOR} floor measured when this '
-        f'guard was written. Either the calls moved somewhere this walk cannot see, or it read the wrong tree.'
+    floors.assert_floor(seen, floor=APPROX_CALL_FLOOR, what='RELATIVE-TOLERANCE (approx call sites)')
+    floors.assert_floor_still_binds(
+        seen, floor=APPROX_CALL_FLOOR, headroom=APPROX_CALL_HEADROOM, what='RELATIVE-TOLERANCE (approx call sites)'
     )
     offenders = {
         path.relative_to(_ROOT).as_posix(): lines for path, tree in trees.items() if (lines := unfloored(tree))

@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Final
 
 import pytest
+from lab_commons.dev import floors
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
@@ -39,7 +40,11 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({'numpy', 'scipy', 'sklearn', 'optimi_la
 
 #: A floor on the scan. Finding no foreign import across three files is not a pure package, it is a
 #: walk that stopped reaching one.
+#: RE-MEASURED 2026-09-18: 22 shipped modules.
 SOURCE_FILE_FLOOR: Final = 15
+
+#: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
+SOURCE_FILE_HEADROOM: Final = 12
 
 #: Version specifiers that are a CEILING rather than a floor. An upper bound is a bet that a
 #: release nobody has read will break us, and it is the shape `LATEST-DEPENDENCIES` refuses.
@@ -124,9 +129,9 @@ def test_no_runtime_requirement_carries_an_upper_bound() -> None:
 def test_no_shipped_module_imports_outside_the_runtime_set() -> None:
     """THE IMPORT GRAPH, which is where the docstring's claim is actually kept or broken."""
     files = _source_files()
-    assert len(files) >= SOURCE_FILE_FLOOR, (
-        f'the scan reached {len(files)} modules, below the {SOURCE_FILE_FLOOR} floor. A clean result '
-        f'over a short list is not a pure package, it is a walk that did not reach one.'
+    floors.assert_floor(len(files), floor=SOURCE_FILE_FLOOR, what='RUNTIME-PURITY (shipped modules)')
+    floors.assert_floor_still_binds(
+        len(files), floor=SOURCE_FILE_FLOOR, headroom=SOURCE_FILE_HEADROOM, what='RUNTIME-PURITY (shipped modules)'
     )
     offenders = {
         path.relative_to(_ROOT).as_posix(): sorted(found)
