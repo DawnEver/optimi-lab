@@ -302,14 +302,18 @@ PLACEMENT: Final[dict[str, Placement]] = {
     ),
     'tests/architecture/test_a_relative_tolerance_carries_its_floor.py': Placement(
         SPLITS,
-        'THE SEAM IS SCAN VERSUS SCOPE. FAMILY: walking tracked `.py` files for an `approx` call '
-        'giving a RATIO with no floor under it is a pytest fact, true in every repo of the family '
-        'and answered nowhere else in it. LOCAL: the two MEASURED floors (2 `approx` call sites, 40 '
-        'Python files) and the SCOPE this file is careful to bound -- `Variable.unit` is a free-text '
-        'label this package never computes with, pint is not a dependency it may take, and '
-        '`UNITS-GO-THROUGH-PINT` stays declared absent rather than being answered by narrowing this '
-        'scan. Measured 2026-09-17: own=71 repo=0 -> 0.00%; a `BELOW_THE_BAR` row whose repo facts '
-        'are two integers, which is the shape the noun scan cannot see.',
+        'THE SEAM IS SCAN VERSUS SCOPE, AND THE SPLIT THIS ROW OWED HAS NOW HAPPENED. FAMILY: '
+        'walking tracked `.py` files for an `approx` call giving a RATIO with no floor under it is a '
+        'pytest fact, true in every repo of the family -- and it is now '
+        '`lab_commons.dev.famtests.approxfloors`, which reads a POSITIONAL tolerance this file never '
+        'did. LOCAL: the BAR this repo is judged under (`ratio`, which the kit refuses to default), '
+        'the two MEASURED floors with their headrooms, and the SCOPE this file is careful to bound '
+        '-- `Variable.unit` is a free-text label this package never computes with, pint is not a '
+        'dependency it may take, and `UNITS-GO-THROUGH-PINT` stays declared absent rather than being '
+        'answered by narrowing this scan. RE-MEASURED 2026-09-18 AFTER ADOPTING `approxfloors`: '
+        'own=27 repo=0 -> 0.00%, down from own=71, admitted by the 50-line binder ceiling alone. Its '
+        '`BELOW_THE_BAR` entry is DELETED in the same commit: the shortfall it recorded was the '
+        'missing upstream half, and that half now exists.',
     ),
     'tests/architecture/test_a_retired_spelling_stays_retired.py': Placement(
         STAYS,
@@ -641,6 +645,13 @@ def is_justified(reading: density.Density) -> bool:
 #:
 #: The ceiling must exceed 43 and fall below 67; 50 is the round number in that interval.
 #:
+#: THE LAST ROW IS A DATED CALIBRATION READING AND NO LONGER DESCRIBES ITS FILE, which is said here
+#: rather than silently corrected: that file adopted `famtests.approxfloors` on 2026-09-18 and now
+#: reads own=27, so it would ADMIT today. The calibration stands on `test_a_pin_is_a_named_set.py`,
+#: which still carries its own scan at own=67 and holds the interval's upper end by itself. The row
+#: is kept because deleting it would erase the evidence the ceiling was derived from, and a
+#: calibration whose refused end is unrecorded is a number nobody can re-argue.
+#:
 #: IT IS NOT A FAMILY CONSTANT AND THE KIT DELIBERATELY DOES NOT SHIP ONE, which is the finding the
 #: placement half exists to carry. Three of the family's four rosters read 50 and the fourth --
 #: motronics' `scripts/` -- reads 40 over an interval of (35, 42) that EXCLUDES 50, while this
@@ -700,13 +711,6 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         '`NAMED-SETS-NOT-COUNTS` with no optimisation in it, and belongs in `lab_commons.dev`. What '
         "stays is this package's pins. The zero is honest rather than a misclassification: the "
         'pins are frozensets of module NAMES, which are strings.'
-    ),
-    'tests/architecture/test_a_relative_tolerance_carries_its_floor.py': (
-        'MEASURED 2026-09-17: own=71 repo=0 -> 0.00%. THE SPLIT IT OWES: walking tracked `.py` files '
-        'for an `approx` ratio with no floor under it is a pytest fact and belongs upstream, where '
-        'the sibling repos would get it too -- neither of them has this check at all. What stays is '
-        'the two measured floors and the scope statement that keeps `UNITS-GO-THROUGH-PINT` '
-        'honestly absent rather than answered by a narrowed scan.'
     ),
     'tests/architecture/test_the_family_config_is_rendered.py': (
         'MEASURED 2026-09-17 AFTER ADOPTING `famtests.configrender`: own=67 repo=0 -> 0.00%, down '
