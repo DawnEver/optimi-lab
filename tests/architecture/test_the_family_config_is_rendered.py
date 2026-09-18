@@ -263,12 +263,33 @@ def test_the_makefile_check_is_required_rather_than_rendered() -> None:
     )
 
 
-def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded() -> None:
-    """The instrument that sized this change, re-run against the adopted file.
+@pytest.mark.parametrize('artefact', sorted(DELTAS))
+def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded(artefact: str) -> None:
+    """The instrument that sized this change, re-run against every adopted file.
 
     After adoption the survey must find NOTHING to drop: every base line is on disk. Before it, it
-    found two -- the slashed `**/__pycache__/` and `*.egg-info/` this repo wrote bare. Pinning the
-    post-adoption reading is what makes a silent removal of a base line visible here as well as in
-    the main property, by a route that does not go through the rendered bytes.
+    found two in `.gitignore` -- the slashed `**/__pycache__/` and `*.egg-info/` this repo wrote
+    bare. Pinning the post-adoption reading is what makes a silent removal of a base line visible
+    here as well as in the main property, by a route that does not go through the rendered bytes.
+
+    IT IS PARAMETRIZED OVER ALL THREE ARTEFACTS AND THE `Makefile` IS WHY, which is the kit's own
+    reason rather than a generalisation applied for symmetry: `assert_no_base_line_left_undeclared`
+    exists so that a departing base line "is visible even where the mode is the weaker one", and
+    `Makefile` is the only REQUIRED artefact in the family. Under REQUIRED the rendered-bytes
+    property never compares this repo's 48 own lines against anything, so a base target NAME leaving
+    this file was, until this arm covered it, caught by exactly one check instead of two. MEASURED
+    2026-09-18: the survey reports 48 added / 0 dropped for `Makefile` and 16 / 0 for `.gitignore`,
+    so the drop set is empty for all three and the arm is green on arrival rather than aspirational.
+
+    THE AXIS THIS IS BLIND TO, NAMED, because a scope claim nobody bounds is the lie shape. For
+    `Makefile` the survey compares through `famconfig.satisfies`, which matches a base line ending in
+    a colon by TARGET NAME ALONE -- `all:` is satisfied by `all: fmt test` -- and that leniency is
+    deliberate upstream, since a target carries its prerequisites on its own line and a contract that
+    reds on those is a contract about punctuation. The consequence here is that this arm sees a
+    target DISAPPEAR and cannot see its RECIPE gutted: `verify:` followed by nothing still satisfies
+    the base. Under REQUIRED nothing else byte-checks that recipe either, so the gap is real rather
+    than covered elsewhere, and it is the family's to close in `satisfies` rather than this repo's to
+    work around. DRIVEN 2026-09-18 against the real guard, both ways: with `all: fmt test` deleted
+    the arm reds naming `['all:']`, and it is green with the line present.
     """
-    configrender.assert_no_base_line_left_undeclared(root=_ROOT, artefact='.gitignore', repo=REPO)
+    configrender.assert_no_base_line_left_undeclared(root=_ROOT, artefact=artefact, repo=REPO)

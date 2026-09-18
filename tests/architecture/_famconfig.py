@@ -23,11 +23,19 @@ delta -- the delta renders AFTER the base and gitignore is last-match-wins, so k
 silently reinstate exactly the rule the base replaced.
 
 WHAT THIS REPO DOES NOT HAVE, and it is worth one sentence because the sibling lab does. There is no
-`**/.claude/**` block here and no re-inclusions, so the last-match-wins hazard does not arise at all:
-a delta that re-includes nothing has nothing to close again below. That is a fact about this tree
-today rather than a guarantee, so the ordering property in the test module is written to bite if a
-negation is ever added -- and since 2026-09-17 it bites through the kit rather than through anything
-written here, because `assert_no_rule_is_reopened` refuses a base directory rule re-stated ABOVE a
+`**/.claude/**` block here and no SUBTREE re-inclusion, so the last-match-wins hazard does not arise.
+THE QUALIFIER IS LOAD-BEARING AND THIS SENTENCE USED TO READ "no re-inclusions", WHICH IS FALSE: the
+delta carries `!example.log`, and it has since the adoption. What makes it harmless is not its
+absence but its SHAPE -- `reopenings` reports a negation only when it ends in a wildcard, because a
+negation naming ONE FILE re-includes that path and nothing under it and so owes no closure, where a
+subtree negation brings back every cache directory a floating base rule excludes at any depth. So the
+correct claim is about the shape of this repo's one negation rather than about there being none, and
+the blanket version was a declaration asserting a property the file does not have.
+
+THE SHAPE OF THE NEGATION IS A FACT ABOUT THIS TREE TODAY rather than a guarantee, so the ordering
+property in the test module is written to bite if a SUBTREE negation is ever added -- and since
+2026-09-17 it bites through the kit rather than through anything written here, because
+`assert_no_rule_is_reopened` refuses a base directory rule re-stated ABOVE a
 subtree negation that re-includes it. The condition is BELOW EVERY RE-INCLUSION IT CLOSES; naming a
 particular line as the FINAL one was a sufficient approximation of it that no repo needs any more.
 
