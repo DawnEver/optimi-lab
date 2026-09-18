@@ -169,7 +169,10 @@ REPO_NOUNS: Final = (
 _NOUN: Final = re.compile(r'(?<![A-Za-z0-9_])(' + '|'.join(REPO_NOUNS) + r')(?![A-Za-z0-9_])', re.IGNORECASE)
 
 #: MEASURED 2026-09-17: `scripts/` holds 3 runnable files and `tests/architecture/` holds 20 modules
-#: once this roster's own two files are counted, for 23 rows. The floor sits below that with room
+#: once this roster's own two files are counted, for 23 rows. RE-MEASURED 2026-09-18 at 27 rows,
+#: the arrival being `test_the_roster_is_re_read_against_the_kit.py`; the floor does not move
+#: with an arrival, because a floor with no room below it is a second pin on the population
+#: rather than a refusal of an unread walk. The floor sits below that with room
 #: for ordinary deletion and far above the zero a broken walk returns. Finding NOTHING is vacuous
 #: rather than green.
 PLACEMENT_FLOOR: Final = 18
@@ -470,6 +473,24 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'deleted, so the fixture now describes a file that no longer has that remainder. That is '
         "lab-commons's row to re-take, not this roster's to edit.",
     ),
+    'tests/architecture/test_the_roster_is_re_read_against_the_kit.py': Placement(
+        SPLITS,
+        'THE SEAM IS THE ANSWERS VERSUS THE ASSERTIONS, and the family half is ALREADY '
+        'PUBLISHED. FAMILY, IMPORTED: `lab_commons.dev.supersede` (kit `0.2.2.dev74+ga177ba62f`) '
+        'holds both detectors, the seven grades, the ruler and both floor refusals -- nothing '
+        'here re-implements any of it. LOCAL: the four answers that module refuses to guess, and '
+        'it refuses them for the reason `LAB_CZ_BASE_REF` is the worked example of -- the roster '
+        'source, this checkout as the root, `lab_commons.dev` spelled at full depth, and the two '
+        'floors. THE ROW THIS FILE EXISTS FOR IS THE ONE NOBODY HAD: the density bar asks whether '
+        'a file is mostly generic and never asks whether the family already expressed it, so a '
+        'row stayed pending after its subject landed upstream and no mechanism noticed. THE SPLIT '
+        'IT STILL OWES: the assertion body -- census floors, the stale-MOVES arm, the named '
+        'waiver and the planted control -- is what every consumer of `supersede` will write, and '
+        'belongs beside it in `lab_commons.dev.famtests` as a body a repo parametrizes. THE '
+        'EVIDENCE THAT IT SHOULD is the same shape the other famtests rows cite: wdg-lab gained '
+        'this file on the same day, and the two differ only in the four answers. MEASURED '
+        '2026-09-18: own=88 repo=0 -> 0.00%, so it is a `BELOW_THE_BAR` row and says so.',
+    ),
     'tests/architecture/test_the_runtime_stays_pure.py': Placement(
         STAYS,
         "THE CLAIM IT CHECKS IS THIS PACKAGE'S OWN SENTENCE: `src/optimi_lab/__init__.py` states the "
@@ -724,6 +745,16 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'REMEDY IS NOT A MOVE -- the twin comparison refutes that outright (89% of the lines across '
         'this file and wdg-lab\'s same-named module differ). At 0.65% this is "no evidence of '
         'density", not "this row is wrong".'
+    ),
+    'tests/architecture/test_the_roster_is_re_read_against_the_kit.py': (
+        'MEASURED 2026-09-18 ON ARRIVAL: own=88 repo=0 -> 0.00%, and the row is recorded here in '
+        'the same commit that creates the file rather than after someone notices. THE READING IS '
+        'HONEST ABOUT WHY IT IS ZERO: every optimi-lab fact in this file is a repo-relative PATH, '
+        'a dotted package STRING or an INTEGER floor -- the three shapes the noun scan cannot '
+        'cross, the same reason `_famconfig.py` and `test_a_pin_is_a_named_set.py` are recorded '
+        'beside it. THE SPLIT IT OWES is named in its placement row and is real rather than '
+        'formal: the assertion body is generic over any repo holding a roster, and the four '
+        'answers it supplies are the only part that could not be written upstream.'
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': (
         'MEASURED 2026-09-17: own=86 repo=2 -> 2.33%, under the 3.0% bar and over the ceiling. The '
