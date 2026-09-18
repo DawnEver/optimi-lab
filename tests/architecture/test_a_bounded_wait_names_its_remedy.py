@@ -12,6 +12,24 @@ than a convention. It kills only the DIRECT child, and then -- on Windows -- rea
 `communicate()`. Any grandchild inherits the stdout write handle, so the pipe stays open while one
 of them lives: a hang detector that hangs, where raising the wall makes it strictly worse.
 
+THE BODIES ARE THE FAMILY'S, and this file is the repo's ANSWERS. `lab_commons.dev.famtests.
+boundedremedy` holds every assertion below. Measured before adoption, this file and wdg-lab's
+near-twin carried an identical wall, an identical reap ceiling, a byte-identical planted-parent
+snippet and five assertion bodies written twice; a shared body under two names is the fork that
+package exists to remove, so the copy is gone rather than wrapped or re-exported. What stays here is
+what only this checkout can say -- the word this repo would use for an unbounded run, the capacity it
+prices against, the width it calls narrowed, and the two numbers its anti-flake arithmetic is priced
+from -- and every one of them is a keyword argument with no default, because a default is one repo's
+answer handed silently to another.
+
+WHY NO NUMBER BELOW MAY BE RAISED TO MAKE AN ARM PASS. The wall arm asserts on ELAPSED TIME, and the
+tempting repair -- a bigger wall -- makes a hang detector strictly worse. So the claim is a
+SEPARATION rather than a duration, the slack is PRICED from this box in the same second, and the
+pricing has a CEILING past which the arm reports `BoxTooLoaded`: INCONCLUSIVE, neither green nor red,
+because an arm that can no longer fail must not report a pass. The two refusals are told apart by
+re-pricing with this box's contribution removed, since "wait for a quiet box" is the wrong advice for
+numbers that were never going to work.
+
 THE THREE THINGS PROVED HERE, each with its violation PLANTED rather than described:
 
 1. A wall terminates the TREE, measured on the CLOCK against a real grandchild that really inherits
@@ -25,66 +43,80 @@ THE THREE THINGS PROVED HERE, each with its violation PLANTED rather than descri
 
 from __future__ import annotations
 
-import os
-import subprocess
-import sys
-import time
-
-import pytest
 from lab_commons.dev.bounded import (
     BLAS_THREAD_VARS,
     NARROWED_FLOOR,
     blas_threads,
-    is_narrowed,
     logical_cores,
-    reap_tree,
-    run_bounded,
-    wall_reason,
     worker_width,
 )
-from lab_commons.proc import process_tree
+from lab_commons.dev.famtests.boundedremedy import (
+    assert_a_run_inside_the_wall_is_left_alone,
+    assert_each_state_names_its_own_remedy,
+    assert_the_reaper_kills_what_is_not_ours,
+    assert_the_reaper_refuses_its_own_lineage,
+    assert_the_wall_terminates_the_tree,
+    default_interpreter,
+)
 
 #: The wall these cases use. Small, because the claim is a RATIO -- the call comes back near its own
 #: wall rather than near the child's lifetime -- and a ratio is what survives a busy box.
 WALL_SECONDS_LIMIT = 3.0
 REAP_SECONDS_CEILING = 4.0
 
-#: The child sleeps far past the wall AND spawns a grandchild that does too. The grandchild holds
-#: the inherited stdout pipe open; without it this case would pass against the implementation the
-#: rule was written about.
-_PARENT = (
-    'import subprocess, sys, time; '
-    "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)']); "
-    'time.sleep(120)'
-)
+#: How many spawn-overheads of slack this repo grants before it would rather call a reading
+#: inconclusive. Priced from a measurement rather than chosen: an empty bounded child costs ~0.13 s
+#: on this box (2026-09-18, five readings, 0.121-0.140), so eight of them is ~1.0 s of slack here.
+#: LOWER than wdg-lab's twelve, and the difference is a real one: this repo compiles nothing and
+#: declares no slow tier, so a run of it that is already many times slower than this reading is
+#: reporting on the machine rather than on the code.
+SPAWN_OVERHEAD_BAND = 8.0
+
+#: How many times the permitted return the planted child's lifetime must be before a pass is
+#: evidence at all. Six -- tighter than wdg-lab's four for the same reason the band is narrower:
+#: with nothing heavy sharing the box, this repo asks for a wider margin before it calls a bounded
+#: return distinguishable from a wait on the tree. The declared numbers give a 7 s permitted return
+#: against a 120 s child, clearing six-fold with room to spare.
+SEPARATION_MIN = 6.0
+
+#: How long a reaped process gets to actually die. BOUNDED, because an unbounded wait inside the
+#: guard against unbounded waits is the defect wearing the uniform.
+EXIT_SECONDS_CEILING = 20.0
 
 #: The name THIS repo would use for an unbounded run. A remedy naming a tier that does not exist
 #: here would be a dead end wearing a remedy's clothes, so the word is the repo's, not the module's.
 WIDER_TIER = 'a full run with an explicit go-ahead'
+
+#: The width this repo prices its refusal sentences against. FLOORED at 4 rather than capped: this
+#: repo's suite is short enough that a small box still runs it wide, and a capacity below the
+#: narrowed reading would make the healthy state unreachable.
+REMEDY_CAPACITY = max(logical_cores(), 4)
+
+#: A width this repo calls narrowed -- the kit's own floor, because this repo has no separate
+#: fallback width of its own to name.
+NARROWED_WORKERS = NARROWED_FLOOR
 
 
 def test_the_wall_terminates_the_whole_tree_rather_than_the_wrapper() -> None:
     """THE PROPERTY, asserted on the CLOCK because the clock is the subject.
 
     A pid table on a busy box is a snapshot of a mutating machine, but "did this call come back" is
-    a fact nothing can blur. The child sleeps 120 s, so a run waiting on the grandchild's inherited
-    pipe cannot return in single-digit seconds.
+    a fact nothing can blur. May raise `BoxTooLoaded` instead of failing, and that is the arm
+    working rather than flaking: INCONCLUSIVE is the honest reading of a box too loaded to tell a
+    bounded return from a wait, and the remedy is a quiet box rather than a wider wall.
     """
-    started = time.monotonic()
-    with pytest.raises(subprocess.TimeoutExpired):
-        run_bounded([sys.executable, '-c', _PARENT], timeout=WALL_SECONDS_LIMIT, text=True)
-    elapsed = time.monotonic() - started
-    assert elapsed < WALL_SECONDS_LIMIT + REAP_SECONDS_CEILING, (
-        f'the bounded call took {elapsed:.1f}s against a {WALL_SECONDS_LIMIT}s wall -- it waited on the very tree '
-        f'it was supposed to end.'
+    assert_the_wall_terminates_the_tree(
+        interpreter=default_interpreter(),
+        wall_seconds=WALL_SECONDS_LIMIT,
+        reap_ceiling_seconds=REAP_SECONDS_CEILING,
+        overhead_multiple=SPAWN_OVERHEAD_BAND,
+        separation_factor=SEPARATION_MIN,
     )
 
 
 def test_a_run_inside_the_wall_is_left_alone() -> None:
     """THE OTHER SIDE. A wall that also breaks the passing case is a fault, not a bound."""
-    done = run_bounded([sys.executable, '-c', 'print("ok")'], timeout=60, text=True)
-    assert done.returncode == 0
-    assert done.stdout.strip() == 'ok'
+    assert_a_run_inside_the_wall_is_left_alone(interpreter=default_interpreter(), wall_seconds=60.0)
 
 
 def test_the_reaper_refuses_its_own_lineage() -> None:
@@ -94,8 +126,7 @@ def test_the_reaper_refuses_its_own_lineage() -> None:
     leaves an ANCESTOR in the same tree, and killing that takes the shell or the runner with it --
     after which there is nobody left to report what happened.
     """
-    assert os.getpid() in process_tree(os.getpid()), 'a tree not containing its own root cannot protect it'
-    assert reap_tree(os.getpid()) == frozenset(), 'the reaper was asked to end its own tree and must refuse'
+    assert_the_reaper_refuses_its_own_lineage()
 
 
 def test_the_reaper_still_kills_a_process_that_is_not_ours() -> None:
@@ -104,32 +135,25 @@ def test_the_reaper_still_kills_a_process_that_is_not_ours() -> None:
     Confirmed by the planted process's own exit rather than by the return value alone, so the claim
     rests on an observation of the machine and not on the function agreeing with itself.
     """
-    child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'])
-    try:
-        assert child.poll() is None, 'the planted process did not start, so nothing was proved'
-        assert child.pid in reap_tree(child.pid), f'{child.pid} is outside this lineage and must be reaped'
-        assert child.wait(timeout=20) is not None
-    finally:
-        if child.poll() is None:
-            child.kill()
+    assert_the_reaper_kills_what_is_not_ours(
+        interpreter=default_interpreter(), exit_ceiling_seconds=EXIT_SECONDS_CEILING
+    )
 
 
 def test_the_refusal_names_a_different_remedy_in_each_state() -> None:
     """The rule itself: TAKE THE REMEDY A REFUSAL NAMES -- so three states may not share one."""
-    capacity = max(logical_cores(), 4)
-    unmeasured = wall_reason(workers=None, capacity=capacity, wider_tier=WIDER_TIER)
-    narrowed = wall_reason(workers=1, capacity=capacity, wider_tier=WIDER_TIER)
-    healthy = wall_reason(workers=capacity, capacity=capacity, wider_tier=WIDER_TIER)
-
-    assert len({unmeasured, narrowed, healthy}) == 3, 'one sentence for three states is a diagnosis nobody computed'
-    for sentence in (unmeasured, narrowed, healthy):
-        assert WIDER_TIER in sentence, 'every refusal names its remedy, in a word this repo uses'
-    assert 'NARROWED' in narrowed and 'NARROWED' not in healthy
-    assert is_narrowed(NARROWED_FLOOR, capacity) and not is_narrowed(capacity, capacity)
+    assert_each_state_names_its_own_remedy(
+        capacity=REMEDY_CAPACITY, wider_tier=WIDER_TIER, narrowed_workers=NARROWED_WORKERS
+    )
 
 
 def test_a_width_is_computed_rather_than_guessed() -> None:
-    """FLOOR ON THE BOX READING. Memory first and cores second, and never below the stated floor."""
+    """FLOOR ON THE BOX READING. Memory first and cores second, and never below the stated floor.
+
+    STAYS LOCAL: the kit's shared body asserts the REFUSAL SENTENCES, and this asks a different
+    question -- whether the width those sentences report is arithmetic on a real box reading. The
+    two labs answer it against different bounds, so there is no family body here to take.
+    """
     cores = logical_cores()
     assert cores >= 1, 'a box reporting no cores makes every width answer arithmetic on nothing'
     width = worker_width(gb_per_worker=4.0, max_width=cores, floor=1, reserve_cores=1, fallback=max(1, cores - 1))
