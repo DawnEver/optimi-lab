@@ -22,7 +22,7 @@ candidate populations differ by 8x -- 443 modules in the sibling lab against 56 
 repo's number handed to another is a floor nothing measured.
 
 THIS TREE HAS ZERO OFFENDERS TODAY, AND THAT IS PRECISELY WHY THE FLOOR IS NOT OPTIONAL. Measured
-2026-09-18: 57 modules read, 2 blocking call sites, both already carrying a `timeout=` -- a
+2026-09-18: 58 modules read, 2 blocking call sites, both already carrying a `timeout=` -- a
 `git ls-files` at 60 s and a `Popen.wait` at 20 s. A guard whose
 offender set is empty reports exactly what a broken walk reports, so the only thing separating "this
 repo bounds its waits" from "this scan stopped reading" is the number below -- and the arm binds it
@@ -60,13 +60,13 @@ ROOTS: Final = (('src', '*.py'), ('scripts', '*.py'), ('tests', '*.py'))
 #: exist -- an exemption naming a deleted file covers nothing while still reading as a decision.
 EXEMPT: Final[tuple[str, ...]] = ()
 
-#: MEASURED 2026-09-18: the walk reads 57 modules across the three trees. The floor sits below that
+#: MEASURED 2026-09-18: the walk reads 58 modules across the three trees. The floor sits below that
 #: with room for ordinary deletion, and far above the zero a mistyped root returns.
 FILE_FLOOR: Final = 48
 
 #: THE OTHER SIDE, and the side no copy in this family ever wrote. This is how far past its floor the
 #: population may grow before the floor is RE-MEASURED -- never how much slack the floor may be
-#: given. At 57 read against 48 the margin is 9, so 15 leaves room for a tranche of new modules and
+#: given. At 58 read against 48 the margin is 10, so 15 leaves room for a tranche of new modules and
 #: still refuses a floor that has stopped separating a clean scan from a broken walk.
 FILE_HEADROOM: Final = 15
 

@@ -22,11 +22,13 @@ a NAME and no RECIPE, so demanding byte equality there would assert a portabilit
 exist. It says nothing about whether any rule or target is CORRECT.
 
 THREE ARMS THIS FILE USED TO HOLD ARE GONE BECAUSE THE KIT ALREADY DRIVES THEM AGAINST THE REAL
-BASE. `test_an_anchor_that_names_no_position_is_still_refused` planted an ambiguous anchor, an
-anchor on a line the base lacks and an anchor carrying no lines; `tests/test_dev_famconfig.py`
-upstream plants all three, on this same base, alongside the delta-restates-a-base-line refusal the
-sibling lab planted. A duplicate control that cannot diverge from its original is a maintenance cost
-with no evidence value, and the consumer half of all four is `assert_delta_is_not_a_fork`, which
+BASE. They planted an ambiguous anchor, an anchor on a line the base lacks and an anchor carrying no
+lines; `lab-commons/tests/test_dev_famconfig.py` plants all three, on this same base, alongside the
+delta-restates-a-base-line refusal the sibling lab planted. Their retired local spellings are
+deliberately not repeated here: a name that resolves to nothing in THIS checkout sends a reader
+looking for a guard they will not find, which is the defect `test_cited_tests_resolve.py` beside
+this file exists to refuse. A duplicate control that cannot diverge from its original is a
+maintenance cost with no evidence value, and the consumer half of all four is `assert_delta_is_not_a_fork`, which
 this file still runs on every declared artefact.
 
 WHAT THE ADOPTION MOVED IN THIS TREE, read back off the REAL hook engine rather than off this file's

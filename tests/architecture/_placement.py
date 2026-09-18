@@ -40,7 +40,8 @@ WHAT THE MEASUREMENT CANNOT SEE, stated so a reader does not supply "everything"
 * IT IS PYTHON-ONLY, which costs nothing here: measured 2026-09-17, `scripts/` holds three `.py`
   files and one `README.md`, and there is no shell script in either scanned tree. The wdg-lab twin
   of this table needs a named shell exemption; this one does not, and
-  `test_the_scanned_trees_hold_no_unmeasurable_file` is what keeps that true rather than assumed.
+  `test_the_shell_rows_are_exactly_the_named_set` -- which compares the scanned trees' shell files
+  against an EMPTY `SHELL_ROWS` -- is what keeps that true rather than assumed.
 
 THE `lab_commons.dev` MODULES THIS REPO DOES NOT IMPORT, and the ones whose absence is a FACT rather
 than a gap (measured 2026-09-17 -- this tree imports `agent_guard`, `agenthooks`, `bounded`,
@@ -317,6 +318,21 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'deprecation alias, and recorded which ones only in their commit messages. The scan that '
         'refuses a resurrection is small; the LIST of what was retired is the file, and it means '
         'nothing anywhere else. Measured 2026-09-17: own=80 repo=8 -> 10.00%.',
+    ),
+    'tests/architecture/test_cited_tests_resolve.py': Placement(
+        STAYS,
+        'A BINDER over `lab_commons.dev.famtests.citedtests`: the walk, the prose reader, the two '
+        'citation patterns, the resolution rule, the three arms, the exemption arm and the planted '
+        'control are all upstream, and this file supplies only the eight answers the kit refuses to '
+        'guess -- the pointer trees, the root configs, the waiver header and its trees, the test '
+        'directory, the history keepers and markers, the vocabulary set, and three floors over '
+        'three different populations. MEASURED 2026-09-18: own=35 repo=0 -> 0.00%, fifteen lines '
+        'under the 50-line binder ceiling, so it is admitted by the BINDER arm alone and owes no '
+        '`BELOW_THE_BAR` row. THE ZERO IS HONEST RATHER THAN A MISCLASSIFICATION: every repo fact '
+        'here is a PATH STRING or a NUMBER, and an identifier scan can see neither. MOVES was '
+        'refused by the eight answers themselves -- the sibling lab walks a fourth pointer tree, '
+        'has four root configs to this one three, and its three floors are an order of magnitude '
+        'larger.',
     ),
     'tests/architecture/test_every_blocking_wait_declares_a_ceiling.py': Placement(
         STAYS,

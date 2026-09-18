@@ -20,7 +20,7 @@ pins and one 115-line document nobody sized. `CEILING` is that missing half. It 
 sum is the budget.
 
 WHAT WENT UPSTREAM WITH THE MECHANISM: both of this file's controls. The four planted movements and
-the planted-page scan are `tests/test_famtests_rulespages.py` in lab-commons, driven against the
+the planted-page scan are `lab-commons/tests/test_famtests_rulespages.py`, driven against the
 same functions this file calls, so keeping copies here would be duplicate evidence that cannot
 diverge from its original.
 
