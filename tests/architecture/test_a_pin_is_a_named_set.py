@@ -53,9 +53,17 @@ THRESHOLD_NAMES: Final = frozenset(suffix.lstrip('_') for suffix in THRESHOLD_SU
 #: NUMBER WAS 15, and adopting `floors.assert_floor_still_binds` is what found it: a slack of 102
 #: refused only a total collapse. The kit`s remedy is to re-measure the floor, never to widen the
 #: headroom.
-CONSTANT_FLOOR: Final = 90
+#:
+#: RE-MEASURED AGAIN 2026-09-18 AT THE TWO-GUARD ADOPTION, and the other side is what forced it: the
+#: unbounded-wait guard brings the reading to 134 and the cited-test guard beside it to 147, which
+#: is 57 clear of 90 and past the headroom. THE REMEDY TAKEN IS THE ONE THE KIT NAMES -- the FLOOR
+#: moves, the headroom does not. A guard that declares five or thirteen bounded numbers is exactly
+#: the growth this population is supposed to have; a headroom widened to absorb it would be the arm
+#: kept while the guard it stands for is given up.
+CONSTANT_FLOOR: Final = 120
 
-#: THE OTHER SIDE OF ``CONSTANT_FLOOR``. Today's reading is 117 - 90 = 27.
+#: THE OTHER SIDE OF ``CONSTANT_FLOOR``. Today's reading is 147 - 120 = 27, the same margin the
+#: previous pair carried, so the band is re-measured rather than relaxed.
 CONSTANT_HEADROOM: Final = 40
 
 

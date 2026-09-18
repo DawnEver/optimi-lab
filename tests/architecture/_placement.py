@@ -318,6 +318,19 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'refuses a resurrection is small; the LIST of what was retired is the file, and it means '
         'nothing anywhere else. Measured 2026-09-17: own=80 repo=8 -> 10.00%.',
     ),
+    'tests/architecture/test_every_blocking_wait_declares_a_ceiling.py': Placement(
+        STAYS,
+        'A BINDER over `lab_commons.dev.famtests.untimedwaits`: the walk, the AST reader, the two '
+        'named call sets, the arm and the planted control are all upstream, and this file supplies '
+        'only the three answers the kit refuses to guess -- which trees are walked, what a file in '
+        'each is called, and the two numbers that bound the population. MEASURED 2026-09-18: own=16 '
+        'repo=0 -> 0.00%, thirty-four lines under the 50-line binder ceiling, so it is admitted by '
+        'the BINDER arm alone and owes no `BELOW_THE_BAR` row. THE ZERO IS HONEST RATHER THAN A '
+        'MISCLASSIFICATION: every repo fact in the file is a PATH STRING in `ROOTS` or a NUMBER in '
+        'the two floors, and an identifier scan can see neither. MOVES was refused by the roots -- '
+        'moving them would put one checkout tree layout into a package three repos share, and a '
+        'guessed pair does not raise, it walks a tree that is not there and reports CLEAN.',
+    ),
     'tests/architecture/test_injected_doc_width_ceiling.py': Placement(
         SPLITS,
         'THE SEAM IS DECLARATION VERSUS CONTROL. FAMILY: the 120-column ceiling, the injected-doc '
