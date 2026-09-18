@@ -1,28 +1,46 @@
-"""`INJECTED-DOC-WIDTH-CEILING` -- this repo's declared over-width sites, driven by the REAL scanner.
+"""`INJECTED-DOC-WIDTH-CEILING` -- this repo's corpus and declared sites, driven by the kit's arms.
 
-The ceiling (120 columns), the injected-doc corpus definition and the two-sided ratchet all live in
-`lab_commons.dev.docwidth`, authored once for the family. This module supplies only what a shared
-registry cannot hold: THIS tree's real injected-doc corpus, and the DECLARED SET of `path:line`
-sites still past the ceiling.
+The ceiling, the injected-doc corpus definition and the two-sided ratchet live in
+`lab_commons.dev.docwidth`; the VERDICTS over them, the escape hatch's ceiling and the planted
+control live in `lab_commons.dev.famtests.injectedwidth`. This module supplies only what a shared
+body cannot hold: THIS tree's corpus, its DECLARED set, that set's ceiling, and the floor with its
+headroom.
 
-MEASURED HERE 2026-09-16, and it had never been measured in this repo before this pass: of 55
-tracked paths, exactly 2 are injected documents by the shared definition (`AGENTS.md` / `CLAUDE.md`
-by basename anywhere in the tree -- this repo has neither -- plus everything under
-`.claude/rules/`, which here is `invariant.md` and `workflow.md`). Scanning those two finds ZERO
-lines past 120 columns, so `DECLARED` is empty and there is no width debt to record. NOTHING WAS
-REFLOWED to reach that: the measurement found the pages already inside the ceiling.
+ADOPTED 2026-09-18, alongside the CJK guard beside it and for the same reason: the kit shipped this
+body at `0.2.2.dev98+ga330b5561` and the roster census immediately reported this path as a
+`NAMED_ONLY` row -- a file the kit names and that imports none of it. The kit's own docstring
+records that the two guards were priced as possibly ONE body and refused on three measured
+differences (their surfaces share no name, this one keys its declaration by `path:line` where the
+other keys by FILE, and only this one has a ceiling on its hatch), so they are adopted as
+neighbours rather than merged.
+
+MEASURED HERE 2026-09-16 and re-measured 2026-09-18: of 79 tracked paths, exactly 2 are injected
+documents by the shared definition (`AGENTS.md` / `CLAUDE.md` by basename anywhere in the tree --
+this repo has neither -- plus everything under `.claude/rules/`, which here is `invariant.md` and
+`workflow.md`). Scanning those two finds ZERO lines past the ceiling, so `DECLARED` is empty and
+there is no width debt to record. NOTHING WAS REFLOWED to reach that: the pages were already inside.
 
 THE SAME PAGES ARE ALSO PINNED BY LINE COUNT in `test_the_rules_pages_are_a_ratchet.py`, and the two
 pins measure different things on purpose: a rewrite can lower a line count while doubling a line's
 width, and a count-only pin reads that as an improvement. This is the missing dimension, not a
-duplicate -- and because nothing here is rewrapped, this pass cannot move the line-count pin at all.
+duplicate.
 
-THE FLOOR IS THE POINT OF A ZERO MEASUREMENT. An empty declared set against an empty found set is
-the vacuous green this family refuses: a corpus definition that stopped matching anything reports
-exactly what these two compliant pages report. `FILES_READ_FLOOR` is pinned AT the measured 2 -- the
-corpus can only grow, and a rules page that stops being seen by the scan is a defect rather than
-noise. `test_the_scan_reads_every_doc_handed_to_it` closes the other half of the same gap: a file
-handed in and not read is a file not checked, however large the corpus is.
+THE FLOOR IS THE POINT OF A ZERO MEASUREMENT, AND IT NOW HAS ITS SECOND SIDE. An empty declared set
+against an empty found set is the vacuous green this family refuses: a corpus definition that
+stopped matching anything reports exactly what these two compliant pages report. The floor used to
+be pinned AT the measured 2 on the argument that the corpus only grows -- but `assert_width_floor`
+is ONE-SIDED, so "only grows" was an intention rather than a property and growth was silently
+absorbed. `FILES_READ_HEADROOM` makes it a property: at 2 + 1 the third rules page still passes and
+the FOURTH forces the floor to be re-measured, which is what pinning AT a measurement was trying to
+say all along.
+
+`test_the_scan_reads_every_doc_handed_to_it` CLOSES THE OTHER HALF OF THE SAME GAP: the floor counts
+what the scan READ, and a file handed in that it could not decode is a file not checked however
+large the corpus is. A count alone cannot tell those apart.
+
+`DECLARED_CEILING` IS 0, WHICH IS LEGAL AND IS THE STRONGEST VALUE -- the opposite of a floor. Every
+declared site is prose an agent loads on every turn and pays for each time, so the number may only
+go DOWN; at zero there is no hatch to grow one justified line at a time.
 """
 
 from __future__ import annotations
@@ -30,96 +48,82 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.docwidth import (
-    WIDTH_CEILING,
-    Overwidth,
-    assert_width_floor,
-    injected_docs,
-    is_injected_doc,
-    scan_widths,
-    width_ratchet,
-)
+from lab_commons.dev.docwidth import WIDTH_CEILING, injected_docs, is_injected_doc
+from lab_commons.dev.famtests import injectedwidth
 from lab_commons.dev.rules import tracked_files
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
-#: THE DECLARED SET, as `path:line` -- exactly how `width_ratchet` keys its own found set. A NAMED
-#: SET rather than a count, so a fixed site must be DELETED here in the same edit that fixes it and
-#: a newly over-width line cannot arrive silently. Empty: measured 2026-09-16, no injected document
-#: in this tree has a line past `WIDTH_CEILING` columns.
+#: THE DECLARED SET, as `path:line` -- exactly how the ratchet keys its own found set. A NAMED SET
+#: rather than a count, so a fixed site must be DELETED here in the same edit that fixes it and a
+#: newly over-width line cannot arrive silently. Empty: measured 2026-09-16, re-measured 2026-09-18.
 DECLARED: Final[frozenset[str]] = frozenset()
 
-#: Measured 2026-09-16: the injected-doc corpus here is 2 files, `.claude/rules/invariant.md` and
-#: `.claude/rules/workflow.md`. Pinned AT the measurement because the corpus only grows; a scan
-#: reaching fewer files has stopped matching the corpus, and its empty answer would mean nothing.
+#: The largest `DECLARED` may be. ZERO -- there is no width debt here and no hatch to widen.
+DECLARED_CEILING: Final = 0
+
+#: Re-measured 2026-09-18: the injected-doc corpus here is 2 files, `.claude/rules/invariant.md` and
+#: `.claude/rules/workflow.md`. A scan reaching fewer has stopped matching the corpus.
 FILES_READ_FLOOR: Final = 2
 
+#: How far past the floor the corpus may grow before the floor stops binding and must be re-taken.
+#: 2 + 1 = 3 against today's 2, which is as tight as this kit allows (a headroom of 0 is refused as
+#: misdeclared). A fourth rules page reds this constant instead of passing unremarked.
+FILES_READ_HEADROOM: Final = 1
 
-def scan():
-    """THE REAL SCAN over THIS repo's injected docs, plus how many were handed to it."""
-    docs = injected_docs(sorted(tracked_files(_ROOT)))
-    return scan_widths([_ROOT / name for name in docs], root=_ROOT), len(docs)
+_WHAT: Final = 'INJECTED-DOC-WIDTH-CEILING'
 
 
-def test_the_width_scan_reaches_a_plausible_injected_corpus() -> None:
-    """FLOOR: a compliant corpus and an unread one both report zero -- only this tells them apart."""
-    found, _handed_in = scan()
-    assert_width_floor(found.files_read, FILES_READ_FLOOR, what='INJECTED-DOC-WIDTH-CEILING')
+def _corpus() -> tuple[str, ...]:
+    """The injected docs of THIS repo, narrowed from what git tracks by the shared definition."""
+    return tuple(injected_docs(sorted(tracked_files(_ROOT))))
+
+
+def test_the_declared_sites_are_the_named_set_and_the_floor_binds_on_both_sides() -> None:
+    """THE CHECK: the reading is proved to be a reading, then the ratchet, then the hatch's ceiling."""
+    docs = _corpus()
+    scan = injectedwidth.take_scan([_ROOT / name for name in docs], root=_ROOT, ceiling=WIDTH_CEILING)
+    injectedwidth.assert_widths_are_the_named_set(
+        scan,
+        declared=DECLARED,
+        declared_ceiling=DECLARED_CEILING,
+        floor=FILES_READ_FLOOR,
+        headroom=FILES_READ_HEADROOM,
+        what=_WHAT,
+    )
 
 
 def test_the_scan_reads_every_doc_handed_to_it() -> None:
-    """A file the scan could not open is a file it did not check -- never a compliant one."""
-    found, handed_in = scan()
-    assert found.files_read == handed_in, (
-        f'{handed_in} injected docs were handed to the scan and it read {found.files_read}; '
-        f'undecodable: {found.undecodable}.'
+    """A file the scan could not open is a file it did not check -- never a compliant one.
+
+    The floor above counts what was READ; this compares that against what was HANDED IN, which is
+    the only arm that can see a file the scanner silently failed to decode.
+    """
+    docs = _corpus()
+    scan = injectedwidth.take_scan([_ROOT / name for name in docs], root=_ROOT, ceiling=WIDTH_CEILING)
+    assert scan.files_read == len(docs), (
+        f'{len(docs)} injected docs were handed to the scan and it read {scan.files_read}; '
+        f'undecodable: {scan.undecodable}.'
     )
 
 
-def test_the_declared_set_is_exact_and_two_sided() -> None:
-    """THE PIN. `width_ratchet` refuses an undeclared over-width line and an orphaned waiver alike."""
-    found, _handed_in = scan()
-    problems = width_ratchet(found.overwidth, DECLARED)
-    assert not problems, '\n'.join(problems)
+def test_a_planted_overwide_document_is_named_and_a_line_at_the_ceiling_is_not(tmp_path: Path) -> None:
+    """CONTROL, BOTH DIRECTIONS, on a REAL tree: one column over convicts, exactly AT the ceiling does not."""
+    injectedwidth.assert_the_scanner_still_convicts(tmp_path, ceiling=WIDTH_CEILING)
 
 
-def test_a_planted_overwide_document_is_named(tmp_path: Path) -> None:
-    """CONTROL, direction one: a real file one column over the ceiling, through the REAL scanner."""
-    planted = tmp_path / 'AGENTS.md'
-    planted.write_text('ok\n' + 'x' * (WIDTH_CEILING + 1) + '\n', encoding='utf-8')
-    assert is_injected_doc('AGENTS.md'), 'the planted file must be in the corpus the guard defines.'
-    found = scan_widths([planted], root=tmp_path)
-    assert [(site.line, site.width) for site in found.overwidth] == [(2, WIDTH_CEILING + 1)], (
-        f'the scanner reported {found.overwidth} for a line one column over the ceiling. A scan that '
-        f'cannot fail on a planted violation is not evidence about the corpus.'
-    )
-    problems = width_ratchet(found.overwidth, DECLARED)
-    assert len(problems) == 1, problems
-    assert 'UNDECLARED' in problems[0], problems[0]
-    assert 'AGENTS.md:2' in problems[0], problems[0]
-
-
-def test_a_planted_document_at_the_ceiling_is_green(tmp_path: Path) -> None:
-    """CONTROL, direction two: a line exactly AT the ceiling is compliant, and reports nothing."""
-    clean = tmp_path / 'AGENTS.md'
-    clean.write_text('x' * WIDTH_CEILING + '\n', encoding='utf-8')
-    found = scan_widths([clean], root=tmp_path)
-    assert found.files_read == 1, 'the control must actually read its planted file.'
-    assert found.overwidth == (), f'a line at exactly {WIDTH_CEILING} columns is not over it: {found.overwidth}'
-    assert width_ratchet(found.overwidth, DECLARED) == ()
-
-
-def test_an_orphaned_declaration_is_also_refused() -> None:
-    """THE OTHER SIDE OF THE RATCHET: a declared site no longer over width is a stale waiver."""
-    problems = width_ratchet((), declared=frozenset({'.claude/rules/workflow.md:12'}))
-    assert len(problems) == 1, problems
-    assert 'ORPHANED' in problems[0], problems[0]
-    assert 'workflow.md:12' in problems[0], problems[0]
+def test_the_declaration_is_the_shape_the_ratchet_keys_on() -> None:
+    """A declaration is a set of `path:line` SITES, never a count -- the shape the ratchet acts on."""
+    injectedwidth.assert_the_declaration_is_the_shape_the_ratchet_keys_on(DECLARED)
 
 
 def test_the_corpus_is_this_repo_rules_pages() -> None:
-    """WHAT IS BEING CHECKED, named -- a floor over the wrong corpus is a floor over nothing."""
-    docs = injected_docs(sorted(tracked_files(_ROOT)))
-    assert set(docs) == {'.claude/rules/invariant.md', '.claude/rules/workflow.md'}, docs
-    assert not is_injected_doc('.claude/memory/2026/09/15/entry.md'), 'a dated memory entry is not injected.'
-    assert width_ratchet((Overwidth(path='a.md', line=3, width=999),), frozenset({'a.md:3'})) == ()
+    """WHAT IS BEING CHECKED, named -- a floor over the wrong corpus is a floor over nothing.
+
+    This is the axis the planted control above is blind to: it plants a TREE and proves nothing about
+    the narrowing. A basename set that lost `AGENTS.md`, or a prefix that stopped matching nested
+    pages, passes every control and is caught only here and by the floor.
+    """
+    assert set(_corpus()) == {'.claude/rules/invariant.md', '.claude/rules/workflow.md'}, _corpus()
+    assert not is_injected_doc('.claude/memory/2026/09/15/entry.md'), 'a dated memory entry is not injected'
+    assert is_injected_doc('AGENTS.md'), 'the basename half of the corpus definition has stopped matching'
