@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(./.venv/Scripts/python.exe -m lab_commons.dev.verify *)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

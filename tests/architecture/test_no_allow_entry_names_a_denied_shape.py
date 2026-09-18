@@ -36,15 +36,19 @@ carries `probed`, and `VacuousAllowScan` refuses. That is also why the old `read
 is gone rather than ported: the property itself now refuses an unreadable settings file, a missing
 rules file, an uninstalled guard AND an unasked question, each by name.
 
-MEASURED 2026-09-17, THE FIRST HONEST RUN: `.claude/settings.json` here has NO `permissions` block
-at all -- zero rows, zero probed -- so this guard has been green over an unasked question for its
-whole life, unlike the sibling lab, which probes seven rows. The property arm below is therefore a
-STRICT XFAIL carrying that measurement, not a skip and not a loosened assertion: it XPASSes the
-moment a `Bash(...)` row exists, and the fix is a decision about what an agent may do in this
-checkout rather than a test edit. THE ROW TO ADD IS THIS REPO'S OWN SANCTIONED EXIT -- the verdict
-command `BARE-TEST-INVOCATION` and `PUSH-NO-VERIFY` both hand out -- which is what wdg-lab permits
-and what the redirection remedy above prescribes. It is not added here because widening an agent's
-own permission file is a human's call, and this file is the one place the absence is now visible.
+THE UNASKED QUESTION WAS ASKED, 2026-09-18. `.claude/settings.json` here carried NO `permissions`
+block at all -- zero rows, zero probed -- so this guard had been green over an unasked question for
+its whole life, unlike the sibling lab, which probes seven rows. It was held as a STRICT XFAIL
+rather than a skip precisely so the absence would be a measurement somebody had to answer, and the
+answer was the one the remedy above prescribes: ONE row, this repo's own sanctioned exit, the
+verdict command that `BARE-TEST-INVOCATION` and `PUSH-NO-VERIFY` both redirect to. The mark is gone
+in the same change that added the row, which is what the mark's own reason instructed.
+
+WHY IT WAITED, AND WHY THAT IS NOT A TEST PROPERTY. Widening an agent's own permission file is a
+human's call -- an agent that grants itself a road has not measured anything -- so the xfail stood
+until the user ruled. The row is deliberately ONE: `wdg-lab` permits seven, and every one of those
+is a road somebody argued for. An `allow` list is not a place to pre-pay for roads nobody has
+needed yet, and the scan below is only as sharp as the list is honest.
 
 WHAT THIS DOES NOT PROVE. That the agent client honours `permissions.allow` at all -- that is a fact
 about a tool's configuration loading, not about this tree.
@@ -71,16 +75,6 @@ _DENIED_ENTRY: Final = 'Bash(pytest *)'
 _HARMLESS_ENTRY: Final = 'Bash(echo *)'
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        'MEASURED 2026-09-17: .claude/settings.json here declares no `permissions` block, so this '
-        'scan probes ZERO rows and VacuousAllowScan refuses. Green over an unasked question is what '
-        'the family body was written to stop, so this is ON RECORD with its measurement rather than '
-        'skipped or loosened. REMOVE THIS MARK in the same change that adds the first allow row -- '
-        "the sanctioned one is this repo's verdict command, the exit its own refusals hand out."
-    ),
-)
 def test_no_allow_entry_names_a_command_the_engine_refuses() -> None:
     """THE PROPERTY, and its floors. A red names the row, what it promised, and the refusal it gets.
 
