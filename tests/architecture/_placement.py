@@ -309,7 +309,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'correction this file records -- that the rule was claimed as enforced on 2026-09-15 while citing three modules '
         'that merely HAPPEN to use named sets. RE-MEASURED 2026-09-19: own=68 hits=0 -> 0.00%, eighteen lines over the '
         "ceiling and at zero density -- a `BELOW_THE_BAR` row, and the ONLY one of this table's three remaining SPLITS "
-        'that is over the ceiling, which is what an unwritten family half looks like.',
+        'that is over the ceiling, which is what an unwritten family half looks like. THE SECOND CONSUMER ALREADY EXISTS AND IS CURRENTLY MAKING THE CLAIM WITHOUT THE MECHANISM, measured 2026-09-19 by reading the sibling: wdg-lab cites `NAMED-SETS-NOT-COUNTS` to six modules that merely USE named sets and holds no count-pin guard at all -- the exact defect this file was written to correct here. So the family half has two waiting callers, not one, which is what makes the split worth paying for rather than a local scan kept for tidiness.',
     ),
     'tests/architecture/test_a_relative_tolerance_carries_its_floor.py': Placement(
         STAYS,
