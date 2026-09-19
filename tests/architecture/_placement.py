@@ -257,8 +257,11 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-09-19: own=461 project=41 -> 8.89%, up '
-        'from own=402 project=30 -> 7.46% at the 2026-09-18 adoption.',
+        'family half in it to split off. RE-MEASURED 2026-09-19 AFTER THE `countpins` ADOPTION REWROTE THREE '
+        'ROWS HERE AND THE `storedreadings` BINDER ADDED A THIRTY-FIRST: own=477 project=42 -> 8.81%, up '
+        'from own=402 project=30 -> 7.46% at the 2026-09-18 adoption. The growth is one new row against two '
+        'lines shed by a `BELOW_THE_BAR` entry leaving, which is the direction this table is supposed to '
+        'move in: rows arrive, shortfalls depart.',
     ),
     'tests/architecture/_famconfig.py': Placement(
         STAYS,
@@ -344,6 +347,24 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'refuses a resurrection is small; the LIST of what was retired is the file, and it means '
         'nothing anywhere else. RE-MEASURED 2026-09-19: own=78 repo=8 -> 10.26%, down from own=80 '
         'repo=8 -> 10.00% on 2026-09-17.',
+    ),
+    'tests/architecture/test_a_stored_reading_is_derived.py': Placement(
+        STAYS,
+        'A BINDER over `lab_commons.dev.famtests.storedreadings`, LANDED 2026-09-19 THE DAY THE '
+        'MODULE BECAME INSTALLABLE -- a binder cannot be committed against a body that is not on the '
+        'wheel, which is why the guard post-dates the defect it answers by a day. The reader, the '
+        'live-versus-historical separation, the claim grades, both assertions and the planted control '
+        'are all upstream. LOCAL, AND IT IS THE HALF THE KIT REFUSES TO GUESS: which SPELLINGS this '
+        'roster quotes a reading in -- and `project=` is deliberately EXCLUDED, since it is this '
+        'table counting PROJECT FILES rather than anything derivable from the file a row names -- how '
+        "a reading is DERIVED in this checkout, which is `measure` with optimi-lab's noun signal and "
+        'delegation home and the percentage rounded exactly as the prose rounds it, and the three '
+        'floors. WHAT EARNED IT, FROM THIS TREE: fourteen stale readings were re-derived by hand on '
+        '2026-09-19 and three MORE went stale the same afternoon when the `countpins` adoption shrank '
+        'the files three rows describe. Three in one afternoon is the argument for a guard rather '
+        'than another sweep. MEASURED 2026-09-19: own=47 hits=2 -> 4.26%, which clears BOTH bars -- '
+        'under the 50-line binder ceiling and over the 3.0% density bar -- so its side does not rest '
+        'on the binder exemption most rows in this table lean on.',
     ),
     'tests/architecture/test_cited_tests_resolve.py': Placement(
         STAYS,
@@ -532,8 +553,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`assert_the_meter_still_convicts`, with four hand-written density controls collapsed into one kit '
         'call. Nothing in the kit is left unadopted here, which is why the row is no longer a SPLITS. LOCAL: '
         'the shell-row ceiling with its planted control, the prose-versus-code asymmetry pinned on two live '
-        "rows, and the two planted shapes that use this repo's nouns. RE-MEASURED 2026-09-19: own=156 hits=5 "
-        '-> 3.21%, which clears the bar -- AND ALL FIVE HITS ARE PLANTED CONTROL FIXTURES, the strings a '
+        "rows, and the two planted shapes that use this repo's nouns. RE-MEASURED 2026-09-19: own=160 hits=5 "
+        '-> 3.12%, which clears the bar -- AND ALL FIVE HITS ARE PLANTED CONTROL FIXTURES, the strings a '
         'control writes into a temporary tree to prove the noun scan can still fire, not facts this file '
         'asserts about optimi-lab. The number is TRUE and the reading behind it is weak, which is stated here '
         'rather than left for the density to imply. THE FIRST DRAFT OF THIS ROW PREDICTED 0.00% AND WAS '
@@ -596,9 +617,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`lab_commons.dev.famtests.rostercensus` publishes `assert_reach`, `assert_no_stale_moves`, '
         '`assert_every_waived_row_adopted`, `assert_waiver_is_the_named_set`, '
         '`assert_the_grader_still_convicts`, `named_only_paths` and `kit_directory`, and this file calls five '
-        'of them. LOCAL: the four answers `supersede` refuses to guess -- the optimi-lab roster source, this '
-        'checkout as the root, `lab_commons.dev` spelled at full depth, and the two floors. RE-MEASURED '
-        '2026-09-19: own=27 hits=0, down from own=88, admitted by the 50-line binder ceiling; its '
+        'of them. LOCAL: the answers `supersede` refuses to guess -- the optimi-lab roster source, this '
+        'checkout as the root, `lab_commons.dev` spelled at full depth, the two floors, and (from '
+        '2026-09-19) the one-member `NAMED_BY_AN_EXAMPLE` waiver. RE-MEASURED '
+        '2026-09-19: own=23 hits=0, down from own=88, admitted by the 50-line binder ceiling; its '
         '`BELOW_THE_BAR` entry went with the adoption. THE READING TO KEEP: this file detects a KIT module '
         'nobody imports, and an unimported kit module is not the only stale shape -- a ROSTER ROW nobody '
         're-reads is the other, and no mechanism here catches it. That gap is named in the row for '
