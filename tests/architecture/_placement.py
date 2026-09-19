@@ -308,8 +308,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'lowered", and nothing in the scan is repo-shaped. LOCAL: the pins it walks are this package\'s, and so is the '
         'correction this file records -- that the rule was claimed as enforced on 2026-09-15 while citing three modules '
         'that merely HAPPEN to use named sets. RE-MEASURED 2026-09-19: own=68 hits=0 -> 0.00%, eighteen lines over the '
-        "ceiling and at zero density -- a `BELOW_THE_BAR` row, and the ONLY one of this table's three remaining SPLITS "
-        'that is over the ceiling, which is what an unwritten family half looks like. THE SECOND CONSUMER ALREADY EXISTS AND IS CURRENTLY MAKING THE CLAIM WITHOUT THE MECHANISM, measured 2026-09-19 by reading the sibling: wdg-lab cites `NAMED-SETS-NOT-COUNTS` to six modules that merely USE named sets and holds no count-pin guard at all -- the exact defect this file was written to correct here. So the family half has two waiting callers, not one, which is what makes the split worth paying for rather than a local scan kept for tidiness.',
+        "ceiling and at zero density -- a `BELOW_THE_BAR` row, and now (2026-09-19) the table's ONLY remaining SPLITS, "
+        'and over the ceiling, which is what an unwritten family half looks like. THE SECOND CONSUMER ALREADY EXISTS AND IS CURRENTLY MAKING THE CLAIM WITHOUT THE MECHANISM, measured 2026-09-19 by reading the sibling: wdg-lab cites `NAMED-SETS-NOT-COUNTS` to six modules that merely USE named sets and holds no count-pin guard at all -- the exact defect this file was written to correct here. So the family half has two waiting callers, not one, which is what makes the split worth paying for rather than a local scan kept for tidiness.',
     ),
     'tests/architecture/test_a_relative_tolerance_carries_its_floor.py': Placement(
         STAYS,
@@ -493,18 +493,27 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'lines under the binder ceiling.',
     ),
     'tests/architecture/test_the_dependency_door_is_wired.py': Placement(
-        SPLITS,
-        'GENUINELY OPEN, AND THE HIGHEST TEXTUAL OVERLAP MEASURED ANYWHERE IN THIS ROSTER. RE-READ 2026-09-19: '
-        '`lab_commons.dev.dep` publishes the MECHANISM half and this file imports it, but there is NO '
-        '`lab_commons.dev.famtests.depdoor` -- the assertions are still forked. THE PRECISE THING THE KIT WOULD HAVE TO '
-        'PUBLISH, to sit beside `famtests.hookinstall` and `famtests.visibility`: that both adapters are supplied, that '
-        'the GAP is rendered if either goes, that a mutation DURING a verdict run is refused, and the CONTROL that '
-        "plants a holder rather than taking the real box seat -- with the repo's port name, its verdict command and its "
-        "log directory as keywords with no default. MEASURED 2026-09-17: this file and wdg-lab's twin are 402 lines "
-        'together with 34 differing -- 91.5% identical, which is the evidence FOR that body and not for a move. LOCAL: '
-        "it imports optimi-lab's `scripts/dep.py` and asserts the port is named `optimi-lab`. RE-MEASURED 2026-09-19: "
-        'own=89 hits=6 -> 6.74%, which clears the bar -- the six hits are the local half, so the split is real and '
-        'small rather than absent.',
+        STAYS,
+        'EXECUTED 2026-09-19, AND THE SEAM WAS THE ONE THE ROW PREDICTED -- one noun wide. '
+        '`lab_commons.dev.dep` always published the MECHANISM and this file always imported it; what was still '
+        'forked were the ASSERTIONS, measured 2026-09-17 at 402 lines together with the wdg-lab twin and 34 '
+        'differing -- 91.5% identical, the highest textual overlap anywhere in this roster. '
+        '`lab_commons.dev.famtests.depdoor` now ships `assert_this_repo_supplies_both_halves_of_the_door`, the '
+        'planted control `assert_a_port_declaring_neither_renders_both_gaps`, '
+        '`assert_the_holders_adapter_names_a_planted_holder`, '
+        '`assert_the_door_refuses_while_a_verdict_is_in_flight`, the two retirement sides '
+        '(`assert_a_moved_key_retires_a_planted_anchor`, `assert_an_unmoved_key_retires_nothing`) and '
+        '`assert_the_anchor_reader_has_a_floor_and_a_ceiling`, with `Ran` and `scripted_keys` -- so the local '
+        '`_Ran` and `_keys` stand-ins are DELETED rather than wrapped. LOCAL, each a keyword with NO DEFAULT '
+        "upstream: optimi-lab's port NAME, its three adapters from `scripts/dep.py`, and `.verify/verify-*.log` "
+        'as the anchor shape. ONE ARM IS NOT THE FAMILY HALF and stays below the kit calls: that the anchor '
+        'directory is the one the verdict entry point writes to, and that `repo_root()` answers for THIS '
+        'checkout -- two files in one repo agreeing, which no vendor-neutral body can state. RE-MEASURED '
+        '2026-09-19 AFTER ADOPTION: own=46 hits=1, down from own=89, and the file is 200 -> 142 lines. THE ARM '
+        'THE KIT RECORDS AS UNPLANTABLE IS RECORDED HERE TOO: the refusal arm builds its planted holder out of '
+        '`repo_name`, so the string it searches the refusal for is by construction the string it planted -- '
+        'every value of that argument is green, and what the arm really convicts is a door that refuses while '
+        'naming nobody at all.',
     ),
     'tests/architecture/test_the_migration_boundary_is_declared.py': Placement(
         STAYS,
@@ -596,18 +605,22 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '-> 2.33%, a `BELOW_THE_BAR` row: the facts are three distribution NAMES, which are strings.',
     ),
     'tests/architecture/test_the_verdict_run_takes_the_box.py': Placement(
-        SPLITS,
-        'GENUINELY OPEN, RE-READ 2026-09-19. THE SEAM IS PROTOCOL VERSUS ENTRY POINT, and the protocol half is '
-        'published while the ASSERTIONS over it are not: `lab_commons.dev.boxlock` ships `BOX_POOL` and `BoxLock` and '
-        '`lab_commons.dev.boxwait` ships `hold_the_box`, `holders_line`, `PROGRESS_S` and `WAIT_S`, and this file '
-        'imports all of them -- but there is no `lab_commons.dev.famtests` module for the question. THE PRECISE THING '
-        "THE KIT WOULD HAVE TO PUBLISH: that the repo's ONE CPU-saturating verdict command reaches `hold_the_box` at "
-        'all, that the seat is taken for the WHOLE run and released after it, that a second run WAITS rather than '
-        'proceeding, and the control that exhausts a real `Broker` -- with the verdict command itself as a keyword with '
-        "no default, since that is the only thing that differs. MEASURED 2026-09-17: this file and wdg-lab's twin are "
-        "350 lines together with 54 differing, 84.6% identical. LOCAL: that optimi-lab's ONE verdict command is "
-        '`.venv/Scripts/python.exe -m lab_commons.dev.verify`, and the rules page that permits exactly that line. '
-        'RE-MEASURED 2026-09-19: own=55 hits=2 -> 3.64%, which clears the bar.',
+        STAYS,
+        'EXECUTED 2026-09-19. THE SEAM WAS PROTOCOL VERSUS ENTRY POINT and the protocol half was already '
+        'published -- `lab_commons.dev.boxlock` and `.boxwait` -- while the ASSERTIONS over it were forked, '
+        'measured 2026-09-17 at 350 lines together with the wdg-lab twin and 54 differing, 84.6% identical, '
+        'whose difference was a docstring, ONE pool name, a `tempfile` prefix and four messages differing only '
+        'in where the line wraps. `lab_commons.dev.famtests.boxseat` now ships all eight arms and '
+        '`HOLD_THE_BOX_PARAMETERS`. LOCAL, each a keyword with NO DEFAULT upstream: `ENTRY_POINT` (optimi-lab '
+        'has no runner of its own, so the value is still `lab_commons.dev.verify.run_verify` -- but it is now a '
+        'VALUE that can be wrong rather than a constant nobody could see), the private pool name, this checkout '
+        'as the root the rendezvous must lie outside of, and the 0.25 progress share. TWO BEHAVIOURS CHANGED BY '
+        'ADOPTING: the entry point became an argument, and the `>=` on the parameters of `hold_the_box` became '
+        'an EQUALITY -- a superset assertion cannot see a required parameter ADDED, which is the change that '
+        'breaks callers in the sibling repos silently. MEASURED 2026-09-19, THE EQUALITY IS GREEN HERE: the '
+        "live signature is exactly {'poll_s', 'stack', 'wait_s', 'what'}, so the stronger reading costs this "
+        'repo nothing today and convicts the next arrival. RE-MEASURED AFTER ADOPTION: own=17 hits=1, down from '
+        'own=55, and the file is 175 -> 110 lines.',
     ),
     'tests/architecture/test_this_checkout_is_visible_on_origin.py': Placement(
         STAYS,
