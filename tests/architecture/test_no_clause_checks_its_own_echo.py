@@ -41,12 +41,19 @@ ROOTS: Final = (('tests', '*.py'), ('scripts', '*.py'))
 #: on disk and has nothing to exempt. An arrival here must be a real file or it covers nothing.
 EXEMPT: Final = ()
 
-#: THE FLOOR ON THE READING, measured 2026-09-19: the two trees above hold 240 function bodies. The
-#: floor sits a fifth below that so a walk that lost a whole tree cannot report clean, and the
-#: headroom is the side that fires when growth makes the floor stop separating the two.
-FUNCTION_FLOOR: Final = 190
+#: THE FLOOR ON THE READING, RE-MEASURED 2026-09-19 (second reading of the same day): the two trees
+#: above now hold 274 function bodies, up from the 240 this line was first written against, because
+#: `tests/unit/optimizer/test_benchmarks.py` and `test_pareto.py` landed between the two readings.
+#: The rule is unchanged and is what was re-applied: the floor sits a fifth below the reading, so a
+#: walk that lost a whole tree cannot report clean. 274 x 0.8 = 219.
+#:
+#: THE HEADROOM DID NOT MOVE, and that is the point. The kit fired `SlackFloor` here, whose whole
+#: message is that widening the headroom keeps the arm while giving up the guard it stands for. The
+#: reading was verified independently of the scan before the digit changed -- `grep -rh '^\s*def '
+#: tests scripts` counts 274, the same number the scan reported.
+FUNCTION_FLOOR: Final = 219
 
-#: THE OTHER SIDE. 190 + 65 = 255 against today's 240; re-measure the FLOOR when it fires.
+#: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65
 
 

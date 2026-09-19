@@ -51,14 +51,16 @@ SOURCE_FILE_FLOOR: Final = 15
 #: reach the package. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12
 
-#: RE-MEASURED 2026-09-18: 26 test modules. THE OLD NUMBER WAS 3, measured against 4 when this file
-#: was written, and adopting :func:`lab_commons.dev.floors.assert_floor_still_binds` is what found
-#: it: a slack of 23 means the floor refused only a walk that reached almost nothing, and would have
-#: passed one that lost seven eighths of the suite. The kit's remedy is to RE-MEASURE, never to widen
-#: the headroom.
-TEST_FILE_FLOOR: Final = 20
+#: RE-MEASURED 2026-09-19: 32 test modules, verified against the scan by `find tests -name
+#: 'test_*.py' | wc -l`. THE OLD NUMBER WAS 3, measured against 4 when this file was written, and
+#: adopting :func:`lab_commons.dev.floors.assert_floor_still_binds` is what found it: a slack of 23
+#: means the floor refused only a walk that reached almost nothing, and would have passed one that
+#: lost seven eighths of the suite. The kit's remedy is to RE-MEASURE, never to widen the headroom,
+#: and this line has now taken that remedy twice: 20 was measured against 26 and the population
+#: reached 32, so the floor moves at the fraction the previous reading carried (0.77 x 32 = 25).
+TEST_FILE_FLOOR: Final = 25
 
-#: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 26 - 20 = 6.
+#: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 32 - 25 = 7.
 TEST_FILE_HEADROOM: Final = 10
 
 #: The size band, in lines. Past it a module is refactored, or it is pinned below by name with the

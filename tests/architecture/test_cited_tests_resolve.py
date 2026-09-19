@@ -110,7 +110,12 @@ SCANNED_FILE_HEADROOM: Final = 20
 #: MEASURED 2026-09-18: 182 `def test_*` under `tests/`. THIS IS A DIFFERENT POPULATION FROM THE ONE
 #: ABOVE and neither floor stands in for the other -- the name arm resolves against THIS set, so a
 #: test tree that moved would empty it while the file walk stayed perfectly healthy.
-DEFINED_TEST_FLOOR: Final = 150
+#: RE-MEASURED 2026-09-19: 218. The two new unit modules for `benchmarks` and the dominance core
+#: brought 36 more `def test_*` than the 182 the line above was measured against, and the kit's
+#: `SlackFloor` refused the stale floor rather than letting it pass on a tree it no longer fits.
+#: The floor is re-derived at the same fraction the 150/182 reading carried (0.824 x 218 = 180);
+#: the HEADROOM is untouched, because raising that is the repair the refusal exists to forbid.
+DEFINED_TEST_FLOOR: Final = 180
 DEFINED_TEST_HEADROOM: Final = 45
 
 #: MEASURED 2026-09-18: 21 citations sitting on DOCSTRING lines. THE THIRD POPULATION, and the one a
