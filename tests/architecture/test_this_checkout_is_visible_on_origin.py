@@ -20,10 +20,14 @@ WHAT OPTIMI-LAB SUPPLIES, and every one of them is a keyword with NO DEFAULT ups
 * `TRUNK` -- the branch this checkout must be on, and the `LAB_CZ_BASE_REF` shape in its purest
   form: a repo whose trunk is named otherwise, judged against a guessed `main`, resolves to nothing,
   finds no commits and REPORTS ITSELF CLEAN. The family body refuses to guess; this repo answers.
-* `LOCAL_ONLY_BRANCHES` -- PINNED AS A NAMED SET RATHER THAN ASSERTED EMPTY, which is the only
-  honest shape while that branch is still being decided about. A count could not say WHICH branch
-  moved, and an empty assertion would have to be either a red suite or a deletion nobody agreed to.
-  Two-sided: a NEW local-only branch reds, and so does the pin outliving the branch it names.
+* `LOCAL_ONLY_BRANCHES` -- PINNED AS A NAMED SET RATHER THAN ASSERTED EMPTY. A count could not say
+  WHICH branch moved. Two-sided: a NEW local-only branch reds, and so does the pin outliving the
+  branch it names -- AND THE SECOND SIDE IS THE ONE THAT FIRED, on 2026-09-19. The entry said the
+  named set was "the only honest shape while that branch is still being decided about"; the decision
+  was taken, `fix/p0-integration-blockers` exists neither locally nor on origin, and the pin was the
+  half nobody deleted with it. The set is empty now and that is a MEASUREMENT of the same kind
+  `ORIGIN_BRANCHES` has carried since 2026-09-16, held from meaning "nobody looked" by the same
+  readability floor. The first side is undiminished: the day a local-only branch appears, it reds.
 * `ORIGIN_BRANCHES` -- the published branches besides the trunk, for the same reason.
 
 MEASURED AGAINST THE REMOTE, NEVER A LOCAL POINTER. A local trunk ref goes stale the moment another
@@ -49,10 +53,16 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 #: a repo that renames its trunk should have to say so here.
 TRUNK: Final = 'main'
 
-#: Local branches that exist ONLY on this box, pinned BY NAME. MEASURED 2026-09-16. Each entry is a
-#: decision somebody owes: push it, or delete it -- and edit this set in the SAME change, because a
-#: named set is what says which one moved.
-LOCAL_ONLY_BRANCHES: Final = frozenset({'fix/p0-integration-blockers'})
+#: Local branches that exist ONLY on this box, pinned BY NAME. Each entry is a decision somebody
+#: owes: push it, or delete it -- and edit this set in the SAME change, because a named set is what
+#: says which one moved.
+#:
+#: RE-MEASURED 2026-09-19: EMPTY. `fix/p0-integration-blockers` was pinned here on 2026-09-16 and is
+#: now gone from this box and from origin alike, so the pin was naming nothing and the guard's SECOND
+#: side convicted it -- which is the arm working, since a pin outliving its branch reads as a
+#: decision still open when it is closed. The deletion of the branch is NOT this change's and no
+#: record of who took it survives in the reflog; what is repaired here is only the declaration.
+LOCAL_ONLY_BRANCHES: Final[frozenset[str]] = frozenset()
 
 #: Branches on origin besides the trunk, pinned BY NAME for the same reason. MEASURED 2026-09-16:
 #: empty, and an empty pin is a real measurement -- the readability floor above is what keeps it
