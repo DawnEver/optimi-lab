@@ -53,27 +53,28 @@ ROOT: Final = Path(__file__).resolve().parents[2]
 #: -- which is what a fully forked tree reports. `take_census` refuses that rather than returning it.
 KIT_PACKAGE: Final = 'lab_commons.dev'
 
-#: THE KIT FLOOR, RE-MEASURED 2026-09-18 against `0.2.2.dev108+ga6af0069b`: `kit_modules` reads 61
-#: modules -- 46 when this floor was first set, 51 and then 57 earlier the same day, 61 now. The
-#: floor must sit below that with room for a module being renamed or withdrawn, and far above the
-#: zero a mis-resolved package returns -- against which every row grades UNTOUCHED, the answer a
-#: finished migration gives.
+#: THE KIT FLOOR, RE-MEASURED 2026-09-19 against `0.2.2.dev140+g73d3ec99b`: `kit_modules` reads 67
+#: modules -- 46 when this floor was first set, then 51, 57, 61, and 67 now. The floor must sit below
+#: that with room for a module being renamed or withdrawn, and far above the zero a mis-resolved
+#: package returns -- against which every row grades UNTOUCHED, the answer a finished migration gives.
 #:
-#: IT WAS RE-TAKEN AT 48 RATHER THAN LEFT AT 35 because at 35 against 57 it had 22 modules of slack
-#: and would have passed a kit that had lost three fifths of itself -- it had stopped being a guard.
-#: The remedy for a floor that has stopped binding is to RE-MEASURE THE FLOOR, never to widen the
-#: headroom, and 48 still binds against 61.
-KIT_MODULE_FLOOR: Final = 48
+#: IT WAS RE-TAKEN AT 54 RATHER THAN LEFT AT 48, WHICH `SlackFloor` HAD ALREADY CONVICTED: 48 against
+#: 67 is 19 clear, past the 16 headroom, so the floor had stopped separating a full read from a broken
+#: one. The remedy for a floor the kit has outgrown is to RE-MEASURE THE FLOOR, never to widen the
+#: headroom -- a headroom raised to swallow its own breach is the escape hatch with no ceiling.
+#:
+#: 54 IS THIS CHECKOUT'S OWN NUMBER, NOT A NUMBER COPIED SIDEWAYS. The rule this repo has applied at
+#: every re-take is a slack of 13 below the measured reading (48 was taken against 61); 67 - 13 = 54.
+#: wdg-lab reads the SAME installed kit -- both venvs resolve `0.2.2.dev140+g73d3ec99b` -- and landed
+#: on 54 today by its own measurement. That is two measurements agreeing, not one being borrowed: the
+#: quantity being floored is the INSTALLED KIT, which is shared, while the headroom prices how much of
+#: it THIS repo will silently lose, which is not.
+KIT_MODULE_FLOOR: Final = 54
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
-#: 48 + 16 = 64 against today's 61.
-#:
-#: THIS SIDE IS NOW THE KIT'S AND IS HANDED STRAIGHT TO `assert_reach`. It used to be enforced by a
-#: second arm calling `lab_commons.dev.floors` beside the kit's one-sided one, because `assert_reach`
-#: took a `module_floor` and no headroom at all -- a signature that was structurally one-sided, and
-#: the same hand-written wrapper had to be written in wdg-lab too. The kit closed that in `4a8faf9`
-#: and `assert_reach` now REQUIRES `module_headroom`, so the local wrapper is DELETED rather than
-#: kept beside the import: a shim next to the thing it shimmed is the adoption not having happened.
+#: 54 + 16 = 70 against today's 67. The kit grew 61 -> 67 in a day, so this will bind again soon --
+#: and that is the arm working, not a nuisance. The headroom is UNCHANGED at 16 on purpose: it is the
+#: side that refuses, and the breach was answered by moving the floor.
 KIT_MODULE_HEADROOM: Final = 16
 
 
