@@ -427,6 +427,19 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'DECLARED set of files still carrying CJK. MEASURED 2026-09-19: own=24 hits=0, down from own=38, '
         'admitted by the 50-line binder ceiling.',
     ),
+    'tests/architecture/test_no_clause_checks_its_own_echo.py': Placement(
+        STAYS,
+        'BORN ADOPTED 2026-09-19, AND IT CLOSES THE OTHER SIDE OF THE RATCHET. `lab_commons.dev.famtests.echoedtoken` '
+        'was published with `take_scan`, `echoed_tokens`, `assert_no_clause_checks_its_own_echo` and '
+        '`assert_the_scanner_still_convicts`, and measured that day optimi-lab imported it NOWHERE and carried no '
+        'row for it -- an unclaimed published capability, which is the stale-roster defect pointing the other way. '
+        'FAMILY: the whole AST reading of an intraprocedural echo, its data-flow rule and its planted control. '
+        "LOCAL, and every one of these the kit refuses to default: optimi-lab's two assertion-body trees with what "
+        'a file in each is called, its EMPTY exemption set (the kit plants its control into `tmp_path`, so this '
+        'tree keeps no offender fixture), and the MEASURED function floor with its headroom. MEASURED 2026-09-19: '
+        'own=13 hits=0, admitted by the 50-line binder ceiling; the scan reads 243 function bodies and names zero '
+        'offenders, which is a floor-backed clean rather than an empty one.',
+    ),
     'tests/architecture/test_optimi_lab_adopts_the_shared_registry.py': Placement(
         STAYS,
         "IT IS THIS REPO'S HALF OF THE SHARED REGISTRY BY CONSTRUCTION: `lab_commons.dev.rules` "

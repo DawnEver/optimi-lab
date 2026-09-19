@@ -49,21 +49,25 @@ THRESHOLD_NAMES: Final = frozenset(suffix.lstrip('_') for suffix in THRESHOLD_SU
 
 #: The floor on the scan, measured 2026-09-15: the architecture modules carry well over twenty
 #: module-level constants between them. Below this the walk did not reach the tree it reports on.
-#: RE-MEASURED 2026-09-18: 117 module-level constants across the architecture modules. THE OLD
-#: NUMBER WAS 15, and adopting `floors.assert_floor_still_binds` is what found it: a slack of 102
-#: refused only a total collapse. The kit`s remedy is to re-measure the floor, never to widen the
-#: headroom.
+#: The readings this floor has been taken against, in order: 15 (the original guess), then 117, then
+#: 134, then 147, and 163 today.
 #:
-#: RE-MEASURED AGAIN 2026-09-18 AT THE TWO-GUARD ADOPTION, and the other side is what forced it: the
-#: unbounded-wait guard brings the reading to 134 and the cited-test guard beside it to 147, which
-#: is 57 clear of 90 and past the headroom. THE REMEDY TAKEN IS THE ONE THE KIT NAMES -- the FLOOR
-#: moves, the headroom does not. A guard that declares five or thirteen bounded numbers is exactly
-#: the growth this population is supposed to have; a headroom widened to absorb it would be the arm
-#: kept while the guard it stands for is given up.
-CONSTANT_FLOOR: Final = 120
+#: WHAT EACH RE-TAKE TAUGHT, kept because the lesson is the same one every time. The old number was
+#: 15 against 117 -- a slack of 102, which refused only a total collapse -- and adopting
+#: `floors.assert_floor_still_binds` is what found it. The kit's remedy is to RE-MEASURE THE FLOOR,
+#: never to widen the headroom: a guard that declares five or thirteen bounded numbers is exactly the
+#: growth this population is supposed to have, and a headroom widened to absorb it is the arm kept
+#: while the guard it stands for is given up.
+#:
+#: RE-TAKEN 2026-09-19 AT 136, from 120. The echo-scan adoption
+#: (`test_no_clause_checks_its_own_echo.py`) brings the reading to 163, which is 43 clear of 120 and
+#: past the headroom. 136 restores the SAME margin of 27 the previous two pairs carried, measured
+#: rather than chosen: 163 - 27 = 136.
+CONSTANT_FLOOR: Final = 136
 
-#: THE OTHER SIDE OF ``CONSTANT_FLOOR``. Today's reading is 147 - 120 = 27, the same margin the
-#: previous pair carried, so the band is re-measured rather than relaxed.
+#: THE OTHER SIDE OF ``CONSTANT_FLOOR``. 136 + 40 = 176 against today's 163. The headroom is
+#: UNCHANGED at 40 across all three re-takes on purpose -- it is the side that refuses, and every
+#: breach of it has been answered by moving the floor.
 CONSTANT_HEADROOM: Final = 40
 
 
