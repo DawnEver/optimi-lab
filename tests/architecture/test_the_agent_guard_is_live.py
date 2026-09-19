@@ -18,7 +18,7 @@ same shape one layer up, over the hook that governs an AGENT's commands rather t
 
 THE BODY IS THE FAMILY'S AS OF 2026-09-17, AND THE SIBLING LAB'S STRUCTURE IS THE ONE IT TOOK. The
 seven arms below are `lab_commons.dev.famtests.agentguard`; what stayed here is the answers no other
-checkout can give -- which declaration file this repo renders from, which rules it may honestly
+checkout can give -- which declaration file optimi-lab renders from, which rules it may honestly
 ship, which commands it refuses, and which exit it must leave open.
 
 THE DENY ARM NOW NAMES THE RULE IT EXPECTS, WHICH IS A STRENGTHENING THIS REPO DID NOT HAVE. Asking

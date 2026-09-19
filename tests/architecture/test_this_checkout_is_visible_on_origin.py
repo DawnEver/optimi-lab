@@ -15,7 +15,7 @@ two planted git fixtures written twice, factored out here and inlined per functi
 lab. A control is by definition the part nobody checks, so a control written twice can be wrong in
 one copy. `lab_commons.dev.famtests.visibility` owns both now, `plant_checkout` included.
 
-WHAT THIS REPO SUPPLIES, and every one of them is a keyword with NO DEFAULT upstream:
+WHAT OPTIMI-LAB SUPPLIES, and every one of them is a keyword with NO DEFAULT upstream:
 
 * `TRUNK` -- the branch this checkout must be on, and the `LAB_CZ_BASE_REF` shape in its purest
   form: a repo whose trunk is named otherwise, judged against a guessed `main`, resolves to nothing,

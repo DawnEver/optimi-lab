@@ -15,7 +15,7 @@ else's afternoon.
 
 THE BODY IS THE FAMILY'S AS OF 2026-09-17, and the census that decided it is worth quoting: this
 file and wdg-lab's twin were 324 lines together with 36 differing -- 88.9% identical, ZERO repo
-nouns in code. The only lines that were ever this repo's are the sanctioned exit a red is redirected
+nouns in code. The only lines that were ever optimi-lab's are the sanctioned exit a red is redirected
 to and the two planted rows.
 
 THE FIX FOR A RED IS REDIRECTION, NOT DELETION. Ask what the row was trying to permit and permit

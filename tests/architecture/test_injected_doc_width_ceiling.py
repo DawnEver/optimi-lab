@@ -1,4 +1,4 @@
-"""`INJECTED-DOC-WIDTH-CEILING` -- this repo's corpus and declared sites, driven by the kit's arms.
+"""`INJECTED-DOC-WIDTH-CEILING` -- optimi-lab's corpus and declared sites, driven by the kit's arms.
 
 The ceiling, the injected-doc corpus definition and the two-sided ratchet live in
 `lab_commons.dev.docwidth`; the VERDICTS over them, the escape hatch's ceiling and the planted

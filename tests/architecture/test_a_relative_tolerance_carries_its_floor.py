@@ -1,4 +1,4 @@
-"""`RELATIVE-TOLERANCE` -- this repo's corpus, its bar and its two floors, driven by the kit's arms.
+"""`RELATIVE-TOLERANCE` -- optimi-lab's corpus, its bar and its two floors, driven by the kit's arms.
 
 The scan, the two bars, the positional-tolerance reading and the planted control live in
 `lab_commons.dev.famtests.approxfloors`; this module supplies only what a shared body cannot hold:

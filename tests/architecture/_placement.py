@@ -303,19 +303,22 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'own=67 repo=0 -> 0.00%, over the ceiling and at zero density -- a `BELOW_THE_BAR` row.',
     ),
     'tests/architecture/test_a_relative_tolerance_carries_its_floor.py': Placement(
-        SPLITS,
-        'THE SEAM IS SCAN VERSUS SCOPE, AND THE SPLIT THIS ROW OWED HAS NOW HAPPENED. FAMILY: '
-        'walking tracked `.py` files for an `approx` call giving a RATIO with no floor under it is a '
-        'pytest fact, true in every repo of the family -- and it is now '
-        '`lab_commons.dev.famtests.approxfloors`, which reads a POSITIONAL tolerance this file never '
-        'did. LOCAL: the BAR this repo is judged under (`ratio`, which the kit refuses to default), '
-        'the two MEASURED floors with their headrooms, and the SCOPE this file is careful to bound '
-        '-- `Variable.unit` is a free-text label this package never computes with, pint is not a '
-        'dependency it may take, and `UNITS-GO-THROUGH-PINT` stays declared absent rather than being '
-        'answered by narrowing this scan. RE-MEASURED 2026-09-18 AFTER ADOPTING `approxfloors`: '
-        'own=27 repo=0 -> 0.00%, down from own=71, admitted by the 50-line binder ceiling alone. Its '
-        '`BELOW_THE_BAR` entry is DELETED in the same commit: the shortfall it recorded was the '
-        'missing upstream half, and that half now exists.',
+        STAYS,
+        'THE SPLIT THIS ROW OWED HAPPENED ON 2026-09-18 AND THE SIDE IS CORRECTED 2026-09-19. FAMILY, PUBLISHED AND '
+        'IMPORTED: walking tracked `.py` files for an `approx` call giving a RATIO with no floor under it is a pytest '
+        'fact true in every repo of the family, and it is `lab_commons.dev.famtests.approxfloors` -- `take_scan`, '
+        '`approx_calls`, `unfloored`, `assert_every_tolerance_states_its_floor`, `assert_the_scanner_still_convicts` '
+        'and the two `BARS`. The kit reads a POSITIONAL tolerance this file never did, so the adoption was a '
+        'STRICTENING rather than a move, and no call site depended on the weaker reading: both live sites are '
+        '`pytest.approx(x)` with neither keyword. LOCAL: the BAR optimi-lab is judged under (`ratio`, which the kit '
+        'refuses to default), the two MEASURED floors with their headrooms, and the SCOPE this file is careful to bound '
+        '-- `Variable.unit` is a free-text label this package never computes with, pint is not a dependency it may '
+        'take, and `UNITS-GO-THROUGH-PINT` stays declared absent rather than being answered by narrowing this scan. '
+        'MEASURED 2026-09-19: own=27 hits=0, down from own=71, admitted by the 50-line binder ceiling alone. Its '
+        '`BELOW_THE_BAR` entry was deleted with the adoption: the shortfall it recorded was the missing upstream half. '
+        'THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no repo noun '
+        'anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That is the '
+        'evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan fire.',
     ),
     'tests/architecture/test_a_retired_spelling_stays_retired.py': Placement(
         STAYS,
@@ -354,13 +357,22 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'guessed pair does not raise, it walks a tree that is not there and reports CLEAN.',
     ),
     'tests/architecture/test_injected_doc_width_ceiling.py': Placement(
-        SPLITS,
-        'THE SEAM IS DECLARATION VERSUS CONTROL. FAMILY: the 120-column ceiling, the injected-doc '
-        'corpus and the two-sided ratchet are already `lab_commons.dev.docwidth`, and the planted '
-        'controls that drive it are generic too -- MEASURED 2026-09-17, 58% of the lines across this '
-        "file and wdg-lab's twin are identical (291 lines total, 123 differing). LOCAL: this tree's "
-        'declared `path:line` over-width sites. Measured: own=36 repo=0 -> 0.00%, admitted by the '
-        '50-line ceiling alone.',
+        STAYS,
+        'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the density bar '
+        'asks whether a file is mostly generic and never asks whether the family half it was waiting for has ALREADY '
+        'SHIPPED. IT HAD, ON 2026-09-18. `lab_commons.dev.famtests.injectedwidth` publishes `take_scan`, '
+        '`assert_widths_are_the_named_set`, `assert_the_declaration_is_the_shape_the_ratchet_keys_on` and '
+        "`assert_the_scanner_still_convicts` over `lab_commons.dev.docwidth`'s 120-column ceiling, corpus and two-sided "
+        'ratchet; this file imports both and holds no arm of its own. THE ADOPTION IS RECORDED UPSTREAM AS A REFUSED '
+        'MERGE, which is why it is a neighbour of the CJK guard and not the same body: their surfaces share no name, '
+        'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
+        "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- of 79 tracked "
+        "paths exactly 2 are injected documents and neither has a line past the ceiling), that set's ceiling, and the "
+        'floor with its headroom. MEASURED 2026-09-19: own=29 hits=0, down from own=36, admitted by the 50-line binder '
+        'ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no '
+        'repo noun anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That '
+        'is the evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan '
+        'fire.',
     ),
     'tests/architecture/test_memory_lives_under_a_date.py': Placement(
         STAYS,
@@ -377,19 +389,23 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`BELOW_THE_BAR` entry was deleted on 2026-09-18 when its shortfall went away.',
     ),
     'tests/architecture/test_no_allow_entry_names_a_denied_shape.py': Placement(
-        SPLITS,
-        'EXECUTED 2026-09-17, AND CLOSING THE HOLE CAUGHT THIS REPO. The body is '
-        '`lab_commons.dev.famtests.allowguard` and the local copy is deleted; the census that '
-        "decided it measured this file and wdg-lab's twin 88.9% identical over 324 lines with ZERO "
-        'repo nouns in code. FAMILY: the glob instantiation and its cases (the `Bash(...)` spelling '
-        'belongs to the agent client, not to any repo), the engine driving, and the `probed` floor '
-        'that now refuses a scan of zero rows. LOCAL: the sanctioned exit a red is redirected to '
-        "and the two planted rows, which are this repo's because `deny_rules.py` DROPS a rule "
-        'whose remedy a repo lacks -- a row denied here is permitted elsewhere. THE FIRST HONEST '
-        'RUN REDDED: `.claude/settings.json` declares no `permissions` block at all, so this guard '
-        'has been green over ZERO probed rows for its whole life, and the property arm is a strict '
-        'xfail carrying that measurement until a human adds the first allow row. RE-MEASURED: '
-        'own=22 repo=0 -> 0.00%, down from own=77, admitted by the 50-line binder ceiling.',
+        STAYS,
+        'EXECUTED 2026-09-17 AND THE SIDE CORRECTED 2026-09-19. The body is `lab_commons.dev.famtests.allowguard` -- '
+        '`allow_entries`, `contradictions`, `probe_command`, `GLOB_CASES`, `assert_no_allow_contradicts` and '
+        '`assert_the_scan_can_still_see` -- and the local copy was deleted with the adoption; the census that decided '
+        "it measured this file and wdg-lab's twin 88.9% identical over 324 lines with ZERO repo nouns in code. FAMILY: "
+        'the glob instantiation and its cases (the `Bash(...)` spelling belongs to the agent client, not to any repo), '
+        'the engine driving, and the `probed` floor that refuses a scan of zero rows. LOCAL: the sanctioned exit a red '
+        "is redirected to and the two planted rows, which are optimi-lab's because `deny_rules.py` DROPS a rule whose "
+        'remedy a repo lacks -- a row denied here is permitted elsewhere. THE FIRST HONEST RUN REDDED AND STILL DOES: '
+        '`.claude/settings.json` declares no `permissions` block at all, so this guard has been green over ZERO probed '
+        'rows for its whole life, and the property arm is a strict xfail carrying that measurement until a human adds '
+        "the first allow row. THAT XFAIL IS NOT THIS ROW'S TO CLOSE: an agent edit adding the block was refused as "
+        "Self-Modification, so the remedy is a human's. MEASURED 2026-09-19: own=12 hits=0, down from own=77, admitted "
+        'by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 '
+        'refuses a STAYS with no repo noun anywhere in it, and this file had none -- it said "this repo" throughout and '
+        'never said WHICH. That is the evidence the label is paid for, so the pronoun is now the name; no sentence was '
+        'added to make a scan fire.',
     ),
     'tests/architecture/test_no_cjk_in_tracked_source.py': Placement(
         STAYS,
@@ -413,15 +429,21 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'and neither spelling is a noun this scan can see.',
     ),
     'tests/architecture/test_the_agent_guard_is_live.py': Placement(
-        SPLITS,
-        'EXECUTED 2026-09-17, AND THIS REPO GAINED AN ARM RATHER THAN ONLY LOSING LINES. The seven '
-        'arms are `lab_commons.dev.famtests.agentguard` and the local copy is deleted. THE FAMILY '
-        "BODY TOOK WDG-LAB'S STRUCTURE, which is the integration rule applied to assertions: the "
-        'deny arm now NAMES the rule it expects, where this file asked only whether SOMETHING '
-        'refused -- a question upstream measured being fooled by registry order on two real rules '
-        'that both match `git push --force`. LOCAL: the five-name shipped set, the six '
-        'command-plus-rule rows and the four sanctioned exits. RE-MEASURED after the adoption: '
-        'own=42 repo=0 -> 0.00%, down from own=79, admitted by the 50-line binder ceiling.',
+        STAYS,
+        'EXECUTED 2026-09-17 AND THE SIDE CORRECTED 2026-09-19. The seven arms are '
+        '`lab_commons.dev.famtests.agentguard` -- `assert_the_guard_is_live`, `assert_the_shipped_set_is_pinned`, '
+        '`assert_committed_rules_are_rendered`, `assert_every_rule_is_accounted_for`, `assert_refused_by`, '
+        '`assert_sanctioned` and `assert_node_is_available` -- and the local copy was deleted. THE FAMILY BODY TOOK '
+        "WDG-LAB'S STRUCTURE, which is the integration rule applied to assertions: the deny arm NAMES the rule it "
+        'expects, where this file asked only whether SOMETHING refused -- a question upstream measured being fooled by '
+        'registry order on two real rules that both match `git push --force`. THAT IS A STRICTENING AND NO CALLER '
+        'DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against the real registry when the '
+        "arm landed. LOCAL: optimi-lab's five-name shipped set, the six command-plus-rule rows and the four sanctioned "
+        'exits. MEASURED 2026-09-19: own=43 hits=0, down from own=79 -- the LARGEST reading the binder ceiling admits, '
+        'which is stated rather than rounded because it is also the calibration point the ceiling was derived from. THE '
+        'RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no repo noun '
+        'anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That is the '
+        'evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan fire.',
     ),
     'tests/architecture/test_the_family_config_is_rendered.py': Placement(
         STAYS,
@@ -558,18 +580,21 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'that permits exactly that line. Measured: own=55 repo=2 -> 3.64%, which clears the bar.',
     ),
     'tests/architecture/test_this_checkout_is_visible_on_origin.py': Placement(
-        SPLITS,
-        'EXECUTED 2026-09-17, AND THE SEAM WAS NARROWER THAN THIS ROW USED TO READ. '
-        '`lab_commons.dev.checkout` already answered "what is here that origin does not have" and '
-        'this file already imported it; what was still forked were the assertions and, above all, '
-        'the two planted git FIXTURES -- factored out here and inlined per function in the sibling '
-        'lab, which is a control written twice and therefore a control that can be wrong in one '
-        'copy. `lab_commons.dev.famtests.visibility` now ships `plant_checkout` and `commit` beside '
-        'the assertions. LOCAL, each a keyword with NO DEFAULT upstream: the trunk NAME (the '
-        '`LAB_CZ_BASE_REF` shape -- a repo judged against a guessed `main` reports itself clean), '
-        'and the two two-sided branch pins, one of which still names '
-        '`fix/p0-integration-blockers`. RE-MEASURED after the adoption: own=13 repo=0 -> 0.00%, '
-        'down from own=74, admitted by the 50-line binder ceiling.',
+        STAYS,
+        'EXECUTED 2026-09-17 AND THE SIDE CORRECTED 2026-09-19; the seam was narrower than the row ever read. '
+        '`lab_commons.dev.checkout` already answered "what is here that origin does not have" and this file already '
+        'imported it; what was still forked were the assertions and, above all, the two planted git FIXTURES -- '
+        'factored out here and inlined per function in the sibling lab, which is a control written twice and therefore '
+        'a control that can be wrong in one copy. `lab_commons.dev.famtests.visibility` now ships `plant_checkout` and '
+        '`commit` beside `assert_readable`, `assert_origin_branch_set`, `assert_the_remote_is_the_authority`, '
+        '`assert_one_pushable_branch`, `assert_local_only_branches` and `assert_the_planted_debris_is_named`. LOCAL, '
+        "each a keyword with NO DEFAULT upstream: optimi-lab's trunk NAME (the `LAB_CZ_BASE_REF` shape -- a repo judged "
+        'against a guessed `main` resolves to nothing, finds no commits and REPORTS ITSELF CLEAN), and the two '
+        'two-sided branch pins, one of which still names `fix/p0-integration-blockers`. MEASURED 2026-09-19: own=13 '
+        'hits=0, down from own=74, admitted by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE '
+        'WORD IS THE POINT. Property 2 refuses a STAYS with no repo noun anywhere in it, and this file had none -- it '
+        'said "this repo" throughout and never said WHICH. That is the evidence the label is paid for, so the pronoun '
+        'is now the name; no sentence was added to make a scan fire.',
     ),
 }
 
