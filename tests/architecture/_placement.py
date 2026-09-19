@@ -257,8 +257,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-09-18 after the adoption: own=402 '
-        'project=30 -> 7.46%.',
+        'family half in it to split off. RE-MEASURED 2026-09-19: own=461 project=41 -> 8.89%, up '
+        'from own=402 project=30 -> 7.46% at the 2026-09-18 adoption.',
     ),
     'tests/architecture/_famconfig.py': Placement(
         STAYS,
@@ -267,9 +267,11 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'is left here is the lines that are facts about optimi-lab: the `usr/local/` tree, the '
         'viztracer `result.json`, the coredumpy `dumps/`, the eight stock hook ids this repo takes '
         'beyond the family eleven, and the reason `.pre-commit-config.yaml` is refused. There is no '
-        'family half left to cut, which is exactly why the seam upstream was worth cutting. MEASURED '
-        '2026-09-17: own=66 repo=2 -> 3.03%, which clears the 3.0% bar by a THIRD OF A POINT, so the '
-        'honest reading is that the density admits this row rather than argues it -- the real '
+        'family half left to cut, which is exactly why the seam upstream was worth cutting. RE-MEASURED '
+        '2026-09-19: own=81 repo=1 -> 1.23%, down from own=66 repo=2 -> 3.03% on 2026-09-17, and the '
+        'row is UNDER the 3.0% bar with a `BELOW_THE_BAR` entry saying so. THE FALL IS THE EVIDENCE '
+        'rather than a regression: the one hit that carried 3.03% was the reason string of a waiver '
+        'this file deleted along with its subject, so the density went with the prose. The real '
         'evidence is that every added line resolves against this tree and no other, and a gitignore '
         'pattern names a directory, which is the shape a noun scan cannot see.',
     ),
@@ -335,7 +337,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'September 2026 deleted public `optimi_lab` names outright, with no compat shim and no '
         'deprecation alias, and recorded which ones only in their commit messages. The scan that '
         'refuses a resurrection is small; the LIST of what was retired is the file, and it means '
-        'nothing anywhere else. Measured 2026-09-17: own=80 repo=8 -> 10.00%.',
+        'nothing anywhere else. RE-MEASURED 2026-09-19: own=78 repo=8 -> 10.26%, down from own=80 '
+        'repo=8 -> 10.00% on 2026-09-17.',
     ),
     'tests/architecture/test_cited_tests_resolve.py': Placement(
         STAYS,
@@ -445,9 +448,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "IT IS THIS REPO'S HALF OF THE SHARED REGISTRY BY CONSTRUCTION: `lab_commons.dev.rules` "
         "authors each rule's universal statement and `assert_adopted` demands that the adopting tree "
         'name the MECHANISM in its own files. 25 of 32 enforced with the other 7 named as gaps is a '
-        'statement about optimi-lab and is false of every other checkout. Measured 2026-09-17: '
-        'own=98 repo=3 -> 3.06%, which clears the bar by the narrowest margin in this table -- '
-        'stated rather than rounded, because the file is a table of rule IDs and mechanism paths, '
+        'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-09-19: '
+        'own=100 repo=3 -> 3.00%, up from own=98 repo=3 -> 3.06% on 2026-09-17: the row now sits '
+        'EXACTLY ON the 3.0% bar, the narrowest margin there is -- stated rather than rounded, '
+        'because the file is a table of rule IDs and mechanism paths, '
         'and neither spelling is a noun this scan can see.',
     ),
     'tests/architecture/test_the_agent_guard_is_live.py': Placement(
@@ -537,8 +541,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "than supporting one: MEASURED 2026-09-17, this file and wdg-lab's same-named module are 462 "
         'lines together with 410 differing -- 89% DIFFERENT, so the shared name is not shared code. '
         "Its three properties are stated in this package's terms and its size band is this "
-        "package's datum (320, measured against a largest module of 261). Measured: own=153 repo=1 "
-        '-> 0.65%, a `BELOW_THE_BAR` row.',
+        "package's datum (320, measured against a largest module of 261). RE-MEASURED 2026-09-19: "
+        'own=161 repo=1 -> 0.62%, down from own=153 repo=1 -> 0.65% on 2026-09-17, a '
+        '`BELOW_THE_BAR` row.',
     ),
     'tests/architecture/test_the_rules_pages_are_a_ratchet.py': Placement(
         STAYS,
@@ -601,8 +606,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until '
         'this file both were PROSE, and a `structlog` import added to one function would have left '
         'every word of the claim reading exactly as it does now. Which three distributions are '
-        "permitted is this library's decision and nobody else's. Measured 2026-09-17: own=86 repo=2 "
-        '-> 2.33%, a `BELOW_THE_BAR` row: the facts are three distribution NAMES, which are strings.',
+        "permitted is this library's decision and nobody else's. RE-MEASURED 2026-09-19: own=84 "
+        'repo=2 -> 2.38%, down from own=86 repo=2 -> 2.33% on 2026-09-17, a `BELOW_THE_BAR` row: '
+        'the facts are three distribution NAMES, which are strings.',
     ),
     'tests/architecture/test_the_verdict_run_takes_the_box.py': Placement(
         STAYS,
@@ -818,7 +824,8 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'is left is the residue. It sits under a bar written for a different shape.'
     ),
     'tests/architecture/test_the_public_surface_is_declared.py': (
-        'MEASURED 2026-09-17: own=153 repo=1 -> 0.65%, far under the bar and far over the ceiling. '
+        'RE-MEASURED 2026-09-19: own=161 repo=1 -> 0.62%, down from own=153 repo=1 -> 0.65% on '
+        '2026-09-17 -- far under the bar and far over the ceiling. '
         'THE READING IS HONEST AND THE ROW SAYS WHAT IT MISSES: this file scans `src/optimi_lab` '
         'and reports module names, so its repo facts are a PATH and the strings it prints. THE '
         'REMEDY IS NOT A MOVE -- the twin comparison refutes that outright (89% of the lines across '
@@ -826,7 +833,8 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'density", not "this row is wrong".'
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': (
-        'MEASURED 2026-09-17: own=86 repo=2 -> 2.33%, under the 3.0% bar and over the ceiling. The '
+        'RE-MEASURED 2026-09-19: own=84 repo=2 -> 2.38%, down from own=86 repo=2 -> 2.33% on '
+        '2026-09-17, under the 3.0% bar and over the ceiling. The '
         'reading is honest: the fact this file enforces is WHICH THREE DISTRIBUTIONS are permitted, '
         "and `numpy`, `scipy` and `scikit-learn` are other people's names, so a scan for this "
         "repo's nouns cannot see the very thing the guard is about. THE REMEDY IS NOT TO THIN IT: "
