@@ -1,7 +1,11 @@
+
 {
   "permissions": {
     "allow": [
-      "Bash(./.venv/Scripts/python.exe -m lab_commons.dev.verify *)"
+      "Bash(./.venv/Scripts/python.exe -m lab_commons.dev.verify *)",
+      "Bash(./.venv/Scripts/python.exe scripts/dep.py *)",
+      "Bash(uv run python -m optimi_lab*)",
+      "Bash(uv sync --extra *)"
     ]
   },
   "hooks": {
