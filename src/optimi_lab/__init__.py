@@ -32,10 +32,14 @@ The subpackages ``intelligent_algorithm`` (the proposers) and ``surrogate_model`
 are built against :mod:`optimi_lab.core.protocols` and export their own names on top of these.
 :mod:`optimi_lab.benchmarks` adds what a caller needs to JUDGE a run rather than merely make one --
 the ZDT problems with known Pareto fronts, the IGD and hypervolume metrics, and a one-call
-:func:`~optimi_lab.benchmarks.solve`.
+:func:`~optimi_lab.benchmarks.solve` that takes the :data:`~optimi_lab.benchmarks.Algorithm` to
+judge. Those facts are OWNED here and not by a consumer: they carry no motor, material or solver
+vocabulary, they do not change when the caller changes, and the thing they judge -- the five
+algorithms -- lives in this package, so a copy held downstream could gate its holder and never the
+implementation it scores.
 """
 
-from optimi_lab.benchmarks import Problem, hypervolume_2d, igd, solve, zdt1, zdt2
+from optimi_lab.benchmarks import Algorithm, Problem, hypervolume_2d, igd, solve, zdt1, zdt2
 from optimi_lab.core import (
     SAMPLE_KINDS,
     Direction,
@@ -61,6 +65,7 @@ from optimi_lab.core import (
 
 __all__ = [
     'SAMPLE_KINDS',
+    'Algorithm',
     'Direction',
     'Evaluation',
     'Evaluator',

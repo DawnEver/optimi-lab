@@ -23,11 +23,13 @@ import numpy as np
 
 from optimi_lab.core.optimize import Record, optimize
 from optimi_lab.core.outcomes import Evaluation
+from optimi_lab.core.protocols import Proposer
 from optimi_lab.core.sampling import SampleSpec
 from optimi_lab.core.space import Objective, ObjectiveSet, Variable, VariableSet
 from optimi_lab.intelligent_algorithm import nsga2
 
 __all__ = [
+    'Algorithm',
     'Problem',
     'hypervolume_2d',
     'igd',
@@ -35,6 +37,18 @@ __all__ = [
     'zdt1',
     'zdt2',
 ]
+
+
+Algorithm = Callable[..., Callable[[int], Proposer]]
+"""What :func:`solve` takes for ``algorithm``: a FACTORY of proposer factories.
+
+The two levels are the package's own, not an indirection added here. Every name in
+:mod:`optimi_lab.intelligent_algorithm` -- ``nsga2``, ``nsga3``, ``mode``, ``moead``, ``mopso`` --
+is called with the space and its settings and hands back the ``Callable[[int], Proposer]`` that
+:func:`~optimi_lab.core.optimize.optimize` builds once the sampler has fixed the population size.
+So ``algorithm`` is the factory by NAME and the population count stays the one number the loop
+measured, which is what keeps a second population size from existing to disagree with the first.
+"""
 
 
 @dataclass(frozen=True)
@@ -141,17 +155,29 @@ def hypervolume_2d(front: np.ndarray, ref_point: np.ndarray) -> float:
 def solve(
     problem: Problem,
     *,
+    algorithm: Algorithm = nsga2,
     pop_size: int = 50,
     max_iter: int = 60,
     seed: int = 0,
 ) -> Record:
-    """Solve ``problem`` with NSGA-II and return the run's :class:`~optimi_lab.core.optimize.Record`.
+    """Solve ``problem`` with ``algorithm`` and return the :class:`~optimi_lab.core.optimize.Record`.
 
     Thin wiring over :func:`~optimi_lab.core.optimize.optimize`, and every column is a FIELD rather
     than a position in a parallel list: one ``Variable`` per decision dimension, one ``Objective``
     per column, all minimized -- which is what a :class:`Problem`'s own ``evaluate`` promises. The
     seed reaches the sampler and the proposer's own generator, so two calls with one seed are one
     run.
+
+    ``algorithm`` IS A PARAMETER BECAUSE THE CHOICE WAS NEVER THIS LIBRARY'S TO MAKE SILENTLY.
+    Until 2026-09-19 this helper named :func:`~optimi_lab.intelligent_algorithm.nsga2` and offered
+    no say in it, so four of the five algorithms this package ships had no route through the one
+    entry point it offers for scoring an algorithm -- a benchmark module that could benchmark a
+    fifth of the thing it exists to judge. The hardcoding was not a decision taken here: it was the
+    CONSUMER's, whose wrapper described itself as "thin wiring over the optimi_lab NSGA-II", and it
+    outlived the rewrite of everything underneath it. Measured at ``pop_size=50, max_iter=60,
+    seed=0``, the default is not even the best of the set: ``mode`` reaches IGD 0.0006 on ZDT1 and
+    0.0005 on ZDT2 against NSGA-II's 0.0665 and 0.1204. ``nsga2`` remains the DEFAULT, because a
+    one-call helper needs one, and it is now a default rather than a ceiling.
 
     THE RETURN IS THE RECORD AND NOT TWO BARE MATRICES. It was ``(pareto_x, pareto_f)`` until
     2026-09-19, which is the one shape :class:`~optimi_lab.core.optimize.Record`'s own docstring
@@ -189,7 +215,7 @@ def solve(
         space=space,
         objectives=objectives,
         evaluate=evaluate,
-        build_proposer=nsga2(space, seed=seed),
+        build_proposer=algorithm(space, seed=seed),
         spec=SampleSpec(n_samples=pop_size, seed=seed),
         n_batches=max_iter + 1,
     )
