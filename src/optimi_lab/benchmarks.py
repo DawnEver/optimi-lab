@@ -21,7 +21,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from optimi_lab.core.optimize import optimize
+from optimi_lab.core.optimize import Record, optimize
 from optimi_lab.core.outcomes import Evaluation
 from optimi_lab.core.sampling import SampleSpec
 from optimi_lab.core.space import Objective, ObjectiveSet, Variable, VariableSet
@@ -144,8 +144,8 @@ def solve(
     pop_size: int = 50,
     max_iter: int = 60,
     seed: int = 0,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Solve ``problem`` with NSGA-II and return ``(pareto_x, pareto_f)``.
+) -> Record:
+    """Solve ``problem`` with NSGA-II and return the run's :class:`~optimi_lab.core.optimize.Record`.
 
     Thin wiring over :func:`~optimi_lab.core.optimize.optimize`, and every column is a FIELD rather
     than a position in a parallel list: one ``Variable`` per decision dimension, one ``Objective``
@@ -153,12 +153,27 @@ def solve(
     seed reaches the sampler and the proposer's own generator, so two calls with one seed are one
     run.
 
-    The archive returned is the LIBRARY's own first front of the complete points (``Record.pareto``)
-    rather than a front this function recomputes: it refuses a run in which no point computed every
-    objective, because an empty front would otherwise read exactly like a run that found nothing.
+    THE RETURN IS THE RECORD AND NOT TWO BARE MATRICES. It was ``(pareto_x, pareto_f)`` until
+    2026-09-19, which is the one shape :class:`~optimi_lab.core.optimize.Record`'s own docstring
+    names as the defect it exists to remove -- "four bare matrices whose columns were named only by
+    the optimizer object the caller still had to hold on to". That tuple was this library's
+    CONSUMER's signature, carried unchanged across the rewrite that replaced everything underneath
+    it, and it discarded three facts the loop had already computed: which variable each input
+    column is, which objective each value column is, and the
+    :class:`~optimi_lab.core.outcomes.Outcome` of every cell. A caller that wants only the front
+    asks for it -- ``solve(problem).pareto()`` -- and THAT call is where the refusal belongs: a run
+    in which no point computed every objective has no front, and an empty one would read exactly
+    like a run that converged on nothing.
 
     ``max_iter`` counts generations AFTER the initial sample, so a run evaluates ``max_iter + 1``
     batches -- the initial sample IS the first one.
+
+        >>> record = solve(zdt1(n_var=3), pop_size=8, max_iter=2, seed=0)
+        >>> len(record), list(record.space.names), list(record.objectives.names)
+        (24, ['x0', 'x1', 'x2'], ['f0', 'f1'])
+        >>> record.pareto().values.shape[1]
+        2
+
     """
     space = VariableSet(
         tuple(
@@ -170,7 +185,7 @@ def solve(
     def evaluate(points: np.ndarray) -> Evaluation:
         return Evaluation(inputs=points, values=np.asarray(problem.evaluate(points), dtype=float))
 
-    record = optimize(
+    return optimize(
         space=space,
         objectives=objectives,
         evaluate=evaluate,
@@ -178,5 +193,3 @@ def solve(
         spec=SampleSpec(n_samples=pop_size, seed=seed),
         n_batches=max_iter + 1,
     )
-    front = record.pareto()
-    return front.inputs, front.values
