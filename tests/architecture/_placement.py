@@ -298,20 +298,25 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-09-17: own=36 repo=4 -> 11.11%, and under the ceiling as well.',
     ),
     'tests/architecture/test_a_pin_is_a_named_set.py': Placement(
-        SPLITS,
-        'GENUINELY OPEN, RE-CONFIRMED 2026-09-19 AGAINST THE WHOLE PUBLISHED KIT rather than against a remembered one: '
-        '49 top-level `lab_commons.dev` modules and 18 under `famtests` were read by SUBJECT, and not one of them asks '
-        'whether a pin is a COUNT where a NAMED SET belongs. `testfacts` is the near miss and it is a miss: it reads a '
-        'test corpus for skips and site ledgers, never for the SHAPE of a constant. THE SEAM IS RULE VERSUS POPULATION. '
-        'FAMILY, AND THIS IS THE PRECISE THING THE KIT WOULD HAVE TO PUBLISH: an AST scan over a named tree that '
-        'refuses an integer constant whose name ends `_COUNT` (or reads as a population size) where a `frozenset` '
-        'belongs, with its own planted control and a floor -- `NAMED-SETS-NOT-COUNTS` is a family rule stated in '
-        'motronics-studio\'s `.claude/rules/rem/integration.md`, "a count pin is blind to a swap, and invites being '
-        'lowered", and nothing in the scan is repo-shaped. LOCAL: the pins it walks are this package\'s, and so is the '
-        'correction this file records -- that the rule was claimed as enforced on 2026-09-15 while citing three modules '
-        'that merely HAPPEN to use named sets. RE-MEASURED 2026-09-19: own=68 hits=0 -> 0.00%, eighteen lines over the '
-        "ceiling and at zero density -- a `BELOW_THE_BAR` row, and now (2026-09-19) the table's ONLY remaining SPLITS, "
-        'and over the ceiling, which is what an unwritten family half looks like. THE SECOND CONSUMER ALREADY EXISTS AND IS CURRENTLY MAKING THE CLAIM WITHOUT THE MECHANISM, measured 2026-09-19 by reading the sibling: wdg-lab cites `NAMED-SETS-NOT-COUNTS` to six modules that merely USE named sets and holds no count-pin guard at all -- the exact defect this file was written to correct here. So the family half has two waiting callers, not one, which is what makes the split worth paying for rather than a local scan kept for tidiness.',
+        STAYS,
+        'PAID 2026-09-19, AND THE SIDE FLIPS BECAUSE OF WHAT IS LEFT rather than because the kit half now exists. '
+        'The family half shipped as `lab_commons.dev.famtests.countpins`, carved from this very file -- the walk, the '
+        'grader, the floors-first order, the unused-exemption arm and the planted control -- and this file calls '
+        '`take_scan`, `assert_no_constant_is_a_count_pin` and `assert_the_grader_still_convicts`. `NAMED-SETS-NOT-COUNTS` '
+        'is a family rule stated in motronics-studio `.claude/rules/rem/integration.md` -- a count pin is blind to a '
+        'swap, and invites being lowered -- and the second consumer was already making the claim without the mechanism: '
+        'wdg-lab cites it at six modules that merely USE named sets and held no count-pin guard at all. '
+        'WHAT REMAINS IS THE PROJECT FACT ALONE, WHICH IS WHY THIS IS NOT A STANDING SPLITS: the VOCABULARY -- eight '
+        'threshold suffixes, the standalone spellings derived from them, the scanned root, an EMPTY exempt set and the '
+        'two floor numbers. None of it is a library decision. `threshold_suffixes` in particular is the EXEMPTION '
+        'MECHANISM, so the kit takes it with NO DEFAULT: a default suffix set would be a waiver this repo never wrote, '
+        'shipped in by a package imported for something else. The temptation is measured -- driven over lab-commons own '
+        'tests the same grader named 21 constants in 14 files, all genuine magnitudes spelled outside THIS vocabulary, '
+        'and that repo took the walk and declined the conviction rather than author a vocabulary to fit its answer. '
+        'RE-MEASURED 2026-09-19 AFTER THE ADOPTION: own=20 hits=0 -> 0.00%, down from own=68, and admitted by the '
+        '50-line BINDER ceiling; its `BELOW_THE_BAR` entry went with the adoption, and the table now holds no SPLITS at '
+        'all. The zero is honest rather than a misclassification, for the reason the old entry gave: what this file '
+        'pins are suffix STRINGS and two integers, and property 4 reads identifiers.',
     ),
     'tests/architecture/test_a_relative_tolerance_carries_its_floor.py': Placement(
         STAYS,
@@ -717,12 +722,16 @@ def is_justified(reading: density.Density) -> bool:
 #:
 #: The ceiling must exceed 43 and fall below 67; 50 is the round number in that interval.
 #:
-#: THE LAST ROW IS A DATED CALIBRATION READING AND NO LONGER DESCRIBES ITS FILE, which is said here
-#: rather than silently corrected: that file adopted `famtests.approxfloors` on 2026-09-18 and now
-#: reads own=27, so it would ADMIT today. The calibration stands on `test_a_pin_is_a_named_set.py`,
-#: which still carries its own scan at own=67 and holds the interval's upper end by itself. The row
-#: is kept because deleting it would erase the evidence the ceiling was derived from, and a
-#: calibration whose refused end is unrecorded is a number nobody can re-argue.
+#: BOTH REFUSED ROWS ARE NOW DATED CALIBRATION READINGS AND NEITHER DESCRIBES ITS FILE, which is
+#: said here rather than silently corrected. `test_a_relative_tolerance_carries_its_floor` adopted
+#: `famtests.approxfloors` on 2026-09-18 and now reads own=27; `test_a_pin_is_a_named_set` adopted
+#: `famtests.countpins` on 2026-09-19 and now reads own=20. Both would ADMIT today, so NO LIVE FILE
+#: HOLDS THE INTERVAL'S UPPER END -- and that is the ordinary end state of a finished migration, not
+#: a defect: the ceiling's job was to refuse the forked bodies, and there are none left to refuse.
+#: The rows are kept, and `CEILING_REFUSES` is NOT re-taken from today's tree, because deleting them
+#: would erase the evidence the ceiling was derived from and a ceiling re-derived from files that
+#: all pass is a number tuned to pass them. A calibration whose refused end is unrecorded is a
+#: number nobody can re-argue.
 #:
 #: IT IS NOT A FAMILY CONSTANT AND THE KIT DELIBERATELY DOES NOT SHIP ONE, which is the finding the
 #: placement half exists to carry. Three of the family's four rosters read 50 and the fourth --
@@ -759,11 +768,14 @@ MINIMUM_ADMITS: Final = 3.06
 #: `test_the_public_surface_is_declared.py`, 0.65% -- the LARGEST percentage the bar must REFUSE.
 MINIMUM_REFUSES: Final = 0.65
 
-#: THE SHORTFALL ON RECORD. FIVE `STAYS`/`SPLITS` rows fail the density guard today, and the count is
+#: THE SHORTFALL ON RECORD. FOUR `STAYS` rows fail the density guard today, and the count is
 #: re-taken here rather than trusted: this line read "Six" on 2026-09-19 against a dict of five, which
 #: is the count-pin failure inside the very table that refuses count pins. The set itself was always
 #: right -- `test_the_migration_boundary_is_declared.py` parametrizes over the KEYS and never over this
-#: sentence, so nothing could fail on the digit.
+#: sentence, so nothing could fail on the digit. It reads FOUR from 2026-09-19 because
+#: `test_a_pin_is_a_named_set.py` adopted `famtests.countpins` and fell from own=68 to own=20, under
+#: the binder ceiling; that adoption also emptied the `SPLITS` side of the table, so every remaining
+#: row here is a `STAYS`.
 #:
 #: TWO ROWS LEFT THIS SET ON 2026-09-18 AND THEY LEFT BY BEING DELETED rather than re-worded:
 #: `test_memory_lives_under_a_date.py` (own 87 -> 21) and
@@ -776,18 +788,12 @@ MINIMUM_REFUSES: Final = 0.65
 #: same commit that fixes its file, and no new row can join the list by accident. Loosening either
 #: bar to absorb them was available and is refused: it would delete the finding rather than record it.
 #:
-#: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. Four read 0.00%, which is the same reading a
+#: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. ONE reads 0.00% -- re-measured 2026-09-19,
+#: down from four as the adopting rows left -- which is the same reading a
 #: genuine misclassification gives. `test_the_runtime_stays_pure.py` (2.38%),
 #: `test_the_public_surface_is_declared.py` (0.62%) and `_famconfig.py` (1.23%) sit under the bar
 #: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
-    'tests/architecture/test_a_pin_is_a_named_set.py': (
-        'MEASURED 2026-09-17: own=67 repo=0 -> 0.00%, seventeen lines over the binder ceiling. THE '
-        'SPLIT IT OWES: the scan that refuses a count where a named set belongs is the family rule '
-        '`NAMED-SETS-NOT-COUNTS` with no optimisation in it, and belongs in `lab_commons.dev`. What '
-        "stays is this package's pins. The zero is honest rather than a misclassification: the "
-        'pins are frozensets of module NAMES, which are strings.'
-    ),
     'tests/architecture/test_the_family_config_is_rendered.py': (
         'MEASURED 2026-09-17 AFTER ADOPTING `famtests.configrender`: own=67 repo=0 -> 0.00%, down '
         'from own=118. A NEW ROW WHOSE DIRECTION IS THE FINDING: the verdict half left and the '

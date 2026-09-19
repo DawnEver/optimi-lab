@@ -305,11 +305,27 @@ def test_every_SPLITS_row_is_MEASURED_by_this_section() -> None:
     narrowing that to `== STAYS` would silently delete the arm while every other test here stayed
     green, because a parametrize that loses cases reports no failure.
 
-    FLOOR FIRST: over zero `SPLITS` rows this assertion is vacuous.
+    THE FLOOR MOVED 2026-09-19, AND WHERE IT MOVED TO IS THE POINT. It used to read
+    `assert splits` -- a demand that the live manifest hold at least one `SPLITS` row. On 2026-09-19
+    `test_a_pin_is_a_named_set.py` adopted `famtests.countpins`, the last split was paid, and the
+    manifest went to thirty `STAYS` and nothing else. A FINISHED MIGRATION IS THE SUCCESS CONDITION
+    OF THIS TABLE, so a floor that reds on it is a floor demanding the work stay unfinished, and the
+    only ways to satisfy it are to invent a row or to hold one open. Neither is a measurement.
+
+    WHAT KEEPS THIS NON-VACUOUS INSTEAD, and it is strictly stronger than the old floor was: the
+    subset assertion below is floored on `stays_rows()` itself -- the population that must never
+    collapse -- and `test_the_SPLITS_arm_would_be_MISSED_if_it_were_dropped` PLANTS a manifest that
+    is nothing but a split and drives the REAL `stays_rows`. The one-character narrowing to
+    `== STAYS` reds there whether or not this tree currently holds a split, which the old floor could
+    not claim: it went green the moment any split existed, regardless of the arm.
     """
     splits = sorted(rel for rel, row in PLACEMENT.items() if row.side == SPLITS)
-    assert splits, 'no SPLITS row exists, so this ceiling is measuring nothing'
     measured = {param.values[0] for param in stays_rows()}
+    assert measured, (
+        'section 4 parametrized NOTHING, so this ceiling and every density row under it are '
+        'measuring an empty tree -- and a collapsed `stays_rows` and a fully classified manifest '
+        'are indistinguishable from here unless this fires'
+    )
     assert set(splits) <= measured, (
         f'{sorted(set(splits) - measured)} carry the SPLITS label but are not parametrized into '
         f'section 4. A label the author picks is not a measurement: an unfinished split is a '
