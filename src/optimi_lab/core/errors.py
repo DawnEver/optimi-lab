@@ -11,8 +11,22 @@ member of a declared set NAMES that set. Two defects are foreclosed:
   while the constant that exists to spell the valid set sat one module away, unquoted.
 
 A guard answers a question the CALLER asked, so it returns the checked value: ``points =
-require_columns(points, n_var, 'the array returned by ask()')`` reads the constraint where it is
+require_axis(points, n_var, 1, 'the array returned by ask()')`` reads the constraint where it is
 enforced.
+
+THAT LINE NAMED A FUNCTION THAT DOES NOT EXIST UNTIL 2026-09-19: it demonstrated the package's one
+guard shape through a three-argument call whose name was never defined here, measured as the single
+occurrence of that spelling in the tree. It is the shape this family keeps rediscovering -- a dead
+spelling survives longest in the PROSE that explains the thing, because prose reads as harmless and
+nobody deletes it. Here it was worse than harmless: a docstring that cannot be executed, inside the
+module whose whole job is to make what this package says about itself true.
+
+    >>> import numpy as np
+    >>> require_axis(np.zeros((4, 2)), 2, 1, 'a batch').shape
+    (4, 2)
+    >>> require_axis(np.zeros(4), 2, 1, 'a batch')
+    Traceback (most recent call last):
+    optimi_lab.core.errors.Refusal: a batch must be a 2-D array with 2 column(s), got shape (4,)
 """
 
 from enum import Enum
