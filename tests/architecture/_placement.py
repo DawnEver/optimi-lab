@@ -1,13 +1,14 @@
 """WHERE EVERY DEV FILE'S MECHANISM LIVES -- this repo's half of the family migration, as data.
 
-WHY THIS FILE EXISTS, AND THE MEASUREMENT THAT FORCED IT. `lab_commons.dev` publishes 30 public
-modules, and this repo imports 16 of them. The migration that produced those 16 was never written
-down anywhere in this tree, so the remaining files under `scripts/` and `tests/architecture/` were
-UNMEASURED -- and an unmeasured migration reads exactly like a finished one. motronics-studio has
-had the answering shape since 2026-08-11 (`tests/architecture/layering/_placement_*.py`, composed
-into `PLACEMENT`: measured 2026-09-17 at 71 rows, 44 STAYS, 13 MOVES, 14 SPLITS). This is the same
-declaration for this repo, and it is a DECLARATION ONLY: not one file is moved by the commit that
-lands it.
+WHY THIS FILE EXISTS, AND THE MEASUREMENT THAT FORCED IT. `lab_commons.dev` publishes 49 top-level
+modules plus 18 under `famtests` (re-counted 2026-09-19 from the installed kit, against 30 when this
+paragraph was written), and this repo imports 21 of them. The migration that produced those imports
+was never written down anywhere in this tree, so the remaining files under `scripts/` and
+`tests/architecture/` were UNMEASURED -- and an unmeasured migration reads exactly like a finished
+one. motronics-studio has had the answering shape since 2026-08-11
+(`tests/architecture/layering/_placement_*.py`, composed into `PLACEMENT`: measured 2026-09-17 at 71
+rows, 44 STAYS, 13 MOVES, 14 SPLITS). This is the same declaration for this repo, and it is a
+DECLARATION ONLY: not one file is moved by the commit that lands it.
 
 THE TEST THAT DECIDES A ROW, taken from the family's and re-stated in this repo's nouns: **does this
 code name `optimi_lab` or an optimisation concept?** If it does, it is this repo's and it STAYS. If
@@ -44,9 +45,11 @@ WHAT THE MEASUREMENT CANNOT SEE, stated so a reader does not supply "everything"
   against an EMPTY `SHELL_ROWS` -- is what keeps that true rather than assumed.
 
 THE `lab_commons.dev` MODULES THIS REPO DOES NOT IMPORT, and the ones whose absence is a FACT rather
-than a gap (measured 2026-09-17 -- this tree imports `agent_guard`, `agenthooks`, `bounded`,
-`boxlock`, `boxwait`, `checkout`, `cjk`, `dep`, `docsite`, `docwidth`, `hook_adoption`,
-`hook_install`, `hooks`, `profile`, `rules`, `verify`):
+than a gap (RE-MEASURED 2026-09-19 -- this tree imports `agent_guard`, `agenthooks`, `bounded`,
+`boxlock`, `boxwait`, `checkout`, `cjk`, `dep`, `docsite`, `docwidth`, `famconfig`, `famtests`,
+`floors`, `hook_adoption`, `hook_install`, `hooks`, `installdoor`, `profile`, `rules`, `supersede`,
+`verify`; the five arrivals since 2026-09-17 are `famconfig`, `famtests`, `floors`, `installdoor` and
+`supersede`, and `netverb` appears in this tree only in the paragraph below that declares it absent):
 
 * `selfbuild` and `shadow_build` -- NO SUBJECT, and the absence is correct rather than owed. Both
   are about a native extension rebuilt from the checkout you are standing in; measured 2026-09-17,
@@ -294,13 +297,19 @@ PLACEMENT: Final[dict[str, Placement]] = {
     ),
     'tests/architecture/test_a_pin_is_a_named_set.py': Placement(
         SPLITS,
-        'THE SEAM IS RULE VERSUS POPULATION. FAMILY: `NAMED-SETS-NOT-COUNTS` is a family rule stated '
-        'in motronics-studio\'s `.claude/rules/rem/integration.md` -- "a count pin is blind to a swap, '
-        'and invites being lowered" -- and the scan that refuses a `_COUNT` where a `frozenset` '
-        "belongs has nothing repo-shaped in it. LOCAL: the pins it walks are this package's, and so "
-        'is the correction this file records, that the rule was claimed as enforced on 2026-09-15 '
-        'while citing three modules that merely HAPPEN to use named sets. Measured 2026-09-17: '
-        'own=67 repo=0 -> 0.00%, over the ceiling and at zero density -- a `BELOW_THE_BAR` row.',
+        'GENUINELY OPEN, RE-CONFIRMED 2026-09-19 AGAINST THE WHOLE PUBLISHED KIT rather than against a remembered one: '
+        '49 top-level `lab_commons.dev` modules and 18 under `famtests` were read by SUBJECT, and not one of them asks '
+        'whether a pin is a COUNT where a NAMED SET belongs. `testfacts` is the near miss and it is a miss: it reads a '
+        'test corpus for skips and site ledgers, never for the SHAPE of a constant. THE SEAM IS RULE VERSUS POPULATION. '
+        'FAMILY, AND THIS IS THE PRECISE THING THE KIT WOULD HAVE TO PUBLISH: an AST scan over a named tree that '
+        'refuses an integer constant whose name ends `_COUNT` (or reads as a population size) where a `frozenset` '
+        'belongs, with its own planted control and a floor -- `NAMED-SETS-NOT-COUNTS` is a family rule stated in '
+        'motronics-studio\'s `.claude/rules/rem/integration.md`, "a count pin is blind to a swap, and invites being '
+        'lowered", and nothing in the scan is repo-shaped. LOCAL: the pins it walks are this package\'s, and so is the '
+        'correction this file records -- that the rule was claimed as enforced on 2026-09-15 while citing three modules '
+        'that merely HAPPEN to use named sets. RE-MEASURED 2026-09-19: own=68 hits=0 -> 0.00%, eighteen lines over the '
+        "ceiling and at zero density -- a `BELOW_THE_BAR` row, and the ONLY one of this table's three remaining SPLITS "
+        'that is over the ceiling, which is what an unwritten family half looks like.',
     ),
     'tests/architecture/test_a_relative_tolerance_carries_its_floor.py': Placement(
         STAYS,
@@ -472,13 +481,16 @@ PLACEMENT: Final[dict[str, Placement]] = {
     ),
     'tests/architecture/test_the_dependency_door_is_wired.py': Placement(
         SPLITS,
-        'THE HIGHEST TEXTUAL OVERLAP MEASURED ANYWHERE IN THIS ROSTER, and still not a move. '
-        "MEASURED 2026-09-17: this file and wdg-lab's twin are 402 lines together with 34 differing "
-        '-- 91.5% identical. FAMILY: that both adapters are supplied and that the GAP is rendered if '
-        "either goes is a property of `lab_commons.dev.dep`'s `Port`, and the control that plants a "
-        "holder rather than taking the real box seat is generic. LOCAL: it imports this repo's "
-        '`scripts/dep.py` and asserts the port is named `optimi-lab`. Measured: own=89 repo=6 -> '
-        '6.74%, which clears the bar -- the six hits are the local half, so the split is real and '
+        'GENUINELY OPEN, AND THE HIGHEST TEXTUAL OVERLAP MEASURED ANYWHERE IN THIS ROSTER. RE-READ 2026-09-19: '
+        '`lab_commons.dev.dep` publishes the MECHANISM half and this file imports it, but there is NO '
+        '`lab_commons.dev.famtests.depdoor` -- the assertions are still forked. THE PRECISE THING THE KIT WOULD HAVE TO '
+        'PUBLISH, to sit beside `famtests.hookinstall` and `famtests.visibility`: that both adapters are supplied, that '
+        'the GAP is rendered if either goes, that a mutation DURING a verdict run is refused, and the CONTROL that '
+        "plants a holder rather than taking the real box seat -- with the repo's port name, its verdict command and its "
+        "log directory as keywords with no default. MEASURED 2026-09-17: this file and wdg-lab's twin are 402 lines "
+        'together with 34 differing -- 91.5% identical, which is the evidence FOR that body and not for a move. LOCAL: '
+        "it imports optimi-lab's `scripts/dep.py` and asserts the port is named `optimi-lab`. RE-MEASURED 2026-09-19: "
+        'own=89 hits=6 -> 6.74%, which clears the bar -- the six hits are the local half, so the split is real and '
         'small rather than absent.',
     ),
     'tests/architecture/test_the_migration_boundary_is_declared.py': Placement(
@@ -572,12 +584,17 @@ PLACEMENT: Final[dict[str, Placement]] = {
     ),
     'tests/architecture/test_the_verdict_run_takes_the_box.py': Placement(
         SPLITS,
-        'THE SEAM IS PROTOCOL VERSUS ENTRY POINT. FAMILY: that one CPU-saturating run holds the box '
-        'at a time, and the control that proves the lock is taken and released, is '
-        "`lab_commons.dev.boxlock`'s protocol -- MEASURED 2026-09-17, this file and wdg-lab's twin "
-        "are 350 lines together with 54 differing, 84.6% identical. LOCAL: that this repo's ONE "
-        'verdict command is `.venv/Scripts/python.exe -m lab_commons.dev.verify`, and the rules page '
-        'that permits exactly that line. Measured: own=55 repo=2 -> 3.64%, which clears the bar.',
+        'GENUINELY OPEN, RE-READ 2026-09-19. THE SEAM IS PROTOCOL VERSUS ENTRY POINT, and the protocol half is '
+        'published while the ASSERTIONS over it are not: `lab_commons.dev.boxlock` ships `BOX_POOL` and `BoxLock` and '
+        '`lab_commons.dev.boxwait` ships `hold_the_box`, `holders_line`, `PROGRESS_S` and `WAIT_S`, and this file '
+        'imports all of them -- but there is no `lab_commons.dev.famtests` module for the question. THE PRECISE THING '
+        "THE KIT WOULD HAVE TO PUBLISH: that the repo's ONE CPU-saturating verdict command reaches `hold_the_box` at "
+        'all, that the seat is taken for the WHOLE run and released after it, that a second run WAITS rather than '
+        'proceeding, and the control that exhausts a real `Broker` -- with the verdict command itself as a keyword with '
+        "no default, since that is the only thing that differs. MEASURED 2026-09-17: this file and wdg-lab's twin are "
+        "350 lines together with 54 differing, 84.6% identical. LOCAL: that optimi-lab's ONE verdict command is "
+        '`.venv/Scripts/python.exe -m lab_commons.dev.verify`, and the rules page that permits exactly that line. '
+        'RE-MEASURED 2026-09-19: own=55 hits=2 -> 3.64%, which clears the bar.',
     ),
     'tests/architecture/test_this_checkout_is_visible_on_origin.py': Placement(
         STAYS,
@@ -710,7 +727,11 @@ MINIMUM_ADMITS: Final = 3.06
 #: `test_the_public_surface_is_declared.py`, 0.65% -- the LARGEST percentage the bar must REFUSE.
 MINIMUM_REFUSES: Final = 0.65
 
-#: THE SHORTFALL ON RECORD. Six `STAYS`/`SPLITS` rows fail the density guard today.
+#: THE SHORTFALL ON RECORD. FIVE `STAYS`/`SPLITS` rows fail the density guard today, and the count is
+#: re-taken here rather than trusted: this line read "Six" on 2026-09-19 against a dict of five, which
+#: is the count-pin failure inside the very table that refuses count pins. The set itself was always
+#: right -- `test_the_migration_boundary_is_declared.py` parametrizes over the KEYS and never over this
+#: sentence, so nothing could fail on the digit.
 #:
 #: TWO ROWS LEFT THIS SET ON 2026-09-18 AND THEY LEFT BY BEING DELETED rather than re-worded:
 #: `test_memory_lives_under_a_date.py` (own 87 -> 21) and
