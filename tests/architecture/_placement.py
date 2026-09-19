@@ -271,16 +271,18 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'pattern names a directory, which is the shape a noun scan cannot see.',
     ),
     'tests/architecture/test_a_bounded_wait_names_its_remedy.py': Placement(
-        SPLITS,
-        'THE SEAM IS CONTROL VERSUS SUBJECT. FAMILY: the wall that terminates a process TREE, the '
-        'width a refusal must consult, and the three-state sentence are all `lab_commons.dev.bounded` '
-        'already, and the controls that drive them have no optimisation in them -- MEASURED '
-        '2026-09-17, wdg-lab asks the SAME question with a completely disjoint implementation (303 '
-        'lines across the two files, 303 of them differing), which is the worst case of a duplicated '
-        'question: two answers and no shared line. LOCAL: that the waits in THIS tree are '
-        '`scripts/pdoc.py` driving a documentation build and the verify entry point driving ruff and '
-        'pytest. Measured: own=43 repo=0 -> 0.00%, admitted by the 50-line ceiling alone, so this '
-        'row carries no evidence of density -- only no room to hide a mechanism.',
+        STAYS,
+        'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
+        'density bar asks whether a file is mostly generic and never asks whether the family half it was '
+        'waiting for has ALREADY SHIPPED. IT HAD. `lab_commons.dev.famtests.boundedremedy` publishes the '
+        'whole seam this row described -- `assert_the_wall_terminates_the_tree`, '
+        '`assert_each_state_names_its_own_remedy`, the three reaper arms, `separation_verdict` and '
+        '`spawn_overhead` -- and this file imports them. What is left is the LOCAL half the old text already '
+        'named: that the waits in THIS tree are `scripts/pdoc.py` driving a documentation build and '
+        "optimi-lab's verify entry point driving ruff and pytest. MEASURED 2026-09-19 with "
+        '`_placement.measure`: own=25 hits=0, twenty-five lines under the 50-line binder ceiling, so it is '
+        'admitted by the BINDER arm alone. THE OLD ROW READ own=43 AND A SEAM STILL OWED; both numbers were '
+        'true when written and neither is now.',
     ),
     'tests/architecture/test_a_declared_set_refuses_a_stranger.py': Placement(
         STAYS,
@@ -361,17 +363,18 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '50-line ceiling alone.',
     ),
     'tests/architecture/test_memory_lives_under_a_date.py': Placement(
-        SPLITS,
-        'CORRECTED 2026-09-17, AND THE TWO ROSTERS HAD DISAGREED ABOUT THE SAME FILE. This row read '
-        "MOVES while wdg-lab's twin read SPLITS, and the measurement supports wdg-lab: the two "
-        'copies are 33.2% identical -- the LOWEST pair in the whole census, against 88.9% for the '
-        'allow guard -- and the difference is STRUCTURAL, five declared memory trees there against '
-        'one here. A shape that has to be re-derived per tree is not one file waiting to move. '
-        'FAMILY: `.claude/memory/YYYY/MM/DD/` with frontmatter agreeing with the directory it sits '
-        'in is a fleet convention answered independently in three repos. LOCAL: the tree this repo '
-        'declares. RE-MEASURED against the density bar rather than relabelled after wdg-lab: '
-        'own=87 repo=0 -> 0.00%, so it joins `BELOW_THE_BAR` with its numbers instead of arriving '
-        'as a clean SPLITS -- the label had to answer the same bar as STAYS, and it does not yet.',
+        STAYS,
+        'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
+        'density bar asks whether a file is mostly generic and never asks whether the family half it was '
+        'waiting for has ALREADY SHIPPED. IT HAD. `lab_commons.dev.famtests.datedmemory` publishes the walk, '
+        'the four readings (`entries`, `undated`, `silent`, `date_disagreements`), the four assertions and '
+        'the planted control, and `lab_commons.dev.floors` publishes both sides of the entry floor; this file '
+        'imports them. What is left is the LOCAL half: the ONE memory tree optimi-lab declares and its '
+        'floors. THE CORRECTION THIS ROW RECORDED IN 2026-09-17 STANDS AND IS WHY THE ADOPTION IS NOT A MOVE '
+        '-- the two copies were 33.2% identical, the LOWEST pair in the census, because the tree set is '
+        'structural and differs per repo; the kit answered that by making the tree set a keyword with no '
+        'default. MEASURED 2026-09-19: own=21 hits=0, down from own=87, admitted by the binder ceiling. Its '
+        '`BELOW_THE_BAR` entry was deleted on 2026-09-18 when its shortfall went away.',
     ),
     'tests/architecture/test_no_allow_entry_names_a_denied_shape.py': Placement(
         SPLITS,
@@ -389,13 +392,15 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'own=22 repo=0 -> 0.00%, down from own=77, admitted by the 50-line binder ceiling.',
     ),
     'tests/architecture/test_no_cjk_in_tracked_source.py': Placement(
-        SPLITS,
-        'THE SEAM IS THE SAME ONE THE DOC-WIDTH ROW HAS. FAMILY: the scan, the CJK ranges, the '
-        'exemptions and the two-sided ratchet are already `lab_commons.dev.cjk`, and the control '
-        "shape is shared -- MEASURED 2026-09-17, 60% of the lines across this file and wdg-lab's "
-        "twin are identical (252 total, 100 differing). LOCAL: this tree's corpus and its DECLARED "
-        'SET of files still carrying CJK. Measured: own=38 repo=0 -> 0.00%, admitted by the 50-line '
-        'ceiling alone.',
+        STAYS,
+        'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
+        'density bar asks whether a file is mostly generic and never asks whether the family half it was '
+        'waiting for has ALREADY SHIPPED. IT HAD. `lab_commons.dev.famtests.trackedcjk` publishes '
+        '`take_scan`, `assert_no_undeclared_cjk`, the exemption-segment arm, the ratchet-shape arm, the '
+        "self-clean arm and the planted control, over `lab_commons.dev.cjk`'s readings; this file imports "
+        "both. What is left is the LOCAL half the old text already named: optimi_lab's corpus and its "
+        'DECLARED set of files still carrying CJK. MEASURED 2026-09-19: own=24 hits=0, down from own=38, '
+        'admitted by the 50-line binder ceiling.',
     ),
     'tests/architecture/test_optimi_lab_adopts_the_shared_registry.py': Placement(
         STAYS,
@@ -419,28 +424,29 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'own=42 repo=0 -> 0.00%, down from own=79, admitted by the 50-line binder ceiling.',
     ),
     'tests/architecture/test_the_family_config_is_rendered.py': Placement(
-        SPLITS,
-        'EXECUTED 2026-09-17, AND THE CHEAPEST OF THE FIVE BECAUSE THE SEAM WAS ALREADY CUT HERE. '
-        'This file already imported `DELTAS`/`EXTRA_HOOK_IDS`/`REPO` from a local `_famconfig`; '
-        'what was missing was the other side, and it is now '
-        '`lab_commons.dev.famtests.configrender`. LOCAL: the two floors, the re-render remedy, the '
-        'planted edit, the five ids that keep pre-push, the pre-push bit, the pin-resolution arm -- '
-        'and, new today, `PRECOMMIT_STAGE_MOVE`, the thirteen ids the narrowing takes, which this '
-        'repo had never pinned and could not have seen a hook silently JOINING without. THREE ARMS '
-        'WERE DELETED rather than ported: the kit already drives all three anchor refusals against '
-        'this same base. RE-MEASURED: own=67 repo=0 -> 0.00%, down from own=118, a `BELOW_THE_BAR` '
-        'row.',
+        STAYS,
+        'EXECUTED 2026-09-17 AND RE-READ 2026-09-19, WHICH CLOSED THE LAST THING THIS ROW SAID IT OWED. The '
+        'verdict half is `lab_commons.dev.famtests.configrender` and this file drives eleven of its arms. THE '
+        'SPLIT THE OLD `BELOW_THE_BAR` ENTRY STILL CLAIMED -- the pin-resolution arm, "does every declared id '
+        'still RESOLVE at the base pin" -- IS NOT OWED: `assert_declared_ids_survive` ships in that same '
+        'module and this file calls it. LOCAL: the two floors, the re-render remedy, the planted edit, the '
+        'five ids that keep pre-push, the pre-push bit, and `PRECOMMIT_STAGE_MOVE`, the thirteen ids the '
+        'stage narrowing takes. MEASURED 2026-09-19: own=67 hits=0 -> 0.00%, seventeen lines OVER the binder '
+        'ceiling, so it KEEPS its `BELOW_THE_BAR` row -- the label moved to STAYS because the family half is '
+        'paid, and the density shortfall is a separate fact that a relabel does not green.',
     ),
     'tests/architecture/test_the_declared_hooks_are_installed.py': Placement(
-        SPLITS,
-        'EXECUTED 2026-09-17, AND HALF OF IT HAD ALREADY MOVED. `lab_commons.dev.hook_install` has '
-        'owned the MEASUREMENT since 2026-09-16; what was still forked three ways was the six-arm '
-        'TEST, now `lab_commons.dev.famtests.hookinstall`. LOCAL: the tree under test and the '
-        'two-stage named set -- and nothing else, which is why this is a BINDER. ONE ARM WAS '
-        'DELETED and its absence is the finding: `assert all(stage.hook_ids ...)` cannot fail, '
-        'because `declared_stages` groups ids BY stage and the empty case is unreachable through '
-        'the only path that builds a report. RE-MEASURED after the adoption: own=11 repo=0 -> '
-        '0.00%, down from own=55, admitted by the 50-line binder ceiling.',
+        STAYS,
+        'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
+        'density bar asks whether a file is mostly generic and never asks whether the family half it was '
+        'waiting for has ALREADY SHIPPED. IT HAD, AND TWICE OVER. `lab_commons.dev.hook_install` has owned '
+        'the MEASUREMENT since 2026-09-16 and `lab_commons.dev.famtests.hookinstall` has owned the six-arm '
+        'TEST since 2026-09-17; this file imports both and holds no arm of its own. LOCAL: the optimi-lab '
+        'tree under test and the two-stage named set, and nothing else -- the definition of a binder. THE '
+        'DELETED ARM IS STILL THE FINDING: `assert all(stage.hook_ids ...)` cannot fail, because '
+        '`declared_stages` groups ids BY stage and the empty case is unreachable through the only path that '
+        'builds a report. MEASURED 2026-09-19: own=11 hits=0, the SMALLEST reading in this table, thirty-nine '
+        'lines under the binder ceiling.',
     ),
     'tests/architecture/test_the_dependency_door_is_wired.py': Placement(
         SPLITS,
@@ -454,23 +460,20 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'small rather than absent.',
     ),
     'tests/architecture/test_the_migration_boundary_is_declared.py': Placement(
-        SPLITS,
-        'THE SEAM IS CHECKS VERSUS DATA, and it is the cleanest one in this table because the split '
-        'is already cut across two files. FAMILY: all five sections -- completeness with a floor, '
-        'STAYS-needs-evidence, the MOVES converse, the density bar with SPLITS held to it, and the '
-        'planted controls that prove the measurement can still red -- are the shape motronics-studio '
-        "proved in `tests/architecture/layering/`, and wdg-lab's copy of this file is the third. THE "
-        'FAMILY HALF IS NOW PAID: the completeness arm, both sides of the placement floor, the '
-        'stale-debt refusal, the two bar-bounding arms and the meter control are `famtests.placement` '
-        'and `famtests.density`, and four hand-written density controls collapsed into one kit call. '
-        'LOCAL: the shell-row ceiling with its planted control, the prose-versus-code asymmetry pinned '
-        'on two live rows, and the two planted shapes that use this repo`s nouns. RE-MEASURED '
-        '2026-09-18: own=156 project=5 -> 3.21%, which clears the bar -- AND ALL FIVE HITS ARE PLANTED '
-        'CONTROL FIXTURES, the strings a control writes into a temporary tree to prove the noun scan '
-        'can still fire, not facts this file asserts about optimi-lab. The number is TRUE and the '
-        'reading behind it is weak, which is stated here rather than left for the density to imply. '
-        'THE FIRST DRAFT OF THIS ROW PREDICTED 0.00% AND WAS WRONG, and the strict xfail it was given '
-        'XPASSED -- which is the ratchet working in the direction nobody plans for.',
+        STAYS,
+        'THE FAMILY HALF IS PAID AND RE-CONFIRMED 2026-09-19. All five sections now run on '
+        '`lab_commons.dev.famtests.placement` and `.density`: the completeness arm with both sides of the '
+        'floor, `assert_no_stale_debt`, `assert_ceiling_is_bounded`, `assert_minimum_is_bounded` and '
+        '`assert_the_meter_still_convicts`, with four hand-written density controls collapsed into one kit '
+        'call. Nothing in the kit is left unadopted here, which is why the row is no longer a SPLITS. LOCAL: '
+        'the shell-row ceiling with its planted control, the prose-versus-code asymmetry pinned on two live '
+        "rows, and the two planted shapes that use this repo's nouns. RE-MEASURED 2026-09-19: own=156 hits=5 "
+        '-> 3.21%, which clears the bar -- AND ALL FIVE HITS ARE PLANTED CONTROL FIXTURES, the strings a '
+        'control writes into a temporary tree to prove the noun scan can still fire, not facts this file '
+        'asserts about optimi-lab. The number is TRUE and the reading behind it is weak, which is stated here '
+        'rather than left for the density to imply. THE FIRST DRAFT OF THIS ROW PREDICTED 0.00% AND WAS '
+        'WRONG, and the strict xfail it was given XPASSED -- which is the ratchet working in the direction '
+        'nobody plans for.',
     ),
     'tests/architecture/test_the_public_surface_is_declared.py': Placement(
         STAYS,
@@ -482,63 +485,58 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '-> 0.65%, a `BELOW_THE_BAR` row.',
     ),
     'tests/architecture/test_the_rules_pages_are_a_ratchet.py': Placement(
-        SPLITS,
-        'EXECUTED 2026-09-18, kit `0.2.2.dev74+ga177ba62f`. This row spent two days as the only '
-        'ADOPTION-NOT-YET-EXECUTED in the roster; the whole of its local mechanism is now DELETED '
-        'and `lab_commons.dev.famtests.rulespages` drives the verdict. FAMILY: the reading, the '
-        'four-movement comparison, the vacuity floor and -- NEW HERE -- the TOTAL CEILING, which '
-        'is the one arm this copy never had and the reason the swap is not a wash: every per-page '
-        'pin is a LOCAL decision, so nothing capped their sum and a third and fourth page would '
-        'have been two defensible pins and one document nobody sized. LOCAL: the corpus definition '
-        '(this repo WALKS `.claude/rules/`, lab-commons takes its own from git, and the kit ships '
-        'no default because neither is right for the other), the two pins, the ceiling and the '
-        'floor. BOTH CONTROLS WENT UPSTREAM to `tests/test_famtests_rulespages.py` rather than '
-        'being copied: a duplicate control that cannot diverge from its original is maintenance '
-        'cost with no evidence value. THE SWAP WAS NOT A RENAME: exactly ONE of the six public '
-        'names survived the move (`ratchet_breaks`; `rule_pages` became `page_lines`, and every '
-        'repo fact became a keyword with no default), so every call site was re-read against the '
-        'new signatures rather than mapped. RE-MEASURED: own=25 repo=0 -> 0.00%, well under the '
-        '50-line binder ceiling and justified as a binder rather than by density; what is left is '
-        'four numbers and two paths, the shape the noun scan cannot see. '
-        'THE CENSUS MISS THIS ROW RECORDED IS CLOSED, AND THE RECORD IS KEPT BECAUSE THE MISS WAS '
-        'WORTH MORE THAN THE ROW. On kit `0.2.2.dev71+gf6c46bb90` `supersede.take_census` graded '
-        'this pair UNTOUCHED while it was already upstream, because BOTH detectors were blind at '
-        'once -- `rulespages` named no consumer path, so PROVENANCE could not fire, and this file '
-        'imported nothing from the kit, so IMPORT could not either. That is the '
-        'live-fork-that-imports-nothing shape the instrument names as the worst case it was built '
-        'for, invisible whenever provenance is ALSO absent. BOTH HALVES ARE NOW FIXED AND BY '
-        'DIFFERENT ROUTES: upstream turned provenance into DATA (`_provenance_rows.py`, audited by '
-        '`undeclared_modules`, so a published module naming nobody REDS -- forgetting is the '
-        'failure rather than the absence of one) and declares this pair `supersedes` with this '
-        "exact path; and this file now imports the kit, so IMPORT fires too. The registry's three "
-        'kinds are why that declaration is readable at all: `supersedes` (the consumer file was '
-        'replaced -- the only kind that opens a case), `adopted_by` (the consumer delegates and '
-        'STAYS) and `original` (no consumer fork). Prose could not tell the first two apart, which '
-        'is how a mention of `scripts/gate/runner.py` became a false positive. '
-        'ONE UPSTREAM EXPECTATION IS NOW HISTORICAL AND IS REPORTED RATHER THAN EDITED: '
+        STAYS,
+        'EXECUTED 2026-09-18 on kit `0.2.2.dev74+ga177ba62f`, AND THE SIDE CORRECTED 2026-09-19: the row has '
+        'read SPLITS since the day its whole local mechanism was deleted, which is one day longer than the '
+        'label was true. `lab_commons.dev.famtests.rulespages` drives the verdict -- the reading, the '
+        'four-movement comparison, the vacuity floor and the TOTAL CEILING, the one arm this copy never had '
+        'and the reason the swap is not a wash: every per-page pin is a LOCAL decision, so nothing capped '
+        'their sum and a third and fourth page would have been two defensible pins and one document nobody '
+        'sized. LOCAL: the corpus definition (optimi-lab WALKS `.claude/rules/`, lab-commons takes its own '
+        'from git, and the kit ships no default because neither is right for the other), the two pins, the '
+        'ceiling and the floor. BOTH CONTROLS WENT UPSTREAM to `tests/test_famtests_rulespages.py` rather '
+        'than being copied: a duplicate control that cannot diverge from its original is maintenance cost '
+        'with no evidence value. THE SWAP WAS NOT A RENAME: exactly ONE of the six public names survived the '
+        'move (`ratchet_breaks`; `rule_pages` became `page_lines`, and every repo fact became a keyword with '
+        'no default), so every call site was re-read against the new signatures rather than mapped. '
+        'RE-MEASURED 2026-09-19: own=25 hits=0, well under the 50-line binder ceiling and justified as a '
+        'binder rather than by density; what is left is four numbers and two paths, the shape the noun scan '
+        'cannot see. THE CENSUS MISS THIS ROW RECORDED IS CLOSED, AND THE RECORD IS KEPT BECAUSE THE MISS WAS '
+        'WORTH MORE THAN THE ROW. On kit `0.2.2.dev71+gf6c46bb90` `supersede.take_census` graded this pair '
+        'UNTOUCHED while it was already upstream, because BOTH detectors were blind at once -- `rulespages` '
+        'named no consumer path, so PROVENANCE could not fire, and this file imported nothing from the kit, '
+        'so IMPORT could not either. That is the live-fork-that-imports-nothing shape the instrument names as '
+        'the worst case it was built for, invisible whenever provenance is ALSO absent. BOTH HALVES ARE NOW '
+        'FIXED AND BY DIFFERENT ROUTES: upstream turned provenance into DATA (`_provenance_rows.py`, audited '
+        'by `undeclared_modules`, so a published module naming nobody REDS -- forgetting is the failure '
+        'rather than the absence of one) and declares this pair `supersedes` with this exact path; and this '
+        "file now imports the kit, so IMPORT fires too. The registry's three kinds are why that declaration "
+        'is readable at all: `supersedes` (the consumer file was replaced -- the only kind that opens a '
+        'case), `adopted_by` (the consumer delegates and STAYS) and `original` (no consumer fork). Prose '
+        'could not tell the first two apart, which is how a mention of `scripts/gate/runner.py` became a '
+        'false positive. ONE UPSTREAM EXPECTATION IS NOW HISTORICAL AND IS REPORTED RATHER THAN EDITED: '
         "lab-commons's `tests/_supersede_rows.py` pins this file as a fixture case, hand-read "
-        '`already_in_the_kit` and expected PARTIAL on the strength of its three `test_*` functions '
-        'plus `PAGE_FLOOR` and `rule_pages` being remainder. Those are exactly what this commit '
-        'deleted, so the fixture now describes a file that no longer has that remainder. That is '
-        "lab-commons's row to re-take, not this roster's to edit.",
+        '`already_in_the_kit` and expected PARTIAL on the strength of its three `test_*` functions plus '
+        '`PAGE_FLOOR` and `rule_pages` being remainder. Those are exactly what the 2026-09-18 commit deleted, '
+        "so the fixture now describes a file that no longer has that remainder. That is lab-commons's row to "
+        "re-take, not this roster's to edit.",
     ),
     'tests/architecture/test_the_roster_is_re_read_against_the_kit.py': Placement(
-        SPLITS,
-        'THE SEAM IS THE ANSWERS VERSUS THE ASSERTIONS, and the family half is ALREADY '
-        'PUBLISHED. FAMILY, IMPORTED: `lab_commons.dev.supersede` (kit `0.2.2.dev74+ga177ba62f`) '
-        'holds both detectors, the seven grades, the ruler and both floor refusals -- nothing '
-        'here re-implements any of it. LOCAL: the four answers that module refuses to guess, and '
-        'it refuses them for the reason `LAB_CZ_BASE_REF` is the worked example of -- the roster '
-        'source, this checkout as the root, `lab_commons.dev` spelled at full depth, and the two '
-        'floors. THE ROW THIS FILE EXISTS FOR IS THE ONE NOBODY HAD: the density bar asks whether '
-        'a file is mostly generic and never asks whether the family already expressed it, so a '
-        'row stayed pending after its subject landed upstream and no mechanism noticed. THE SPLIT '
-        'IT STILL OWES: the assertion body -- census floors, the stale-MOVES arm, the named '
-        'waiver and the planted control -- is what every consumer of `supersede` will write, and '
-        'belongs beside it in `lab_commons.dev.famtests` as a body a repo parametrizes. THE '
-        'EVIDENCE THAT IT SHOULD is the same shape the other famtests rows cite: wdg-lab gained '
-        'this file on the same day, and the two differ only in the four answers. MEASURED '
-        '2026-09-18: own=88 repo=0 -> 0.00%, so it is a `BELOW_THE_BAR` row and says so.',
+        STAYS,
+        'THE SPLIT THIS ROW OWED WAS PAID BEFORE THE ROW WAS RE-READ, WHICH IS THE VERY DEFECT THIS FILE '
+        'EXISTS TO CATCH, FOUND IN ITS OWN ROSTER ENTRY. The row said the assertion body -- census floors, '
+        'the stale-MOVES arm, the named waiver and the planted control -- "belongs beside `supersede` in '
+        '`lab_commons.dev.famtests` as a body a repo parametrizes". It is there: '
+        '`lab_commons.dev.famtests.rostercensus` publishes `assert_reach`, `assert_no_stale_moves`, '
+        '`assert_every_waived_row_adopted`, `assert_waiver_is_the_named_set`, '
+        '`assert_the_grader_still_convicts`, `named_only_paths` and `kit_directory`, and this file calls five '
+        'of them. LOCAL: the four answers `supersede` refuses to guess -- the optimi-lab roster source, this '
+        'checkout as the root, `lab_commons.dev` spelled at full depth, and the two floors. RE-MEASURED '
+        '2026-09-19: own=27 hits=0, down from own=88, admitted by the 50-line binder ceiling; its '
+        '`BELOW_THE_BAR` entry went with the adoption. THE READING TO KEEP: this file detects a KIT module '
+        'nobody imports, and an unimported kit module is not the only stale shape -- a ROSTER ROW nobody '
+        're-reads is the other, and no mechanism here catches it. That gap is named in the row for '
+        '`test_a_pin_is_a_named_set.py`, not closed by this one.',
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': Placement(
         STAYS,
@@ -718,10 +716,14 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'declaration half stayed, so this is the residue rather than a mechanism. THE READING IS '
         'HONEST: what is left is two FLOORS, a re-render remedy, a planted edit pair, a boolean '
         'about an installed hook and hook IDS -- numbers and strings to the last one, the same '
-        'shape `_famconfig.py` beside it is recorded under. THE SPLIT IT STILL OWES: the '
-        'pin-resolution arm, whose question (does every declared id still RESOLVE at the base pin) '
-        'is a family question this repo happens to be the first to ask, and belongs beside '
-        '`assert_declared_ids_survive` upstream.'
+        'shape `_famconfig.py` beside it is recorded under. RE-MEASURED 2026-09-19: own=67 hits=0, '
+        'unchanged, so the shortfall stands and this row stays. THE SPLIT THIS ENTRY USED TO CLAIM '
+        'IS PAID, AND THE CLAIM IS DELETED RATHER THAN RE-WORDED: it said the pin-resolution arm '
+        '(does every declared id still RESOLVE at the base pin) belonged beside '
+        '`assert_declared_ids_survive` upstream, and `assert_declared_ids_survive` IS that arm -- '
+        'it ships in `lab_commons.dev.famtests.configrender` and this file calls it. A density '
+        'shortfall and an unpaid family half are two different facts, and this entry was carrying '
+        'a stale one of the second kind inside a live one of the first.'
     ),
     'tests/architecture/_famconfig.py': (
         'RE-MEASURED 2026-09-17 AFTER DECLARING `PRECOMMIT_STAGE_MOVE`: own=81 repo=1 -> 1.23%, '
