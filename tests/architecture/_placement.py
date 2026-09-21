@@ -257,11 +257,12 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-09-19 AFTER THE `countpins` ADOPTION REWROTE THREE '
-        'ROWS HERE AND THE `storedreadings` BINDER ADDED A THIRTY-FIRST: own=477 project=42 -> 8.81%, up '
-        'from own=402 project=30 -> 7.46% at the 2026-09-18 adoption. The growth is one new row against two '
-        'lines shed by a `BELOW_THE_BAR` entry leaving, which is the direction this table is supposed to '
-        'move in: rows arrive, shortfalls depart.',
+        'family half in it to split off. RE-MEASURED 2026-09-21, AFTER THREE ROWS WERE RE-TAKEN BECAUSE '
+        'THE KIT TOOK OVER FOUR BODIES THEY DESCRIBED: own=480 project=42 -> 8.75%, up from own=477 '
+        'project=42 -> 8.81% at the 2026-09-19 re-take, itself up from own=402 project=30 -> 7.46% at the '
+        '2026-09-18 adoption. TWO LINES UP AND NOTHING BUT ANNOTATION: the three rows each record what '
+        'the adoption cost them, so the roster grows by the sentence that explains its own shrink, which '
+        'is the direction this table is supposed to move in: rows arrive, shortfalls depart.',
     ),
     'tests/architecture/_famconfig.py': Placement(
         STAYS,
@@ -386,9 +387,11 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER over `lab_commons.dev.famtests.untimedwaits`: the walk, the AST reader, the two '
         'named call sets, the arm and the planted control are all upstream, and this file supplies '
         'only the three answers the kit refuses to guess -- which trees are walked, what a file in '
-        'each is called, and the two numbers that bound the population. MEASURED 2026-09-18: own=16 '
-        'repo=0 -> 0.00%, thirty-four lines under the 50-line binder ceiling, so it is admitted by '
-        'the BINDER arm alone and owes no `BELOW_THE_BAR` row. THE ZERO IS HONEST RATHER THAN A '
+        'each is called, and the two numbers that bound the population. RE-MEASURED 2026-09-21: own=11 '
+        'repo=0 -> 0.00%, down from own=16, thirty-nine lines under the 50-line binder ceiling, so it is '
+        'admitted by the BINDER arm alone and owes no `BELOW_THE_BAR` row. THE FIVE LINES LEFT WITH THE '
+        'HAND-WRITTEN RATCHET: the exemption arm is now one call to the kit, so what the density scan '
+        'used to read as this repo naming its own waiver is the kit naming it. THE ZERO IS HONEST RATHER THAN A '
         'MISCLASSIFICATION: every repo fact in the file is a PATH STRING in `ROOTS` or a NUMBER in '
         'the two floors, and an identifier scan can see neither. MOVES was refused by the roots -- '
         'moving them would put one checkout tree layout into a package three repos share, and a '
@@ -406,7 +409,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
         "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- of 79 tracked "
         "paths exactly 2 are injected documents and neither has a line past the ceiling), that set's ceiling, and the "
-        'floor with its headroom. MEASURED 2026-09-19: own=29 hits=0, down from own=36, admitted by the 50-line binder '
+        'floor with its headroom. RE-MEASURED 2026-09-21: own=25 hits=0, down from own=29, the scan-and-compare pair '
+        'now one call to `assert_every_document_handed_in_was_read`, admitted by the 50-line binder '
         'ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no '
         'repo noun anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That '
         'is the evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan '
@@ -453,8 +457,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`take_scan`, `assert_no_undeclared_cjk`, the exemption-segment arm, the ratchet-shape arm, the '
         "self-clean arm and the planted control, over `lab_commons.dev.cjk`'s readings; this file imports "
         "both. What is left is the LOCAL half the old text already named: optimi_lab's corpus and its "
-        'DECLARED set of files still carrying CJK. MEASURED 2026-09-19: own=24 hits=0, down from own=38, '
-        'admitted by the 50-line binder ceiling.',
+        'DECLARED set of files still carrying CJK. RE-MEASURED 2026-09-21: own=22 hits=0, down from own=24, '
+        'the two hand-written lines the `also` argument replaced, admitted by the 50-line binder ceiling.',
     ),
     'tests/architecture/test_no_clause_checks_its_own_echo.py': Placement(
         STAYS,
