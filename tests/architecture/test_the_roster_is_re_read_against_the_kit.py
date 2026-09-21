@@ -71,16 +71,23 @@ KIT_PACKAGE: Final = 'lab_commons.dev'
 #: is the SECOND consecutive day the arm has fired, which is the arm working: lab-commons `main`
 #: landed 23 commits between `dev140` and `dev166` and this repo refreshed through `scripts/dep.py`.
 #:
-#: 61 IS THIS CHECKOUT'S OWN NUMBER, NOT A NUMBER COPIED SIDEWAYS. The rule this repo has applied at
-#: every re-take is a slack of 13 below the measured reading (48 was taken against 61, 54 against 67);
-#: 74 - 13 = 61. The quantity being floored is the INSTALLED KIT, which is shared with wdg-lab, while
-#: the headroom prices how much of it THIS repo will silently lose, which is not.
-KIT_MODULE_FLOOR: Final = 61
+#: 65 IS THIS CHECKOUT'S OWN NUMBER, NOT A NUMBER COPIED SIDEWAYS. The rule this repo has applied at
+#: every re-take is a slack of 13 below the measured reading (48 was taken against 61, 54 against 67,
+#: 61 against 74); 78 - 13 = 65. The quantity being floored is the INSTALLED KIT, which is shared with
+#: wdg-lab, while the headroom prices how much of it THIS repo will silently lose, which is not.
+#:
+#: THE 78 IS A FRESH READING, TAKEN 2026-09-21 WHEN THIS ENV WAS RE-SYNCED to
+#: `0.2.2.dev175+g803505c7f`, and this re-take is the arm's THIRD consecutive firing. That sync is
+#: also what made this file RUNNABLE again rather than newly red: before it the environment held
+#: `0.1.0 @ c8c6a5e8`, which carries no `lab_commons.dev` at all, so the entry point this test lives
+#: behind answered `ModuleNotFoundError` and measured nothing. A floor validated against a kit nobody
+#: could import is not a floor anybody measured.
+KIT_MODULE_FLOOR: Final = 65
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
-#: 61 + 16 = 77 against today's 74. The kit grew 67 -> 74 in a day, so this will bind again soon --
-#: and that is the arm working, not a nuisance. The headroom is UNCHANGED at 16 on purpose: it is the
-#: side that refuses, and the breach was answered by moving the floor.
+#: 65 + 16 = 81 against today's 78. The kit grew 67 -> 74 -> 78 in three days, so this will bind
+#: again soon -- and that is the arm working, not a nuisance. The headroom is UNCHANGED at 16 on
+#: purpose: it is the side that refuses, and the breach was answered by moving the floor.
 KIT_MODULE_HEADROOM: Final = 16
 
 
