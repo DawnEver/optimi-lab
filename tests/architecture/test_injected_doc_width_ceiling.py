@@ -98,13 +98,14 @@ def test_the_scan_reads_every_doc_handed_to_it() -> None:
 
     The floor above counts what was READ; this compares that against what was HANDED IN, which is
     the only arm that can see a file the scanner silently failed to decode.
+
+    The body is `lab_commons.dev.famtests.injectedwidth.assert_every_document_handed_in_was_read`,
+    which also refuses `undecodable` -- the field this file's own comparison never read. The corpus
+    and the paths handed to it are this repo's two answers; the comparison is the family's.
     """
-    docs = _corpus()
-    scan = injectedwidth.take_scan([_ROOT / name for name in docs], root=_ROOT, ceiling=WIDTH_CEILING)
-    assert scan.files_read == len(docs), (
-        f'{len(docs)} injected docs were handed to the scan and it read {scan.files_read}; '
-        f'undecodable: {scan.undecodable}.'
-    )
+    paths = [_ROOT / name for name in _corpus()]
+    scan = injectedwidth.take_scan(paths, root=_ROOT, ceiling=WIDTH_CEILING)
+    injectedwidth.assert_every_document_handed_in_was_read(scan, handed=paths)
 
 
 def test_a_planted_overwide_document_is_named_and_a_line_at_the_ceiling_is_not(tmp_path: Path) -> None:

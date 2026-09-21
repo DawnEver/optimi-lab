@@ -44,7 +44,6 @@ THE THREE THINGS PROVED HERE, each with its violation PLANTED rather than descri
 from __future__ import annotations
 
 from lab_commons.dev.bounded import (
-    BLAS_THREAD_VARS,
     NARROWED_FLOOR,
     blas_threads,
     logical_cores,
@@ -53,6 +52,7 @@ from lab_commons.dev.bounded import (
 from lab_commons.dev.famtests.boundedremedy import (
     assert_a_run_inside_the_wall_is_left_alone,
     assert_each_state_names_its_own_remedy,
+    assert_the_pool_vars_are_the_named_set,
     assert_the_reaper_kills_what_is_not_ours,
     assert_the_reaper_refuses_its_own_lineage,
     assert_the_wall_terminates_the_tree,
@@ -159,4 +159,4 @@ def test_a_width_is_computed_rather_than_guessed() -> None:
     width = worker_width(gb_per_worker=4.0, max_width=cores, floor=1, reserve_cores=1, fallback=max(1, cores - 1))
     assert 1 <= width <= max(1, cores), 'the width is bounded by the box at both ends'
     assert blas_threads(width) >= 1, 'a worker with zero threads computes nothing'
-    assert len(BLAS_THREAD_VARS) >= 4, 'the pool-spawning runtimes, by name rather than by count'
+    assert_the_pool_vars_are_the_named_set()

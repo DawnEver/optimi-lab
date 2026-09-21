@@ -77,12 +77,13 @@ def scan() -> untimedwaits.UntimedScan:
 
 
 def test_every_exemption_names_a_file_that_is_here() -> None:
-    """A waiver nothing uses is as wrong as a capability that disappeared -- so assert it, empty or not."""
-    missing = sorted(name for name in EXEMPT if not (ROOT / name).exists())
-    assert not missing, (
-        f'{missing} are exempt from a scan they are no longer part of. An exemption naming a deleted '
-        f'file is a silent widening: delete the row in the same edit that deleted the file.'
-    )
+    """A waiver nothing uses is as wrong as a capability that disappeared -- so assert it, empty or not.
+
+    The body is `lab_commons.dev.famtests.untimedwaits.assert_every_exemption_is_real`, which shipped
+    the `citedtests` half first and left this one hand-written in BOTH labs. `ROOT` and `EXEMPT` are
+    this repo's two answers; the walk over them is the family's.
+    """
+    untimedwaits.assert_every_exemption_is_real(ROOT, exempt=EXEMPT)
 
 
 def test_no_blocking_wait_in_this_tree_is_unbounded() -> None:

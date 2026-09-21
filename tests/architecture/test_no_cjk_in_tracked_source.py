@@ -103,9 +103,7 @@ def test_the_declaration_is_the_shape_the_ratchet_keys_on() -> None:
 
 def test_neither_this_file_nor_the_kit_body_carries_a_literal() -> None:
     """A guard that forbids CJK may not be written with one -- BOTH bodies are scanned by it."""
-    trackedcjk.assert_the_source_is_itself_clean()
-    text = Path(__file__).read_text(encoding='utf-8')
-    assert text.isascii(), 'the guard that forbids CJK may not be written with any non-ASCII character'
+    trackedcjk.assert_the_source_is_itself_clean(also=(Path(__file__),))
 
 
 def test_this_guard_is_itself_inside_the_corpus_it_scans() -> None:
