@@ -163,7 +163,7 @@ def test_predicting_before_fitting_is_refused_rather_than_answering_None(smooth_
     with pytest.raises(Refusal, match='has not been fitted'):
         MixtureSurrogate([{'model_type': 'rid'}]).predict(x[:2])
     model = SurrogateModel('rid', n_splits=3).fit(x, smooth_data[1])
-    assert not hasattr(model, 'check_valid') and not hasattr(model, '_valid')
+    assert {'check_valid', '_valid'}.isdisjoint(dir(model))
     assert set(model.scores) == set(SCORE_METHODS)
     with pytest.raises(TypeError):
         SurrogateModel('rid', do_calc_score=False).fit(x, smooth_data[1])

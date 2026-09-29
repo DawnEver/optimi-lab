@@ -192,4 +192,4 @@ def test_every_public_name_of_the_subpackage_is_reachable():
     assert sorted(package.__all__) == package.__all__
     assert len(package.__all__) == len(set(package.__all__))
     for name in package.__all__:
-        assert getattr(package, name, None) is not None, f'{name} is declared and missing'
+        assert vars(package).get(name) is not None, f'{name} is declared and missing'

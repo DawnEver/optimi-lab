@@ -49,11 +49,11 @@ RETIRED: Final[dict[str, str]] = {
     # A list-valued parameter defaulting to `[]`, read at `[0]`, repaired by aliasing one dict.
     'base_params_dict_list': 'optimi_lab.core.space.Variable',
     # NOT REGISTERED, and the reason is the registry's own admission rule rather than an oversight:
-    # the post-training validity flag is ALREADY refused by a live `not hasattr(model, ...)`
+    # the post-training validity flag is ALREADY refused by a live `isdisjoint(dir(model))`
     # assertion in `tests/unit/optimizer/test_surrogate_models.py`, which names the attribute in
     # order to prove it is gone. A spelling that one file must legitimately write is a spelling
     # this scan would need an exception for, and an entry needing an exception is not retired yet.
-    # A `hasattr` check on the real object is the stronger of the two mechanisms anyway: it answers
+    # A `dir()` check on the real object is the stronger of the two mechanisms anyway: it answers
     # for the class, where this scan only answers for the text.
     #
     # The eleven one-regressor modules and the two base modules they shared.
