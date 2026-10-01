@@ -4,6 +4,8 @@ User directive 2026-09-26, family-wide: reflection is banned outright. A declare
 attribute access, a name-keyed lookup through ``vars(obj)`` or an explicit mapping, and an optional
 capability through a ``runtime_checkable`` Protocol. Zero is not a ceiling to walk down, so the pin
 names offending sites rather than a count.
+
+The kit ships no reflection scanner, so the walk is local: it reads optimi_lab's tracked tree.
 """
 
 from __future__ import annotations

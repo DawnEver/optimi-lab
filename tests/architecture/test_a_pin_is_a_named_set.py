@@ -80,7 +80,10 @@ EXEMPT: Final = frozenset()
 #: pairs carried, measured rather than chosen. NOT RE-TAKEN AGAIN for the 165 the stored-reading
 #: repair left behind: 165 is 29 above 136 and inside the headroom, and re-taking a floor that still
 #: binds is how a floor stops being evidence and becomes a running total.
-CONSTANT_FLOOR: Final = 136
+#:
+#: RE-TAKEN 2026-10-01 AT 151, from 136: the kit at lab-commons `309b409` brought the reading to 178,
+#: 42 clear of 136 and past the headroom; 178 - 27 = 151 restores the same measured margin.
+CONSTANT_FLOOR: Final = 151
 
 #: THE OTHER SIDE OF ``CONSTANT_FLOOR``. 136 + 40 = 176 against today's 165. The headroom is
 #: UNCHANGED at 40 across all three re-takes on purpose -- it is the side that refuses, and every

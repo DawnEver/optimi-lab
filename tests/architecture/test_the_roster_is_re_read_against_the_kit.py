@@ -82,7 +82,10 @@ KIT_PACKAGE: Final = 'lab_commons.dev'
 #: `0.1.0 @ c8c6a5e8`, which carries no `lab_commons.dev` at all, so the entry point this test lives
 #: behind answered `ModuleNotFoundError` and measured nothing. A floor validated against a kit nobody
 #: could import is not a floor anybody measured.
-KIT_MODULE_FLOOR: Final = 65
+#:
+#: RE-TAKEN 2026-10-01, the arm's FOURTH firing: the kit at lab-commons `309b409` (the forge door
+#: and `codeplace`) reads 82, past 65 + 16. Same slack as every re-take: 82 - 13 = 69.
+KIT_MODULE_FLOOR: Final = 69
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
 #: 65 + 16 = 81 against today's 78. The kit grew 67 -> 74 -> 78 in three days, so this will bind

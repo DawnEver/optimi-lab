@@ -62,7 +62,8 @@ EXEMPT: Final[tuple[str, ...]] = ()
 
 #: MEASURED 2026-09-18: the walk reads 58 modules across the three trees. The floor sits below that
 #: with room for ordinary deletion, and far above the zero a mistyped root returns.
-FILE_FLOOR: Final = 48
+#: RE-TAKEN 2026-10-01 at 54, from 48: the walk read 64, past 48 + 15; 64 - 10 keeps the measured margin.
+FILE_FLOOR: Final = 54
 
 #: THE OTHER SIDE, and the side no copy in this family ever wrote. This is how far past its floor the
 #: population may grow before the floor is RE-MEASURED -- never how much slack the floor may be

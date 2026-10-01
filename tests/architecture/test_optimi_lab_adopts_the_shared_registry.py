@@ -100,6 +100,7 @@ _INSTALL_DOORS: Final = 'tests/architecture/test_the_install_doors_deliver_the_d
 _TOLERANCE: Final = 'tests/architecture/test_a_relative_tolerance_carries_its_floor.py'
 _GUARD: Final = 'tests/architecture/test_the_agent_guard_is_live.py'
 _GUARD_RULES: Final = 'scripts/deny_rules.py'
+_CODEPLACE: Final = 'tests/architecture/test_code_lives_only_where_code_belongs.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -234,6 +235,10 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # through this guard, so a `gh`/`tea`/raw-API write is refused live and the exit they name is
     # `python -m lab_commons.dev.forge`, the client that stamps which machine and agent wrote.
     **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR'), (_GUARD, _GUARD_RULES)),
+    # ADOPTED 2026-10-01 with `lab_commons.dev.codeplace`: the filesystem walk over this tree's
+    # declared code roots, and the `scratch/` lifecycle that is the exit from it. The mechanism is
+    # the family's; the roots, the pruned generated trees and the age bound are this repo's.
+    **dict.fromkeys(('CODE-IN-CODE-ROOTS', 'SCRATCH-ARCHIVED-OR-PROMOTED'), (_CODEPLACE,)),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
