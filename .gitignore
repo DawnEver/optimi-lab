@@ -47,3 +47,6 @@ output/
 ## System and others
 **/ignore/
 **/.DS_Store
+
+# rem plugin device-local state
+.claude/.rem-state.json
