@@ -3,7 +3,7 @@
 - **This repo's development MECHANISM is the family's, and it lives in `lab-commons`.** Until 2026-09-16 there was none written here at all — no `docs-src/` tree and no page describing how a verdict is produced, how a lane lands, or what the box rations. This directory is that tree's first content.
 - **These pages are POINTED AT, never copied.** A shared document each repo copies is the fork the sharing removes. The table below is what `lab_commons.dev.devdocs.pointer_table` renders, so a page renamed there does not leave this one quietly wrong.
 - **The rule split:** `.claude/rules/**` here is HARD CONSTRAINTS ONLY and is read on every turn; the universal rule STATEMENTS are `lab_commons.dev.rules` rows cited by ID; the MECHANISM is below.
-- Reach the shared tree at `../../../lab-commons/docs-src/dev/` when lab-commons is checked out beside this repo, or read the same files on the forge. **There is no rendered portal for that tree yet, and this repo has no hand-written-markdown renderer either** — `scripts/pdoc.py` builds the API reference and nothing else, so these pages are read as markdown. Saying so is the point: a reader expecting a portal and finding markdown has been told something false.
+- Reach the shared tree at `../../../lab-commons/docs-src/dev/` when lab-commons is checked out beside this repo, or read the same files on the forge. **The tree is rendered only as motronics-studio's `family` sub-site; this repo has no hand-written-markdown renderer** — `scripts/pdoc.py` builds the API reference and nothing else, so here these pages are read as markdown. Saying so is the point: a reader expecting a portal and finding markdown has been told something false.
 
 ## The family's pages
 
@@ -21,6 +21,7 @@
 | [The forge](../../../lab-commons/docs-src/dev/forge.md) | How `main` is protected on a self-hosted forge: the push whitelist, the status check, branch disposal |
 | [Retirement](../../../lab-commons/docs-src/dev/retirement.md) | An archive and a retired-spelling registry are a PLACE and a RULE, and why the rule cannot live in the place |
 | [The docs pipeline](../../../lab-commons/docs-src/dev/docs-pipeline.md) | The three properties a docs builder must hold, and why an unbuilt sub-site is announced rather than silent |
+| [Translations](../../../lab-commons/docs-src/dev/translations.md) | Why a `<stem>.zh.md` beside its `<stem>.md` escapes the CJK guard, and the non-ASCII goal |
 
 ## What this repo has, and what it does not
 
