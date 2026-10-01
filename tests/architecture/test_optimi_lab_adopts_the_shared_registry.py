@@ -101,6 +101,7 @@ _TOLERANCE: Final = 'tests/architecture/test_a_relative_tolerance_carries_its_fl
 _GUARD: Final = 'tests/architecture/test_the_agent_guard_is_live.py'
 _GUARD_RULES: Final = 'scripts/deny_rules.py'
 _CODEPLACE: Final = 'tests/architecture/test_code_lives_only_where_code_belongs.py'
+_FAMCONFIG: Final = 'tests/architecture/test_the_family_config_is_rendered.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -239,6 +240,16 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # declared code roots, and the `scratch/` lifecycle that is the exit from it. The mechanism is
     # the family's; the roots, the pruned generated trees and the age bound are this repo's.
     **dict.fromkeys(('CODE-IN-CODE-ROOTS', 'SCRATCH-ARCHIVED-OR-PROMOTED'), (_CODEPLACE,)),
+    # ADOPTED 2026-10-01 with the forge's status and issue doors. This repo's ONE verdict command is
+    # the `verify:` recipe, `python -m lab_commons.dev.verify`, which posts `lab/gate` on a clean HEAD
+    # and nothing for INCONCLUSIVE; the Makefile base requires that exact line, so a recipe that grew
+    # `--no-status` (or stopped calling verify) reds in `_FAMCONFIG`.
+    'VERDICT-AS-STATUS': ('Makefile', _FAMCONFIG),
+    # The issue state is derived from `Refs #N` / `Closes #N` in commit messages; this repo's half is
+    # that its commits are SPELLED so the derivation can see them -- the base's `issue-ref` commit-msg
+    # hook, rendered here and refused by `_FAMCONFIG` if it is ever dropped. No label or field in this
+    # tree keeps an issue's state.
+    'ISSUE-IS-INTENT': ('.pre-commit-config.yaml', _FAMCONFIG),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)

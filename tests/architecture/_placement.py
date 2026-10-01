@@ -258,8 +258,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
         'family half in it to split off. RE-MEASURED 2026-09-21, AFTER THREE ROWS WERE RE-TAKEN BECAUSE '
-        'THE KIT TOOK OVER FOUR BODIES THEY DESCRIBED, AND AGAIN 2026-10-01 AS TWO ROWS ARRIVED: own=499 '
-        'project=44 -> 8.82%, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
+        'THE KIT TOOK OVER FOUR BODIES THEY DESCRIBED, AND AGAIN 2026-10-01 AS ROWS ARRIVED: own=502 '
+        'project=44 -> 8.76%, up from own=499 project=44 -> 8.82% earlier that day, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
         'project=42 -> 8.81% at the 2026-09-19 re-take, itself up from own=402 project=30 -> 7.46% at the '
         '2026-09-18 adoption. TWO LINES UP AND NOTHING BUT ANNOTATION: the three rows each record what '
         'the adoption cost them, so the roster grows by the sentence that explains its own shrink, which '
@@ -494,9 +494,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
         STAYS,
         "IT IS THIS REPO'S HALF OF THE SHARED REGISTRY BY CONSTRUCTION: `lab_commons.dev.rules` "
         "authors each rule's universal statement and `assert_adopted` demands that the adopting tree "
-        'name the MECHANISM in its own files. 28 of 35 enforced with the other 7 named as gaps is a '
-        'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-10-01: '
-        'own=102 repo=3 -> 2.94%, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up from own=98 '
+        'name the MECHANISM in its own files. 30 of 37 enforced with the other 7 named as gaps is a '
+        'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-10-01 after '
+        'VERDICT-AS-STATUS and ISSUE-IS-INTENT: own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
+        '2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up from own=98 '
         'repo=3 -> 3.06% on 2026-09-17: three rules arrived and the row fell UNDER the 3.0% bar, '
         'recorded in `BELOW_THE_BAR` -- because the file is a table of rule IDs and mechanism paths, '
         'and neither spelling is a noun this scan can see.',
@@ -839,7 +840,9 @@ MINIMUM_REFUSES: Final = 0.65
 #: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
     'tests/architecture/test_optimi_lab_adopts_the_shared_registry.py': (
-        'MEASURED 2026-10-01: own=102 repo=3 -> 2.94%, down from 3.00% on 2026-09-19. Two code lines '
+        'RE-MEASURED 2026-10-01 after VERDICT-AS-STATUS and ISSUE-IS-INTENT: own=105 repo=3 -> 2.86%, '
+        'down from 2.94% earlier that day and 3.00% on 2026-09-19; the two new rows are again rule IDs '
+        'mapped to paths. Two code lines '
         'arrived with FORGE-THROUGH-THE-DOOR, CODE-IN-CODE-ROOTS and SCRATCH-ARCHIVED-OR-PROMOTED, each a '
         'rule ID mapped to a mechanism path in this tree, and the noun scan sees neither spelling. THE '
         'SEAM IT OWES is upstream: `lab_commons.dev.rules` could read the mechanism table from data '
