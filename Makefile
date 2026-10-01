@@ -8,7 +8,7 @@ install:
 install-dev:
 	uv pip install -U pip wheel
 	uv pip install -e ".[dev]"
-	python -m pre-commit install
+	python -m lab_commons.dev.hook_install --install
 	python -m pre-commit autoupdate
 
 # THE SINGLE VERIFY ENTRY POINT is `verify`, at the bottom of this section. CI calls it and
