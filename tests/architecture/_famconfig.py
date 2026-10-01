@@ -114,9 +114,12 @@ GITIGNORE_DELTA: Final = Delta(
         '## System and others',
         '**/ignore/',
         '**/.DS_Store',
+        '',
+        '# rem plugin device-local state',
+        '.claude/.rem-state.json',
     ),
     dropped={},
-    #: 29 declared lines against 16 measured content lines. The number is the point at which this
+    #: 32 declared lines (29 until `.claude/.rem-state.json` arrived 2026-10-01) against 16 measured content lines. The number is the point at which this
     #: stops being a delta: this tree is one Python package with no second language and no agent
     #: state to re-include, so a delta that doubled would be saying the base had stopped fitting.
     ceiling=32,

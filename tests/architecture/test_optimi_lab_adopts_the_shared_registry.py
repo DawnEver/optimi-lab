@@ -229,7 +229,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # process-tree killer -- do not exist here. `_GUARD` pins the shipped set BY NAME, drives the
     # real engine under node in both directions, and its sanctioned row is this repo's own verdict
     # command, so the guard cannot seal the only road out of itself.
-    'AGENT-GUARD': (_GUARD, _GUARD_RULES),
+    #
+    # FORGE-THROUGH-THE-DOOR rests on the SAME two files: its three FORGE-WRITE-* deny rows ship
+    # through this guard, so a `gh`/`tea`/raw-API write is refused live and the exit they name is
+    # `python -m lab_commons.dev.forge`, the client that stamps which machine and agent wrote.
+    **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR'), (_GUARD, _GUARD_RULES)),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)

@@ -86,6 +86,9 @@ from deny_rules import ADOPTION  # noqa: E402
 #: lane, which this checkout has no single-agent mode to exempt it from.
 _SHIPPED: Final = frozenset({
     'BARE-TEST-INVOCATION',
+    'FORGE-WRITE-VIA-CLI',
+    'FORGE-WRITE-VIA-GH-API',
+    'FORGE-WRITE-VIA-HTTP',
     'GIT-COMMIT-AMEND',
     'GIT-STASH',
     'PUSH-FORCE',
@@ -143,6 +146,11 @@ def test_the_shipped_set_is_pinned_by_name() -> None:
         ('git push origin main --force-with-lease', 'PUSH-FORCE'),
         ('git push --no-verify', 'PUSH-NO-VERIFY'),
         ('git worktree add ../scratch', 'WORKTREE-BASE-IS-EXPLICIT'),
+        # ARRIVED WITH THE KIT 2026-10-01: a forge write through any client but the family door
+        # carries no provenance, so it is refused; the door itself is in the allow arm below.
+        ('gh issue create --title x --body y', 'FORGE-WRITE-VIA-CLI'),
+        ('gh api -X PATCH repos/o/r/issues/7 -f state=closed', 'FORGE-WRITE-VIA-GH-API'),
+        ('curl -X POST https://f.example/api/v1/repos/o/r/issues -d @i.json', 'FORGE-WRITE-VIA-HTTP'),
     ],
 )
 def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rule: str) -> None:
@@ -159,6 +167,9 @@ def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rul
         './.venv/Scripts/python.exe -m lab_commons.dev.verify',
         'git push origin main',
         'git worktree add --detach ../scratch 1a2b3c4',
+        # The exit every FORGE-WRITE-* row names, and the reads those rows leave open.
+        './.venv/Scripts/python.exe -m lab_commons.dev.forge issue create --title x --body y',
+        'gh issue list --state open',
         _PROSE_ABOUT_A_DENIED_SHAPE,
     ],
 )

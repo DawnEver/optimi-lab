@@ -17,7 +17,7 @@
 .venv*
 uv.lock
 
-# --- optimi-lab delta, 29 of 32 allowed ---
+# --- optimi-lab delta, 32 of 32 allowed ---
 ## Build and distribution
 build/
 dist/
