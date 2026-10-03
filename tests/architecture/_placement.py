@@ -257,13 +257,13 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-09-21, AFTER THREE ROWS WERE RE-TAKEN BECAUSE '
-        'THE KIT TOOK OVER FOUR BODIES THEY DESCRIBED, AND AGAIN 2026-10-01 AS ROWS ARRIVED: own=502 '
-        'project=44 -> 8.76%, up from own=499 project=44 -> 8.82% earlier that day, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
+        'family half in it to split off. RE-MEASURED 2026-10-03: own=505 project=44 -> 8.71%, up from '
+        'own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
+        'that day, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
         'project=42 -> 8.81% at the 2026-09-19 re-take, itself up from own=402 project=30 -> 7.46% at the '
-        '2026-09-18 adoption. TWO LINES UP AND NOTHING BUT ANNOTATION: the three rows each record what '
-        'the adoption cost them, so the roster grows by the sentence that explains its own shrink, which '
-        'is the direction this table is supposed to move in: rows arrive, shortfalls depart.',
+        '2026-09-18 adoption. THIS RE-TAKE IS THE TABLE MEASURING ITSELF, which is why it is worth the '
+        'sentence: the three lines are the re-measurement of `test_a_retired_spelling_stays_retired.py` '
+        'one entry above, and the previous pattern held -- annotation arrives, the shortfall departs.',
     ),
     'tests/architecture/_famconfig.py': Placement(
         STAYS,
@@ -348,8 +348,11 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'September 2026 deleted public `optimi_lab` names outright, with no compat shim and no '
         'deprecation alias, and recorded which ones only in their commit messages. The scan that '
         'refuses a resurrection is small; the LIST of what was retired is the file, and it means '
-        'nothing anywhere else. RE-MEASURED 2026-09-19: own=78 repo=8 -> 10.26%, down from own=80 '
-        'repo=8 -> 10.00% on 2026-09-17.',
+        'nothing anywhere else. RE-MEASURED 2026-10-03: own=83 repo=8 -> 9.64%, up from own=78 '
+        'repo=8 -> 10.26% on 2026-09-19, itself down from own=80 repo=8 -> 10.00% on 2026-09-17. THE '
+        'FIVE LINES ARE THE `SECOND_CHECKOUTS` EXCLUSION and the paragraph giving its reason: the '
+        'scan read 3926 files against a floor of 50 because `.claude/worktrees/` holds one full '
+        'checkout per open lane, and a worktree is judged by the run that happens inside it.',
     ),
     'tests/architecture/test_a_stored_reading_is_derived.py': Placement(
         STAYS,

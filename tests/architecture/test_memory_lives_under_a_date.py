@@ -55,7 +55,12 @@ MEMORY_TREES: Final = ('.claude/memory',)
 #: Directories the tree walk never descends into: build output and the virtual environment, neither
 #: of which is authored and both of which are large enough to make the walk answer about something
 #: else entirely.
-NOT_WALKED: Final = frozenset({'.git', '.venv', '__pycache__', 'node_modules'})
+#:
+#: `worktrees` JOINED THEM 2026-10-03 FOR THE SAME REASON, one level up. `.claude/worktrees/` holds
+#: SECOND CHECKOUTS of this repo, so the walk found a `.claude/memory` under each of them and
+#: reported trees that "appeared" -- a reading about which lanes are open on this box rather than
+#: about this tree. It is not authored content either, which is what this set is for.
+NOT_WALKED: Final = frozenset({'.git', '.venv', '__pycache__', 'node_modules', 'worktrees'})
 
 #: NOT ENTRIES. `_meta.json` is written beside the entries by the memory tooling and reaches no index
 #: and no other checkout; `.gitkeep` is how an empty tree stays tracked at all. Neither is a record

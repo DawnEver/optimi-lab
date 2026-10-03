@@ -23,7 +23,15 @@ CODE_ROOTS: Final = ('src/', 'tests/', 'scripts/', 'examples/', '.claude/hooks/'
 
 #: Generated trees, ignored by git and written by a tool rather than a person: the built API docs
 #: (`scripts/pdoc.py` emits `search.js`) and the coverage report.
-PRUNED: Final = ('docs', 'htmlcov')
+#:
+#: `.claude/worktrees` IS THE THIRD AND IT IS NOT GENERATED -- it holds SECOND CHECKOUTS of this repo,
+#: one per open lane, each with its own `src/` and `scripts/`. THE KIT'S OWN DOCSTRING IS THE
+#: ARGUMENT: another checkout's worktrees "are judged by the run that happens inside it". Walking
+#: into them made this guard report eleven files of optimi-lab's own source as code outside the code
+#: roots -- a reading about which branches happen to be checked out on this box, and about nothing
+#: else. Added 2026-10-03, the same day and for the same reason as the identical line in the kit's
+#: and wdg-lab's copies of this guard.
+PRUNED: Final = ('.claude/worktrees', 'docs', 'htmlcov')
 
 #: How long a one-off may wait in ``scratch/`` before it is archived or promoted.
 SCRATCH_AGE_DAYS_CEILING: Final = 3.0

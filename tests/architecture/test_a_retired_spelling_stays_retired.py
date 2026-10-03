@@ -69,6 +69,16 @@ RETIRED: Final[dict[str, str]] = {
 #: name is retired is no longer a record.
 SCANNED: Final = ('src', 'tests', 'scripts', '.claude')
 
+#: Directory NAMES inside those trees that a SECOND CHECKOUT owns. `.claude/worktrees/` holds one
+#: full checkout per open lane, each with its own `src/`, `tests/` and `scripts/`, so this scan read
+#: 3926 files against a floor of 50 with a headroom of 25 -- and `SlackFloor` is what said so, which
+#: is the arm working: a floor that far behind its population refuses only a total collapse.
+#:
+#: A worktree is judged by the run that happens inside it, which is the kit's own words about the
+#: code walk. Added 2026-10-03, for the same reason as the identical line in the kit's and wdg-lab's
+#: copies of this guard -- and this is the third guard in THIS repo to need it.
+SECOND_CHECKOUTS: Final = frozenset({'worktrees'})
+
 #: Floors. Both directions matter: a registry with nothing in it proves nothing, and a scan that
 #: reached three files reports exactly what a clean tree reports. Measured 2026-09-15.
 #: RE-MEASURED 2026-09-18: 7 spellings registered.
@@ -106,7 +116,11 @@ def scanned_files(root: Path) -> list[Path]:
         path
         for tree in SCANNED
         for path in (root / tree).rglob('*')
-        if path.is_file() and path.suffix in _SUFFIXES and '__pycache__' not in path.parts and path.resolve() != _SELF
+        if path.is_file()
+        and path.suffix in _SUFFIXES
+        and '__pycache__' not in path.parts
+        and not SECOND_CHECKOUTS.intersection(path.relative_to(root).parts)
+        and path.resolve() != _SELF
     )
 
 
