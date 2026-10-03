@@ -102,6 +102,7 @@ _GUARD: Final = 'tests/architecture/test_the_agent_guard_is_live.py'
 _GUARD_RULES: Final = 'scripts/deny_rules.py'
 _CODEPLACE: Final = 'tests/architecture/test_code_lives_only_where_code_belongs.py'
 _FAMCONFIG: Final = 'tests/architecture/test_the_family_config_is_rendered.py'
+_PROJECT_FILES: Final = 'tests/architecture/test_every_project_file_has_one_source.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -250,6 +251,14 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # hook, rendered here and refused by `_FAMCONFIG` if it is ever dropped. No label or field in this
     # tree keeps an issue's state.
     'ISSUE-IS-INTENT': ('.pre-commit-config.yaml', _FAMCONFIG),
+    # ADOPTED with lab-commons 9ce57c3. PREVENT is the `WORKTREES-STAY-INSIDE` deny row rendered by
+    # `scripts/deny_rules.py`; DETECT is the family detector over `git worktree list`; IGNORE is the
+    # base's `.claude/` section in `.gitignore`.
+    'WORKTREES-STAY-INSIDE': (_PROJECT_FILES, _GUARD_RULES, '.gitignore'),
+    # ADOPTED with lab-commons 9ce57c3: every managed file is rendered from its base plus
+    # `tests/architecture/_famconfig.py`, every config table is its section base plus this repo's
+    # SectionDelta, the dev index holds the live pointer table, and `OWNED_HERE` is empty.
+    'PROJECT-FILES-HAVE-ONE-SOURCE': (_PROJECT_FILES, 'tests/architecture/_famconfig.py'),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)

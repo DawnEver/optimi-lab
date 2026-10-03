@@ -23,6 +23,8 @@
 | [Retirement](../../../lab-commons/docs-src/dev/retirement.md) | An archive and a retired-spelling registry are a PLACE and a RULE, and why the rule cannot live in the place |
 | [The docs pipeline](../../../lab-commons/docs-src/dev/docs-pipeline.md) | The three properties a docs builder must hold, and why an unbuilt sub-site is announced rather than silent |
 | [Translations](../../../lab-commons/docs-src/dev/translations.md) | Why a `<stem>.zh.md` beside its `<stem>.md` escapes the CJK guard, and the non-ASCII goal |
+| [Worktrees stay inside](../../../lab-commons/docs-src/dev/worktrees.md) | Every checkout lives under `<repo>/.claude/worktrees/<name>`: the deny row, the detector, the ignore line |
+| [Project files](../../../lab-commons/docs-src/dev/project-files.md) | Every project-level file is rendered from a family base plus a delta, or owned by the repo with a reason |
 
 ## What this repo has, and what it does not
 

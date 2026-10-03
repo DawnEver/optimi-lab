@@ -84,7 +84,11 @@ from deny_rules import ADOPTION  # noqa: E402
 #: WHICH ROW MOVED, and the honest-looking repair would have been to edit the digit; the named set
 #: forced the arrival to be read and typed out. Its subject is `git commit --amend` on a shared
 #: lane, which this checkout has no single-agent mode to exempt it from.
+#:
+#: `BARE-INTERPRETER` and `WORKTREES-STAY-INSIDE` ARRIVED WITH THE KIT AT 9ce57c3 (2026-10-03) the
+#: same way: neither needs a remedy from this repo, so both ship unconditionally.
 _SHIPPED: Final = frozenset({
+    'BARE-INTERPRETER',
     'BARE-TEST-INVOCATION',
     'FORGE-WRITE-VIA-CLI',
     'FORGE-WRITE-VIA-GH-API',
@@ -94,6 +98,7 @@ _SHIPPED: Final = frozenset({
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
     'WORKTREE-BASE-IS-EXPLICIT',
+    'WORKTREES-STAY-INSIDE',
 })
 
 #: A heredoc body written to a FILE is data, not a command, even when it spells a denied shape.
@@ -166,7 +171,9 @@ def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rul
         # sealed the only road out of itself.
         './.venv/Scripts/python.exe -m lab_commons.dev.verify',
         'git push origin main',
-        'git worktree add --detach ../scratch 1a2b3c4',
+        # Inside the repository, as WORKTREES-STAY-INSIDE demands since 9ce57c3 -- the old `../scratch`
+        # spelling is now refused by that row.
+        'git worktree add --detach .claude/worktrees/scratch 1a2b3c4',
         # The exit every FORGE-WRITE-* row names, and the reads those rows leave open.
         './.venv/Scripts/python.exe -m lab_commons.dev.forge issue create --title x --body y',
         'gh issue list --state open',

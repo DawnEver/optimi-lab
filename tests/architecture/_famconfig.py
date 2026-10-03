@@ -70,6 +70,7 @@ from lab_commons.dev.famconfig import Delta
 __all__ = [
     'DELTAS',
     'EXTRA_HOOK_IDS',
+    'GITATTRIBUTES_DELTA',
     'GITIGNORE_DELTA',
     'MAKEFILE_DELTA',
     'PRECOMMIT_DELTA',
@@ -80,49 +81,29 @@ __all__ = [
 #: How this repo names itself in a rendered file's drop comments.
 REPO: Final = 'optimi-lab'
 
-#: 18 content lines were MEASURED by `famconfig.measured_delta`; 16 are declared, because the two
-#: bare slash-less spellings are what the base REPLACES rather than what this repo adds.
+#: What optimi-lab ignores BEYOND the family base, and nothing the base already holds. As of
+#: lab-commons 9ce57c3 the base carries `**/__version__.py`, `htmlcov/`, `.verify/`, `output/`,
+#: `**/ignore/`, `**/.DS_Store`, `/build/`, `/dist/`, `/dumps/`, `/report/` and the whole `.claude/`
+#: section (which ignores `.claude/.rem-state.json`), so those lines left this delta in the same
+#: upgrade: a restatement is refused at render time. What remains is a fact about this tree only.
 GITIGNORE_DELTA: Final = Delta(
     repo=REPO,
     added=(
-        '## Build and distribution',
-        'build/',
-        'dist/',
-        '**/__version__.py',
-        '',
-        '## Development tools',
         '## Documentation (pdoc)',
         '**/docs/',
         '## viztracer',
         'result.json',
-        '## coredumpy',
-        'dumps/',
-        '',
-        '## Quality and testing',
-        'report/',
-        'htmlcov/',
-        '# Logs written by the family verify entry point (`lab_commons.dev.verify`).',
-        '.verify/',
         '',
         '## Runtime and environment',
         '**/log/*.png',
         '**/log/*.jpg',
         '!example.log',
         'usr/local/',
-        'output/',
-        '',
-        '## System and others',
-        '**/ignore/',
-        '**/.DS_Store',
-        '',
-        '# rem plugin device-local state',
-        '.claude/.rem-state.json',
     ),
     dropped={},
-    #: 32 declared lines (29 until `.claude/.rem-state.json` arrived 2026-10-01) against 16 measured content lines. The number is the point at which this
-    #: stops being a delta: this tree is one Python package with no second language and no agent
-    #: state to re-include, so a delta that doubled would be saying the base had stopped fitting.
-    ceiling=32,
+    #: Ten declared lines, and the number is the measurement rather than headroom: the next pattern
+    #: this repo needs raises it in the same edit and says what it is for.
+    ceiling=10,
 )
 
 #: The `pre-commit-hooks` ids this repo runs BEYOND the family's eleven, MEASURED 2026-09-17 against
@@ -198,10 +179,15 @@ PRECOMMIT_DELTA: Final = Delta(
 #: verbatim because this repo declares no `slow` marker to tier against.
 MAKEFILE_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
 
-#: Every artefact this repo declares a delta against, by name. All three of the kit's bases are
-#: here as of 2026-09-17, and the test pins that this set covers the kit's EXACTLY, so a fourth
+#: The `.gitattributes` base (lab-commons 9ce57c3) carries the family's one line; this repo adds
+#: nothing, so the delta is empty and its ceiling is zero.
+GITATTRIBUTES_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
+
+#: Every artefact this repo declares a delta against, by name. All four of the kit's bases are
+#: here as of lab-commons 9ce57c3, and the test pins that this set covers the kit's EXACTLY, so a fourth
 #: base cannot arrive unnoticed.
 DELTAS: Final[dict[str, Delta]] = {
+    '.gitattributes': GITATTRIBUTES_DELTA,
     '.gitignore': GITIGNORE_DELTA,
     '.pre-commit-config.yaml': PRECOMMIT_DELTA,
     'Makefile': MAKEFILE_DELTA,

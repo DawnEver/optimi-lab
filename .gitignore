@@ -2,8 +2,11 @@
 # Hand edits RED. The base is data in lab_commons.dev._famconfig_rows;
 # this repo's own lines are its declared delta. Change one, re-render, commit.
 
+**/.DS_Store
 **/.env
 **/__pycache__/
+**/__version__.py
+**/ignore/
 **/log/*.log
 **/log/*.log.error
 **/temp/**
@@ -15,38 +18,49 @@
 .pytest_cache/
 .ruff_cache/
 .venv*
+.verify/
+/build/
+/config/
+/dist/
+/dumps/
+/report/
+htmlcov/
+output/
+scratch/
 uv.lock
+**/.claude/**
+!**/.claude/settings.json
+!**/.claude/hooks/
+!**/.claude/hooks/**
+!**/.claude/agents/
+!**/.claude/agents/**
+!**/.claude/skills/
+!**/.claude/skills/**
+!**/.claude/commands/
+!**/.claude/commands/**
+!**/.claude/workflows/
+!**/.claude/workflows/**
+!**/.claude/rules/
+!**/.claude/rules/**
+!**/.claude/memory/
+!**/.claude/memory/**
+!**/.claude/output-styles/
+!**/.claude/output-styles/**
+!**/.claude/docs/
+!**/.claude/docs/**
+**/.claude/rules/MEMORY.md
+**/_meta.json
+**/.claude/**/__pycache__/
+**/.claude/**/*.py[cod]
 
-# --- optimi-lab delta, 32 of 32 allowed ---
-## Build and distribution
-build/
-dist/
-**/__version__.py
-
-## Development tools
+# --- optimi-lab delta, 10 of 10 allowed ---
 ## Documentation (pdoc)
 **/docs/
 ## viztracer
 result.json
-## coredumpy
-dumps/
-
-## Quality and testing
-report/
-htmlcov/
-# Logs written by the family verify entry point (`lab_commons.dev.verify`).
-.verify/
 
 ## Runtime and environment
 **/log/*.png
 **/log/*.jpg
 !example.log
 usr/local/
-output/
-
-## System and others
-**/ignore/
-**/.DS_Store
-
-# rem plugin device-local state
-.claude/.rem-state.json

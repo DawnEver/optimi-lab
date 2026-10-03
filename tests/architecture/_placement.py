@@ -175,7 +175,7 @@ DELEGATION_HOMES: Final = ('lab_commons',)
 #: rather than a refusal of an unread walk. The floor sits below that with room
 #: for ordinary deletion and far above the zero a broken walk returns. Finding NOTHING is vacuous
 #: rather than green.
-PLACEMENT_FLOOR: Final = 18
+PLACEMENT_FLOOR: Final = 20
 
 #: THE OTHER SIDE OF ``PLACEMENT_FLOOR``, which no roster in this family ever wrote: how far past its
 #: floor the population may grow before the number stops separating a classified tree from an unread
@@ -257,8 +257,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-03: own=505 project=44 -> 8.71%, up from '
-        'own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
+        'family half in it to split off. RE-MEASURED 2026-10-03 after the 9ce57c3 adoption: own=518 '
+        'project=44 -> 8.49%, up from own=505 project=44 -> 8.71% earlier that day, up from own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
         'that day, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
         'project=42 -> 8.81% at the 2026-09-19 re-take, itself up from own=402 project=30 -> 7.46% at the '
         '2026-09-18 adoption. THIS RE-TAKE IS THE TABLE MEASURING ITSELF, which is why it is worth the '
@@ -273,7 +273,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'viztracer `result.json`, the coredumpy `dumps/`, the eight stock hook ids this repo takes '
         'beyond the family eleven, and the reason `.pre-commit-config.yaml` is refused. There is no '
         'family half left to cut, which is exactly why the seam upstream was worth cutting. RE-MEASURED '
-        '2026-10-01: own=84 repo=1 -> 1.19%, up from own=81 repo=1 -> 1.23% on 2026-09-19 by the three '
+        '2026-10-03: own=65 repo=1 -> 1.54%, down from own=84 repo=1 -> 1.19% on 2026-10-01 when lab-commons 9ce57c3 '
+        'took twenty-two base-duplicated `.gitignore` lines out of the delta, itself up from own=81 repo=1 -> 1.23% on 2026-09-19 by the three '
         '`.claude/.rem-state.json` delta lines, itself down from own=66 repo=2 -> 3.03% on 2026-09-17, and the '
         'row is UNDER the 3.0% bar with a `BELOW_THE_BAR` entry saying so. THE FALL IS THE EVIDENCE '
         'rather than a regression: the one hit that carried 3.03% was the reason string of a waiver '
@@ -499,7 +500,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "authors each rule's universal statement and `assert_adopted` demands that the adopting tree "
         'name the MECHANISM in its own files. 30 of 37 enforced with the other 7 named as gaps is a '
         'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-10-01 after '
-        'VERDICT-AS-STATUS and ISSUE-IS-INTENT: own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
+        'VERDICT-AS-STATUS and ISSUE-IS-INTENT, and again 2026-10-03 after WORKTREES-STAY-INSIDE and '
+        'PROJECT-FILES-HAVE-ONE-SOURCE: own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
         '2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up from own=98 '
         'repo=3 -> 3.06% on 2026-09-17: three rules arrived and the row fell UNDER the 3.0% bar, '
         'recorded in `BELOW_THE_BAR` -- because the file is a table of rule IDs and mechanism paths, '
@@ -516,12 +518,20 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'registry order on two real rules that both match `git push --force`. THAT IS A STRICTENING AND NO CALLER '
         'DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against the real registry when the '
         "arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine command-plus-rule rows and the six sanctioned "
-        'exits. RE-MEASURED 2026-10-01: own=50 hits=0, up from own=43 on 2026-09-19 (itself down from own=79) by the '
+        'exits. RE-MEASURED 2026-10-03: own=52 hits=0, up from own=50 on 2026-10-01 by the two names lab-commons '
+        '9ce57c3 shipped (BARE-INTERPRETER, WORKTREES-STAY-INSIDE) and recorded in `BELOW_THE_BAR`; own=50 was itself up from own=43 on 2026-09-19 (itself down from own=79) by the '
         'three FORGE-WRITE-* names, their three refusals and two exits; the 43 stays the calibration point the binder '
         'ceiling was derived from. THE '
         'RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no repo noun '
         'anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That is the '
         'evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan fire.',
+    ),
+    'tests/architecture/test_every_project_file_has_one_source.py': Placement(
+        STAYS,
+        'THE CONSUMER CALL SITE of five `lab_commons.dev.famtests` bodies (WORKTREES-STAY-INSIDE and '
+        'PROJECT-FILES-HAVE-ONE-SOURCE, adopted 2026-10-03 with lab-commons 9ce57c3). The mechanism is the '
+        "family's; what is local is this repo's section deltas, its empty `OWNED_HERE`, its re-render "
+        'command and where the shared dev pages sit relative to its index. A binder by construction.',
     ),
     'tests/architecture/test_the_family_config_is_rendered.py': Placement(
         STAYS,
@@ -843,13 +853,19 @@ MINIMUM_REFUSES: Final = 0.65
 #: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
     'tests/architecture/test_optimi_lab_adopts_the_shared_registry.py': (
-        'RE-MEASURED 2026-10-01 after VERDICT-AS-STATUS and ISSUE-IS-INTENT: own=105 repo=3 -> 2.86%, '
-        'down from 2.94% earlier that day and 3.00% on 2026-09-19; the two new rows are again rule IDs '
+        'RE-MEASURED 2026-10-03 after WORKTREES-STAY-INSIDE and PROJECT-FILES-HAVE-ONE-SOURCE: own=108 '
+        'repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86% on 2026-10-01, and from 2.94% earlier that day and 3.00% on 2026-09-19; the two new rows are again rule IDs '
         'mapped to paths. Two code lines '
         'arrived with FORGE-THROUGH-THE-DOOR, CODE-IN-CODE-ROOTS and SCRATCH-ARCHIVED-OR-PROMOTED, each a '
         'rule ID mapped to a mechanism path in this tree, and the noun scan sees neither spelling. THE '
         'SEAM IT OWES is upstream: `lab_commons.dev.rules` could read the mechanism table from data '
         'rather than a hand-typed dict, leaving only the repo facts here.'
+    ),
+    'tests/architecture/test_the_agent_guard_is_live.py': (
+        'MEASURED 2026-10-03: own=52 hits=0 -> 0.00%, two lines over the binder ceiling. The two lines are '
+        'the names lab-commons 9ce57c3 shipped unconditionally (BARE-INTERPRETER, WORKTREES-STAY-INSIDE) '
+        'added to the shipped-set pin -- rule IDs, which no noun scan sees. THE SEAM IT OWES is upstream: '
+        'the shipped set is derivable from the adoption plus the registry, leaving only the exits here.'
     ),
     'tests/architecture/test_the_family_config_is_rendered.py': (
         'MEASURED 2026-09-17 AFTER ADOPTING `famtests.configrender`: own=67 repo=0 -> 0.00%, down '

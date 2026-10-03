@@ -85,7 +85,10 @@ KIT_PACKAGE: Final = 'lab_commons.dev'
 #:
 #: RE-TAKEN 2026-10-01, the arm's FOURTH firing: the kit at lab-commons `309b409` (the forge door
 #: and `codeplace`) reads 82, past 65 + 16. Same slack as every re-take: 82 - 13 = 69.
-KIT_MODULE_FLOOR: Final = 69
+#:
+#: RE-TAKEN 2026-10-03, the FIFTH firing: lab-commons `9ce57c3` (worktreeplace, famfiles and their
+#: famtests) reads 91, past 69 + 16. Same slack: 91 - 13 = 78.
+KIT_MODULE_FLOOR: Final = 78
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
 #: 65 + 16 = 81 against today's 78. The kit grew 67 -> 74 -> 78 in three days, so this will bind
