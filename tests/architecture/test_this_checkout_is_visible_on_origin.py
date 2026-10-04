@@ -69,7 +69,6 @@ TRUNK: Final = 'main'
 LOCAL_ONLY_BRANCHES: Final[frozenset[str]] = frozenset()
 
 
-
 def test_this_checkout_is_readable_at_all() -> None:
     """THE FLOOR. An unreadable repository must never render as a clean one."""
     visibility.assert_readable(root=_ROOT, trunk=TRUNK)
