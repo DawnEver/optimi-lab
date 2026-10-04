@@ -58,7 +58,8 @@ SOURCE_FILE_HEADROOM: Final = 12
 #: lost seven eighths of the suite. The kit's remedy is to RE-MEASURE, never to widen the headroom,
 #: and this line has now taken that remedy twice: 20 was measured against 26 and the population
 #: reached 32, so the floor moves at the fraction the previous reading carried (0.77 x 32 = 25).
-TEST_FILE_FLOOR: Final = 25
+#: RE-TAKEN 2026-10-04 AT 35, from 25: lab-commons ec5e8c5 and the consumer-facts merge read 40.
+TEST_FILE_FLOOR: Final = 35
 
 #: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 32 - 25 = 7.
 TEST_FILE_HEADROOM: Final = 10

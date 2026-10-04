@@ -53,7 +53,8 @@ DECLARED: Final[frozenset[str]] = frozenset()
 
 #: Re-measured 2026-09-18: 79 tracked paths, 77 of them read by the scan. Set below the measurement
 #: on purpose -- a floor refuses an UNREAD tree, it is not a second pin on the count.
-FILES_READ_FLOOR: Final = 70
+#: RE-TAKEN 2026-10-04 AT 80, from 70: lab-commons ec5e8c5 and the consumer-facts merge read 90.
+FILES_READ_FLOOR: Final = 80
 
 #: How far past the floor this corpus may grow before the floor stops binding and must be re-taken.
 #: 70 + 15 = 85 against today's 77. This is the side the old floor did not have, and its absence is

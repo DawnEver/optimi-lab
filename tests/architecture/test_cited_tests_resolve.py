@@ -104,7 +104,8 @@ NOT_CITATIONS: Final[tuple[str, ...]] = ()
 #: pointer directory returns; headroom is how far the population may grow before the floor is
 #: RE-MEASURED, never how much slack the floor may be given. Compare the sibling lab's 463 over the
 #: same reading -- an 8x difference, which is why this number cannot have a default.
-SCANNED_FILE_FLOOR: Final = 50
+#: RE-TAKEN 2026-10-04 AT 65, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 73.
+SCANNED_FILE_FLOOR: Final = 65
 SCANNED_FILE_HEADROOM: Final = 20
 
 #: MEASURED 2026-09-18: 182 `def test_*` under `tests/`. THIS IS A DIFFERENT POPULATION FROM THE ONE
@@ -117,7 +118,8 @@ SCANNED_FILE_HEADROOM: Final = 20
 #: the HEADROOM is untouched, because raising that is the repair the refusal exists to forbid.
 #: RE-MEASURED 2026-10-03: 227, past 180 + 45 by two, after the WORKTREES-STAY-INSIDE and
 #: PROJECT-FILES-HAVE-ONE-SOURCE adoption. Same fraction again: 0.824 x 227 = 187.
-DEFINED_TEST_FLOOR: Final = 187
+#: RE-TAKEN 2026-10-04 AT 225, from 187: lab-commons ec5e8c5 and the consumer-facts merge read 241.
+DEFINED_TEST_FLOOR: Final = 225
 DEFINED_TEST_HEADROOM: Final = 45
 
 #: MEASURED 2026-09-18: 21 citations sitting on DOCSTRING lines. THE THIRD POPULATION, and the one a

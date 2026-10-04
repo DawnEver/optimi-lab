@@ -51,7 +51,8 @@ EXEMPT: Final = ()
 #: message is that widening the headroom keeps the arm while giving up the guard it stands for. The
 #: reading was verified independently of the scan before the digit changed -- `grep -rh '^\s*def '
 #: tests scripts` counts 274, the same number the scan reported.
-FUNCTION_FLOOR: Final = 219
+#: RE-TAKEN 2026-10-04 AT 280, from 219: lab-commons ec5e8c5 and the consumer-facts merge read 297.
+FUNCTION_FLOOR: Final = 280
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65

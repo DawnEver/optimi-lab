@@ -175,7 +175,8 @@ DELEGATION_HOMES: Final = ('lab_commons',)
 #: rather than a refusal of an unread walk. The floor sits below that with room
 #: for ordinary deletion and far above the zero a broken walk returns. Finding NOTHING is vacuous
 #: rather than green.
-PLACEMENT_FLOOR: Final = 20
+#: RE-TAKEN 2026-10-04 AT 35, from 20: the consumer-facts merge and the admission famtest read 39.
+PLACEMENT_FLOOR: Final = 35
 
 #: THE OTHER SIDE OF ``PLACEMENT_FLOOR``, which no roster in this family ever wrote: how far past its
 #: floor the population may grow before the number stops separating a classified tree from an unread
@@ -227,9 +228,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`floating_requirements`, `reverting` and `assert_doors_deliver` are all '
         '`lab_commons.dev.installdoor`, which is why this is a BINDER and a `STAYS` rather than a '
         '`SPLITS` -- the seam is already cut upstream, exactly as it is for `scripts/dep.py`. THE '
-        'SIDE WAS MEASURED, NOT PICKED, 2026-09-17: own=21 repo=0 -> 0.00%, which is under the 3.0% '
-        'bar and comfortably under the 50-line binder ceiling, so it is admitted by the BINDER arm '
-        'alone and needs no BELOW_THE_BAR row. THE ZERO IS HONEST RATHER THAN A MISCLASSIFICATION: '
+        'SIDE WAS MEASURED, NOT PICKED. RE-MEASURED 2026-10-04 after the door-census rows came home: '
+        'own=75 hits=1 -> 1.33%, up from own=21 repo=0 -> 0.00% on 2026-09-17, so it is now over the '
+        'binder ceiling and under the bar, recorded in BELOW_THE_BAR. THE LOW READING IS HONEST: '
         'every repo fact in the file is a PATH STRING in `_DOORS` or a NUMBER in `_DOOR_FLOOR`, and '
         'an identifier scan cannot see either. MOVES was refused by the door set -- moving it would '
         'put five paths that are true of this checkout only into a package three repos share.',
@@ -241,7 +242,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'now `lab_commons.dev.docsite`. What is left is DATA -- the `optimi_lab` package, the edit '
         'URL, the version footer -- plus the browser branch that stays local so this '
         "repo's own test can patch the name in this repo's own namespace. Measured 2026-09-17: "
-        'own=25 project=3 -> 12.00%, the densest file under `scripts/`, and under the ceiling too.',
+        'RE-MEASURED 2026-10-04 after the private-marker scrub: own=22 project=4 -> 18.18%, down from '
+        'own=25 project=3 -> 12.00% on 2026-09-17, the densest file under `scripts/`, and under the ceiling too.',
     ),
     # ------------------------------------------------------------ tests/architecture/
     'tests/architecture/_placement.py': Placement(
@@ -273,7 +275,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'viztracer `result.json`, the coredumpy `dumps/`, the eight stock hook ids this repo takes '
         'beyond the family eleven, and the reason `.pre-commit-config.yaml` is refused. There is no '
         'family half left to cut, which is exactly why the seam upstream was worth cutting. RE-MEASURED '
-        '2026-10-03: own=65 repo=1 -> 1.54%, down from own=84 repo=1 -> 1.19% on 2026-10-01 when lab-commons 9ce57c3 '
+        '2026-10-04 after the [project] and pytest section deltas: own=67 repo=1 -> 1.49%, up from own=65 repo=1 -> 1.54% on '
+        '2026-10-03, itself down from own=84 repo=1 -> 1.19% on 2026-10-01 when lab-commons 9ce57c3 '
         'took twenty-two base-duplicated `.gitignore` lines out of the delta, itself up from own=81 repo=1 -> 1.23% on 2026-09-19 by the three '
         '`.claude/.rem-state.json` delta lines, itself down from own=66 repo=2 -> 3.03% on 2026-09-17, and the '
         'row is UNDER the 3.0% bar with a `BELOW_THE_BAR` entry saying so. THE FALL IS THE EVIDENCE '
@@ -462,6 +465,26 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'its code roots, the two generated trees it prunes and the age bound on `scratch/`. MEASURED '
         '2026-10-01 with `_placement.measure`: a binder well under the 50-line ceiling.',
     ),
+    'tests/architecture/test_no_tracked_file_carries_private_markers.py': Placement(
+        STAYS,
+        "ARRIVED 2026-10-04 with lab-commons ec5e8c5's `privatemarkers`: the scan is the family's; this binder holds the names this public repo publishes on purpose and the file floor. MEASURED 2026-10-04: own=13 hits=1.",
+    ),
+    'tests/architecture/test_push_admission_is_delegated.py': Placement(
+        STAYS,
+        "ARRIVED 2026-10-04 with lab-commons ec5e8c5's `famtests.localadmission`: the AST scan and its planted control are the family's; this binder holds the trees walked and the read floor. MEASURED 2026-10-04: own=8 hits=0.",
+    ),
+    'tests/architecture/test_the_pyproject_sections_are_owned.py': Placement(
+        STAYS,
+        "ARRIVED 2026-10-04 with the consumer-facts merge: `famconfig.inspect_section` over this repo's [project] and pytest deltas, which live in `_famconfig.py`. MEASURED 2026-10-04: own=13 hits=0.",
+    ),
+    'tests/architecture/test_the_ruff_waivers_wider_than_an_ignore_are_declared.py': Placement(
+        STAYS,
+        "ARRIVED 2026-10-04 with the consumer-facts merge: the family's `ruffwaivers` scan over this repo's lint config. MEASURED 2026-10-04: own=9 hits=0.",
+    ),
+    'tests/architecture/test_the_test_tree_collects_after_a_sync.py': Placement(
+        STAYS,
+        "ARRIVED 2026-10-04 with the consumer-facts merge: the family's `collectcensus` row for this repo's test tree. MEASURED 2026-10-04: own=20 hits=1.",
+    ),
     'tests/architecture/test_no_reflection.py': Placement(
         STAYS,
         'ARRIVED 2026-09-26 with the family-wide reflection ban. Since lab-commons a2f50b9 the AST walk is the '
@@ -499,8 +522,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'name the MECHANISM in its own files. 30 of 37 enforced with the other 7 named as gaps is a '
         'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-10-01 after '
         'VERDICT-AS-STATUS and ISSUE-IS-INTENT, and again 2026-10-03 after WORKTREES-STAY-INSIDE and '
-        'PROJECT-FILES-HAVE-ONE-SOURCE, and 2026-10-04 after NO-REFLECTION: own=110 repo=3 -> 2.73%, '
-        'down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
+        'PROJECT-FILES-HAVE-ONE-SOURCE, 2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION: own=111 '
+        'repo=3 -> 2.70%, down from own=110 repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
         '2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up from own=98 '
         'repo=3 -> 3.06% on 2026-09-17: three rules arrived and the row fell UNDER the 3.0% bar, '
         'recorded in `BELOW_THE_BAR` -- because the file is a table of rule IDs and mechanism paths, '
@@ -851,6 +874,12 @@ MINIMUM_REFUSES: Final = 0.65
 #: `test_the_public_surface_is_declared.py` (0.62%) and `_famconfig.py` (1.23%) sit under the bar
 #: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
+    'tests/architecture/test_the_install_doors_deliver_the_declared_kit.py': (
+        'MEASURED 2026-10-04: own=75 hits=1 -> 1.33%, twenty-five lines over the binder ceiling. The '
+        'lines are the door-census ROWS that came home from lab-commons -- paths, counts and reasons, '
+        'which no noun scan sees. They are facts about this tree and belong here; THE SEAM IT OWES is '
+        'upstream, a census read from data rather than a hand-typed tuple.'
+    ),
     'tests/architecture/test_optimi_lab_adopts_the_shared_registry.py': (
         'RE-MEASURED 2026-10-03 after WORKTREES-STAY-INSIDE and PROJECT-FILES-HAVE-ONE-SOURCE: own=108 '
         'repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86% on 2026-10-01, and from 2.94% earlier that day and 3.00% on 2026-09-19; the two new rows are again rule IDs '

@@ -90,7 +90,8 @@ REGISTRY_HEADROOM: Final = 5
 #: RE-MEASURED 2026-09-18: the scan reaches 63 files. THE OLD NUMBER WAS 25, a slack of 38 that
 #: would have passed a walk reaching two fifths of the tree; re-measured rather than absorbed by a
 #: wider headroom.
-SCANNED_FILE_FLOOR: Final = 50
+#: RE-TAKEN 2026-10-04 AT 70, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 77.
+SCANNED_FILE_FLOOR: Final = 70
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
 SCANNED_FILE_HEADROOM: Final = 25

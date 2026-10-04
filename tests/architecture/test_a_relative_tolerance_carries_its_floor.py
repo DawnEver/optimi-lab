@@ -62,7 +62,8 @@ BAR: Final = 'ratio'
 
 #: The floor on the corpus itself, so a scan that parsed nothing cannot report clean.
 #: RE-MEASURED 2026-09-18: 57 tracked Python files (was 55 when this floor was last written).
-PYTHON_FILE_FLOOR: Final = 40
+#: RE-TAKEN 2026-10-04 AT 60, from 40: lab-commons ec5e8c5 and the consumer-facts merge read 69.
+PYTHON_FILE_FLOOR: Final = 60
 
 #: THE OTHER SIDE OF `PYTHON_FILE_FLOOR`. Today's slack is 57 - 40 = 17, inside this band.
 PYTHON_FILE_HEADROOM: Final = 25
