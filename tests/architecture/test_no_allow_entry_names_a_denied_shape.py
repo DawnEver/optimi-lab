@@ -92,7 +92,11 @@ _ALLOW_HEADROOM: Final = 2
 
 def _tracked() -> tuple[str, ...]:
     done = subprocess.run(
-        [shutil.which('git') or 'git', '-C', str(_ROOT), 'ls-files'], capture_output=True, text=True, check=True
+        [shutil.which('git') or 'git', '-C', str(_ROOT), 'ls-files'],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=60,
     )
     return tuple(done.stdout.splitlines())
 

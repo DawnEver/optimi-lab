@@ -203,7 +203,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER, and the file says so itself: the STATEMENT of every denied shape already moved to '
         '`lab_commons.dev.hooks`, and what is left is the REMEDY half, which is a fact about one '
         "tree -- `app_name='optimi_lab'`, the two rules this repo can offer an exit for, and the two "
-        'it declares ABSENT (GIT-NETWORK-VERB, RAW-PROCESS-KILL). Measured 2026-09-17: own=17 lines, '
+        'it declares ABSENT (GIT-NETWORK-VERB, RAW-PROCESS-KILL). Measured 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS: own=24 lines, up from own=17 on 2026-09-17, '
         'well under the 50-line binder ceiling. ITS wdg-lab TWIN IS NEAR-IDENTICAL and that is not '
         'move evidence but the opposite: the differences are exactly the three things that ought to '
         'differ -- the app name, the prose, and one call -- so both files are already the thin local '
@@ -452,7 +452,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`.claude/settings.json` declares no `permissions` block at all, so this guard has been green over ZERO probed '
         'rows for its whole life, and the property arm is a strict xfail carrying that measurement until a human adds '
         "the first allow row. THAT XFAIL IS NOT THIS ROW'S TO CLOSE: an agent edit adding the block was refused as "
-        "Self-Modification, so the remedy is a human's. MEASURED 2026-09-19: own=12 hits=0, down from own=77, admitted "
+        "Self-Modification, so the remedy is a human's. MEASURED 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS: own=33 hits=0, up from own=12 on 2026-09-19, down from own=77, admitted "
         'by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 '
         'refuses a STAYS with no repo noun anywhere in it, and this file had none -- it said "this repo" throughout and '
         'never said WHICH. That is the evidence the label is paid for, so the pronoun is now the name; no sentence was '
@@ -522,8 +522,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'name the MECHANISM in its own files. 30 of 37 enforced with the other 7 named as gaps is a '
         'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-10-01 after '
         'VERDICT-AS-STATUS and ISSUE-IS-INTENT, and again 2026-10-03 after WORKTREES-STAY-INSIDE and '
-        'PROJECT-FILES-HAVE-ONE-SOURCE, 2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION: own=111 '
-        'repo=3 -> 2.70%, down from own=110 repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
+        'PROJECT-FILES-HAVE-ONE-SOURCE, 2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS: own=113 '
+        'repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
         '2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up from own=98 '
         'repo=3 -> 3.06% on 2026-09-17: three rules arrived and the row fell UNDER the 3.0% bar, '
         'recorded in `BELOW_THE_BAR` -- because the file is a table of rule IDs and mechanism paths, '
