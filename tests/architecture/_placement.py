@@ -464,11 +464,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
     ),
     'tests/architecture/test_no_reflection.py': Placement(
         STAYS,
-        'ARRIVED 2026-09-26 with the family-wide reflection ban and never placed until 2026-10-01. The kit '
-        'publishes NO reflection scanner -- the authoring repo carries its own copy in its tests -- so the '
-        "whole AST walk is local, over optimi_lab's tracked `src/` and `tests/` with its own files-read "
-        'floor. MEASURED 2026-10-01: own=27 hits=0, admitted by the 50-line binder ceiling. The family half '
-        'it would move to does not exist yet; that is a seam owed upstream, not a reason to fork here.',
+        'ARRIVED 2026-09-26 with the family-wide reflection ban. Since lab-commons a2f50b9 the AST walk is the '
+        "family's (`famtests.noreflection`); this binder holds only optimi-lab's empty allow-set and its "
+        'files-read floor. MEASURED 2026-10-04: own=9 hits=0, down from own=27 hits=0 on 2026-10-01.',
     ),
     'tests/architecture/test_no_cjk_in_tracked_source.py': Placement(
         STAYS,
@@ -501,7 +499,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'name the MECHANISM in its own files. 30 of 37 enforced with the other 7 named as gaps is a '
         'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-10-01 after '
         'VERDICT-AS-STATUS and ISSUE-IS-INTENT, and again 2026-10-03 after WORKTREES-STAY-INSIDE and '
-        'PROJECT-FILES-HAVE-ONE-SOURCE: own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
+        'PROJECT-FILES-HAVE-ONE-SOURCE, and 2026-10-04 after NO-REFLECTION: own=110 repo=3 -> 2.73%, '
+        'down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
         '2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up from own=98 '
         'repo=3 -> 3.06% on 2026-09-17: three rules arrived and the row fell UNDER the 3.0% bar, '
         'recorded in `BELOW_THE_BAR` -- because the file is a table of rule IDs and mechanism paths, '
