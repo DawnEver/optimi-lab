@@ -1,11 +1,18 @@
-
 {
   "permissions": {
     "allow": [
-      "Bash(./.venv/Scripts/python.exe -m lab_commons.dev.verify *)",
-      "Bash(./.venv/Scripts/python.exe scripts/dep.py *)",
+      "Bash(./.venv/*/python* -m lab_commons.dev.verify *)",
       "Bash(.venv/*/python* *)",
-      "Bash(uv sync --extra *)"
+      "Bash(.venv/*/python* -m lab_commons.dev.verify *)",
+      "Bash(.venv/*/python* -m lab_commons.dev.branchset *)",
+      "Bash(.venv/*/python* -m lab_commons.dev.worktrees *)",
+      "Bash(.venv/*/python* -m lab_commons.dev.stoprun *)",
+      "Bash(.venv/*/python* -m lab_commons.dev.netverb *)",
+      "Bash(.venv/*/python* -m lab_commons.dev.famfiles *)",
+      "Bash(.venv/*/python* -m lab_commons.dev.autodoors *)",
+      "Bash(.venv/*/python* scripts/deny_rules.py *)",
+      "Bash(.venv/*/python* scripts/dep.py *)",
+      "Bash(.venv/*/python* scripts/pdoc.py *)"
     ]
   },
   "hooks": {

@@ -56,13 +56,23 @@ about a tool's configuration loading, not about this tree.
 
 from __future__ import annotations
 
+import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 from typing import Final
 
 import pytest
+from lab_commons.dev.allow_adoption import assert_allow_is_adoptable, settings_problems
+from lab_commons.dev.autodoors import CODEX_RULES_REL, codex_rules, promises_raw, script_doors
 from lab_commons.dev.famtests import allowguard
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from scripts.deny_rules import SETTINGS_FILE, allow  # noqa: E402
 
 #: The sanctioned exit a red is pointed at, and the one this repo actually ships.
 _SANCTIONED: Final = './.venv/Scripts/python.exe -m lab_commons.dev.verify'
@@ -73,6 +83,29 @@ _SANCTIONED: Final = './.venv/Scripts/python.exe -m lab_commons.dev.verify'
 #: is refused by nothing, which is what catches a matcher that started refusing everything.
 _DENIED_ENTRY: Final = 'Bash(pytest *)'
 _HARMLESS_ENTRY: Final = 'Bash(echo *)'
+
+#: AUTO-MODE-RUNS-THE-DOORS, measured 2026-10-05 at lab-commons dd33312: 2 derived rows, 7 family
+#: doors, 3 tracked script entry points, 0 declared. A new door costs this number an argument.
+_ALLOW_FLOOR: Final = 12
+_ALLOW_HEADROOM: Final = 2
+
+
+def _tracked() -> tuple[str, ...]:
+    done = subprocess.run(
+        [shutil.which('git') or 'git', '-C', str(_ROOT), 'ls-files'], capture_output=True, text=True, check=True
+    )
+    return tuple(done.stdout.splitlines())
+
+
+def test_the_allow_block_and_the_codex_rules_are_rendered_from_the_door_table() -> None:
+    """AUTO-MODE-RUNS-THE-DOORS: both client renderings current, sized, and promising no raw verb."""
+    adoption = allow(_ROOT)
+    settings = json.loads((_ROOT / SETTINGS_FILE).read_text(encoding='utf-8'))
+    assert settings_problems(settings, adoption) == (), f'stale: run `{sys.executable} scripts/deny_rules.py`'
+    assert_allow_is_adoptable(adoption, _tracked(), floor=_ALLOW_FLOOR, headroom=_ALLOW_HEADROOM)
+    rules = codex_rules(script_doors(_ROOT, shell_doors=()))
+    assert (_ROOT / CODEX_RULES_REL).read_text(encoding='utf-8') == rules, 'run `-m lab_commons.dev.autodoors --write`'
+    assert promises_raw(rules) == ()
 
 
 def test_no_allow_entry_names_a_command_the_engine_refuses() -> None:

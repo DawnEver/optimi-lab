@@ -104,6 +104,7 @@ _CODEPLACE: Final = 'tests/architecture/test_code_lives_only_where_code_belongs.
 _FAMCONFIG: Final = 'tests/architecture/test_the_family_config_is_rendered.py'
 _PROJECT_FILES: Final = 'tests/architecture/test_every_project_file_has_one_source.py'
 _NO_REFLECTION: Final = 'tests/architecture/test_no_reflection.py'
+_ALLOW: Final = 'tests/architecture/test_no_allow_entry_names_a_denied_shape.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -266,6 +267,10 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED with lab-commons ec5e8c5: `[tool.lab_commons.branchset]` declares trunk `main` and no
     # session branches, and the family famtest polices origin and this box against it.
     'ONE-BRANCH-PER-SESSION': ('pyproject.toml', _ORIGIN),
+    # ADOPTED with lab-commons dd33312: `scripts/deny_rules.py` renders one narrow allow row per
+    # family door and tracked script entry point, and the Codex rules from the same table; the allow
+    # test holds both files current and the block between its measured floor and headroom.
+    'AUTO-MODE-RUNS-THE-DOORS': (_ALLOW, _GUARD_RULES, '.codex/rules/family-doors.rules'),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
