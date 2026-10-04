@@ -1,50 +1,27 @@
-"""NO-GETATTR: `src/` and `tests/` carry zero ``getattr``/``hasattr`` calls and zero ``__getattr__`` hooks.
+"""NO-REFLECTION: no tracked Python calls getattr/hasattr/setattr/delattr or defines ``__getattr__``.
 
-User directive 2026-09-26, family-wide: reflection is banned outright. A declared field is read by
-attribute access, a name-keyed lookup through ``vars(obj)`` or an explicit mapping, and an optional
-capability through a ``runtime_checkable`` Protocol. Zero is not a ceiling to walk down, so the pin
-names offending sites rather than a count.
-
-The kit ships no reflection scanner, so the walk is local: it reads optimi_lab's tracked tree.
+THE BODY IS THE FAMILY'S (`lab_commons.dev.famtests.noreflection`), over every tracked ``*.py``.
+This file holds only the repo's answers: the allow-set, EMPTY because optimi_lab measured zero
+reflection sites when the rule was adopted (lab-commons a2f50b9), and the read floor.
 """
 
 from __future__ import annotations
 
-import ast
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.rules import tracked_files
+from lab_commons.dev.famtests import noreflection
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
-_BANNED_CALLS: Final = frozenset({'getattr', 'hasattr'})
-#: Below the 2026-09-29 measurement on purpose: a floor refuses an UNREAD tree.
-_FILES_READ_FLOOR: Final = 40
+_ALLOWED: Final[dict[str, str]] = {}
+#: Below the 2026-10-04 measurement (64 tracked files) on purpose: a floor refuses an UNREAD tree.
+_FILES_READ_FLOOR: Final = 50
 
 
-def _reflection_sites(source: str, filename: str) -> list[int]:
-    """Line numbers of every banned reflection call and ``__getattr__`` definition."""
-    tree = ast.parse(source, filename=filename)
-    return sorted(
-        node.lineno
-        for node in ast.walk(tree)
-        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in _BANNED_CALLS)
-        or (isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and node.name == '__getattr__')
-    )
+def test_a_planted_reflection_site_of_every_shape_is_found() -> None:
+    planted = 'def __getattr__(name):\n    return getattr(object(), name)\nhasattr(1, "x")\nsetattr(o, "a", 1)\ndelattr(o, "a")\n'
+    assert noreflection.reflection_sites(planted, '<planted>') == [1, 2, 3, 4, 5]
 
 
-def test_a_planted_getattr_hasattr_and_hook_are_all_found() -> None:
-    planted = 'def __getattr__(name):\n    return getattr(object(), name)\nhasattr(object(), "x")\n'
-    assert _reflection_sites(planted, '<planted>') == [1, 2, 3]
-
-
-def test_src_and_tests_carry_no_reflection_at_all() -> None:
-    names = [n for n in tracked_files(_ROOT) if n.startswith(('src/', 'tests/')) and n.endswith('.py')]
-    files = [_ROOT / n for n in names if (_ROOT / n).is_file()]
-    assert len(files) >= _FILES_READ_FLOOR, f'reflection scan read {len(files)} files, floor {_FILES_READ_FLOOR}'
-    offenders = [
-        f'{path.relative_to(_ROOT).as_posix()}:{line}'
-        for path in files
-        for line in _reflection_sites(path.read_text(encoding='utf-8'), str(path))
-    ]
-    assert not offenders, f'getattr/hasattr/__getattr__ is banned (directive 2026-09-26): {offenders}'
+def test_no_tracked_python_reflects() -> None:
+    noreflection.assert_no_reflection(root=_ROOT, allowed=_ALLOWED, floor=_FILES_READ_FLOOR)

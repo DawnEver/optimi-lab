@@ -103,6 +103,7 @@ _GUARD_RULES: Final = 'scripts/deny_rules.py'
 _CODEPLACE: Final = 'tests/architecture/test_code_lives_only_where_code_belongs.py'
 _FAMCONFIG: Final = 'tests/architecture/test_the_family_config_is_rendered.py'
 _PROJECT_FILES: Final = 'tests/architecture/test_every_project_file_has_one_source.py'
+_NO_REFLECTION: Final = 'tests/architecture/test_no_reflection.py'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
@@ -259,6 +260,9 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # `tests/architecture/_famconfig.py`, every config table is its section base plus this repo's
     # SectionDelta, the dev index holds the live pointer table, and `OWNED_HERE` is empty.
     'PROJECT-FILES-HAVE-ONE-SOURCE': (_PROJECT_FILES, 'tests/architecture/_famconfig.py'),
+    # ADOPTED with lab-commons a2f50b9 at zero sites: the family scanner over every tracked `*.py`,
+    # all four banned calls plus `__getattr__`, with an empty two-sided allow-set.
+    'NO-REFLECTION': (_NO_REFLECTION,),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
