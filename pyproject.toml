@@ -16,12 +16,7 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.12"
 
-authors = [
-    {name = "Mingyang Bao", email = "mingyangbob@gmail.com"}
-]
-maintainers = [
-    {name = "Mingyang Bao", email = "mingyangbob@gmail.com"}
-]
+authors = [{ name = "Mingyang Bao" }]
 # numpy / scipy / scikit-learn, and nothing else. rtoml, pint, pydantic, pandas, matplotlib and
 # lab-commons were declared while the package read TOML state files, converted units, validated
 # models with Pydantic and plotted: all four of those roles are gone (the package is pure

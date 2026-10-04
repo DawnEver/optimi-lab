@@ -9,7 +9,7 @@ file was also asking pdoc for ``-o`` (write files and exit) AND ``-h``/``-p`` (s
 which are mutually exclusive modes -- an error ``check=False`` then made invisible.
 
 So the mechanism is now :mod:`lab_commons.dev.docsite`, which this repo already depends on through
-``lab-commons[dev]``, and what remains here is DATA: which package, which logo, which edit URL.
+``lab-commons[dev]``, and what remains here is DATA: which package, which edit URL, which footer.
 There is no copy of the driver in this tree to drift, and the fix that lands there lands here.
 
 WHAT DID NOT MOVE, and deliberately: ``sys.executable -m pdoc`` (it moved INTO the driver, where all
@@ -52,10 +52,7 @@ def main(modules: list[str] | None = None, output_dir: str = 'docs', open_webpag
         root_path / output_dir,
         modules,
         edit_url='optimi-lab=https://github.com/DawnEver/optimi-lab',
-        favicon='http://cdn.mingyangbao.site/logo-latest/favicon.ico',
-        footer_text=f'Py Project Template v{__version__}',
-        logo='http://cdn.mingyangbao.site/logo-latest/MB.svg',
-        logo_link='https://baomingyang.site/',
+        footer_text=f'optimi-lab v{__version__}',
     )
 
     if open_webpage:

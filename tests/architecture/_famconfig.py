@@ -65,7 +65,7 @@ from __future__ import annotations
 
 from typing import Final
 
-from lab_commons.dev.famconfig import Delta
+from lab_commons.dev.famconfig import Delta, SectionDelta
 
 __all__ = [
     'DELTAS',
@@ -75,6 +75,7 @@ __all__ = [
     'MAKEFILE_DELTA',
     'PRECOMMIT_DELTA',
     'PRECOMMIT_STAGE_MOVE',
+    'PYPROJECT_SECTION_DELTAS',
     'REPO',
 ]
 
@@ -191,4 +192,15 @@ DELTAS: Final[dict[str, Delta]] = {
     '.gitignore': GITIGNORE_DELTA,
     '.pre-commit-config.yaml': PRECOMMIT_DELTA,
     'Makefile': MAKEFILE_DELTA,
+}
+
+#: This repo's delta against each owned `pyproject.toml` table -- the kit's SECTION base, judged by
+#: `famconfig.inspect_section`. MEASURED 2026-10-02: ``readme`` and ``dynamic`` are the base's
+#: verbatim, and ``testpaths`` adds ONE path, ``src``, so ``--doctest-modules`` collects the package's
+#: doctests. It names this tree, which is why it is a delta and not a base line; the ceiling sits ON
+#: the measurement. This delta used to live in lab-commons under a neutral name; a fact about this
+#: tree belongs in this tree.
+PYPROJECT_SECTION_DELTAS: Final[dict[str, SectionDelta]] = {
+    '[project]': SectionDelta(repo=REPO, added={}, dropped={}, ceiling=0),
+    '[tool.pytest.ini_options]': SectionDelta(repo=REPO, added={'testpaths': ('src',)}, dropped={}, ceiling=1),
 }

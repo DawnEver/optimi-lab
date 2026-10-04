@@ -33,6 +33,7 @@ from pathlib import Path
 from typing import Final
 
 import pytest
+from lab_commons.dev.doorcensus import DoorRow, assert_census, door_text
 from lab_commons.dev.installdoor import (
     Delivery,
     RevertingDoorsError,
@@ -40,22 +41,85 @@ from lab_commons.dev.installdoor import (
     floating_requirements,
     reverting,
 )
+from lab_commons.dev.synccensus import pruning_sites
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
-#: Every file in this tree whose content moves an environment, as a NAMED SET. `README.md` is a door
-#: with a person in the middle: it tells a human what to type. A count could not say which one came
-#: off the list, and in the sibling repo the door that carried the defect was one nobody had listed.
-_DOORS: Final[tuple[str, ...]] = (
-    'Makefile',
-    'README.md',
-    '.pre-commit-config.yaml',
-    '.github/workflows/ci.yml',
-    'scripts/dep.py',
+#: The name this repo goes by in the census API.
+_HERE: Final = 'optimi-lab'
+
+#: EVERY FILE IN THIS TREE WHOSE CONTENT MOVES AN ENVIRONMENT, one row each, with what it measures.
+#: ``commands`` and ``deliveries`` are compared by EQUALITY, never as a floor: a floor is satisfied by
+#: every shorter declaration. These rows used to live in lab-commons under a neutral name; a fact
+#: about this tree belongs in this tree. RE-MEASURED 2026-10-02.
+DOOR_ROWS: Final[tuple[DoorRow, ...]] = (
+    DoorRow(
+        repo=_HERE,
+        path='Makefile',
+        commands=16,
+        deliveries=frozenset({'INERT', 'RESOLVES'}),
+        why=(
+            'Measured correct on 2026-09-17 and changed as a result of nothing, which is a result '
+            'rather than a skip: this repo carried the hazard fully loaded -- a floating kit '
+            'requirement and an untracked lock -- and simply had no door that fired it. Every install '
+            'here is `uv pip install`, which re-resolves; the row keeps that true.'
+        ),
+    ),
+    DoorRow(
+        repo=_HERE,
+        path='README.md',
+        commands=6,
+        deliveries=frozenset({'INERT', 'RESOLVES'}),
+        why=(
+            'A DOOR WITH A PERSON IN THE MIDDLE. What a README tells a human to type moves an '
+            'environment exactly as a Makefile target does, and it is the door with no CI and no '
+            'hook to catch it drifting away from the Makefile beside it.'
+        ),
+    ),
+    DoorRow(
+        repo=_HERE,
+        path='.pre-commit-config.yaml',
+        commands=0,
+        deliveries=frozenset(),
+        why=(
+            'ZERO, AND THIS IS THE SIBLING OF THE FILE THAT CARRIED THE DEFECT: the sibling lab '
+            'reverted the kit on every push through a hook entry in a file of this exact name, and '
+            'this repo has no such entry. The day a `uv run` hook is added here, this count moves '
+            'off zero and the census says so before the first push does.'
+        ),
+    ),
+    DoorRow(
+        repo=_HERE,
+        path='.github/workflows/ci.yml',
+        commands=0,
+        deliveries=frozenset(),
+        why=(
+            'Zero because it is a thin caller of lab-commons` reusable `python-verify.yml`, so this '
+            "repo's CI install door physically lives in another repo's tree, where the kit judges it "
+            'against the names of the repos that run it. Judged here the door is invisible; the row '
+            'is what says that was looked at rather than missed.'
+        ),
+    ),
+    DoorRow(
+        repo=_HERE,
+        path='scripts/dep.py',
+        commands=0,
+        deliveries=frozenset(),
+        why=(
+            'Zero because this script composes its argv in Python through `lab_commons.dev.dep`, '
+            'which spells `sys.executable -m pip install` -- correct by construction, and correct '
+            'for a second reason, since pip re-clones a direct URL rather than treating it as '
+            'satisfied. Declared as a door with a zero reading rather than left off the list.'
+        ),
+    ),
 )
 
-#: MEASURED 2026-09-17: 22 installer-capable commands across those five files. The floor sits under
-#: it, because "no reverting door" over a set that was never read is a vacuous green.
+#: The door set every other arm reads, DERIVED from the rows so the paths are stated once.
+_DOORS: Final[tuple[str, ...]] = tuple(row.path for row in DOOR_ROWS)
+
+#: MEASURED 2026-09-17 at 22 installer-capable commands across those five files; the per-file counts
+#: are held by EQUALITY in `DOOR_ROWS`. The floor sits under it, because "no reverting door" over a
+#: set that was never read is a vacuous green.
 _DOOR_FLOOR: Final = 15
 
 
@@ -85,3 +149,23 @@ def test_the_guard_fires_on_a_lock_consuming_target_planted_in_this_makefile(tmp
     (tmp_path / 'Makefile').write_text(text, encoding='utf-8')
     with pytest.raises(RevertingDoorsError, match=r'Makefile:\d+'):
         assert_doors_deliver(tmp_path, ['Makefile'], ('lab-commons',), floor=1)
+
+
+def test_every_declared_door_still_measures_what_its_row_records() -> None:
+    """THE CENSUS, through the kit's `assert_census`, over this checkout's WORKING TREE.
+
+    Equality per file in both directions, plus the kit's refusal of a tracked ``uv.lock`` -- the
+    condition every lock-consuming door would rest on.
+    """
+    seen = assert_census(
+        _ROOT.parent, {_HERE: _ROOT.name}, DOOR_ROWS, repo_floor=1, door_floor=len(DOOR_ROWS), here=_HERE
+    )
+    assert set(seen) == {_HERE}
+
+
+def test_no_declared_door_holds_a_pruning_command() -> None:
+    """THE SYNC CENSUS'S ANSWER FOR THIS REPO, and it is the empty set: no door here runs `uv sync`, so
+    none chooses a population. The day a bare ``uv sync`` lands in one of them it reds here.
+    """
+    texts = {(_HERE, row.path): door_text(_ROOT, row.path, at_head=False) or '' for row in DOOR_ROWS}
+    assert pruning_sites(texts) == ()

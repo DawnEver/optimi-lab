@@ -239,7 +239,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'THE DRIVER ALREADY MOVED and this file is the record of it: the pdoc invocation, the image '
         'walk and the `check=False` that made an errored build indistinguishable from a real one are '
         'now `lab_commons.dev.docsite`. What is left is DATA -- the `optimi_lab` package, the edit '
-        'URL, the logo, the version footer -- plus the browser branch that stays local so this '
+        'URL, the version footer -- plus the browser branch that stays local so this '
         "repo's own test can patch the name in this repo's own namespace. Measured 2026-09-17: "
         'own=25 project=3 -> 12.00%, the densest file under `scripts/`, and under the ceiling too.',
     ),
