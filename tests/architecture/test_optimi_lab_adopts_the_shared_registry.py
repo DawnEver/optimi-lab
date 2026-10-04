@@ -263,6 +263,9 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED with lab-commons a2f50b9 at zero sites: the family scanner over every tracked `*.py`,
     # all four banned calls plus `__getattr__`, with an empty two-sided allow-set.
     'NO-REFLECTION': (_NO_REFLECTION,),
+    # ADOPTED with lab-commons ec5e8c5: `[tool.lab_commons.branchset]` declares trunk `main` and no
+    # session branches, and the family famtest polices origin and this box against it.
+    'ONE-BRANCH-PER-SESSION': ('pyproject.toml', _ORIGIN),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)

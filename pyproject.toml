@@ -216,3 +216,10 @@ version_scheme = "semver2"
 version_provider = "scm"
 changelog_incremental = true
 update_changelog_on_bump = true
+
+# ===================
+# lab-commons branchset (ONE-BRANCH-PER-SESSION)
+# ===================
+[tool.lab_commons.branchset]
+trunk = 'main'
+sessions = []

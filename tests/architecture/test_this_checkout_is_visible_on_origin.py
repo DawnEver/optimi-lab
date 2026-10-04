@@ -26,9 +26,12 @@ WHAT OPTIMI-LAB SUPPLIES, and every one of them is a keyword with NO DEFAULT ups
   named set was "the only honest shape while that branch is still being decided about"; the decision
   was taken, `fix/p0-integration-blockers` exists neither locally nor on origin, and the pin was the
   half nobody deleted with it. The set is empty now and that is a MEASUREMENT of the same kind
-  `ORIGIN_BRANCHES` has carried since 2026-09-16, held from meaning "nobody looked" by the same
+  the origin pin had carried since 2026-09-16, held from meaning "nobody looked" by the same
   readability floor. The first side is undiminished: the day a local-only branch appears, it reds.
-* `ORIGIN_BRANCHES` -- the published branches besides the trunk, for the same reason.
+
+THE BRANCH SET IS DATA SINCE 2026-10-04 (ONE-BRANCH-PER-SESSION): `[tool.lab_commons.branchset]` in
+`pyproject.toml` declares trunk and sessions, and `lab_commons.dev.famtests.branchset` replaced the
+local origin-branch pin and the one-pushable-branch assertion.
 
 MEASURED AGAINST THE REMOTE, NEVER A LOCAL POINTER. A local trunk ref goes stale the moment another
 party pushes, and against a stale one an already-landed change reads as unmerged -- which is how an
@@ -45,7 +48,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import visibility
+from lab_commons.dev.branchset import declared_branchset
+from lab_commons.dev.famtests import branchset, visibility
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -64,10 +68,6 @@ TRUNK: Final = 'main'
 #: record of who took it survives in the reflog; what is repaired here is only the declaration.
 LOCAL_ONLY_BRANCHES: Final[frozenset[str]] = frozenset()
 
-#: Branches on origin besides the trunk, pinned BY NAME for the same reason. MEASURED 2026-09-16:
-#: empty, and an empty pin is a real measurement -- the readability floor above is what keeps it
-#: from meaning "nobody looked".
-ORIGIN_BRANCHES: Final[frozenset[str]] = frozenset()
 
 
 def test_this_checkout_is_readable_at_all() -> None:
@@ -75,19 +75,24 @@ def test_this_checkout_is_readable_at_all() -> None:
     visibility.assert_readable(root=_ROOT, trunk=TRUNK)
 
 
-def test_one_session_maintains_one_pushable_branch() -> None:
-    """A second branch origin already carries is a second thing somebody must push and may forget."""
-    visibility.assert_one_pushable_branch(root=_ROOT, trunk=TRUNK)
-
-
 def test_nothing_of_value_exists_only_on_this_box() -> None:
     """Pinned BY NAME and two-sided: an arrival reds, and a pin outliving its branch reds too."""
     visibility.assert_local_only_branches(root=_ROOT, declared=LOCAL_ONLY_BRANCHES)
 
 
-def test_the_origin_branch_set_is_the_declared_one() -> None:
-    """BOTH SIDES: a branch appearing on origin reds, and a pin nobody deleted reds too."""
-    visibility.assert_origin_branch_set(root=_ROOT, declared=ORIGIN_BRANCHES)
+def test_origin_carries_only_the_declared_branches() -> None:
+    """ONE-BRANCH-PER-SESSION: origin holds `[tool.lab_commons.branchset]` and nothing else."""
+    branchset.assert_origin_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))
+
+
+def test_this_box_carries_only_the_declared_branches() -> None:
+    """An undeclared local branch origin already holds reds; one holding unpushed work is reported."""
+    branchset.assert_local_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))
+
+
+def test_the_branchset_guard_fires(tmp_path: Path) -> None:
+    """PLANTED CONTROL, the family's: a stray branch on origin and locally, and unpushed work."""
+    branchset.assert_the_planted_branchset_is_policed(tmp_path, trunk=TRUNK)
 
 
 def test_integration_is_measured_against_the_remote(tmp_path: Path) -> None:
