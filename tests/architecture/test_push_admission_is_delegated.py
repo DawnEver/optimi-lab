@@ -1,4 +1,4 @@
-"""PUSH ADMISSION has one implementation, `lab_commons.dev.admission`; this repo keeps no local copy.
+"""PUSH ADMISSION has one implementation, `lab_commons.dev.admission`; optimi_lab keeps no local copy.
 
 THE BODY IS THE FAMILY'S (`lab_commons.dev.famtests.localadmission`). This file holds only the
 repo's answers: the trees walked and the read floor.

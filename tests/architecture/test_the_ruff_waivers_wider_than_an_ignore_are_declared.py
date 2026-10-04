@@ -1,4 +1,4 @@
-"""THE TWO RUFF WAIVERS WIDER THAN AN IGNORE, declared for THIS checkout and judged by the kit.
+"""THE TWO RUFF WAIVERS WIDER THAN AN IGNORE, declared for optimi_lab and judged by the kit.
 
 ``exclude`` drops every selector over a subtree and names no code; ``per-file-ignores`` drops a named
 code over a glob. Every arm stated over the global ignore list is blind to both.

@@ -1,4 +1,4 @@
-"""PYPROJECT-SECTIONS-ARE-OWNED, for THIS checkout: the kit's section base plus this repo's delta.
+"""PYPROJECT-SECTIONS-ARE-OWNED, for optimi_lab: the kit's section base plus this repo's delta.
 
 `lab_commons.dev.famconfig` owns two `pyproject.toml` tables as a SECTION base -- ``[project]``'s
 ``readme``/``dynamic`` and ``[tool.pytest.ini_options]``'s ``testpaths`` -- and `inspect_section` reads
