@@ -27,6 +27,7 @@
 | [Worktrees stay inside](../../../lab-commons/docs-src/dev/worktrees.md) | Every checkout lives under `<repo>/.claude/worktrees/<name>`: the deny row, the detector, the ignore line |
 | [One branch per session](../../../lab-commons/docs-src/dev/branch-set.md) | One long-lived branch per session: the declared branch set, the census, and the merge-and-delete list |
 | [Auto mode runs the doors](../../../lab-commons/docs-src/dev/auto-doors.md) | Local cleanup and own-run stops are checked doors both clients allow; pushes and remote deletes stay human |
+| [Refusals](../../../lab-commons/docs-src/dev/refusals.md) | Every deny refusal is a clause, a door and a pointer; the full reasoning and history of each row |
 | [Project files](../../../lab-commons/docs-src/dev/project-files.md) | Every project-level file is rendered from a family base plus a delta, or owned by the repo with a reason |
 
 ## What this repo has, and what it does not
