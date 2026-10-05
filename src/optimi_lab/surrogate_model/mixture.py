@@ -70,15 +70,19 @@ class MixtureSurrogate:
         """Return the combined prediction, shape ``(n_points, n_obj)``."""
         if not self._fitted:
             refuse('this mixture has not been fitted; call fit(inputs, values) and predict with what it returns')
-        predictions = np.stack([member.predict(inputs) for member in self._pool])
         weights = self._weights()
+        predictions = np.stack([member.predict(inputs) for member in self._pool])
         if self._weight_method is WeightMethod.MAX:
             return predictions[int(np.argmax(weights))]
         return np.tensordot(weights, predictions, axes=1)
 
     def _weights(self) -> np.ndarray:
         """The members' R2, clamped at zero and normalised, or a refusal if no member has one."""
-        measured = np.array([member.scores['r2'] for member in self._pool], dtype=float)
+        scores = [member.scores for member in self._pool]
+        missing = [member.key for member, score in zip(self._pool, scores, strict=True) if 'r2' not in score]
+        if missing:
+            refuse(f'mixture members {missing} must declare r2 scoring because r2 determines their weights')
+        measured = np.array([score['r2'] for score in scores], dtype=float)
         weights = np.maximum(np.where(np.isfinite(measured), measured, 0.0), 0.0)
         if not np.any(weights > 0.0):
             scored = ', '.join(f'{member.key}: {r2:g}' for member, r2 in zip(self._pool, measured, strict=True))

@@ -238,7 +238,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # FORGE-THROUGH-THE-DOOR rests on the SAME two files: its three FORGE-WRITE-* deny rows ship
     # through this guard, so a `gh`/`tea`/raw-API write is refused live and the exit they name is
     # `python -m lab_commons.dev.forge`, the client that stamps which machine and agent wrote.
-    **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR'), (_GUARD, _GUARD_RULES)),
+    **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR', 'INJECTED-TEXT-IS-PROGRESSIVE'), (_GUARD, _GUARD_RULES)),
     # ADOPTED 2026-10-01 with `lab_commons.dev.codeplace`: the filesystem walk over this tree's
     # declared code roots, and the `scratch/` lifecycle that is the exit from it. The mechanism is
     # the family's; the roots, the pruned generated trees and the age bound are this repo's.

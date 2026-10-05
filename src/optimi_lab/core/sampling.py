@@ -47,7 +47,17 @@ _MAX_RADIUS_HALVINGS = 32
 
 
 @dataclass(frozen=True, slots=True)
-class SampleSpec:
+class _SampleSpecFields:
+    kind: SampleKind = SampleKind.LATIN_HYPERCUBE
+    n_samples: int = 32
+    seed: int = 0
+    steps: tuple[int, ...] | None = None
+    radius: float | None = None
+    matrix: np.ndarray | None = None
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class SampleSpec(_SampleSpecFields):
     """A request for the first batch.
 
     ``kind`` selects the sampler; ``n_samples`` is how many rows come back, and every kind
@@ -57,29 +67,30 @@ class SampleSpec:
     ``n_samples`` when ``None``) to ``poisson_disk``, and ``matrix`` to ``import``.
     """
 
-    kind: SampleKind = SampleKind.LATIN_HYPERCUBE
-    n_samples: int = 32
-    seed: int = 0
-    steps: tuple[int, ...] | None = None
-    radius: float | None = None
-    matrix: np.ndarray | None = None
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.kind, SampleKind):
-            object.__setattr__(self, 'kind', coerce_enum(SampleKind, self.kind, 'sample kind'))
-        require_positive(self.n_samples, 'n_samples')
-        _require_kind_field('steps', self.steps, SampleKind.UNIFORM, self.kind)
-        _require_kind_field('radius', self.radius, SampleKind.POISSON_DISK, self.kind)
-        _require_kind_field('matrix', self.matrix, SampleKind.IMPORT, self.kind)
-        if self.steps is not None:
-            object.__setattr__(self, 'steps', tuple(int(step) for step in self.steps))
-        if self.radius is not None:
-            require_positive(self.radius, 'radius')
-        if self.kind is SampleKind.IMPORT and self.matrix is None:
+    def __init__(  # noqa: PLR0917 -- preserve the public dataclass's six positional parameters.
+        self,
+        kind: SampleKind = SampleKind.LATIN_HYPERCUBE,
+        n_samples: int = 32,
+        seed: int = 0,
+        steps: tuple[int, ...] | None = None,
+        radius: float | None = None,
+        matrix: np.ndarray | None = None,
+    ) -> None:
+        kind = coerce_enum(SampleKind, kind, 'sample kind')
+        require_positive(n_samples, 'n_samples')
+        _require_kind_field('steps', steps, SampleKind.UNIFORM, kind)
+        _require_kind_field('radius', radius, SampleKind.POISSON_DISK, kind)
+        _require_kind_field('matrix', matrix, SampleKind.IMPORT, kind)
+        if steps is not None:
+            steps = tuple(int(step) for step in steps)
+        if radius is not None:
+            require_positive(radius, 'radius')
+        if kind is SampleKind.IMPORT and matrix is None:
             refuse(
                 f'sample kind {SampleKind.IMPORT.value!r} needs the matrix to import, of shape (n_samples, n_var); '
                 f'the kinds that draw their own points are {[k for k in SAMPLE_KINDS if k != SampleKind.IMPORT.value]}'
             )
+        _SampleSpecFields.__init__(self, kind, n_samples, seed, steps, radius, matrix)
 
 
 def _require_kind_field(field_name: str, value: object, field_kind: SampleKind, kind: SampleKind) -> None:

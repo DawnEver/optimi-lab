@@ -138,6 +138,16 @@ def test_a_pool_with_no_weight_left_is_refused_rather_than_averaged(smooth_data)
         mixture.predict(x[:3])
 
 
+@pytest.mark.parametrize('score_methods', [(), ('mse',)])
+def test_a_mixture_member_without_r2_is_refused_by_its_declared_capability(score_methods, smooth_data):
+    x, y = smooth_data
+    member = SurrogateModel('rid', score_methods=score_methods, n_splits=3)
+    mixture = MixtureSurrogate([member]).fit(x, y)
+    assert set(member.scores) == set(score_methods)
+    with pytest.raises(Refusal, match='rid.*r2'):
+        mixture.predict(x[:3])
+
+
 @pytest.mark.parametrize('pool', [None, []])
 def test_a_mixture_without_a_pool_is_refused_naming_the_registered_keys(pool):
     with pytest.raises(Refusal) as refusal:
@@ -163,7 +173,10 @@ def test_predicting_before_fitting_is_refused_rather_than_answering_None(smooth_
     with pytest.raises(Refusal, match='has not been fitted'):
         MixtureSurrogate([{'model_type': 'rid'}]).predict(x[:2])
     model = SurrogateModel('rid', n_splits=3).fit(x, smooth_data[1])
-    assert {'check_valid', '_valid'}.isdisjoint(dir(model))
+    with pytest.raises(AttributeError):
+        model.check_valid
+    with pytest.raises(AttributeError):
+        model._valid
     assert set(model.scores) == set(SCORE_METHODS)
     with pytest.raises(TypeError):
         SurrogateModel('rid', do_calc_score=False).fit(x, smooth_data[1])
