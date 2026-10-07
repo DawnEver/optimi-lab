@@ -66,7 +66,7 @@
     "name": "BARE-INTERPRETER",
     "pattern": "(?:uv(?:\\.exe)?\\s+run\\b|uvx(?:\\.exe)?\\b|(?:python(?:3(?:\\.\\d+)?)?|py)(?:\\.exe)?(?![\\w./\\\\-])(?!\\s+-m\\s+pytest\\b))",
     "matches": "command",
-    "reason": "BARE-INTERPRETER: a bare python/py, `uv run` or `uvx` runs an interpreter somebody else chose, and `uv run` may sync the shared environment.\nRun the checkout's venv interpreter: .venv/Scripts/python.exe <args> (.venv/bin/python on POSIX); in a worktree without one, <main>/.venv/Scripts/python.exe <args>. Allowed: Bash(.venv/*/python* *); a repo-declared CLI stays allowed.\ndetails: docs-src/dev/refusals.md#bare-interpreter (lab-commons)"
+    "reason": "BARE-INTERPRETER: a bare python/py, `uv run` or `uvx` runs an interpreter somebody else chose, and `uv run` may mutate the checkout environment outside the checked dependency door.\nUse .venv/Scripts/python.exe (.venv/bin/python POSIX). Each worktree owns .venv; main's is main-only. Missing? Existing checkout interpreter: -m lab_commons.dev.dep --bootstrap <worktree>. Checked dependency doors are agent-allowed, not arbitrary installers. Allowed: Bash(.venv/*/python* *).\ndetails: docs-src/dev/refusals.md#bare-interpreter (lab-commons)"
   },
   {
     "name": "RECURSIVE-GREP",
