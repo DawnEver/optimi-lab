@@ -47,6 +47,12 @@ prefix_rule(
 )
 
 prefix_rule(
+    pattern = [[".venv/Scripts/python.exe", ".venv/bin/python", "./.venv/Scripts/python.exe", "./.venv/bin/python"], "-m", "lab_commons.dev.dep", "--bootstrap"],
+    decision = "allow",
+    justification = "creates the named checkout's own environment through the checked dependency door",
+)
+
+prefix_rule(
     pattern = [[".venv/Scripts/python.exe", ".venv/bin/python", "./.venv/Scripts/python.exe", "./.venv/bin/python"], "scripts/deny_rules.py"],
     decision = "allow",
     justification = "repo door scripts/deny_rules.py",
