@@ -308,6 +308,10 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   row whose stated reason is false reads as re-measured when nobody has re-measured it. wdg-lab
 #:   carried the same sentence and the FIRST half was the false one there -- it has the subject,
 #:   adopted `netverb`, and that row became a MECHANISM. Ours is absent for the other reason alone);
+#:   MERGE-DEVIATIONS-NAMED (arrived with lab-commons bb9968e, 2026-10-07, measured that day: the
+#:   kit owns the audit, `lab_commons.dev.admission.merge_refusals`, and it runs at PUSH -- this repo
+#:   installs no `pre-push` hook and `admission` / `mergeaudit` appear in no file under `scripts/`,
+#:   so a merge losing a test unnamed is published without a refusal. Closed by wiring the push).
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
 #: were deleted here in the same edit that lowered the ceiling, which is the only way this number
@@ -320,6 +324,7 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'VERDICT-BAR-IS-THE-INCREMENT',
     'NETWORK-RETRY-THEN-REPORT',
+    'MERGE-DEVIATIONS-NAMED',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -358,7 +363,11 @@ _ABSENT: Final = frozenset({
 #: family rather than a file here" -- and the family shipped one. A reason that states the condition
 #: under which it stops applying is the cheapest kind to retire, and writing them that way is why
 #: this number could move today without anybody re-litigating the gap.
-_ABSENT_CEILING: Final = 7
+#:
+#: AND 7 -> 8 on 2026-10-07, A RISE for a rule this repo had never carried, stated as 12 -> 14 was:
+#: upgrading lab-commons (dfc2e61 -> bb9968e) brought MERGE-DEVIATIONS-NAMED, measured at the tree
+#: and admitted with its reason above rather than left in neither set.
+_ABSENT_CEILING: Final = 8
 
 
 def _adoption() -> Adoption:
