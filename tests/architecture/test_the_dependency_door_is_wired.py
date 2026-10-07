@@ -33,6 +33,15 @@ THE BROKER AND THE TREE ARE ISOLATED AND THAT IS THE DOOR WORKING, not a way aro
 runs inside a `verify` run holding the real box seat, so the real port would REFUSE here --
 correctly, and before it could report anything. The adapters are optimi-lab's either way; only the
 records directory they read is the case's. NOTHING BELOW INSTALLS ANYTHING.
+
+THE MUTATE-DRIVING ARMS ALSO NEED A PRIVATE SEAT RECORDS ROOT, since lab-commons bb9968e (measured
+2026-10-07 as four reds here, the same four wdg-lab measured and fixed in e713d728).
+`lab_commons.dev.boxlock.BoxLock.held` takes `EnvLock(sys.prefix)` for the WHOLE of a verdict run,
+and `lab_commons.dev.dep._change` takes the same seat for a mutation -- so a dry run inside a verdict
+is refused before it can report, and the port's broker no longer reaches that shared seat. Pointing
+`LAB_COMMONS_RESOURCE_DIR` -- the relocation `lab_commons.resources` documents FOR TESTS -- at a
+per-test directory puts the arms' own locks in a private namespace while the enclosing verdict keeps
+the real one. What each arm measures is unchanged.
 """
 
 from __future__ import annotations
@@ -41,9 +50,10 @@ import sys
 from pathlib import Path
 from typing import Final
 
+import pytest
 from lab_commons.dev.famtests import depdoor
 from lab_commons.dev.verify import LOG_DIRECTORY
-from lab_commons.resources import Broker
+from lab_commons.resources import RESOURCE_DIR_ENV, Broker
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
@@ -58,6 +68,12 @@ REPO_NAME: Final = 'optimi-lab'
 #: The repo-relative shape a verdict log takes here, composed from the two names that own its halves
 #: rather than spelled again: `lab_commons.dev.verify` owns the directory, `scripts/dep.py` the glob.
 ANCHOR_SHAPE: Final = f'{LOG_DIRECTORY}/{ANCHOR_GLOB}'
+
+
+@pytest.fixture(autouse=True)
+def _private_seat_records(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The door's own locks contend in a private root -- see this module's docstring for the why."""
+    monkeypatch.setenv(RESOURCE_DIR_ENV, str(tmp_path / 'seat-records'))
 
 
 def test_this_repo_supplies_both_halves_of_the_door(tmp_path: Path) -> None:
