@@ -29,18 +29,18 @@ OBJECTIVES = ObjectiveSet([Objective('f1', 'minimize'), Objective('f2', 'minimiz
 class Counting:
     """An evaluator that scores ``(x0, offset + x1)`` and remembers every point it was handed."""
 
-    def __init__(self, offset=0.0):
+    def __init__(self, offset: float = 0.0) -> None:
         self.offset = offset
         self.seen = []
 
-    def __call__(self, inputs):
+    def __call__(self, inputs: np.ndarray) -> Evaluation:
         self.seen.append(inputs.copy())
         return Evaluation(inputs=inputs, values=np.column_stack([inputs[:, 0], self.offset + inputs[:, 1]]))
 
 
 def test_points_go_to_the_routed_evaluator_and_come_back_in_order():
     cheap, dear = Counting(0.0), Counting(100.0)
-    evaluate = routed(OBJECTIVES, [cheap, dear], lambda x: np.array([1, SCREENED, 0, 1]))
+    evaluate = routed(OBJECTIVES, [cheap, dear], lambda _: np.array([1, SCREENED, 0, 1]))
     x = np.arange(8.0).reshape(4, 2)
     got = evaluate(x)
     assert np.array_equal(got.inputs, x)
@@ -77,7 +77,7 @@ def test_screened_produces_no_value():
 )
 def test_a_route_outside_the_declared_evaluators_is_refused(route, match):
     with pytest.raises(Refusal, match=match):
-        routed(OBJECTIVES, [Counting()], lambda x: route)(np.ones((2, 2)))
+        routed(OBJECTIVES, [Counting()], lambda _: route)(np.ones((2, 2)))
 
 
 def test_no_evaluator_is_refused():
