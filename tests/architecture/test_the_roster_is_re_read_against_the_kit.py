@@ -89,7 +89,8 @@ KIT_PACKAGE: Final = 'lab_commons.dev'
 #: RE-TAKEN 2026-10-03, the FIFTH firing: lab-commons `9ce57c3` (worktreeplace, famfiles and their
 #: famtests) reads 91, past 69 + 16. Same slack: 91 - 13 = 78.
 #: RE-TAKEN 2026-10-04 AT 90, from 78: lab-commons ec5e8c5 and the consumer-facts merge read 98.
-KIT_MODULE_FLOOR: Final = 90
+#: RE-TAKEN 2026-10-09 AT 95, from 90: lab-commons 2cca293 reads 108. Same slack: 108 - 13 = 95.
+KIT_MODULE_FLOOR: Final = 95
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
 #: 65 + 16 = 81 against today's 78. The kit grew 67 -> 74 -> 78 in three days, so this will bind

@@ -1,5 +1,12 @@
 [
   {
+    "name": "SUBAGENT-NO-HEAVY-NO-PUSH",
+    "pattern": "(?:git(?:\\.exe)?(?:\\s+-C\\s+\\S+)*\\s+push\\b|(?:sh\\s+)?\\S*with-retry\\.sh\\s+push\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+-m\\s+lab_commons\\.dev\\.netverb\\b[^\\n]*\\spush\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+\\S*runner\\.py\\s+(?:gate|heavy)\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+\\S*runner\\.py\\b[^\\n]*\\s--with-heavy\\b|git(?:\\.exe)?\\b[^\\n]*\\s--no-verify\\b|SKIP=|\\$env:SKIP\\s*=)",
+    "matches": "command",
+    "reason": "SUBAGENT-NO-HEAVY-NO-PUSH: a subagent verdict duplicates the one run the main session makes on the integrated tree, and publishing is the main session`s.\nCommit on your lane and hand the commit SHA back to the main session; it merges every ready lane and runs the gate ONCE, then pushes. A targeted measure of the tests you touched is yours.\ndetails: docs-src/dev/refusals.md#subagent-no-heavy-no-push (lab-commons)",
+    "scope": "subagent"
+  },
+  {
     "name": "BARE-TEST-INVOCATION",
     "pattern": "(?:\\S*python[\\w.]*\\s+-m\\s+pytest\\b|pytest\\b)",
     "matches": "command",
@@ -38,9 +45,15 @@
   },
   {
     "name": "PUSH-FORCE",
-    "pattern": "\\bpush\\b[^\\n]*\\s(?:--force\\b|--force-with-lease\\b|-f\\b)",
+    "pattern": "\\bpush\\b[^\\n]*\\s(?:--force\\b|--force-with-lease\\b|-f\\b|\\+\\S)",
     "matches": "argument",
     "reason": "PUSH-FORCE: rewriting a shared ref invalidates every verdict taken against the old tree; --force-with-lease included.\nLand the change FORWARD as a new commit on your own lane, then push without the force flag.\ndetails: docs-src/dev/refusals.md#push-force (lab-commons)"
+  },
+  {
+    "name": "PUSH-REMOTE-DELETE",
+    "pattern": "\\bpush\\b[^\\n]*\\s(?:--delete\\b|-d\\b|--prune\\b|--mirror\\b|:\\S)",
+    "matches": "argument",
+    "reason": "PUSH-REMOTE-DELETE: deleting a ref on origin is unrecoverable from the agent`s side; a main session may push (MAIN-SESSION-PUBLISHES) but remote deletions stay with a human.\nLeave the remote branch and name it to the user; local cleanup is `python -m lab_commons.dev.branchset --apply`, which deletes merged LOCAL branches only.\ndetails: docs-src/dev/refusals.md#push-remote-delete (lab-commons)"
   },
   {
     "name": "PUSH-NO-VERIFY",

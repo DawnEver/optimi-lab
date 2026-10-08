@@ -91,6 +91,10 @@ from deny_rules import ADOPTION  # noqa: E402
 #:
 #: `RECURSIVE-GREP` ARRIVED WITH THE KIT AT 9a5adc9 (2026-10-05), the same way: its exit is
 #: `git grep`, which every checkout has.
+#:
+#: `PUSH-REMOTE-DELETE` and `SUBAGENT-NO-HEAVY-NO-PUSH` ARRIVED WITH THE KIT AT 2cca293 (2026-10-09),
+#: the same way: the first hands a remote branch to the user, the second is subagent-scoped and hands
+#: a commit SHA back -- neither asks this repo for an exit.
 _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
     'BARE-TEST-INVOCATION',
@@ -101,7 +105,9 @@ _SHIPPED: Final = frozenset({
     'GIT-STASH',
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
+    'PUSH-REMOTE-DELETE',
     'RECURSIVE-GREP',
+    'SUBAGENT-NO-HEAVY-NO-PUSH',
     'WORKTREE-BASE-IS-EXPLICIT',
     'WORKTREES-STAY-INSIDE',
 })

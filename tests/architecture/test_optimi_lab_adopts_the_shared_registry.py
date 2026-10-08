@@ -271,6 +271,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # family door and tracked script entry point, and the Codex rules from the same table; the allow
     # test holds both files current and the block between its measured floor and headroom.
     'AUTO-MODE-RUNS-THE-DOORS': (_ALLOW, _GUARD_RULES, '.codex/rules/family-doors.rules'),
+    # ARRIVED WITH lab-commons 2cca293 (dfc2e61 -> 2cca293, 2026-10-09). The subagent-scoped deny row
+    # SUBAGENT-NO-HEAVY-NO-PUSH ships from `scripts/deny_rules.py` and is pinned by name in `_GUARD`,
+    # and it is the half of MAIN-SESSION-PUBLISHES this repo can refuse: a subagent's push is denied,
+    # so only a main session publishes.
+    **dict.fromkeys(('MAIN-SESSION-PUBLISHES', 'SUBAGENT-NO-HEAVY-NO-PUSH'), (_GUARD, _GUARD_RULES)),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -311,7 +316,11 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   MERGE-DEVIATIONS-NAMED (arrived with lab-commons bb9968e, 2026-10-07, measured that day: the
 #:   kit owns the audit, `lab_commons.dev.admission.merge_refusals`, and it runs at PUSH -- this repo
 #:   installs no `pre-push` hook and `admission` / `mergeaudit` appear in no file under `scripts/`,
-#:   so a merge losing a test unnamed is published without a refusal. Closed by wiring the push).
+#:   so a merge losing a test unnamed is published without a refusal. Closed by wiring the push);
+#:   ONE-RUN-AFTER-INTEGRATION (arrived with lab-commons 2cca293, 2026-10-09, measured that day: the
+#:   kit's half is live -- `lab_commons.dev.verify` attaches a duplicate run and writes the ledger --
+#:   but this repo installs no `pre-push` hook, so no push admission reads that ledger and an
+#:   integrated tree can be published unverified. Closed by the same push wiring as the row above).
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
 #: were deleted here in the same edit that lowered the ceiling, which is the only way this number
@@ -325,6 +334,7 @@ _ABSENT: Final = frozenset({
     'VERDICT-BAR-IS-THE-INCREMENT',
     'NETWORK-RETRY-THEN-REPORT',
     'MERGE-DEVIATIONS-NAMED',
+    'ONE-RUN-AFTER-INTEGRATION',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -367,7 +377,10 @@ _ABSENT: Final = frozenset({
 #: AND 7 -> 8 on 2026-10-07, A RISE for a rule this repo had never carried, stated as 12 -> 14 was:
 #: upgrading lab-commons (dfc2e61 -> bb9968e) brought MERGE-DEVIATIONS-NAMED, measured at the tree
 #: and admitted with its reason above rather than left in neither set.
-_ABSENT_CEILING: Final = 8
+#:
+#: AND 8 -> 9 on 2026-10-09, the same kind of rise: lab-commons 2cca293 brought
+#: ONE-RUN-AFTER-INTEGRATION, measured and admitted with its reason above.
+_ABSENT_CEILING: Final = 9
 
 
 def _adoption() -> Adoption:

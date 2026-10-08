@@ -33,13 +33,15 @@
       "Bash(./.venv/Scripts/python.exe scripts/pdoc.py *)",
       "Bash(./.venv/bin/python scripts/pdoc.py *)",
       "Bash(.claude/worktrees/*/.venv/Scripts/python.exe scripts/pdoc.py *)",
-      "Bash(.claude/worktrees/*/.venv/bin/python scripts/pdoc.py *)"
+      "Bash(.claude/worktrees/*/.venv/bin/python scripts/pdoc.py *)",
+      "Bash(git merge --ff-only *)",
+      "Bash(git -C * merge --ff-only *)"
     ]
   },
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",

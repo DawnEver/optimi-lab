@@ -259,8 +259,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-07 after updating the two stale rows: own=539 '
-        'project=44 -> 8.16%, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on 2026-10-04, itself up from own=517 project=44 -> 8.51% after a2f50b9, itself down from own=518 project=44 -> 8.49% after 9ce57c3 the day before, up from own=505 project=44 -> 8.71% earlier that day, up from own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
+        'family half in it to split off. RE-MEASURED 2026-10-09 after the per-machine-config row: own=544 '
+        'project=44 -> 8.27%, up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale rows, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on 2026-10-04, itself up from own=517 project=44 -> 8.51% after a2f50b9, itself down from own=518 project=44 -> 8.49% after 9ce57c3 the day before, up from own=505 project=44 -> 8.71% earlier that day, up from own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
         'that day, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
         'project=42 -> 8.81% at the 2026-09-19 re-take, itself up from own=402 project=30 -> 7.46% at the '
         '2026-09-18 adoption. THIS RE-TAKE IS THE TABLE MEASURING ITSELF, which is why it is worth the '
@@ -523,12 +523,19 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'name the MECHANISM in its own files. 30 of 37 enforced with the other 7 named as gaps is a '
         'statement about optimi-lab and is false of every other checkout. RE-MEASURED 2026-10-01 after '
         'VERDICT-AS-STATUS and ISSUE-IS-INTENT, and again 2026-10-03 after WORKTREES-STAY-INSIDE and '
-        'PROJECT-FILES-HAVE-ONE-SOURCE, 2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap: own=114 '
-        'repo=3 -> 2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
+        'PROJECT-FILES-HAVE-ONE-SOURCE, 2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 after lab-commons 2cca293: own=116 '
+        'repo=3 -> 2.59%, down from own=114 repo=3 -> 2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from own=102 repo=3 -> '
         '2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up from own=98 '
         'repo=3 -> 3.06% on 2026-09-17: three rules arrived and the row fell UNDER the 3.0% bar, '
         'recorded in `BELOW_THE_BAR` -- because the file is a table of rule IDs and mechanism paths, '
         'and neither spelling is a noun this scan can see.',
+    ),
+    'tests/architecture/test_per_machine_config_is_not_in_the_checkout.py': Placement(
+        STAYS,
+        'A FACT ABOUT THIS CHECKOUT: per-machine preferences live in the lab-commons machine file '
+        '(user ruling 2026-10-09) and optimi-lab reads none, so the retired `usr/` config files are '
+        'refused by name with the remedy. The scan is three lines over two paths; the planted control '
+        'is the rest.',
     ),
     'tests/architecture/test_the_agent_guard_is_live.py': Placement(
         STAYS,
@@ -541,7 +548,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'registry order on two real rules that both match `git push --force`. THAT IS A STRICTENING AND NO CALLER '
         'DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against the real registry when the '
         "arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine command-plus-rule rows and the six sanctioned "
-        'exits. RE-MEASURED 2026-10-05: own=55 hits=0, up from own=52 on 2026-10-03 after the progressive '
+        'exits. RE-MEASURED 2026-10-09: own=57 hits=0, up from own=55 on 2026-10-05, up from own=52 on 2026-10-03 after the progressive '
         'injected-text control was adopted, itself up from own=50 on 2026-10-01 by the two names lab-commons '
         '9ce57c3 shipped (BARE-INTERPRETER, WORKTREES-STAY-INSIDE) and recorded in `BELOW_THE_BAR`; own=50 was itself up from own=43 on 2026-09-19 (itself down from own=79) by the '
         'three FORGE-WRITE-* names, their three refusals and two exits; the 43 stays the calibration point the binder '

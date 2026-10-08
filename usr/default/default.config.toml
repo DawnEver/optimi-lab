@@ -1,5 +1,0 @@
-[core]
-
-[utils]
-resend_api_key='your resend api_key here'
-text_editor_command='start'
