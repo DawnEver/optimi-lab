@@ -65,7 +65,8 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev.famtests import agentguard
+from lab_commons.dev.famtests import agentguard, injectedtext
+from lab_commons.dev.hooks import DENY_RULES
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -87,6 +88,13 @@ from deny_rules import ADOPTION  # noqa: E402
 #:
 #: `BARE-INTERPRETER` and `WORKTREES-STAY-INSIDE` ARRIVED WITH THE KIT AT 9ce57c3 (2026-10-03) the
 #: same way: neither needs a remedy from this repo, so both ship unconditionally.
+#:
+#: `RECURSIVE-GREP` ARRIVED WITH THE KIT AT 9a5adc9 (2026-10-05), the same way: its exit is
+#: `git grep`, which every checkout has.
+#:
+#: `PUSH-REMOTE-DELETE` and `SUBAGENT-NO-HEAVY-NO-PUSH` ARRIVED WITH THE KIT AT 2cca293 (2026-10-09),
+#: the same way: the first hands a remote branch to the user, the second is subagent-scoped and hands
+#: a commit SHA back -- neither asks this repo for an exit.
 _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
     'BARE-TEST-INVOCATION',
@@ -97,6 +105,9 @@ _SHIPPED: Final = frozenset({
     'GIT-STASH',
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
+    'PUSH-REMOTE-DELETE',
+    'RECURSIVE-GREP',
+    'SUBAGENT-NO-HEAVY-NO-PUSH',
     'WORKTREE-BASE-IS-EXPLICIT',
     'WORKTREES-STAY-INSIDE',
 })
@@ -131,6 +142,16 @@ def test_the_committed_rules_are_the_rendered_rules() -> None:
 def test_every_rule_is_accounted_for_and_every_remedy_exists() -> None:
     """No silently-dropped rule, no typo'd ID, and no exit naming a file this tree does not track."""
     agentguard.assert_every_rule_is_accounted_for(root=_ROOT, adoption=ADOPTION)
+
+
+def test_every_refusal_fits_the_progressive_budget() -> None:
+    """INJECTED-TEXT-IS-PROGRESSIVE: each refusal, with this repo's own doors, is <=3 lines ending in a link."""
+    injectedtext.assert_refusals_fit(DENY_RULES, ADOPTION.remedies)
+
+
+def test_the_refusal_budget_still_convicts() -> None:
+    """PLANTED CONTROL: the budget refuses a planted over-long refusal and passes a fitting one."""
+    injectedtext.assert_the_budget_still_convicts()
 
 
 def test_the_shipped_set_is_pinned_by_name() -> None:

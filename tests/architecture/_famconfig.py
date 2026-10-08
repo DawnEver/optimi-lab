@@ -77,6 +77,7 @@ __all__ = [
     'PRECOMMIT_STAGE_MOVE',
     'PYPROJECT_SECTION_DELTAS',
     'REPO',
+    'RGIGNORE_DELTA',
 ]
 
 #: How this repo names itself in a rendered file's drop comments.
@@ -187,11 +188,15 @@ GITATTRIBUTES_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
 #: Every artefact this repo declares a delta against, by name. All four of the kit's bases are
 #: here as of lab-commons 9ce57c3, and the test pins that this set covers the kit's EXACTLY, so a fourth
 #: base cannot arrive unnoticed.
+#: The `.rgignore` base (lab-commons 9a5adc9) skips `attic/`; this repo adds nothing.
+RGIGNORE_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
+
 DELTAS: Final[dict[str, Delta]] = {
     '.gitattributes': GITATTRIBUTES_DELTA,
     '.gitignore': GITIGNORE_DELTA,
     '.pre-commit-config.yaml': PRECOMMIT_DELTA,
     'Makefile': MAKEFILE_DELTA,
+    '.rgignore': RGIGNORE_DELTA,
 }
 
 #: This repo's delta against each owned `pyproject.toml` table -- the kit's SECTION base, judged by

@@ -191,5 +191,29 @@ def test_the_package_holds_its_own_declarations():
 def test_every_public_name_of_the_subpackage_is_reachable():
     assert sorted(package.__all__) == package.__all__
     assert len(package.__all__) == len(set(package.__all__))
-    for name in package.__all__:
-        assert vars(package).get(name) is not None, f'{name} is declared and missing'
+    exports = (
+        package.DecompositionProposer,
+        package.EvolutionaryProposer,
+        package.PopulationProposer,
+        package.SwarmProposer,
+        package.binomial_crossover,
+        package.crowding_distance,
+        package.crowding_select,
+        package.decomposition_weights,
+        package.differential_mutation,
+        package.mode,
+        package.moead,
+        package.mopso,
+        package.nearest_neighbors,
+        package.nsga2,
+        package.nsga3,
+        package.polynomial_mutation,
+        package.pso_position,
+        package.pso_velocity,
+        package.random_select,
+        package.reference_select,
+        package.simulated_binary_crossover,
+        package.tchebycheff,
+        package.tournament_select,
+    )
+    assert sorted(export.__name__ for export in exports) == package.__all__

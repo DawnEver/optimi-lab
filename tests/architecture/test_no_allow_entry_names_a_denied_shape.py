@@ -86,7 +86,11 @@ _HARMLESS_ENTRY: Final = 'Bash(echo *)'
 
 #: AUTO-MODE-RUNS-THE-DOORS, measured 2026-10-05 at lab-commons dd33312: 2 derived rows, 7 family
 #: doors, 3 tracked script entry points, 0 declared. A new door costs this number an argument.
-_ALLOW_FLOOR: Final = 12
+#: RE-TAKEN 2026-10-07 AT 33, from 12, by counting the rendered `.claude/settings.json` at lab-commons
+#: bb9968e: 2 derived rows, 7 family doors, and 6 spellings (`.venv/`, `./.venv/`,
+#: `.claude/worktrees/*/.venv/`, each Scripts and bin) of each of 4 doors -- `dep --bootstrap`, which
+#: arrived with bb9968e, and the 3 tracked scripts, whose one `.venv/*/python*` glob each it split.
+_ALLOW_FLOOR: Final = 33
 _ALLOW_HEADROOM: Final = 2
 
 

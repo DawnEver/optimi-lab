@@ -22,10 +22,6 @@ from optimi_lab.core.errors import refuse
 
 __all__ = ['SCORE_METHODS', 'score_regression']
 
-SCORE_METHODS = ('r2', 'mse', 'rmse', 'mae', 'mad')
-"""The declared score methods, in one place — a refusal names this tuple rather than a constant
-in another module."""
-
 _SCORERS: dict[str, Callable[[np.ndarray, np.ndarray], float]] = {
     'r2': r2_score,
     'mse': mean_squared_error,
@@ -33,6 +29,9 @@ _SCORERS: dict[str, Callable[[np.ndarray, np.ndarray], float]] = {
     'mae': mean_absolute_error,
     'mad': median_absolute_error,  # scikit-learn's median of |y_true - y_pred|, not a deviation from the median
 }
+
+SCORE_METHODS = tuple(_SCORERS)
+"""The declared score methods, derived from the scorers that implement them."""
 
 
 def score_regression(

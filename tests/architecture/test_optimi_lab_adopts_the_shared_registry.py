@@ -238,7 +238,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # FORGE-THROUGH-THE-DOOR rests on the SAME two files: its three FORGE-WRITE-* deny rows ship
     # through this guard, so a `gh`/`tea`/raw-API write is refused live and the exit they name is
     # `python -m lab_commons.dev.forge`, the client that stamps which machine and agent wrote.
-    **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR'), (_GUARD, _GUARD_RULES)),
+    **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR', 'INJECTED-TEXT-IS-PROGRESSIVE'), (_GUARD, _GUARD_RULES)),
     # ADOPTED 2026-10-01 with `lab_commons.dev.codeplace`: the filesystem walk over this tree's
     # declared code roots, and the `scratch/` lifecycle that is the exit from it. The mechanism is
     # the family's; the roots, the pruned generated trees and the age bound are this repo's.
@@ -271,6 +271,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # family door and tracked script entry point, and the Codex rules from the same table; the allow
     # test holds both files current and the block between its measured floor and headroom.
     'AUTO-MODE-RUNS-THE-DOORS': (_ALLOW, _GUARD_RULES, '.codex/rules/family-doors.rules'),
+    # ARRIVED WITH lab-commons 2cca293 (dfc2e61 -> 2cca293, 2026-10-09). The subagent-scoped deny row
+    # SUBAGENT-NO-HEAVY-NO-PUSH ships from `scripts/deny_rules.py` and is pinned by name in `_GUARD`,
+    # and it is the half of MAIN-SESSION-PUBLISHES this repo can refuse: a subagent's push is denied,
+    # so only a main session publishes.
+    **dict.fromkeys(('MAIN-SESSION-PUBLISHES', 'SUBAGENT-NO-HEAVY-NO-PUSH'), (_GUARD, _GUARD_RULES)),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -308,6 +313,14 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   row whose stated reason is false reads as re-measured when nobody has re-measured it. wdg-lab
 #:   carried the same sentence and the FIRST half was the false one there -- it has the subject,
 #:   adopted `netverb`, and that row became a MECHANISM. Ours is absent for the other reason alone);
+#:   MERGE-DEVIATIONS-NAMED (arrived with lab-commons bb9968e, 2026-10-07, measured that day: the
+#:   kit owns the audit, `lab_commons.dev.admission.merge_refusals`, and it runs at PUSH -- this repo
+#:   installs no `pre-push` hook and `admission` / `mergeaudit` appear in no file under `scripts/`,
+#:   so a merge losing a test unnamed is published without a refusal. Closed by wiring the push);
+#:   ONE-RUN-AFTER-INTEGRATION (arrived with lab-commons 2cca293, 2026-10-09, measured that day: the
+#:   kit's half is live -- `lab_commons.dev.verify` attaches a duplicate run and writes the ledger --
+#:   but this repo installs no `pre-push` hook, so no push admission reads that ledger and an
+#:   integrated tree can be published unverified. Closed by the same push wiring as the row above).
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
 #: were deleted here in the same edit that lowered the ceiling, which is the only way this number
@@ -320,6 +333,8 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'VERDICT-BAR-IS-THE-INCREMENT',
     'NETWORK-RETRY-THEN-REPORT',
+    'MERGE-DEVIATIONS-NAMED',
+    'ONE-RUN-AFTER-INTEGRATION',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -358,7 +373,14 @@ _ABSENT: Final = frozenset({
 #: family rather than a file here" -- and the family shipped one. A reason that states the condition
 #: under which it stops applying is the cheapest kind to retire, and writing them that way is why
 #: this number could move today without anybody re-litigating the gap.
-_ABSENT_CEILING: Final = 7
+#:
+#: AND 7 -> 8 on 2026-10-07, A RISE for a rule this repo had never carried, stated as 12 -> 14 was:
+#: upgrading lab-commons (dfc2e61 -> bb9968e) brought MERGE-DEVIATIONS-NAMED, measured at the tree
+#: and admitted with its reason above rather than left in neither set.
+#:
+#: AND 8 -> 9 on 2026-10-09, the same kind of rise: lab-commons 2cca293 brought
+#: ONE-RUN-AFTER-INTEGRATION, measured and admitted with its reason above.
+_ABSENT_CEILING: Final = 9
 
 
 def _adoption() -> Adoption:

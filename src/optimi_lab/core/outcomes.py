@@ -48,7 +48,14 @@ class Outcome(StrEnum):
 
 
 @dataclass(frozen=True, slots=True, eq=False)
-class Evaluation:
+class _EvaluationFields:
+    inputs: np.ndarray
+    values: np.ndarray
+    outcomes: np.ndarray | None = None
+
+
+@dataclass(frozen=True, slots=True, eq=False, init=False)
+class Evaluation(_EvaluationFields):
     """A batch of evaluated points: the points, their values, and the outcome of each value.
 
     ``inputs`` has shape ``(n_points, n_var)``; ``values`` has shape ``(n_points, n_obj)``, and
@@ -61,13 +68,9 @@ class Evaluation:
     model could not express without a whole-row sentinel.
     """
 
-    inputs: np.ndarray
-    values: np.ndarray
-    outcomes: np.ndarray | None = None
-
-    def __post_init__(self) -> None:
-        inputs = np.asarray(self.inputs, dtype=float)
-        values = np.asarray(self.values, dtype=float)
+    def __init__(self, inputs: np.ndarray, values: np.ndarray, outcomes: np.ndarray | None = None) -> None:
+        inputs = np.asarray(inputs, dtype=float)
+        values = np.asarray(values, dtype=float)
         if inputs.ndim != 2:
             refuse(f'inputs must be a 2-D array with one row per point, got shape {inputs.shape}')
         if values.ndim != 2:
@@ -75,7 +78,7 @@ class Evaluation:
         if values.shape[0] != inputs.shape[0]:
             refuse(f'values must hold one row per point, got {values.shape[0]} row(s) for {inputs.shape[0]} point(s)')
 
-        outcomes = self._coerce_outcomes(values.shape)
+        outcomes = self._coerce_outcomes(outcomes, values.shape)
         produced = outcomes == Outcome.OK
         offending = np.argwhere(produced & ~np.isfinite(values))
         if offending.size:
@@ -84,15 +87,14 @@ class Evaluation:
                 f'cell {list(cell)} is marked {Outcome.OK.value!r} but holds {float(values[cell])!r}; a point that '
                 f'produced no value must carry one of {[member.value for member in Outcome]} instead of a number'
             )
-        object.__setattr__(self, 'inputs', inputs)
-        object.__setattr__(self, 'values', np.where(produced, values, np.nan))
-        object.__setattr__(self, 'outcomes', outcomes)
+        _EvaluationFields.__init__(self, inputs, np.where(produced, values, np.nan), outcomes)
 
-    def _coerce_outcomes(self, shape: tuple[int, int]) -> np.ndarray:
+    @staticmethod
+    def _coerce_outcomes(outcomes: np.ndarray | None, shape: tuple[int, int]) -> np.ndarray:
         """Return ``shape``-shaped object array of :class:`Outcome`, or refuse naming the members."""
-        if self.outcomes is None:
+        if outcomes is None:
             return np.full(shape, Outcome.OK, dtype=object)
-        given = np.asarray(self.outcomes, dtype=object)
+        given = np.asarray(outcomes, dtype=object)
         if given.shape != shape:
             refuse(f'outcomes must hold one entry per value, expected shape {shape}, got {given.shape}')
         coerced = np.empty(shape, dtype=object)

@@ -76,23 +76,29 @@ class Variable:
 
 
 @dataclass(frozen=True, slots=True)
-class Objective:
+class _ObjectiveFields:
+    """The generated frozen constructor assigns the normalized field schema once."""
+
+    name: str
+    direction: Direction = Direction.MINIMIZE
+    operating_point: str | None = None
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class Objective(_ObjectiveFields):
     """One quantity to optimize: a name, a direction, and the operating point that produces it.
 
     ``operating_point`` is descriptive — it groups objectives for a report and tells an
     evaluator which condition to drive; ``None`` means "the run evaluates one condition".
     """
 
-    name: str
-    direction: Direction = Direction.MINIMIZE
-    operating_point: str | None = None
-
-    def __post_init__(self) -> None:
-        if not self.name:
+    def __init__(
+        self, name: str, direction: Direction = Direction.MINIMIZE, operating_point: str | None = None
+    ) -> None:
+        if not name:
             refuse('an objective name must be a non-empty string')
-        if not isinstance(self.direction, Direction):
-            coerced = coerce_enum(Direction, self.direction, f'the direction of objective {self.name!r}')
-            object.__setattr__(self, 'direction', coerced)
+        direction = coerce_enum(Direction, direction, f'the direction of objective {name!r}')
+        _ObjectiveFields.__init__(self, name, direction, operating_point)
 
     @property
     def maximize(self) -> bool:
@@ -101,18 +107,22 @@ class Objective:
 
 
 @dataclass(frozen=True, slots=True)
-class VariableSet:
+class _VariableSetFields:
+    variables: tuple[Variable, ...]
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class VariableSet(_VariableSetFields):
     """A non-empty collection of uniquely named variables, in declaration order.
 
     Order is the contract: column ``i`` of every matrix this package passes around is
     ``variables[i]``, and it is the only thing that says so — there is no name matrix.
     """
 
-    variables: tuple[Variable, ...]
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'variables', tuple(self.variables))
-        _require_declared_names(self.names, 'variable set')
+    def __init__(self, variables: tuple[Variable, ...]) -> None:
+        variables = tuple(variables)
+        _require_declared_names(tuple(variable.name for variable in variables), 'variable set')
+        _VariableSetFields.__init__(self, variables)
 
     @property
     def n_var(self) -> int:
@@ -168,18 +178,22 @@ class VariableSet:
 
 
 @dataclass(frozen=True, slots=True)
-class ObjectiveSet:
+class _ObjectiveSetFields:
+    objectives: tuple[Objective, ...]
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class ObjectiveSet(_ObjectiveSetFields):
     """A non-empty collection of uniquely named objectives, in declaration order.
 
     Column ``i`` of an objective matrix is ``objectives[i]``, for every evaluation, every
     acquisition and every report. Nothing reorders it.
     """
 
-    objectives: tuple[Objective, ...]
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'objectives', tuple(self.objectives))
-        _require_declared_names(self.names, 'objective set')
+    def __init__(self, objectives: tuple[Objective, ...]) -> None:
+        objectives = tuple(objectives)
+        _require_declared_names(tuple(objective.name for objective in objectives), 'objective set')
+        _ObjectiveSetFields.__init__(self, objectives)
 
     @property
     def n_obj(self) -> int:

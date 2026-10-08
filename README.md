@@ -49,6 +49,13 @@ pip -m venv .venv
 uv pip install -e . # for normal user
 uv pip install -e ".[dev]" # for developer
 ```
+## Configuration
+
+optimi-lab reads no configuration file: every setting is an argument. The old `usr/` config tree
+is retired -- per-machine settings across the family live in the lab-commons machine file
+(`lab_commons.config`), and a leftover `usr/local/config.toml` is refused by the architecture
+tests with that remedy.
+
 ## Usage
 
 Typical steps:

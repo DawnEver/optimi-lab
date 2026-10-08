@@ -1,71 +1,90 @@
 [
   {
+    "name": "SUBAGENT-NO-HEAVY-NO-PUSH",
+    "pattern": "(?:git(?:\\.exe)?(?:\\s+-C\\s+\\S+)*\\s+push\\b|(?:sh\\s+)?\\S*with-retry\\.sh\\s+push\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+-m\\s+lab_commons\\.dev\\.netverb\\b[^\\n]*\\spush\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+\\S*runner\\.py\\s+(?:gate|heavy)\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+\\S*runner\\.py\\b[^\\n]*\\s--with-heavy\\b|git(?:\\.exe)?\\b[^\\n]*\\s--no-verify\\b|SKIP=|\\$env:SKIP\\s*=)",
+    "matches": "command",
+    "reason": "SUBAGENT-NO-HEAVY-NO-PUSH: a subagent verdict duplicates the one run the main session makes on the integrated tree, and publishing is the main session`s.\nCommit on your lane and hand the commit SHA back to the main session; it merges every ready lane and runs the gate ONCE, then pushes. A targeted measure of the tests you touched is yours.\ndetails: docs-src/dev/refusals.md#subagent-no-heavy-no-push (lab-commons)",
+    "scope": "subagent"
+  },
+  {
     "name": "BARE-TEST-INVOCATION",
     "pattern": "(?:\\S*python[\\w.]*\\s+-m\\s+pytest\\b|pytest\\b)",
     "matches": "command",
-    "reason": "a hand-written test line has no VERDICT. An exit code cannot say whether the run COVERED what it selected, so a dead worker, a truncated run or a collection error that reported nothing all read as green -- and the reader has merged \"the tests passed\" with \"nobody knows\". Re-issue through the entry point that produces a verdict: ./.venv/Scripts/python.exe -m lab_commons.dev.verify"
+    "reason": "BARE-TEST-INVOCATION: a hand-written test line has no verdict: its exit code cannot tell a covered run from a dead or truncated one.\nRe-issue through the entry point that produces a verdict: ./.venv/Scripts/python.exe -m lab_commons.dev.verify\ndetails: docs-src/dev/refusals.md#bare-test-invocation (lab-commons)"
   },
   {
     "name": "FORGE-WRITE-VIA-CLI",
     "pattern": "(?:\\bgh\\s+(?:issue|pr)\\s+(?:create|comment|close|reopen|edit|review|merge|delete|lock|unlock|transfer|pin|unpin|ready|develop)\\b|\\btea\\s+(?:(?:issues?|i|pulls?|pr)\\s+(?:create|c|new|edit|e|close|reopen|open|merge|m|approve|reject|review|comment|delete)\\b|comment\\b|c\\s))",
     "matches": "command",
-    "reason": "a forge write through any client but the family door carries no PROVENANCE. The forge records only the token`s login, and every agent on a box shares one token, so an issue, comment, close or PR written this way cannot say which machine or which agent wrote it. The family door opens every body it writes with `[<machine> · <agent> · <branch>]`, read from HARNESS_MACHINE / HARNESS_AGENT. Write through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create (reads: issue list|view, pr view; token: auth login|status). A write the door has no verb for -- merge, edit, review -- is the integrator`s to make: report it rather than reaching for another client."
+    "reason": "FORGE-WRITE-VIA-CLI: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-cli (lab-commons)"
   },
   {
     "name": "FORGE-WRITE-VIA-GH-API",
     "pattern": "\\bgh\\s+api\\b(?=[^\\n]*\\b(?:issues|pulls)\\b)(?=[^\\n]*(?:\\s(?:-X|--method)[\\s=]*(?:POST|PATCH|PUT|DELETE|Post|Patch|Put|Delete|post|patch|put|delete)\\b|\\s(?:-[fF]|--field|--raw-field|--input)\\b))",
     "matches": "command",
-    "reason": "a forge write through any client but the family door carries no PROVENANCE. The forge records only the token`s login, and every agent on a box shares one token, so an issue, comment, close or PR written this way cannot say which machine or which agent wrote it. The family door opens every body it writes with `[<machine> · <agent> · <branch>]`, read from HARNESS_MACHINE / HARNESS_AGENT. Write through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create (reads: issue list|view, pr view; token: auth login|status). A write the door has no verb for -- merge, edit, review -- is the integrator`s to make: report it rather than reaching for another client.",
+    "reason": "FORGE-WRITE-VIA-GH-API: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-gh-api (lab-commons)",
     "allow": "\\bgh\\s+api\\b[^\\n]*\\s(?:-X|--method)[\\s=]*(?:GET|get)\\b"
   },
   {
     "name": "FORGE-WRITE-VIA-HTTP",
     "pattern": "(?=[^\\n]*(?:/api/v1/repos/|api\\.github\\.com/repos/)[^\\s/\\'\"]+/[^\\s/\\'\"]+/(?:issues|pulls)\\b)(?:\\bcurl\\b(?=[^\\n]*(?:\\s(?:-X|--request)[\\s=]*[\\'\"]?(?:POST|PATCH|PUT|DELETE|Post|Patch|Put|Delete|post|patch|put|delete)\\b|\\s(?:-d|--data(?:-raw|-binary|-urlencode)?|--json|-F|--form)\\b))|\\b(?:Invoke-RestMethod|Invoke-WebRequest|irm|iwr)\\b(?=[^\\n]*\\s-Method\\s+[\\'\"]?(?:POST|PATCH|PUT|DELETE|Post|Patch|Put|Delete|post|patch|put|delete)\\b))",
     "matches": "argument",
-    "reason": "a forge write through any client but the family door carries no PROVENANCE. The forge records only the token`s login, and every agent on a box shares one token, so an issue, comment, close or PR written this way cannot say which machine or which agent wrote it. The family door opens every body it writes with `[<machine> · <agent> · <branch>]`, read from HARNESS_MACHINE / HARNESS_AGENT. Write through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create (reads: issue list|view, pr view; token: auth login|status). A write the door has no verb for -- merge, edit, review -- is the integrator`s to make: report it rather than reaching for another client."
+    "reason": "FORGE-WRITE-VIA-HTTP: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-http (lab-commons)"
   },
   {
     "name": "GIT-COMMIT-AMEND",
     "pattern": "\\bcommit\\b[^\\n]*\\s--amend\\b",
     "matches": "argument",
-    "reason": "`--amend` does not act on YOUR last commit, it acts on HEAD -- and on a shared lane HEAD belongs to whoever committed most recently. This family has NO single-agent mode, so \"I just committed\" is not a safety argument; it is the exact condition under which this fires. MEASURED 2026-09-18 on `feat/consumer-c`: agent A committed, agent B committed 40 seconds later, and A amended to fix two digits in its OWN message -- rewriting B's commit and replacing B's message with A's. It was caught inside a minute through `git reflog` and the tree recovered byte-identical, so only the SHA moved; nothing about the recovery made that outcome likelier than losing the work. Do not rewrite -- land the correction FORWARD. Read what HEAD actually is first: git log -1 --format=\"%h %an %s\". If the CONTENT is wrong, commit the fix on top. If only the message is wrong and nothing a reader acts on changes, record the correction where the work is reported and leave the commit alone; that is the right call once anything sits on top of it."
+    "reason": "GIT-COMMIT-AMEND: `--amend` rewrites HEAD, and on a shared lane HEAD may be another agent`s commit.\nLand the correction FORWARD: read HEAD with git log -1 --format=\"%h %an %s\", then commit the fix on top.\ndetails: docs-src/dev/refusals.md#git-commit-amend (lab-commons)"
   },
   {
     "name": "GIT-STASH",
     "pattern": "\\bgit\\s+stash(?:\\s|$)",
     "matches": "command",
-    "reason": "`refs/stash` is REPO-WIDE. It is one ref per repository, not per worktree, so a stash taken in one checkout is popped by whoever pops next -- in a family whose premise is a shared, possibly concurrent checkout, that is another agent losing work it never knew existed. Keep the work where its owner can see it. Either commit it on your own lane branch (a scratch commit is cheap and is named), or take a throwaway checkout: git worktree add --detach .claude/worktrees/<name> <sha>"
+    "reason": "GIT-STASH: `refs/stash` is repo-wide, so a stash is popped by whoever pops next -- possibly another agent.\nCommit it on your own lane branch, or take a throwaway checkout: git worktree add --detach .claude/worktrees/<name> <sha>\ndetails: docs-src/dev/refusals.md#git-stash (lab-commons)"
   },
   {
     "name": "PUSH-FORCE",
-    "pattern": "\\bpush\\b[^\\n]*\\s(?:--force\\b|--force-with-lease\\b|-f\\b)",
+    "pattern": "\\bpush\\b[^\\n]*\\s(?:--force\\b|--force-with-lease\\b|-f\\b|\\+\\S)",
     "matches": "argument",
-    "reason": "every branch here is read by someone else, and rewriting a ref silently invalidates any verdict already taken against the old tree -- the verdict still cites a `tree=` address, and the tree it names no longer exists. `--force-with-lease` is refused with the rest: it protects against a ref that MOVED, not against a reader who already judged the ref as it was. Do not rewrite a shared ref: land the change FORWARD as a new commit on your own lane, then push without the force flag. If the history really must change, it changes on a branch nobody has judged yet."
+    "reason": "PUSH-FORCE: rewriting a shared ref invalidates every verdict taken against the old tree; --force-with-lease included.\nLand the change FORWARD as a new commit on your own lane, then push without the force flag.\ndetails: docs-src/dev/refusals.md#push-force (lab-commons)"
+  },
+  {
+    "name": "PUSH-REMOTE-DELETE",
+    "pattern": "\\bpush\\b[^\\n]*\\s(?:--delete\\b|-d\\b|--prune\\b|--mirror\\b|:\\S)",
+    "matches": "argument",
+    "reason": "PUSH-REMOTE-DELETE: deleting a ref on origin is unrecoverable from the agent`s side; a main session may push (MAIN-SESSION-PUBLISHES) but remote deletions stay with a human.\nLeave the remote branch and name it to the user; local cleanup is `python -m lab_commons.dev.branchset --apply`, which deletes merged LOCAL branches only.\ndetails: docs-src/dev/refusals.md#push-remote-delete (lab-commons)"
   },
   {
     "name": "PUSH-NO-VERIFY",
     "pattern": "\\bpush\\b[^\\n]*--no-verify\\b",
     "matches": "argument",
-    "reason": "`--no-verify` skips the pre-push hook, and the hook is where the verdict is taken. A push that skipped it vouches for nothing, while looking exactly like one that did not -- the commit lands with no evidence attached and nobody downstream can tell which kind it was. Take the verdict first, and push once it is green: ./.venv/Scripts/python.exe -m lab_commons.dev.verify"
+    "reason": "PUSH-NO-VERIFY: `--no-verify` skips the pre-push hook where the verdict is taken, so the push vouches for nothing.\nTake the verdict first, and push once it is green: ./.venv/Scripts/python.exe -m lab_commons.dev.verify\ndetails: docs-src/dev/refusals.md#push-no-verify (lab-commons)"
   },
   {
     "name": "WORKTREE-BASE-IS-EXPLICIT",
     "pattern": "git(?:\\.exe)?(?:\\s+-[Cc]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*\\s+worktree\\s+add\\b",
     "matches": "command",
-    "reason": "`git worktree add <path>` with no commit-ish silently takes the CURRENT HEAD, which on a shared checkout is routinely not the tree you meant. MEASURED 2026-09-01: two agents were handed trees based on the wrong branch and each reasoned about a codebase nobody runs -- one of them for 130k tokens -- before noticing. A bare `HEAD` is accepted because it is a choice rather than an omission, but it is the weakest one available: HEAD moves, so two trees cut from it minutes apart can differ. Prefer the sha. Name the commit the tree starts from: git worktree add --detach .claude/worktrees/<name> <sha>",
+    "reason": "WORKTREE-BASE-IS-EXPLICIT: `git worktree add` with no commit-ish takes the current HEAD, which on a shared checkout is rarely the tree you meant.\nName the commit the tree starts from: git worktree add --detach .claude/worktrees/<name> <sha>\ndetails: docs-src/dev/refusals.md#worktree-base-is-explicit (lab-commons)",
     "allow": "^(?![\\s\\S]*\\bgit(?:\\.exe)?(?:\\s+-[Cc]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*\\s+worktree\\s+add(?!(?:\\s+(?:-[bB]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--reason(?:=|\\s+)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--(?!reason\\b)[\\w-]+|-(?![bB](?:\\s|$))\\w+))*\\s+(?!-)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)(?:\\s+(?:-[bB]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--reason(?:=|\\s+)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--(?!reason\\b)[\\w-]+|-(?![bB](?:\\s|$))\\w+))*\\s+(?!-)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)(?=\\s|$|[;&|)])))"
   },
   {
     "name": "WORKTREES-STAY-INSIDE",
     "pattern": "(?:git(?:\\.exe)?(?:\\s+-[Cc]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*\\s+(?:worktree\\s+(?:add|move)|clone)|(?:sh|bash)\\s+\\S*retry\\S*\\s+clone)\\b",
     "matches": "command",
-    "reason": "a checkout created OUTSIDE its repository is outside every scan, ignore rule and search that repository runs over itself, and outside the place the next agent looks for it. MEASURED 2026-10-03: eight worktrees across the family had been created as siblings of their repos, and the user ruled that day that it is forbidden family-wide. Put it inside the repository: git worktree add --detach .claude/worktrees/<name> <sha> (from the repo root; with -C, git -C <repo> worktree add --detach <repo>/.claude/worktrees/<name> <sha>). To relocate one: git worktree move <tree> <repo>/.claude/worktrees/<name>. A clone takes an explicit target <repo>/.claude/worktrees/<name> -- or is better a worktree.",
+    "reason": "WORKTREES-STAY-INSIDE: a checkout outside its repository is outside every scan, ignore rule and search that repository runs.\nPut it inside: git worktree add --detach .claude/worktrees/<name> <sha> (with -C, <repo>/.claude/worktrees/<name>); relocate with git worktree move <tree> <repo>/.claude/worktrees/<name>.\ndetails: docs-src/dev/refusals.md#worktrees-stay-inside (lab-commons)",
     "allow": "^(?![\\s\\S]*(?:\\bgit(?:\\.exe)?(?:\\s+-[Cc]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*\\s+(?:worktree\\s+add(?!(?:\\s+(?:-[bB]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--reason(?:=|\\s+)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--(?!reason\\b)[\\w-]+|-(?![bB](?:\\s|$))\\w+))*\\s+(?:\"(?![^\"\\n]*\\.\\.)(?:[^\"\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?\"|'(?![^'\\n]*\\.\\.)(?:[^'\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?'|(?![^\\s;&|()]*\\.\\.)(?:[^\\s\"\\';&|()]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?)(?=\\s|$|[;&|)]))|worktree\\s+move(?!(?:\\s+-\\S+)*\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)\\s+(?:\"(?![^\"\\n]*\\.\\.)(?:[^\"\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?\"|'(?![^'\\n]*\\.\\.)(?:[^'\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?'|(?![^\\s;&|()]*\\.\\.)(?:[^\\s\"\\';&|()]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?)(?=\\s|$|[;&|)]))|clone(?!(?:\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*?\\s+(?:\"(?![^\"\\n]*\\.\\.)(?:[^\"\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?\"|'(?![^'\\n]*\\.\\.)(?:[^'\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?'|(?![^\\s;&|()]*\\.\\.)(?:[^\\s\"\\';&|()]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?)\\s*(?=$|[;&|)\\n])))|\\b(?:sh|bash)\\s+\\S*retry\\S*\\s+clone(?!(?:\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*?\\s+(?:\"(?![^\"\\n]*\\.\\.)(?:[^\"\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?\"|'(?![^'\\n]*\\.\\.)(?:[^'\\n]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?'|(?![^\\s;&|()]*\\.\\.)(?:[^\\s\"\\';&|()]*[\\\\/])?\\.claude[\\\\/]+worktrees[\\\\/]+[\\w.-]+[\\\\/]?)\\s*(?=$|[;&|)\\n]))))"
   },
   {
     "name": "BARE-INTERPRETER",
     "pattern": "(?:uv(?:\\.exe)?\\s+run\\b|uvx(?:\\.exe)?\\b|(?:python(?:3(?:\\.\\d+)?)?|py)(?:\\.exe)?(?![\\w./\\\\-])(?!\\s+-m\\s+pytest\\b))",
     "matches": "command",
-    "reason": "a bare `python`/`py`, `uv run` or `uvx` runs an interpreter somebody else chose -- the PATH`s, or uv`s managed one -- not this checkout`s venv, and `uv run` may sync the SHARED environment first. The allow list names only the venv interpreter, so the reflex spelling is also the one that stalls on a permission prompt (user ruling 2026-10-03). Run the checkout's own venv interpreter: .venv/Scripts/python.exe <args> on Windows, .venv/bin/python <args> on POSIX (settings.json allows Bash(.venv/*/python* *)). In a worktree with no .venv of its own, run the MAIN checkout's: <main>/.venv/Scripts/python.exe <args> -- `git rev-parse --path-format=absolute --git-common-dir` prints <main>/.git. A repo CLI the repo declares (its own opening) stays allowed."
+    "reason": "BARE-INTERPRETER: a bare python/py, `uv run` or `uvx` runs an interpreter somebody else chose, and `uv run` may mutate the checkout environment outside the checked dependency door.\nUse .venv/Scripts/python.exe (.venv/bin/python POSIX). Each worktree owns .venv; main's is main-only. Missing? Existing checkout interpreter: -m lab_commons.dev.dep --bootstrap <worktree>. Checked dependency doors are agent-allowed, not arbitrary installers. Allowed: Bash(.venv/*/python* *).\ndetails: docs-src/dev/refusals.md#bare-interpreter (lab-commons)"
+  },
+  {
+    "name": "RECURSIVE-GREP",
+    "pattern": "[ef]?grep(?:\\.exe)?(?:\\s+\\S+)*?\\s+(?:-[a-zA-Z]*[rR][a-zA-Z]*|--(?:dereference-)?recursive)(?=\\s|$)",
+    "matches": "command",
+    "reason": "RECURSIVE-GREP: a recursive grep walks every git-ignored tree (.venv, output, target) and can run for minutes.\nSearch tracked files: git grep -n <pattern> [-- <paths>], or use the built-in Grep tool.\ndetails: docs-src/dev/refusals.md#recursive-grep (lab-commons)"
   }
 ]
