@@ -10,8 +10,9 @@ imported must not do that to its host.
 The modules are grouped by the question each answers — :mod:`~optimi_lab.core.space` (what is
 optimized), :mod:`~optimi_lab.core.sampling` (the first batch), :mod:`~optimi_lab.core.outcomes`
 (what an evaluation produced), :mod:`~optimi_lab.core.pareto` (dominance),
-:mod:`~optimi_lab.core.protocols` (the interfaces) and :mod:`~optimi_lab.core.optimize` (the
-driver and its record).
+:mod:`~optimi_lab.core.protocols` (the interfaces), :mod:`~optimi_lab.core.routing` (which
+evaluator, if any, spends its budget on a point) and :mod:`~optimi_lab.core.optimize` (the driver
+and its record).
 """
 
 from optimi_lab.core.errors import (
@@ -26,6 +27,7 @@ from optimi_lab.core.optimize import Record, optimize
 from optimi_lab.core.outcomes import Evaluation, Outcome
 from optimi_lab.core.pareto import dominates, non_dominated_sorting, partition_count
 from optimi_lab.core.protocols import Evaluator, Proposer, Surrogate
+from optimi_lab.core.routing import SCREENED, Router, routed
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec, sample
 from optimi_lab.core.space import Direction, Objective, ObjectiveSet, Variable, VariableSet
 
@@ -34,6 +36,7 @@ from optimi_lab.core.space import Direction, Objective, ObjectiveSet, Variable, 
 # surface a user reads is the one below.
 __all__ = [
     'SAMPLE_KINDS',
+    'SCREENED',
     'Direction',
     'Evaluation',
     'Evaluator',
@@ -43,6 +46,7 @@ __all__ = [
     'Proposer',
     'Record',
     'Refusal',
+    'Router',
     'SampleKind',
     'SampleSpec',
     'Surrogate',
@@ -57,5 +61,6 @@ __all__ = [
     'require_axis',
     'require_finite',
     'require_positive',
+    'routed',
     'sample',
 ]

@@ -42,6 +42,7 @@ implementation it scores.
 from optimi_lab.benchmarks import Algorithm, Problem, hypervolume_2d, igd, solve, zdt1, zdt2
 from optimi_lab.core import (
     SAMPLE_KINDS,
+    SCREENED,
     Direction,
     Evaluation,
     Evaluator,
@@ -51,6 +52,7 @@ from optimi_lab.core import (
     Proposer,
     Record,
     Refusal,
+    Router,
     SampleKind,
     SampleSpec,
     Surrogate,
@@ -60,11 +62,13 @@ from optimi_lab.core import (
     non_dominated_sorting,
     optimize,
     partition_count,
+    routed,
     sample,
 )
 
 __all__ = [
     'SAMPLE_KINDS',
+    'SCREENED',
     'Algorithm',
     'Direction',
     'Evaluation',
@@ -76,6 +80,7 @@ __all__ = [
     'Proposer',
     'Record',
     'Refusal',
+    'Router',
     'SampleKind',
     'SampleSpec',
     'Surrogate',
@@ -87,6 +92,7 @@ __all__ = [
     'non_dominated_sorting',
     'optimize',
     'partition_count',
+    'routed',
     'sample',
     'solve',
     'zdt1',

@@ -38,6 +38,8 @@ class Outcome(StrEnum):
     ERROR = 'error'
     TIMEOUT = 'timeout'
     CANCELLED = 'cancelled'
+    #: A router declined to spend an evaluation on the point (:mod:`optimi_lab.core.routing`).
+    SCREENED = 'screened'
 
     @property
     def produced_a_value(self) -> bool:
