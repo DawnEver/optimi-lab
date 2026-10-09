@@ -44,6 +44,12 @@ def _require_settings(owner: Callable[..., object], settings: dict, what: str) -
         refuse(f'{unknown} are not settings of {what}; the valid settings are {sorted(accepted)}')
 
 
+def _settings_of(variation: Callable[..., np.ndarray], settings: dict, what: str) -> dict:
+    """Return ``settings``, refusing one ``variation`` does not take."""
+    _require_settings(variation, settings, what)
+    return settings
+
+
 def _proposer(
     owner: type[PopulationProposer], space: VariableSet, seed: int, settings: dict, what: str
 ) -> Callable[[int], Proposer]:
@@ -54,12 +60,6 @@ def _proposer(
         return owner(space, pop_size, seed=seed, **settings)
 
     return build
-
-
-def _vary(variation: Callable[..., np.ndarray], settings: dict, what: str) -> Callable[..., np.ndarray]:
-    """Return ``variation`` with ``settings`` bound, refusing a setting it does not take."""
-    _require_settings(variation, settings, what)
-    return partial(variation, **settings)
 
 
 def _sbx_polynomial(
@@ -109,7 +109,8 @@ def nsga2(
     :func:`~optimi_lab.intelligent_algorithm.variation.polynomial_mutation`.
     """
     settings = {
-        'variation': _vary(_sbx_polynomial, variation, 'nsga2'),
+        'variation': _sbx_polynomial,
+        'variation_settings': _settings_of(_sbx_polynomial, variation, 'nsga2'),
         'selection': selection_operator,
         'parent_selection': parent_selection_operator,
     }
@@ -162,7 +163,11 @@ def mode(
     possible rather than ignored. ``**variation`` are ``sizing_factor`` and the binomial
     ``crossover_rate``.
     """
-    settings = {'variation': _vary(_differential, variation, 'mode'), 'selection': selection_operator}
+    settings = {
+        'variation': _differential,
+        'variation_settings': _settings_of(_differential, variation, 'mode'),
+        'selection': selection_operator,
+    }
     return _proposer(EvolutionaryProposer, space, seed, settings, 'mode')
 
 

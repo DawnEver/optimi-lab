@@ -16,8 +16,9 @@ fail it is as wide as the complete points that remain, because a quota filled by
 point would misstate how much of the search space a run covered.
 """
 
+import inspect
 from abc import ABC, abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 
 import numpy as np
 
@@ -92,7 +93,9 @@ class PopulationProposer(ABC):
 class EvolutionaryProposer(PopulationProposer):
     """A generation of an evolutionary algorithm: vary a population, then survive from the union.
 
-    One loop, three operator sets. ``variation`` turns a population into offspring, ``selection``
+    One loop, three operator sets. ``variation`` turns a population into offspring under
+    ``variation_settings`` -- its keyword rates, which :meth:`retune` may change between batches --
+    ``selection``
     keeps the survivors from parents and offspring together, and ``parent_selection`` picks the
     mating pool from the population's own values -- None mates every individual with the one
     selected before it, which is what a differential evolution wants. The count asked of a
@@ -106,16 +109,27 @@ class EvolutionaryProposer(PopulationProposer):
         pop_size: int,
         *,
         variation: Callable[..., np.ndarray],
+        variation_settings: Mapping[str, float] | None = None,
         selection: Callable[[np.ndarray, int], np.ndarray],
         parent_selection: Callable[[np.ndarray, int, np.random.Generator], np.ndarray] | None = None,
         seed: int = 0,
     ) -> None:
         super().__init__(space, pop_size, seed=seed)
         self._variation = variation
+        self._variation_settings: dict[str, float] = {}
+        self.retune(**(variation_settings or {}))
         self._selection = selection
         self._parent_selection = parent_selection
         self._population: np.ndarray | None = None
         self._values: np.ndarray | None = None
+
+    def retune(self, **settings: float) -> None:
+        """Use ``settings`` for every generation from the next one on, refusing one ``variation`` does not take."""
+        accepted = set(inspect.signature(self._variation).parameters) - {'population', 'space', 'rng'}
+        unknown = sorted(set(settings) - accepted)
+        if unknown:
+            refuse(f'{unknown} are not settings of this variation; the valid settings are {sorted(accepted)}')
+        self._variation_settings.update(settings)
 
     def _admit(self, evaluation: Evaluation) -> None:
         inputs, values, _ = self._complete(evaluation)
@@ -132,4 +146,4 @@ class EvolutionaryProposer(PopulationProposer):
         if self._parent_selection is not None:
             pool = self._parent_selection(self._values, min(self._pop_size, len(population)), self._rng)
             population = population[pool]
-        return self._variation(population, self._space, self._rng)
+        return self._variation(population, self._space, self._rng, **self._variation_settings)

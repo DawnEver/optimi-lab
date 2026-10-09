@@ -13,7 +13,7 @@ saved, 0 loaded — so a round trip preserved nothing. The record a run returns 
 caller that wants it on disk hands those arrays to numpy.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
 import numpy as np
@@ -21,7 +21,7 @@ import numpy as np
 from optimi_lab.core.errors import refuse, require_axis, require_positive
 from optimi_lab.core.outcomes import Evaluation
 from optimi_lab.core.pareto import non_dominated_sorting
-from optimi_lab.core.protocols import Evaluator, Proposer
+from optimi_lab.core.protocols import Evaluator, Proposer, Tunable
 from optimi_lab.core.sampling import SampleSpec, sample
 from optimi_lab.core.space import ObjectiveSet, VariableSet
 
@@ -79,6 +79,7 @@ def optimize(
     spec: SampleSpec | None = None,
     n_batches: int = 4,
     on_batch: Callable[[Record], None] | None = None,
+    steer: Callable[[Record], Mapping[str, float] | None] | None = None,
 ) -> Record:
     """Run a proposer against an evaluator and return everything that was learned.
 
@@ -91,7 +92,10 @@ def optimize(
     must return an object with ``ask``/``tell``; ``spec`` says how to draw the initial batch;
     ``n_batches`` counts the batches in total, the initial sample included; ``on_batch`` is
     called with the run so far after every batch is told, replacing the old iteration callback
-    that logged through a handler the package had installed on the host process.
+    that logged through a handler the package had installed on the host process; ``steer`` is
+    called with the run so far after every batch but the last, and the settings it returns, if
+    any, are handed to the proposer's :meth:`~optimi_lab.core.protocols.Tunable.retune` before the
+    next ask.
 
     Raises:
         Refusal: If ``n_batches < 1``, if the proposer does not implement ask/tell, if an ask is
@@ -117,10 +121,25 @@ def optimize(
             asked = _require_ask(proposer.ask(), space, pop_size)
         evaluation = _require_evaluation(evaluate(asked), objectives, asked)
         batches.append(evaluation)
+        # Retuned BEFORE the tell: a population proposer builds its next batch inside tell().
+        if steer is not None and index_batch < n_batches - 1:
+            _retune(proposer, steer(Record(space=space, objectives=objectives, evaluation=Evaluation.stack(batches))))
         proposer.tell(evaluation.to_minimization(objectives))
         if on_batch is not None:
             on_batch(Record(space=space, objectives=objectives, evaluation=Evaluation.stack(batches)))
     return Record(space=space, objectives=objectives, evaluation=Evaluation.stack(batches))
+
+
+def _retune(proposer: Proposer, settings: Mapping[str, float] | None) -> None:
+    """Hand ``settings`` to the proposer, refusing one that cannot be retuned."""
+    if not settings:
+        return
+    if not isinstance(proposer, Tunable):
+        refuse(
+            f'steer returned {sorted(settings)}, but {type(proposer).__name__} has no retune(); only a Tunable '
+            f'proposer changes its settings between batches'
+        )
+    proposer.retune(**settings)
 
 
 def _require_ask(asked: np.ndarray, space: VariableSet, pop_size: int) -> np.ndarray:

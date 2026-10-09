@@ -26,7 +26,7 @@ from optimi_lab.core.errors import (
 from optimi_lab.core.optimize import Record, optimize
 from optimi_lab.core.outcomes import Evaluation, Outcome
 from optimi_lab.core.pareto import dominates, non_dominated_sorting, partition_count
-from optimi_lab.core.protocols import Evaluator, Proposer, Surrogate
+from optimi_lab.core.protocols import Evaluator, Proposer, Surrogate, Tunable
 from optimi_lab.core.routing import SCREENED, Router, routed
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec, sample
 from optimi_lab.core.space import Direction, Objective, ObjectiveSet, Variable, VariableSet
@@ -50,6 +50,7 @@ __all__ = [
     'SampleKind',
     'SampleSpec',
     'Surrogate',
+    'Tunable',
     'Variable',
     'VariableSet',
     'coerce_enum',
