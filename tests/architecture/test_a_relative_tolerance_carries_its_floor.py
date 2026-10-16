@@ -71,10 +71,11 @@ PYTHON_FILE_HEADROOM: Final = 25
 #: The floor on the call-site population, which refuses the silence the corpus floor cannot see: a
 #: fully-read tree whose every `approx` was renamed. RE-MEASURED 2026-09-18 at exactly 2 call sites.
 #: RE-TAKEN 2026-10-16 AT 9, from 2: the general hypervolume's closed-form tests read 9.
-APPROX_CALL_FLOOR: Final = 9
+#: RE-TAKEN 2026-10-16 AT 19, from 9: merged with the routing/steering and Sobol tests, the scan read 19.
+APPROX_CALL_FLOOR: Final = 19
 
 #: THE OTHER SIDE OF `APPROX_CALL_FLOOR`. The floor sits ON the population, so any growth at all is
-#: worth re-reading; 9 + 5 = 14 is the point at which this constant must be re-measured.
+#: worth re-reading; 19 + 5 = 24 is the point at which this constant must be re-measured.
 APPROX_CALL_HEADROOM: Final = 5
 
 _WHAT: Final = 'RELATIVE-TOLERANCE'
