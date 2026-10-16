@@ -24,9 +24,10 @@ from dataclasses import dataclass
 import numpy as np
 
 from optimi_lab.core.constraints import Constraint, ConstraintSet
-from optimi_lab.core.errors import refuse
+from optimi_lab.core.errors import refuse, require_finite
 from optimi_lab.core.optimize import Record, optimize
 from optimi_lab.core.outcomes import Evaluation
+from optimi_lab.core.pareto import non_dominated_sorting
 from optimi_lab.core.protocols import Proposer
 from optimi_lab.core.sampling import SampleSpec
 from optimi_lab.core.space import Objective, ObjectiveSet, Variable, VariableSet
@@ -36,6 +37,7 @@ __all__ = [
     'Algorithm',
     'Problem',
     'bnh',
+    'hypervolume',
     'hypervolume_2d',
     'igd',
     'solve',
@@ -192,6 +194,42 @@ def hypervolume_2d(front: np.ndarray, ref_point: np.ndarray) -> float:
             hv += (ref_point[0] - f1) * (prev_f2 - f2)
             prev_f2 = f2
     return float(hv)
+
+
+def hypervolume(front: np.ndarray, ref_point: np.ndarray) -> float:
+    """Exact dominated hypervolume of an ``m``-objective ``front`` w.r.t. ``ref_point``, ``m >= 2``.
+
+    Hypervolume by slicing objectives (HSO): the points are swept in ascending last objective and
+    each slab up to the next value adds the ``(m - 1)``-objective volume of the points already
+    swept times its depth, recursing down to :func:`hypervolume_2d`. Exact; its cost grows like
+    ``n ** (m - 1)``, which is cheap for ``m <= 4`` and a few hundred points. Minimization frame;
+    only points strictly dominating ``ref_point`` contribute.
+    """
+    front = np.asarray(front, dtype=float)
+    ref_point = np.asarray(ref_point, dtype=float)
+    if front.ndim != 2 or front.shape[1] < 2 or ref_point.shape != (front.shape[1],):
+        refuse(
+            f'a hypervolume needs a (n_points, m >= 2) front and a reference of width m; '
+            f'got front {front.shape} and reference {ref_point.shape}'
+        )
+    require_finite(front, 'a front to measure')
+    require_finite(ref_point, 'a hypervolume reference point')
+    return _sliced_volume(front[np.all(front < ref_point, axis=1)], ref_point)
+
+
+def _sliced_volume(points: np.ndarray, ref_point: np.ndarray) -> float:
+    if points.shape[0] == 0:
+        return 0.0
+    if points.shape[1] == 2:
+        return hypervolume_2d(points, ref_point)
+    points = points[non_dominated_sorting(points)]
+    points = points[np.argsort(points[:, -1])]
+    depths = np.diff(np.append(points[:, -1], ref_point[-1]))
+    return float(sum(
+        _sliced_volume(points[: index + 1, :-1], ref_point[:-1]) * depth
+        for index, depth in enumerate(depths)
+        if depth > 0.0
+    ))
 
 
 def solve(
