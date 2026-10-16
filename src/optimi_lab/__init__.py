@@ -39,7 +39,7 @@ algorithms -- lives in this package, so a copy held downstream could gate its ho
 implementation it scores.
 """
 
-from optimi_lab.benchmarks import Algorithm, Problem, hypervolume_2d, igd, solve, zdt1, zdt2
+from optimi_lab.benchmarks import Algorithm, Problem, bnh, hypervolume_2d, igd, solve, zdt1, zdt2
 from optimi_lab.core import (
     SAMPLE_KINDS,
     Constraint,
@@ -89,6 +89,7 @@ __all__ = [
     'Surrogate',
     'Variable',
     'VariableSet',
+    'bnh',
     'constrained_dominates',
     'constrained_non_dominated_sorting',
     'dominates',
