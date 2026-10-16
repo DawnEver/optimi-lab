@@ -21,7 +21,7 @@ from collections.abc import Callable
 
 import numpy as np
 
-from optimi_lab.core import Evaluation, VariableSet, refuse, require_axis, require_positive
+from optimi_lab.core import Evaluation, VariableSet, refuse, require_axis, require_positive, total_violation
 
 __all__ = ['EvolutionaryProposer', 'PopulationProposer']
 
@@ -62,8 +62,11 @@ class PopulationProposer(ABC):
         self._admit(evaluation)
         self._offspring = self._propose()
 
-    def _complete(self, evaluation: Evaluation) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Return ``(inputs, values, mask)`` for the rows that produced a value for every objective.
+    def _complete(self, evaluation: Evaluation) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Return ``(inputs, values, violation, mask)`` for the rows that produced every value.
+
+        ``violation`` is each kept row's total constraint violation, read off the shortfalls the
+        told evaluation carries -- all zero for an unconstrained run.
 
         A row with any other outcome is DROPPED, never scored as bad: an unevaluated point has no
         value, and every ranking here refuses a non-finite column rather than sorting an arithmetic
@@ -78,7 +81,7 @@ class PopulationProposer(ABC):
                 f'none of the {len(evaluation)} told point(s) produced a value for every objective, with outcome(s) '
                 f'{outcomes}; there is no population to build the next batch from'
             )
-        return inputs[mask], evaluation.values[mask], mask
+        return inputs[mask], evaluation.values[mask], total_violation(evaluation.constraints[mask]), mask
 
     @abstractmethod
     def _admit(self, evaluation: Evaluation) -> None:
@@ -106,8 +109,8 @@ class EvolutionaryProposer(PopulationProposer):
         pop_size: int,
         *,
         variation: Callable[..., np.ndarray],
-        selection: Callable[[np.ndarray, int], np.ndarray],
-        parent_selection: Callable[[np.ndarray, int, np.random.Generator], np.ndarray] | None = None,
+        selection: Callable[..., np.ndarray],
+        parent_selection: Callable[..., np.ndarray] | None = None,
         seed: int = 0,
     ) -> None:
         super().__init__(space, pop_size, seed=seed)
@@ -116,20 +119,25 @@ class EvolutionaryProposer(PopulationProposer):
         self._parent_selection = parent_selection
         self._population: np.ndarray | None = None
         self._values: np.ndarray | None = None
+        self._violation: np.ndarray | None = None
 
     def _admit(self, evaluation: Evaluation) -> None:
-        inputs, values, _ = self._complete(evaluation)
+        inputs, values, violation, _ = self._complete(evaluation)
         if self._population is None:
-            self._population, self._values = inputs, values
+            self._population, self._values, self._violation = inputs, values, violation
             return
         combined_inputs = np.vstack([self._population, inputs])
         combined_values = np.vstack([self._values, values])
-        keep = self._selection(combined_values, min(self._pop_size, len(combined_values)))
+        combined_violation = np.concatenate([self._violation, violation])
+        keep = self._selection(combined_values, min(self._pop_size, len(combined_values)), violation=combined_violation)
         self._population, self._values = combined_inputs[keep], combined_values[keep]
+        self._violation = combined_violation[keep]
 
     def _propose(self) -> np.ndarray:
         population = self._population
         if self._parent_selection is not None:
-            pool = self._parent_selection(self._values, min(self._pop_size, len(population)), self._rng)
+            pool = self._parent_selection(
+                self._values, min(self._pop_size, len(population)), self._rng, violation=self._violation
+            )
             population = population[pool]
         return self._variation(population, self._space, self._rng)

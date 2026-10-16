@@ -5,13 +5,17 @@ told evaluation, so a swarm cannot be shaped by anything but its own population 
 failure was an 8-particle swarm broadcast against a 121-row sample grid. A particle whose
 evaluation produced no value is dropped from all four arrays together, which the mask keeps
 aligned.
+
+A personal best is replaced and the archive is thinned by Deb's rule, so under constraints a
+feasible leader always outranks an infeasible one; with no constraint every violation is zero and
+the rule is plain Pareto dominance.
 """
 
 from collections.abc import Callable
 
 import numpy as np
 
-from optimi_lab.core import Evaluation, VariableSet, dominates, refuse, require_positive
+from optimi_lab.core import Evaluation, VariableSet, constrained_dominates, refuse, require_positive
 from optimi_lab.intelligent_algorithm.proposers import PopulationProposer
 from optimi_lab.intelligent_algorithm.selection import crowding_select
 from optimi_lab.intelligent_algorithm.variation import pso_position, pso_velocity
@@ -44,7 +48,7 @@ class SwarmProposer(PopulationProposer):
         social: float = 2.0,
         max_velocity_fraction: float = 0.1,
         archive_size: int | None = None,
-        selection: Callable[[np.ndarray, int], np.ndarray] = crowding_select,
+        selection: Callable[..., np.ndarray] = crowding_select,
         seed: int = 0,
     ) -> None:
         super().__init__(space, pop_size, seed=seed)
@@ -72,36 +76,42 @@ class SwarmProposer(PopulationProposer):
         self._velocities: np.ndarray | None = None
         self._personal_best: np.ndarray | None = None
         self._personal_best_values: np.ndarray | None = None
+        self._personal_best_violation: np.ndarray | None = None
         self._archive = np.zeros((0, self._space.n_var))
         self._archive_values = np.zeros((0, 1))
+        self._archive_violation = np.zeros(0)
 
     def _admit(self, evaluation: Evaluation) -> None:
-        inputs, values, mask = self._complete(evaluation)
+        inputs, values, violation, mask = self._complete(evaluation)
         if self._positions is None:
-            self._start(inputs, values)
+            self._start(inputs, values, violation)
             return
         best = self._personal_best[mask]
         best_values = self._personal_best_values[mask]
-        improves = dominates(values, best_values)
-        neither = ~(improves | dominates(best_values, values))
+        best_violation = self._personal_best_violation[mask]
+        improves = constrained_dominates(values, best_values, violation, best_violation)
+        neither = ~(improves | constrained_dominates(best_values, values, best_violation, violation))
         improves |= neither & (self._rng.random(len(values)) < _EXPLORATION_RATE)
         best[improves], best_values[improves] = inputs[improves], values[improves]
+        best_violation[improves] = violation[improves]
         self._personal_best, self._personal_best_values = best, best_values
+        self._personal_best_violation = best_violation
         self._positions, self._values = inputs, values
         self._velocities = self._velocities[mask]
-        self._grow_archive(inputs, values)
+        self._grow_archive(inputs, values, violation)
 
-    def _start(self, inputs: np.ndarray, values: np.ndarray) -> None:
+    def _start(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray) -> None:
         """Take the first told batch as the particles, at rest and each its own personal best."""
         self._positions = inputs
         self._values = values
         self._velocities = np.zeros_like(inputs)
         self._personal_best = inputs.copy()
         self._personal_best_values = values.copy()
+        self._personal_best_violation = violation.copy()
         self._archive_values = np.zeros((0, values.shape[1]))
-        self._grow_archive(inputs, values)
+        self._grow_archive(inputs, values, violation)
 
-    def _grow_archive(self, inputs: np.ndarray, values: np.ndarray) -> None:
+    def _grow_archive(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray) -> None:
         """Add the new points, then thin the archive back to ``archive_size``.
 
         The count asked of the selection is the archive bound WHERE THE POPULATION REACHES IT: the
@@ -110,8 +120,12 @@ class SwarmProposer(PopulationProposer):
         """
         combined_inputs = np.vstack([self._archive, inputs])
         combined_values = np.vstack([self._archive_values, values])
-        keep = self._selection(combined_values, min(self._archive_size, len(combined_values)))
+        combined_violation = np.concatenate([self._archive_violation, violation])
+        keep = self._selection(
+            combined_values, min(self._archive_size, len(combined_values)), violation=combined_violation
+        )
         self._archive, self._archive_values = combined_inputs[keep], combined_values[keep]
+        self._archive_violation = combined_violation[keep]
 
     def _propose(self) -> np.ndarray:
         self._velocities = pso_velocity(

@@ -5,6 +5,10 @@ evaluation rather than from a constructor argument, so the grid cannot describe 
 problem from the matrix it ranks. The partition count comes from
 :func:`~optimi_lab.core.pareto.partition_count` -- the ceiling, the refusal of a one-objective
 grid and its coverage guarantee are that function's, not a second copy's.
+
+Under constraints a child displaces a neighbour by Deb's rule: a smaller total violation wins
+outright, and only an equal violation -- zero, for two feasible points -- falls through to the
+Tchebycheff comparison. With no constraint every violation is zero, which is the plain loop.
 """
 
 import numpy as np
@@ -68,6 +72,7 @@ class DecompositionProposer(PopulationProposer):
         self._eta_mutation = eta_mutation
         self._population: np.ndarray | None = None
         self._values: np.ndarray | None = None
+        self._violation: np.ndarray | None = None
         self._weights: np.ndarray | None = None
         self._neighbors: np.ndarray | None = None
         self._ideal: np.ndarray | None = None
@@ -92,9 +97,9 @@ class DecompositionProposer(PopulationProposer):
         )
 
     def _admit(self, evaluation: Evaluation) -> None:
-        inputs, values, mask = self._complete(evaluation)
+        inputs, values, violation, mask = self._complete(evaluation)
         if self._population is None:
-            self._population, self._values = inputs, values
+            self._population, self._values, self._violation = inputs, values, violation
             self._weights = decomposition_weights(values.shape[1], len(inputs), rng=self._rng)
             # A neighbourhood is bounded by the subproblems that exist: the first batch can lose a
             # point, and the count it was built with is the constructor's, not this batch's.
@@ -102,9 +107,9 @@ class DecompositionProposer(PopulationProposer):
             self._ideal = values.min(axis=0)
             return
         self._ideal = np.minimum(self._ideal, values.min(axis=0))
-        self._replace(inputs, values, np.flatnonzero(mask))
+        self._replace(inputs, values, violation, np.flatnonzero(mask))
 
-    def _replace(self, inputs: np.ndarray, values: np.ndarray, subproblems: np.ndarray) -> None:
+    def _replace(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray, subproblems: np.ndarray) -> None:
         """Let each child displace up to ``max_replace`` of the neighbours it beats on Tchebycheff.
 
         A child belongs to the subproblem whose row it was proposed for, so the survivors keep
@@ -114,9 +119,12 @@ class DecompositionProposer(PopulationProposer):
             neighbors = self._neighbors[subproblem]
             scores = tchebycheff(values[position : position + 1], self._weights[neighbors], self._ideal)[0]
             current = tchebycheff(self._values[neighbors], self._weights[neighbors], self._ideal)
-            better = neighbors[scores < current][: self._max_replace]
+            held = self._violation[neighbors]
+            wins = (violation[position] < held) | ((violation[position] == held) & (scores < current))
+            better = neighbors[wins][: self._max_replace]
             self._population[better] = inputs[position]
             self._values[better] = values[position]
+            self._violation[better] = violation[position]
 
     def _propose(self) -> np.ndarray:
         return self._child(self._population, self._space, self._rng)
