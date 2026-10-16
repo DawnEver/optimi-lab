@@ -52,7 +52,9 @@ EXEMPT: Final = ()
 #: reading was verified independently of the scan before the digit changed -- `grep -rh '^\s*def '
 #: tests scripts` counts 274, the same number the scan reported.
 #: RE-TAKEN 2026-10-04 AT 280, from 219: lab-commons ec5e8c5 and the consumer-facts merge read 297.
-FUNCTION_FLOOR: Final = 280
+#: RE-TAKEN 2026-10-16 AT 346, from 280: the constraints-and-design-matrix branch (five unit test modules
+#: and core/constraints.py) read 378; the floor sits half a headroom below it.
+FUNCTION_FLOOR: Final = 346
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65
