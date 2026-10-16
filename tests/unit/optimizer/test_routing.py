@@ -112,3 +112,33 @@ def test_an_optimizer_runs_through_a_screening_router_and_never_ranks_a_screened
     assert any(screened)
     assert sum(len(s) for s in expensive.seen) == len(record) - sum(screened)
     assert (record.pareto().inputs[:, 0] <= 0.5).all()
+
+
+def test_a_routed_run_carries_the_declared_constraints_and_a_screened_point_has_none():
+    # A constrained run hands optimize() exactly the declared constraint columns; a routed evaluator
+    # that dropped them would refuse every constrained, routed run. A screened point's feasibility is
+    # unknown (NaN), so it is never ranked feasible.
+    from optimi_lab import Constraint, ConstraintSet
+
+    constraints = ConstraintSet([Constraint('g', '<=', 0.5)])
+
+    def scored(inputs: np.ndarray) -> Evaluation:
+        values = np.column_stack([inputs[:, 0], inputs[:, 1]])
+        return Evaluation(inputs=inputs, values=values, constraints=inputs[:, :1])
+
+    space = VariableSet([Variable('x0', 0.0, 1.0), Variable('x1', 0.0, 1.0)])
+    evaluate = routed(OBJECTIVES, [scored], lambda x: np.where(x[:, 1] > 0.5, SCREENED, 0), constraints=constraints)
+    record = optimize(
+        space=space,
+        objectives=OBJECTIVES,
+        evaluate=evaluate,
+        build_proposer=nsga2(space),
+        constraints=constraints,
+        spec=SampleSpec(n_samples=12, seed=1),
+        n_batches=2,
+    )
+    batch = record.evaluation
+    assert batch.n_con == 1
+    screened = batch.inputs[:, 1] > 0.5
+    assert np.isnan(batch.constraints[screened]).all()
+    np.testing.assert_array_equal(batch.constraints[~screened, 0], batch.inputs[~screened, 0])

@@ -16,6 +16,7 @@ from collections.abc import Callable, Sequence
 
 import numpy as np
 
+from optimi_lab.core.constraints import ConstraintSet
 from optimi_lab.core.errors import refuse
 from optimi_lab.core.outcomes import Evaluation, Outcome
 from optimi_lab.core.protocols import Evaluator
@@ -30,8 +31,17 @@ SCREENED = -1
 Router = Callable[[np.ndarray], np.ndarray]
 
 
-def routed(objectives: ObjectiveSet, evaluators: Sequence[Evaluator], router: Router) -> Evaluator:
+def routed(
+    objectives: ObjectiveSet,
+    evaluators: Sequence[Evaluator],
+    router: Router,
+    *,
+    constraints: ConstraintSet | None = None,
+) -> Evaluator:
     """Return an evaluator that routes each batch, point by point, through ``router``.
+
+    ``constraints`` is the run's declared set: every routed batch carries exactly its columns, and a
+    screened point's are NaN -- its feasibility is unknown, so no ranking counts it feasible.
 
     Raises:
         Refusal: If there is no evaluator; at call time, if the router does not return one integer
@@ -47,6 +57,7 @@ def routed(objectives: ObjectiveSet, evaluators: Sequence[Evaluator], router: Ro
         inputs = np.asarray(inputs, dtype=float)
         route = _require_route(router(inputs), len(inputs), len(evaluators))
         values = np.full((len(inputs), objectives.n_obj), np.nan)
+        shortfalls = np.full((len(inputs), constraints.n_con if constraints else 0), np.nan)
         outcomes = np.full(values.shape, Outcome.SCREENED, dtype=object)
         for index, evaluator in enumerate(evaluators):
             mask = route == index
@@ -59,8 +70,9 @@ def routed(objectives: ObjectiveSet, evaluators: Sequence[Evaluator], router: Ro
                     f'its rows are written back by position, so a reordered batch misnames every value'
                 )
             values[mask] = part.values
+            shortfalls[mask] = part.constraints
             outcomes[mask] = part.outcomes
-        return Evaluation(inputs=inputs, values=values, outcomes=outcomes)
+        return Evaluation(inputs=inputs, values=values, outcomes=outcomes, constraints=shortfalls)
 
     return evaluate
 
