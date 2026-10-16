@@ -54,7 +54,8 @@ EXEMPT: Final = ()
 #: RE-TAKEN 2026-10-04 AT 280, from 219: lab-commons ec5e8c5 and the consumer-facts merge read 297.
 #: RE-TAKEN 2026-10-16 AT 346, from 280: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 378; the floor sits half a headroom below it.
-FUNCTION_FLOOR: Final = 346
+#: RE-TAKEN 2026-10-16 AT 383, from 346: the analysis branch read 415; half a headroom below it.
+FUNCTION_FLOOR: Final = 383
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65

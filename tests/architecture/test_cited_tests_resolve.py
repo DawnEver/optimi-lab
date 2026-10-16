@@ -105,7 +105,8 @@ NOT_CITATIONS: Final[tuple[str, ...]] = ()
 #: RE-MEASURED, never how much slack the floor may be given. Compare the sibling lab's 463 over the
 #: same reading -- an 8x difference, which is why this number cannot have a default.
 #: RE-TAKEN 2026-10-04 AT 65, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 73.
-SCANNED_FILE_FLOOR: Final = 65
+#: RE-TAKEN 2026-10-16 AT 77, from 65: the analysis branch (sensitivity, decision) read 87.
+SCANNED_FILE_FLOOR: Final = 77
 SCANNED_FILE_HEADROOM: Final = 20
 
 #: MEASURED 2026-09-18: 182 `def test_*` under `tests/`. THIS IS A DIFFERENT POPULATION FROM THE ONE
@@ -121,7 +122,8 @@ SCANNED_FILE_HEADROOM: Final = 20
 #: RE-TAKEN 2026-10-04 AT 225, from 187: lab-commons ec5e8c5 and the consumer-facts merge read 241.
 #: RE-TAKEN 2026-10-16 AT 283, from 225: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 305; the floor sits half a headroom below it.
-DEFINED_TEST_FLOOR: Final = 283
+#: RE-TAKEN 2026-10-16 AT 312, from 283: the analysis branch read 334; half a headroom below it.
+DEFINED_TEST_FLOOR: Final = 312
 DEFINED_TEST_HEADROOM: Final = 45
 
 #: MEASURED 2026-09-18: 21 citations sitting on DOCSTRING lines. THE THIRD POPULATION, and the one a
