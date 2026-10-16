@@ -29,7 +29,8 @@ reads nothing, writes nothing, and leaves the host process's globals untouched.
     [-3.2, 4.0]
 
 The subpackages ``intelligent_algorithm`` (the proposers) and ``surrogate_model`` (the fits)
-are built against :mod:`optimi_lab.core.protocols` and export their own names on top of these.
+are built against :mod:`optimi_lab.core.protocols` and export their own names on top of these;
+``analysis`` (sensitivity and decision support over a finished sample or front) exports its own.
 :mod:`optimi_lab.benchmarks` adds what a caller needs to JUDGE a run rather than merely make one --
 the ZDT problems with known Pareto fronts, the IGD and hypervolume metrics, and a one-call
 :func:`~optimi_lab.benchmarks.solve` that takes the :data:`~optimi_lab.benchmarks.Algorithm` to
@@ -39,7 +40,7 @@ algorithms -- lives in this package, so a copy held downstream could gate its ho
 implementation it scores.
 """
 
-from optimi_lab.benchmarks import Algorithm, Problem, bnh, hypervolume_2d, igd, solve, zdt1, zdt2
+from optimi_lab.benchmarks import Algorithm, Problem, bnh, hypervolume, hypervolume_2d, igd, solve, zdt1, zdt2
 from optimi_lab.core import (
     SAMPLE_KINDS,
     SCREENED,
@@ -100,6 +101,7 @@ __all__ = [
     'constrained_dominates',
     'constrained_non_dominated_sorting',
     'dominates',
+    'hypervolume',
     'hypervolume_2d',
     'igd',
     'non_dominated_sorting',

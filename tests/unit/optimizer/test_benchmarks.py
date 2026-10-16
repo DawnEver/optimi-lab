@@ -20,7 +20,7 @@ alongside it as characterization, each quoting the worst seed measured rather th
 import numpy as np
 import pytest
 
-from optimi_lab import Problem, Record, Refusal, bnh, hypervolume_2d, igd, solve, zdt1, zdt2
+from optimi_lab import Problem, Record, Refusal, bnh, hypervolume, hypervolume_2d, igd, solve, zdt1, zdt2
 from optimi_lab.intelligent_algorithm import mode, moead, mopso, nsga2, nsga3
 
 #: The reference point both hypervolume readings are taken against, just outside the unit box so
@@ -295,3 +295,35 @@ def test_nsga2_reaches_feasibility_on_bnh_and_its_front_respects_both_bounds():
     assert np.all(front.constraints[:, 0] <= 25.0)
     assert np.all(front.constraints[:, 1] >= 7.7)
     assert np.all(record.feasible().constraints[:, 0] <= 25.0)
+
+
+def test_hypervolume_agrees_with_the_two_objective_sweep():
+    """On two objectives the general recursion and the staircase sweep are one number."""
+    rng = np.random.default_rng(3)
+    ref = np.array([1.1, 1.1])
+    for _ in range(5):
+        front = rng.uniform(0.0, 1.2, (40, 2))
+        assert hypervolume(front, ref) == pytest.approx(hypervolume_2d(front, ref), abs=1e-12)
+
+
+def test_hypervolume_of_a_hand_built_three_objective_set():
+    """Three unit-box corners at 0.5: inclusion-exclusion gives 3(0.5) - 3(0.25) + 0.125 = 0.875."""
+    ref = np.ones(3)
+    corners = np.array([[0.0, 0.0, 0.5], [0.5, 0.0, 0.0], [0.0, 0.5, 0.0]])
+    assert hypervolume(corners, ref) == pytest.approx(0.875)
+    assert hypervolume(np.vstack([corners, [0.6, 0.6, 0.6], [2.0, 0.0, 0.0]]), ref) == pytest.approx(0.875)
+    assert hypervolume(np.array([[1.5, 0.0, 0.0]]), ref) == 0.0
+
+
+def test_hypervolume_of_a_four_objective_lattice_matches_its_cell_count():
+    """Points on a quarter lattice dominate whole cells, so the exact volume is a count of cells."""
+    rng = np.random.default_rng(7)
+    front = rng.integers(0, 4, (30, 4)) / 4.0
+    cells = np.stack(np.meshgrid(*[np.arange(4) / 4.0] * 4, indexing='ij'), axis=-1).reshape(-1, 4)
+    covered = (front[None, :, :] <= cells[:, None, :]).all(axis=-1).any(axis=1)
+    assert hypervolume(front, np.ones(4)) == pytest.approx(covered.sum() / 4.0**4)
+
+
+def test_hypervolume_refuses_a_reference_of_another_width():
+    with pytest.raises(Refusal, match='reference'):
+        hypervolume(np.zeros((2, 3)), np.ones(2))
