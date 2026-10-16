@@ -48,7 +48,7 @@ def test_evaluation_replacement_preserves_cell_outcomes_and_identity_equality():
     assert original.values[0, 0] == 2
     assert updated is not replace(updated)
     assert updated != replace(updated)
-    assert [field.name for field in fields(updated)] == ['inputs', 'values', 'outcomes']
+    assert [field.name for field in fields(updated)] == ['inputs', 'values', 'outcomes', 'constraints']
     with pytest.raises(FrozenInstanceError):
         updated.values = np.array([[0]])
 
@@ -56,7 +56,7 @@ def test_evaluation_replacement_preserves_cell_outcomes_and_identity_equality():
 @pytest.mark.parametrize(
     ('record_type', 'parameters'),
     [
-        (Evaluation, ('inputs', 'values', 'outcomes')),
+        (Evaluation, ('inputs', 'values', 'outcomes', 'constraints')),
         (Objective, ('name', 'direction', 'operating_point')),
         (VariableSet, ('variables',)),
         (ObjectiveSet, ('objectives',)),

@@ -8,12 +8,14 @@ per-run output directory and rebind the process's active logger: a library that 
 imported must not do that to its host.
 
 The modules are grouped by the question each answers — :mod:`~optimi_lab.core.space` (what is
-optimized), :mod:`~optimi_lab.core.sampling` (the first batch), :mod:`~optimi_lab.core.outcomes`
+optimized), :mod:`~optimi_lab.core.constraints` (what it must satisfy), :mod:`~optimi_lab.core.sampling`
+(the first batch), :mod:`~optimi_lab.core.outcomes`
 (what an evaluation produced), :mod:`~optimi_lab.core.pareto` (dominance),
 :mod:`~optimi_lab.core.protocols` (the interfaces) and :mod:`~optimi_lab.core.optimize` (the
 driver and its record).
 """
 
+from optimi_lab.core.constraints import Constraint, ConstraintSet, Sense
 from optimi_lab.core.errors import (
     Refusal,
     coerce_enum,
@@ -24,16 +26,31 @@ from optimi_lab.core.errors import (
 )
 from optimi_lab.core.optimize import Record, optimize
 from optimi_lab.core.outcomes import Evaluation, Outcome
-from optimi_lab.core.pareto import dominates, non_dominated_sorting, partition_count
+from optimi_lab.core.pareto import (
+    constrained_dominates,
+    constrained_non_dominated_sorting,
+    dominates,
+    non_dominated_sorting,
+    partition_count,
+    total_violation,
+)
 from optimi_lab.core.protocols import Evaluator, Proposer, Surrogate
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec, sample
-from optimi_lab.core.space import Direction, Objective, ObjectiveSet, Variable, VariableSet
+from optimi_lab.core.space import (
+    Direction,
+    Objective,
+    ObjectiveSet,
+    Variable,
+    VariableSet,
+)
 
 # `__all__` is written out rather than aliased from the submodules: the guard helpers are
 # reachable as `optimi_lab.core.refuse` for a package that wants one refusal shape, but the
 # surface a user reads is the one below.
 __all__ = [
     'SAMPLE_KINDS',
+    'Constraint',
+    'ConstraintSet',
     'Direction',
     'Evaluation',
     'Evaluator',
@@ -45,10 +62,13 @@ __all__ = [
     'Refusal',
     'SampleKind',
     'SampleSpec',
+    'Sense',
     'Surrogate',
     'Variable',
     'VariableSet',
     'coerce_enum',
+    'constrained_dominates',
+    'constrained_non_dominated_sorting',
     'dominates',
     'non_dominated_sorting',
     'optimize',
@@ -58,4 +78,5 @@ __all__ = [
     'require_finite',
     'require_positive',
     'sample',
+    'total_violation',
 ]

@@ -29,6 +29,7 @@ module whose whole job is to make what this package says about itself true.
     optimi_lab.core.errors.Refusal: a batch must be a 2-D array with 2 column(s), got shape (4,)
 """
 
+from collections import Counter
 from enum import Enum
 from typing import NoReturn
 
@@ -39,6 +40,7 @@ __all__ = [
     'coerce_enum',
     'refuse',
     'require_axis',
+    'require_declared_names',
     'require_finite',
     'require_positive',
 ]
@@ -106,3 +108,16 @@ def require_axis(values: np.ndarray, n: int, axis: int, what: str) -> np.ndarray
         side = ('row', 'column')[axis]
         refuse(f'{what} must be a 2-D array with {n} {side}(s), got shape {array.shape}')
     return array
+
+
+def require_declared_names(names: tuple[str, ...], what: str) -> None:
+    """Refuse an empty declaration or a repeated name, naming the duplicates and the whole set.
+
+    One function for every declared set: "the names must be non-empty and unique" is a property of a
+    declaration, not of variables, objectives or constraints, and two copies of it would drift apart.
+    """
+    if not names:
+        refuse(f'a {what} needs at least one entry, got none')
+    duplicated = sorted(name for name, count in Counter(names).items() if count > 1)
+    if duplicated:
+        refuse(f'{what} names must be unique, duplicated: {duplicated}, declared: {list(names)}')
