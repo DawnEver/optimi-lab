@@ -20,7 +20,7 @@ alongside it as characterization, each quoting the worst seed measured rather th
 import numpy as np
 import pytest
 
-from optimi_lab import Problem, Record, hypervolume_2d, igd, solve, zdt1, zdt2
+from optimi_lab import Problem, Record, Refusal, bnh, hypervolume_2d, igd, solve, zdt1, zdt2
 from optimi_lab.intelligent_algorithm import mode, moead, mopso, nsga2, nsga3
 
 #: The reference point both hypervolume readings are taken against, just outside the unit box so
@@ -273,3 +273,25 @@ def test_nsga2_fills_the_concave_front_to_the_bar_the_retired_loop_reached():
     problem = zdt2(n_var=3)
     reference = problem.pareto_front(200)
     assert hv_ratio(front_of(problem, max_iter=LONG_BUDGET, seed=0), reference) >= 0.700
+
+
+def test_bnh_objectives_and_constraints_are_the_closed_form_at_two_corners():
+    problem = bnh()
+    corners = np.array([[0.0, 0.0], [5.0, 3.0]])
+    assert problem.evaluate(corners).tolist() == [[0.0, 50.0], [136.0, 4.0]]
+    assert problem.constraint_values(corners).tolist() == [[25.0, 73.0], [9.0, 45.0]]
+    assert problem.constraints.names == ('circle_inside', 'circle_outside')
+
+
+def test_a_problem_declares_its_constraints_and_their_values_together():
+    with pytest.raises(Refusal, match='constraint_values'):
+        Problem('half', 1, 1, np.zeros(1), np.ones(1), lambda x: x, constraints=bnh().constraints)
+
+
+def test_nsga2_reaches_feasibility_on_bnh_and_its_front_respects_both_bounds():
+    record = solve(bnh(), pop_size=40, max_iter=30, seed=0)
+    front = record.pareto()
+    assert len(front) >= 10
+    assert np.all(front.constraints[:, 0] <= 25.0)
+    assert np.all(front.constraints[:, 1] >= 7.7)
+    assert np.all(record.feasible().constraints[:, 0] <= 25.0)

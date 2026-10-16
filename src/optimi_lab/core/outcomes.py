@@ -24,6 +24,7 @@ from enum import StrEnum
 
 import numpy as np
 
+from optimi_lab.core.constraints import ConstraintSet
 from optimi_lab.core.errors import coerce_enum, refuse
 from optimi_lab.core.space import ObjectiveSet
 
@@ -50,6 +51,7 @@ class _EvaluationFields:
     inputs: np.ndarray
     values: np.ndarray
     outcomes: np.ndarray | None = None
+    constraints: np.ndarray | None = None
 
 
 @dataclass(frozen=True, slots=True, eq=False, init=False)
@@ -64,9 +66,23 @@ class Evaluation(_EvaluationFields):
     The two value arrays are aligned cell by cell, not row by row: a run can produce some of a
     point's objectives and fail on the others, which is what the old ``solution_type``-per-result
     model could not express without a whole-row sentinel.
+
+    ``constraints`` has shape ``(n_points, n_con)``, one column per declared
+    :class:`~optimi_lab.core.space.Constraint`, and defaults to no column at all. In the caller's
+    frame a cell is the constrained quantity itself; in the minimization frame
+    (:meth:`to_minimization`) it is that quantity's normalised SHORTFALL, 0 when satisfied, so a
+    proposer reads a point's violation as :func:`~optimi_lab.core.pareto.total_violation` of its
+    row. A constraint that did not compute is NaN -- never an infinity, which would read as a
+    number -- and leaves its point incomplete: feasibility unknown is not feasibility.
     """
 
-    def __init__(self, inputs: np.ndarray, values: np.ndarray, outcomes: np.ndarray | None = None) -> None:
+    def __init__(
+        self,
+        inputs: np.ndarray,
+        values: np.ndarray,
+        outcomes: np.ndarray | None = None,
+        constraints: np.ndarray | None = None,
+    ) -> None:
         inputs = np.asarray(inputs, dtype=float)
         values = np.asarray(values, dtype=float)
         if inputs.ndim != 2:
@@ -85,13 +101,36 @@ class Evaluation(_EvaluationFields):
                 f'cell {list(cell)} is marked {Outcome.OK.value!r} but holds {float(values[cell])!r}; a point that '
                 f'produced no value must carry one of {[member.value for member in Outcome]} instead of a number'
             )
-        _EvaluationFields.__init__(self, inputs, np.where(produced, values, np.nan), outcomes)
+        constraints = self._coerce_constraints(constraints, inputs.shape[0])
+        _EvaluationFields.__init__(self, inputs, np.where(produced, values, np.nan), outcomes, constraints)
+
+    @staticmethod
+    def _coerce_constraints(constraints: np.ndarray | None, n_points: int) -> np.ndarray:
+        """Return a ``(n_points, n_con)`` float matrix, or refuse a misshapen or infinite one."""
+        if constraints is None:
+            return np.zeros((n_points, 0))
+        constraints = np.asarray(constraints, dtype=float)
+        if constraints.ndim != 2 or constraints.shape[0] != n_points:
+            refuse(
+                f'constraints must be a 2-D array with one row per point and one column per constraint, got shape '
+                f'{constraints.shape} for {n_points} point(s)'
+            )
+        if np.any(np.isinf(constraints)):
+            refuse(
+                'a constraint cell holds an infinity; a constraint that did not compute is NaN, so it cannot be '
+                'read as a number'
+            )
+        return constraints
 
     @staticmethod
     def _coerce_outcomes(outcomes: np.ndarray | None, shape: tuple[int, int]) -> np.ndarray:
         """Return ``shape``-shaped object array of :class:`Outcome`, or refuse naming the members."""
         if outcomes is None:
-            return np.full(shape, Outcome.OK, dtype=object)
+            # Not `np.full`: it stores a `StrEnum` member as its plain `str` value, so the default
+            # cells read `'ok'` and fail every `is Outcome.OK` test. `fill` keeps the member.
+            default = np.empty(shape, dtype=object)
+            default.fill(Outcome.OK)
+            return default
         given = np.asarray(outcomes, dtype=object)
         if given.shape != shape:
             refuse(f'outcomes must hold one entry per value, expected shape {shape}, got {given.shape}')
@@ -111,15 +150,17 @@ class Evaluation(_EvaluationFields):
             refuse('cannot stack an empty batch list; there is no evaluation to return')
         n_obj = {evaluation.n_obj for evaluation in evaluations}
         n_var = {evaluation.inputs.shape[1] for evaluation in evaluations}
-        if len(n_obj) != 1 or len(n_var) != 1:
+        n_con = {evaluation.n_con for evaluation in evaluations}
+        if len(n_obj) != 1 or len(n_var) != 1 or len(n_con) != 1:
             refuse(
-                f'stacked batches must share a width, got n_obj={sorted(n_obj)} and n_var={sorted(n_var)}; '
-                f'these batches do not describe the same problem'
+                f'stacked batches must share a width, got n_obj={sorted(n_obj)}, n_var={sorted(n_var)} and '
+                f'n_con={sorted(n_con)}; these batches do not describe the same problem'
             )
         return cls(
             inputs=np.concatenate([evaluation.inputs for evaluation in evaluations]),
             values=np.concatenate([evaluation.values for evaluation in evaluations]),
             outcomes=np.concatenate([evaluation.outcomes for evaluation in evaluations]),
+            constraints=np.concatenate([evaluation.constraints for evaluation in evaluations]),
         )
 
     @property
@@ -127,17 +168,22 @@ class Evaluation(_EvaluationFields):
         """Number of objective columns."""
         return self.values.shape[1]
 
+    @property
+    def n_con(self) -> int:
+        """Number of constraint columns; 0 for an unconstrained batch."""
+        return self.constraints.shape[1]
+
     def __len__(self) -> int:
         return self.inputs.shape[0]
 
     @property
     def is_complete(self) -> bool:
-        """Whether every cell of every point produced a value."""
-        return bool(np.all(self.outcomes == Outcome.OK))
+        """Whether every point produced every objective and every constraint."""
+        return bool(np.all(self.complete_mask()))
 
     def complete_mask(self) -> np.ndarray:
-        """Boolean mask, shape ``(n_points,)``, True where EVERY objective of the point is ``OK``."""
-        return np.all(self.outcomes == Outcome.OK, axis=1)
+        """Boolean mask, shape ``(n_points,)``: every objective ``OK`` and every constraint computed."""
+        return np.all(self.outcomes == Outcome.OK, axis=1) & np.all(np.isfinite(self.constraints), axis=1)
 
     def point_outcomes(self) -> tuple[Outcome, ...]:
         """One outcome per point: ``OK``, or the first outcome that stopped it producing one."""
@@ -168,7 +214,12 @@ class Evaluation(_EvaluationFields):
     def complete(self) -> Evaluation:
         """Return the points whose every objective produced a value; may hold no point at all."""
         mask = self.complete_mask()
-        return Evaluation(inputs=self.inputs[mask], values=self.values[mask], outcomes=self.outcomes[mask])
+        return Evaluation(
+            inputs=self.inputs[mask],
+            values=self.values[mask],
+            outcomes=self.outcomes[mask],
+            constraints=self.constraints[mask],
+        )
 
     def require_complete(self) -> Evaluation:
         """Return the complete points, refusing if any point is incomplete.
@@ -178,22 +229,36 @@ class Evaluation(_EvaluationFields):
         """
         if not self.is_complete:
             per_point = self.point_outcomes()
-            incomplete = [index for index, outcome in enumerate(per_point) if not outcome.produced_a_value]
+            incomplete = np.flatnonzero(~self.complete_mask()).tolist()
             reasons = sorted({per_point[index].value for index in incomplete})
             msg = (
-                f'point(s) {incomplete} produced no value for every objective, with outcome(s) {reasons}; '
+                f'point(s) {incomplete} produced no value for every objective and constraint, with outcome(s) '
+                f'{reasons}; '
                 f'drop them with complete() or evaluate them again — a point that did not compute is not a data point'
             )
             refuse(msg)
         return self
 
-    def to_minimization(self, objectives: ObjectiveSet) -> Evaluation:
-        """Return this batch with every maximizing objective negated, as a new batch.
+    def to_minimization(self, objectives: ObjectiveSet, constraints: ConstraintSet | None = None) -> Evaluation:
+        """Return this batch in the frame a proposer ranks in, as a new batch.
 
-        Inputs and outcomes are carried over unchanged; only the values move frames.
+        Every maximizing objective is negated, and every constraint cell becomes its normalised
+        shortfall under ``constraints`` -- the declaration the matrix's columns were measured
+        against, required exactly when the batch has constraint columns. Inputs and outcomes are
+        carried over unchanged.
         """
+        if constraints is None:
+            if self.n_con:
+                refuse(
+                    f'this batch carries {self.n_con} constraint column(s), and a raw constraint value is not a '
+                    f'shortfall; pass the ConstraintSet they were measured against'
+                )
+            shortfalls = self.constraints
+        else:
+            shortfalls = constraints.shortfall(self.constraints)
         return Evaluation(
             inputs=self.inputs,
             values=objectives.to_minimization(self.values),
             outcomes=self.outcomes,
+            constraints=shortfalls,
         )

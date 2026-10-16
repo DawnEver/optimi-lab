@@ -18,6 +18,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from optimi_lab.core.constraints import ConstraintSet
 from optimi_lab.core.errors import refuse, require_axis, require_positive
 from optimi_lab.core.outcomes import Evaluation
 from optimi_lab.core.pareto import non_dominated_sorting
@@ -33,7 +34,9 @@ class Record:
     """Every point a run asked for, every value it produced, and what produced none.
 
     ``space`` and ``objectives`` are the columns of ``evaluation`` (shape ``(n_points, n_obj)``,
-    values in the caller's own frame, one :class:`Outcome` per cell). The record is
+    values in the caller's own frame, one :class:`Outcome` per cell), and ``constraints`` names
+    its constraint columns -- raw values, in the caller's frame -- or is ``None`` for an
+    unconstrained run. The record is
     self-describing on purpose: the old ``optimize`` returned four bare matrices whose columns
     were named only by the optimizer object the caller still had to hold on to.
     """
@@ -41,20 +44,37 @@ class Record:
     space: VariableSet
     objectives: ObjectiveSet
     evaluation: Evaluation
+    constraints: ConstraintSet | None = None
 
     def __len__(self) -> int:
         return len(self.evaluation)
 
     def complete(self) -> Evaluation:
-        """The points whose every objective produced a value."""
+        """The points whose every objective and every constraint produced a value."""
         return self.evaluation.complete()
 
+    def feasible(self) -> Evaluation:
+        """The complete points that satisfy every constraint; every complete point when unconstrained."""
+        complete = self.evaluation.complete()
+        if self.constraints is None:
+            return complete
+        mask = self.constraints.feasible_mask(complete.constraints)
+        return Evaluation(
+            inputs=complete.inputs[mask],
+            values=complete.values[mask],
+            outcomes=complete.outcomes[mask],
+            constraints=complete.constraints[mask],
+        )
+
     def pareto(self) -> Evaluation:
-        """The first Pareto front of the complete points, in the caller's own frame.
+        """The first Pareto front of the FEASIBLE points, in the caller's own frame.
+
+        An infeasible point is never on the front, however good its objectives: the front is the
+        answer to the problem as declared, constraints included.
 
         Raises:
-            Refusal: If no point produced a value. An empty front is not a result — it is a run
-                whose points all failed, which reads identically to a run that found nothing.
+            Refusal: If no point produced a value, or none of those is feasible. An empty front is
+                not a result — it reads identically to a run that found nothing.
 
         """
         complete = self.evaluation.complete()
@@ -64,9 +84,19 @@ class Record:
                 f'no point of the {len(self.evaluation)} asked produced a value, so there is no front; '
                 f'the outcomes were {outcomes} — an empty front would read as a run that found nothing'
             )
-        front = non_dominated_sorting(self.objectives.to_minimization(complete.values))
+        feasible = self.feasible()
+        if len(feasible) == 0:
+            least = float(self.constraints.violation(complete.constraints).min())
+            refuse(
+                f'none of the {len(complete)} complete point(s) is feasible under {list(self.constraints.names)}, so '
+                f'there is no front; the least total violation reached was {least:.6g}'
+            )
+        front = non_dominated_sorting(self.objectives.to_minimization(feasible.values))
         return Evaluation(
-            inputs=complete.inputs[front], values=complete.values[front], outcomes=complete.outcomes[front]
+            inputs=feasible.inputs[front],
+            values=feasible.values[front],
+            outcomes=feasible.outcomes[front],
+            constraints=feasible.constraints[front],
         )
 
 
@@ -76,6 +106,7 @@ def optimize(
     objectives: ObjectiveSet,
     evaluate: Evaluator,
     build_proposer: Callable[[int], Proposer],
+    constraints: ConstraintSet | None = None,
     spec: SampleSpec | None = None,
     n_batches: int = 4,
     on_batch: Callable[[Record], None] | None = None,
@@ -88,7 +119,10 @@ def optimize(
 
     ``evaluate`` is called with a shape ``(n_points, n_var)`` batch and must return an
     :class:`Evaluation` of exactly those points; ``build_proposer`` is handed ``pop_size`` and
-    must return an object with ``ask``/``tell``; ``spec`` says how to draw the initial batch;
+    must return an object with ``ask``/``tell``; ``constraints`` declares the constraint columns
+    the evaluator returns, and the proposer is told their normalised shortfalls (see
+    :meth:`~optimi_lab.core.outcomes.Evaluation.to_minimization`) so it ranks by Deb's rule;
+    ``spec`` says how to draw the initial batch;
     ``n_batches`` counts the batches in total, the initial sample included; ``on_batch`` is
     called with the run so far after every batch is told, replacing the old iteration callback
     that logged through a handler the package had installed on the host process.
@@ -115,12 +149,19 @@ def optimize(
     for index_batch in range(n_batches):
         if index_batch > 0:
             asked = _require_ask(proposer.ask(), space, pop_size)
-        evaluation = _require_evaluation(evaluate(asked), objectives, asked)
+        evaluation = _require_evaluation(evaluate(asked), objectives, constraints, asked)
         batches.append(evaluation)
-        proposer.tell(evaluation.to_minimization(objectives))
+        proposer.tell(evaluation.to_minimization(objectives, constraints))
         if on_batch is not None:
-            on_batch(Record(space=space, objectives=objectives, evaluation=Evaluation.stack(batches)))
-    return Record(space=space, objectives=objectives, evaluation=Evaluation.stack(batches))
+            on_batch(_record(space, objectives, constraints, batches))
+    return _record(space, objectives, constraints, batches)
+
+
+def _record(
+    space: VariableSet, objectives: ObjectiveSet, constraints: ConstraintSet | None, batches: list[Evaluation]
+) -> Record:
+    """The run so far, as one record."""
+    return Record(space=space, objectives=objectives, evaluation=Evaluation.stack(batches), constraints=constraints)
 
 
 def _require_ask(asked: np.ndarray, space: VariableSet, pop_size: int) -> np.ndarray:
@@ -137,7 +178,9 @@ def _require_ask(asked: np.ndarray, space: VariableSet, pop_size: int) -> np.nda
     return asked
 
 
-def _require_evaluation(product: object, objectives: ObjectiveSet, asked: np.ndarray) -> Evaluation:
+def _require_evaluation(
+    product: object, objectives: ObjectiveSet, constraints: ConstraintSet | None, asked: np.ndarray
+) -> Evaluation:
     """Return the batch an :class:`Evaluator` produced, or refuse naming what it returned."""
     if not isinstance(product, Evaluation):
         refuse(
@@ -154,5 +197,11 @@ def _require_evaluation(product: object, objectives: ObjectiveSet, asked: np.nda
         refuse(
             f'the evaluator returned {product.n_obj} objective column(s), but {objectives.n_obj} were declared: '
             f'{list(objectives.names)}'
+        )
+    declared = () if constraints is None else constraints.names
+    if product.n_con != len(declared):
+        refuse(
+            f'the evaluator returned {product.n_con} constraint column(s), but {len(declared)} were declared: '
+            f'{list(declared)}'
         )
     return product

@@ -7,6 +7,9 @@ NSGA-III are the same generation with a different fill of the front that overflo
 generation with a differential variation and no mating pool, and MOEA/D and MOPSO are loops of
 their own.
 
+Every selection operator is called as ``operator(values, n_selected, [rng,] violation=...)``,
+one total constraint violation per row, so a custom operator ranks by the same rule.
+
 A setting a factory does not take is refused NAMING the ones it does, read off the operator's own
 signature, so a misspelled rate is an answer rather than a ``TypeError`` from inside a call.
 """
@@ -96,7 +99,7 @@ def _differential(
 def nsga2(
     space: VariableSet,
     *,
-    selection_operator: Callable[[np.ndarray, int], np.ndarray] = crowding_select,
+    selection_operator: Callable[..., np.ndarray] = crowding_select,
     parent_selection_operator: Callable[..., np.ndarray] = tournament_select,
     seed: int = 0,
     **variation: float,
@@ -120,7 +123,7 @@ def nsga3(
     space: VariableSet,
     *,
     partitions: int | None = None,
-    selection_operator: Callable[[np.ndarray, int], np.ndarray] = reference_select,
+    selection_operator: Callable[..., np.ndarray] = reference_select,
     parent_selection_operator: Callable[..., np.ndarray] = tournament_select,
     seed: int = 0,
     **variation: float,
@@ -151,7 +154,7 @@ def nsga3(
 def mode(
     space: VariableSet,
     *,
-    selection_operator: Callable[[np.ndarray, int], np.ndarray] = crowding_select,
+    selection_operator: Callable[..., np.ndarray] = crowding_select,
     seed: int = 0,
     **variation: float,
 ) -> Callable[[int], Proposer]:
@@ -181,7 +184,7 @@ def moead(space: VariableSet, *, seed: int = 0, **settings: object) -> Callable[
 def mopso(
     space: VariableSet,
     *,
-    selection_operator: Callable[[np.ndarray, int], np.ndarray] = crowding_select,
+    selection_operator: Callable[..., np.ndarray] = crowding_select,
     seed: int = 0,
     **settings: object,
 ) -> Callable[[int], Proposer]:

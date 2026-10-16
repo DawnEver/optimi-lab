@@ -12,29 +12,21 @@ The sets are frozen: a set that can be mutated after the matrices built from it 
 how a shape and its declaration drift apart.
 """
 
-from collections import Counter
 from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import StrEnum
 
 import numpy as np
 
-from optimi_lab.core.errors import coerce_enum, refuse, require_axis, require_finite
+from optimi_lab.core.errors import coerce_enum, refuse, require_axis, require_declared_names, require_finite
 
-__all__ = ['Direction', 'Objective', 'ObjectiveSet', 'Variable', 'VariableSet']
-
-
-def _require_declared_names(names: tuple[str, ...], what: str) -> None:
-    """Refuse an empty declaration or a repeated name, naming the duplicates and the whole set.
-
-    One function for both sets: "the names must be non-empty and unique" is a property of a
-    declaration, not of variables or of objectives, and two copies of it would drift apart.
-    """
-    if not names:
-        refuse(f'a {what} needs at least one entry, got none')
-    duplicated = sorted(name for name, count in Counter(names).items() if count > 1)
-    if duplicated:
-        refuse(f'{what} names must be unique, duplicated: {duplicated}, declared: {list(names)}')
+__all__ = [
+    'Direction',
+    'Objective',
+    'ObjectiveSet',
+    'Variable',
+    'VariableSet',
+]
 
 
 class Direction(StrEnum):
@@ -121,7 +113,7 @@ class VariableSet(_VariableSetFields):
 
     def __init__(self, variables: tuple[Variable, ...]) -> None:
         variables = tuple(variables)
-        _require_declared_names(tuple(variable.name for variable in variables), 'variable set')
+        require_declared_names(tuple(variable.name for variable in variables), 'variable set')
         _VariableSetFields.__init__(self, variables)
 
     @property
@@ -192,7 +184,7 @@ class ObjectiveSet(_ObjectiveSetFields):
 
     def __init__(self, objectives: tuple[Objective, ...]) -> None:
         objectives = tuple(objectives)
-        _require_declared_names(tuple(objective.name for objective in objectives), 'objective set')
+        require_declared_names(tuple(objective.name for objective in objectives), 'objective set')
         _ObjectiveSetFields.__init__(self, objectives)
 
     @property

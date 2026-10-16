@@ -18,7 +18,7 @@ from optimi_lab.core.space import Direction
         (Objective('torque'), 'direction', 'maximize', Direction.MAXIMIZE),
         (VariableSet([Variable('x', 0, 1)]), 'variables', [Variable('y', 0, 2)], (Variable('y', 0, 2),)),
         (ObjectiveSet([Objective('torque')]), 'objectives', [Objective('loss')], (Objective('loss'),)),
-        (SampleSpec(kind='uniform'), 'steps', [2, 3], (2, 3)),
+        (SampleSpec(kind='grid'), 'levels', [2, 3], (2, 3)),
         (SampleSpec(), 'kind', 'poisson_disk', SampleKind.POISSON_DISK),
     ],
 )
@@ -48,7 +48,7 @@ def test_evaluation_replacement_preserves_cell_outcomes_and_identity_equality():
     assert original.values[0, 0] == 2
     assert updated is not replace(updated)
     assert updated != replace(updated)
-    assert [field.name for field in fields(updated)] == ['inputs', 'values', 'outcomes']
+    assert [field.name for field in fields(updated)] == ['inputs', 'values', 'outcomes', 'constraints']
     with pytest.raises(FrozenInstanceError):
         updated.values = np.array([[0]])
 
@@ -56,11 +56,11 @@ def test_evaluation_replacement_preserves_cell_outcomes_and_identity_equality():
 @pytest.mark.parametrize(
     ('record_type', 'parameters'),
     [
-        (Evaluation, ('inputs', 'values', 'outcomes')),
+        (Evaluation, ('inputs', 'values', 'outcomes', 'constraints')),
         (Objective, ('name', 'direction', 'operating_point')),
         (VariableSet, ('variables',)),
         (ObjectiveSet, ('objectives',)),
-        (SampleSpec, ('kind', 'n_samples', 'seed', 'steps', 'radius', 'matrix')),
+        (SampleSpec, ('kind', 'n_samples', 'seed', 'levels', 'radius', 'matrix', 'anchor')),
     ],
 )
 def test_public_constructor_signatures_and_dataclass_fields_stay_declared(record_type, parameters):

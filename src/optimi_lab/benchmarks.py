@@ -14,6 +14,8 @@ truth rather than against a previous run.
 
 `zdt1`/`zdt2` are the two ZDT shapes (convex and concave front) that between them catch the common
 failure where a decomposition-based algorithm handles one curvature and falls over on the other.
+`bnh` (Binh and Korn, 1997) is the constrained one: two quadratic objectives under two circular
+constraints, the planted case for a front that must be feasible as well as non-dominated.
 """
 
 from collections.abc import Callable
@@ -21,6 +23,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from optimi_lab.core.constraints import Constraint, ConstraintSet
+from optimi_lab.core.errors import refuse
 from optimi_lab.core.optimize import Record, optimize
 from optimi_lab.core.outcomes import Evaluation
 from optimi_lab.core.protocols import Proposer
@@ -31,6 +35,7 @@ from optimi_lab.intelligent_algorithm import nsga2
 __all__ = [
     'Algorithm',
     'Problem',
+    'bnh',
     'hypervolume_2d',
     'igd',
     'solve',
@@ -53,7 +58,7 @@ measured, which is what keeps a second population size from existing to disagree
 
 @dataclass(frozen=True)
 class Problem:
-    """A box-constrained multi-objective minimization problem.
+    """A box-bounded multi-objective minimization problem, optionally under constraints.
 
     ``evaluate`` maps a population matrix ``X`` of shape ``(n_sample, n_var)`` to an objective
     matrix ``F`` of shape ``(n_sample, n_obj)``, minimized on every objective.
@@ -67,6 +72,9 @@ class Problem:
         evaluate: Vectorized objective ``X -> F``.
         pareto_front: Optional callable ``n -> (n, n_obj)`` returning ``n`` evenly sampled points on
             the analytic Pareto front, for :func:`igd`.
+        constraints: The declared constraints, or ``None`` for an unconstrained problem.
+        constraint_values: Vectorized ``X -> G`` of shape ``(n_sample, n_con)``, the raw values the
+            constraints bound; given exactly when ``constraints`` is.
 
     """
 
@@ -77,6 +85,15 @@ class Problem:
     xu: np.ndarray
     evaluate: Callable[[np.ndarray], np.ndarray]
     pareto_front: Callable[[int], np.ndarray] | None = None
+    constraints: ConstraintSet | None = None
+    constraint_values: Callable[[np.ndarray], np.ndarray] | None = None
+
+    def __post_init__(self) -> None:
+        if (self.constraints is None) != (self.constraint_values is None):
+            refuse(
+                f'problem {self.name!r} must declare constraints and constraint_values together: the set names the '
+                f'columns and the callable produces them, and either alone describes no constraint'
+            )
 
 
 def _zdt(kind: int, n_var: int) -> Problem:
@@ -113,6 +130,31 @@ def zdt1(n_var: int = 3) -> Problem:
 def zdt2(n_var: int = 3) -> Problem:
     """ZDT2: two objectives, concave Pareto front ``f2 = 1 - f1**2``."""
     return _zdt(2, n_var)
+
+
+def bnh() -> Problem:
+    """BNH (Binh and Korn): two objectives over ``[0, 5] x [0, 3]``, two circular constraints.
+
+    ``f1 = 4 x1^2 + 4 x2^2`` and ``f2 = (x1 - 5)^2 + (x2 - 5)^2``, subject to
+    ``(x1 - 5)^2 + x2^2 <= 25`` and ``(x1 - 8)^2 + (x2 + 3)^2 >= 7.7``.
+    """
+
+    def evaluate(x: np.ndarray) -> np.ndarray:
+        return np.column_stack([4.0 * x[:, 0] ** 2 + 4.0 * x[:, 1] ** 2, (x[:, 0] - 5.0) ** 2 + (x[:, 1] - 5.0) ** 2])
+
+    def constraint_values(x: np.ndarray) -> np.ndarray:
+        return np.column_stack([(x[:, 0] - 5.0) ** 2 + x[:, 1] ** 2, (x[:, 0] - 8.0) ** 2 + (x[:, 1] + 3.0) ** 2])
+
+    return Problem(
+        name='BNH',
+        n_var=2,
+        n_obj=2,
+        xl=np.zeros(2),
+        xu=np.array([5.0, 3.0]),
+        evaluate=evaluate,
+        constraints=ConstraintSet((Constraint('circle_inside', '<=', 25.0), Constraint('circle_outside', '>=', 7.7))),
+        constraint_values=constraint_values,
+    )
 
 
 def igd(front: np.ndarray, reference: np.ndarray) -> float:
@@ -209,11 +251,15 @@ def solve(
     objectives = ObjectiveSet(tuple(Objective(f'f{index}') for index in range(problem.n_obj)))
 
     def evaluate(points: np.ndarray) -> Evaluation:
-        return Evaluation(inputs=points, values=np.asarray(problem.evaluate(points), dtype=float))
+        values = np.asarray(problem.evaluate(points), dtype=float)
+        if problem.constraint_values is None:
+            return Evaluation(inputs=points, values=values)
+        return Evaluation(inputs=points, values=values, constraints=problem.constraint_values(points))
 
     return optimize(
         space=space,
         objectives=objectives,
+        constraints=problem.constraints,
         evaluate=evaluate,
         build_proposer=algorithm(space, seed=seed),
         spec=SampleSpec(n_samples=pop_size, seed=seed),

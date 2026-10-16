@@ -16,7 +16,14 @@ import numpy as np
 
 from optimi_lab.core.errors import refuse, require_finite, require_positive
 
-__all__ = ['dominates', 'non_dominated_sorting', 'partition_count']
+__all__ = [
+    'constrained_dominates',
+    'constrained_non_dominated_sorting',
+    'dominates',
+    'non_dominated_sorting',
+    'partition_count',
+    'total_violation',
+]
 
 _MAX_PARTITIONS = 10_000
 """Ceiling on the partition search, so a grid that cannot be reached terminates."""
@@ -95,3 +102,64 @@ def partition_count(n_obj: int, n_points: int) -> int:
                 f'partitions; the largest it holds is {comb(_MAX_PARTITIONS + n_obj - 1, n_obj - 1)}'
             )
     return partitions
+
+
+def total_violation(shortfalls: np.ndarray) -> np.ndarray:
+    """Per row, the sum of a ``(n_points, n_con)`` matrix of normalised shortfalls.
+
+    A row holding a NaN sums to NaN: a constraint that did not compute leaves its point's
+    feasibility UNKNOWN, and an unknown is never read as satisfied. Zero constraint columns sum to
+    zero, which is what makes an unconstrained run the feasible special case of a constrained one.
+    """
+    shortfalls = np.asarray(shortfalls, dtype=float)
+    if shortfalls.ndim != 2:
+        refuse(f'a shortfall matrix must be 2-D with one column per constraint, got shape {shortfalls.shape}')
+    return shortfalls.sum(axis=1)
+
+
+def constrained_dominates(
+    obj_1: np.ndarray, obj_2: np.ndarray, violation_1: np.ndarray | float, violation_2: np.ndarray | float
+) -> np.ndarray | bool:
+    """Deb's constrained dominance of ``obj_1`` over ``obj_2``, in the minimization frame.
+
+    A feasible point (violation 0) beats an infeasible one whatever their objectives; of two
+    infeasible points the smaller violation wins; two feasible points compare by
+    :func:`dominates`. Broadcast like :func:`dominates`, the violations over the leading axes.
+    """
+    violation_1 = np.asarray(violation_1, dtype=float)
+    violation_2 = np.asarray(violation_2, dtype=float)
+    both_feasible = (violation_1 == 0.0) & (violation_2 == 0.0)
+    return (violation_1 < violation_2) | (both_feasible & dominates(obj_1, obj_2))
+
+
+def constrained_non_dominated_sorting(
+    values: np.ndarray, violation: np.ndarray, only_first_front: bool = True
+) -> np.ndarray | list[np.ndarray]:
+    """Group rows into fronts under Deb's rule: the feasible fronts first, then by violation.
+
+    The feasible rows are sorted by :func:`non_dominated_sorting`; every infeasible row follows,
+    one front per distinct violation in ascending order, because two infeasible rows of equal
+    violation dominate neither way. With every row feasible this IS :func:`non_dominated_sorting`
+    -- the same call, so an unconstrained run cannot be moved by the constrained path. A violation
+    that is NaN (unknown), negative or misaligned with ``values`` is refused.
+    """
+    values = np.asarray(values, dtype=float)
+    violation = np.asarray(violation, dtype=float)
+    if violation.ndim != 1 or violation.shape[0] != values.shape[0]:
+        refuse(
+            f'a constrained sort needs one violation per row, got shape {violation.shape} for {values.shape[0]} row(s)'
+        )
+    require_finite(violation, 'a violation vector to sort')
+    if np.any(violation < 0.0):
+        refuse('a violation is a sum of shortfalls and is never negative; got a negative entry')
+    feasible = np.flatnonzero(violation == 0.0)
+    if feasible.size == violation.size:
+        return non_dominated_sorting(values, only_first_front=only_first_front)
+    fronts: list[np.ndarray] = []
+    if feasible.size:
+        sorted_feasible = non_dominated_sorting(values[feasible], only_first_front=False)
+        fronts.extend(feasible[front] for front in sorted_feasible)
+    else:
+        require_finite(values, 'an objective matrix to sort')
+    fronts.extend(np.flatnonzero(violation == level) for level in np.unique(violation[violation > 0.0]))
+    return fronts[0] if only_first_front else fronts

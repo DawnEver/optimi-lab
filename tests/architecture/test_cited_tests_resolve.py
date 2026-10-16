@@ -119,7 +119,9 @@ SCANNED_FILE_HEADROOM: Final = 20
 #: RE-MEASURED 2026-10-03: 227, past 180 + 45 by two, after the WORKTREES-STAY-INSIDE and
 #: PROJECT-FILES-HAVE-ONE-SOURCE adoption. Same fraction again: 0.824 x 227 = 187.
 #: RE-TAKEN 2026-10-04 AT 225, from 187: lab-commons ec5e8c5 and the consumer-facts merge read 241.
-DEFINED_TEST_FLOOR: Final = 225
+#: RE-TAKEN 2026-10-16 AT 283, from 225: the constraints-and-design-matrix branch (five unit test modules
+#: and core/constraints.py) read 305; the floor sits half a headroom below it.
+DEFINED_TEST_FLOOR: Final = 283
 DEFINED_TEST_HEADROOM: Final = 45
 
 #: MEASURED 2026-09-18: 21 citations sitting on DOCSTRING lines. THE THIRD POPULATION, and the one a

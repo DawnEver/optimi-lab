@@ -7,6 +7,12 @@ while ``TournamentSelection`` silently duplicated indices, so one request was a 
 depending only on the selector installed. :func:`_require_selectable` is the one rule every
 selection goes through: more rows than exist is REFUSED, naming both counts, because a duplicated
 index is a population smaller than the one that was asked for.
+
+EVERY SELECTOR TAKES ``violation``, one total constraint violation per row
+(:func:`optimi_lab.core.pareto.total_violation`), and ranks by Deb's rule through
+:func:`~optimi_lab.core.pareto.constrained_non_dominated_sorting`. ``None`` is every row
+feasible, which is the plain Pareto ranking index for index -- an unconstrained run cannot be
+moved by the constrained path, because with zero violation it IS the unconstrained path.
 """
 
 from collections.abc import Callable, Iterator
@@ -14,7 +20,13 @@ from functools import partial
 
 import numpy as np
 
-from optimi_lab.core import non_dominated_sorting, partition_count, refuse, require_axis, require_finite
+from optimi_lab.core import (
+    constrained_non_dominated_sorting,
+    partition_count,
+    refuse,
+    require_axis,
+    require_finite,
+)
 
 __all__ = [
     'crowding_distance',
@@ -46,19 +58,37 @@ def _require_rankable(values: np.ndarray, what: str = 'a fitness matrix') -> np.
     return require_finite(values, what)
 
 
-def random_select(values: np.ndarray, n_selected: int, rng: np.random.Generator) -> np.ndarray:
+def _violation(violation: np.ndarray | None, n_rows: int) -> np.ndarray:
+    """The per-row violation, every row feasible when ``None``."""
+    return np.zeros(n_rows) if violation is None else np.asarray(violation, dtype=float)
+
+
+def random_select(
+    values: np.ndarray,
+    n_selected: int,
+    rng: np.random.Generator,
+    *,
+    violation: np.ndarray | None = None,
+) -> np.ndarray:
     """Draw ``n_selected`` distinct rows uniformly, without replacement.
 
     ``values`` is read for its row count alone, but it is the argument both parent selectors take,
-    so one of them being indifferent to fitness is a property of this strategy.
+    so one of them being indifferent to fitness is a property of this strategy -- and so is its
+    indifference to ``violation``, which it takes for the shared signature and does not read.
     """
+    del violation
     values = _require_rankable(values)
     _require_selectable(n_selected, values.shape[0])
     return rng.choice(values.shape[0], n_selected, replace=False)
 
 
 def tournament_select(
-    values: np.ndarray, n_selected: int, rng: np.random.Generator, *, tournament_size: int = 2
+    values: np.ndarray,
+    n_selected: int,
+    rng: np.random.Generator,
+    *,
+    tournament_size: int = 2,
+    violation: np.ndarray | None = None,
 ) -> np.ndarray:
     """Run ``n_selected`` tournaments and keep each winner, best front then crowding distance first.
 
@@ -74,10 +104,11 @@ def tournament_select(
             f'tournament_size {tournament_size} exceeds the {values.shape[0]} row(s) a tournament may draw from; '
             f'the valid tournament sizes for this set are 2 to {values.shape[0]}'
         )
+    violation = _violation(violation, values.shape[0])
     winners = np.empty(n_selected, dtype=np.intp)
     for slot in range(n_selected):
         contenders = rng.choice(values.shape[0], tournament_size, replace=False)
-        front = non_dominated_sorting(values[contenders])
+        front = constrained_non_dominated_sorting(values[contenders], violation[contenders])
         if len(front) == 1:
             winners[slot] = contenders[front[0]]
         else:
@@ -109,12 +140,18 @@ def crowding_distance(values: np.ndarray) -> np.ndarray:
     return distance
 
 
-def crowding_select(values: np.ndarray, n_selected: int) -> np.ndarray:
-    """The best ``n_selected`` rows by Pareto front, the overflow front broken by crowding distance."""
-    return _fronts_then_fill(_require_rankable(values), n_selected, _crowding_fill)
+def crowding_select(values: np.ndarray, n_selected: int, *, violation: np.ndarray | None = None) -> np.ndarray:
+    """The best ``n_selected`` rows by constrained front, the overflow front broken by crowding distance."""
+    return _fronts_then_fill(_require_rankable(values), n_selected, _crowding_fill, violation)
 
 
-def reference_select(values: np.ndarray, n_selected: int, *, partitions: int | None = None) -> np.ndarray:
+def reference_select(
+    values: np.ndarray,
+    n_selected: int,
+    *,
+    partitions: int | None = None,
+    violation: np.ndarray | None = None,
+) -> np.ndarray:
     """The same fronts, the overflow front filled by proximity to a Das-Dennis reference direction.
 
     ``partitions`` defaults to :func:`optimi_lab.core.pareto.partition_count`, which refuses a
@@ -126,14 +163,20 @@ def reference_select(values: np.ndarray, n_selected: int, *, partitions: int | N
     if partitions is None:
         partitions = partition_count(values.shape[1], n_selected)
     directions = _reference_directions(values.shape[1], partitions)
-    return _fronts_then_fill(values, n_selected, partial(_reference_fill, directions=directions))
+    return _fronts_then_fill(values, n_selected, partial(_reference_fill, directions=directions), violation)
 
 
-def _fronts_then_fill(values: np.ndarray, n_selected: int, fill: Callable[[np.ndarray, int], np.ndarray]) -> np.ndarray:
-    """Whole fronts in order, the one that overflows filled by ``fill(front, n_fill)`` positions."""
+def _fronts_then_fill(
+    values: np.ndarray,
+    n_selected: int,
+    fill: Callable[[np.ndarray, int], np.ndarray],
+    violation: np.ndarray | None,
+) -> np.ndarray:
+    """Whole constrained fronts in order, the one that overflows filled by ``fill(front, n_fill)`` positions."""
     _require_selectable(n_selected, values.shape[0])
     chosen: list[int] = []
-    for front in non_dominated_sorting(values, only_first_front=False):
+    violation = _violation(violation, values.shape[0])
+    for front in constrained_non_dominated_sorting(values, violation, only_first_front=False):
         if len(chosen) + len(front) <= n_selected:
             chosen.extend(int(index) for index in front)
             continue
