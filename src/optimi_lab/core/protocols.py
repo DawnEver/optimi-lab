@@ -1,4 +1,4 @@
-"""The three interfaces every algorithm and surrogate in this package is written against.
+"""The interfaces every algorithm and surrogate in this package is written against.
 
 They are Protocols rather than base classes so that an implementation keeps its own constructor:
 an algorithm that must inherit a base class to be usable cannot be a wrapper around somebody
@@ -27,7 +27,7 @@ import numpy as np
 
 from optimi_lab.core.outcomes import Evaluation
 
-__all__ = ['Evaluator', 'Proposer', 'Surrogate']
+__all__ = ['Evaluator', 'Proposer', 'Surrogate', 'Tunable']
 
 
 @runtime_checkable
@@ -57,6 +57,19 @@ class Proposer(Protocol):
         Outcome` per cell: a point that did not produce a value is visible as such, and
         ``evaluation.complete()`` is the subset an implementation can fit or rank.
         """
+        ...
+
+
+@runtime_checkable
+class Tunable(Protocol):
+    """A proposer whose generation settings may change between batches.
+
+    :func:`~optimi_lab.core.optimize.optimize` calls :meth:`retune` with what its ``steer``
+    returned; the proposer owns which settings exist and refuses one it does not take.
+    """
+
+    def retune(self, **settings: float) -> None:
+        """Use ``settings`` from the next generation on; unnamed settings keep their values."""
         ...
 
 

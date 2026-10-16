@@ -53,6 +53,7 @@ DECLARED: Final[frozenset[str]] = frozenset()
 
 #: Re-measured 2026-09-18: 79 tracked paths, 77 of them read by the scan. Set below the measurement
 #: on purpose -- a floor refuses an UNREAD tree, it is not a second pin on the count.
+#: RE-TAKEN 2026-10-09 AT 90, from 80: the routing and steering work read 96.
 #: RE-TAKEN 2026-10-04 AT 80, from 70: lab-commons ec5e8c5 and the consumer-facts merge read 90.
 #: RE-TAKEN 2026-10-16 AT 92, from 80: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 99; the floor sits half a headroom below it.

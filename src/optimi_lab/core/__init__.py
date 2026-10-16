@@ -11,8 +11,9 @@ The modules are grouped by the question each answers — :mod:`~optimi_lab.core.
 optimized), :mod:`~optimi_lab.core.constraints` (what it must satisfy), :mod:`~optimi_lab.core.sampling`
 (the first batch), :mod:`~optimi_lab.core.outcomes`
 (what an evaluation produced), :mod:`~optimi_lab.core.pareto` (dominance),
-:mod:`~optimi_lab.core.protocols` (the interfaces) and :mod:`~optimi_lab.core.optimize` (the
-driver and its record).
+:mod:`~optimi_lab.core.protocols` (the interfaces), :mod:`~optimi_lab.core.routing` (which
+evaluator, if any, spends its budget on a point) and :mod:`~optimi_lab.core.optimize` (the driver
+and its record).
 """
 
 from optimi_lab.core.constraints import Constraint, ConstraintSet, Sense
@@ -34,7 +35,8 @@ from optimi_lab.core.pareto import (
     partition_count,
     total_violation,
 )
-from optimi_lab.core.protocols import Evaluator, Proposer, Surrogate
+from optimi_lab.core.protocols import Evaluator, Proposer, Surrogate, Tunable
+from optimi_lab.core.routing import SCREENED, Router, routed
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec, sample
 from optimi_lab.core.space import (
     Direction,
@@ -49,6 +51,7 @@ from optimi_lab.core.space import (
 # surface a user reads is the one below.
 __all__ = [
     'SAMPLE_KINDS',
+    'SCREENED',
     'Constraint',
     'ConstraintSet',
     'Direction',
@@ -60,10 +63,12 @@ __all__ = [
     'Proposer',
     'Record',
     'Refusal',
+    'Router',
     'SampleKind',
     'SampleSpec',
     'Sense',
     'Surrogate',
+    'Tunable',
     'Variable',
     'VariableSet',
     'coerce_enum',
@@ -77,6 +82,7 @@ __all__ = [
     'require_axis',
     'require_finite',
     'require_positive',
+    'routed',
     'sample',
     'total_violation',
 ]
