@@ -3,15 +3,15 @@
 `optimi_lab` is a generic multi-objective optimization library. Everything below is a property a
 reader could violate in one commit, and each names the mechanism that refuses it.
 
-- **The RUNTIME is numpy, scipy and scikit-learn, and nothing else.** `[project.dependencies]` is
-  that list; a fourth entry is a decision, not a convenience. No logging framework, no unit
-  library, no validation library, no plotting, no path resolution, no config file format — the
-  package is imported by callers that already own those choices, and one of them (motronics) would
-  inherit ours. Refused by `tests/architecture/test_the_runtime_stays_pure.py`, which reads
-  `pyproject.toml` and the import graph rather than trusting the docstring that claims it.
-- **`lab-commons` is a DEV dependency here and may never become a runtime one.** It supplies the
-  shared development rules registry, not library code. It lives in the `dev` extra as a bare
-  `git+https` URL — never pinned to a sha or a tag, because a pin is a ceiling nobody re-argued.
+- **The RUNTIME is numpy, scipy, scikit-learn and `lab_commons.outcomes`, and nothing else.**
+  `[project.dependencies]` is that list; another entry is a decision, not a convenience. No logging,
+  unit, validation, plotting, path or config library -- callers own those choices, and one of them
+  (motronics) would inherit ours. Refused by `tests/architecture/test_the_runtime_stays_pure.py`,
+  which reads `pyproject.toml` and the import graph rather than trusting a docstring.
+- **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one
+  task-outcome vocabulary for every engine). The base install takes it without extras; the dev kit
+  (`lab-commons[dev]`) stays in the `dev` extra. Both are bare `git+https` URLs, never pinned (R8):
+  a pin is a ceiling nobody re-argued. Any other `lab_commons.*` import is refused by that guard.
 - **Importing the package does nothing.** No file is read, no directory is created, no global
   (numpy print options, matplotlib backend, warnings filters, random seed) is mutated at import.
   A library that reconfigures its host process is unusable inside another library.
