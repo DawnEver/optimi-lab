@@ -16,6 +16,44 @@ P0-P7 merged at optimi-lab 0.3). Read-only inputs: the OneDrive research package
 `archived/261017-Optimization-Framework`, which has 29 motor algorithm families (A01-A29), 32
 cross-domain methods (OR/ML/SC/CT), the B0 counterexamples and the API proposals.
 
+## Naming and product architecture (user rulings later on 2026-10-17; these supersede the names used below)
+
+- **Engines and doors.** Every external engine repository is named `<x>-lab` and imported as
+  `<x>_lab`. In motronics, each engine has exactly ONE door module, named after a person; that door
+  is the only place that imports the engine, and it translates product contracts into engine types.
+
+| motronics door | engine |
+|---|---|
+| `gauss` | `numerics-lab` / `numerics_lab` |
+| `pareto` | `optimi-lab` |
+| `turing` | `ai-lab` |
+| `euclid.winding` | `wdg-lab` |
+| `core` | `lab-commons` |
+| `contracts` | the task-outcome package; its name is still undecided |
+
+  Below, "package `gauss`" means the engine `numerics-lab`, and "`ledger`" means the task-outcome
+  package.
+- **Versions.**
+  - A library floats on the latest version of the engines it depends on: no pins. For example,
+    optimi-lab floats on numerics-lab.
+  - The product composes exactly. Every engine except lab-commons is a git submodule under
+    `components/<name>`, and Python and Rust consume it by path.
+  - A lab-commons mechanism (`[tool.lab_commons.components]`) bumps one pointer at a time after a
+    forge verdict: merge if green; if red, keep the last green pointer and open an issue.
+  - lab-commons itself stays a floating git dependency and is not mounted.
+- **Candidate engines, NOT extracted now:** laplace's MNA/circuit solver; the mesh Rust crates.
+- **Deferred proposal, not adopted** (user: keep the current names for now). Rename the remaining
+  non-person modules:
+
+| current | proposed person | alternative |
+|---|---|---|
+| `contracts` | `leibniz`, the universal-language idea | `frege` |
+| `core` | `kelvin`, measurement and units | `steinmetz` |
+| `workflow` | `lovelace`, steps arranged as a program | `babbage` |
+| `cli` | `morse`, the human-machine interface | -- |
+
+  If adopted, do it as one repository-wide rename at a quiet point, with retired names registered.
+
 ## 0. Rulings (user, 2026-10-17)
 
 | # | ruling |
