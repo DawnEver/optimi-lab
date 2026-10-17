@@ -695,6 +695,13 @@ PLACEMENT: Final[dict[str, Placement]] = {
         're-reads is the other, and no mechanism here catches it. That gap is named in the row for '
         '`test_a_pin_is_a_named_set.py`, not closed by this one.',
     ),
+    'tests/architecture/test_the_layers_point_one_way.py': Placement(
+        STAYS,
+        "THE LAYER TABLE IS THIS PACKAGE'S ARCHITECTURE (plan II.7, D28): which of `optimi_lab`'s own "
+        'subpackages -- problem, oracle, archive, metric, operator, model, solver, policy, run -- may '
+        'import which. No other repo has these layers, so the table and the walk over `optimi_lab` '
+        'stay here; the floor helpers it calls are already the kit.',
+    ),
     'tests/architecture/test_the_runtime_stays_pure.py': Placement(
         STAYS,
         "THE CLAIM IT CHECKS IS THIS PACKAGE'S OWN SENTENCE: `src/optimi_lab/__init__.py` states the "
