@@ -45,7 +45,8 @@ KERNEL_NAMES: Final = (
 )
 _KERNEL: Final = re.compile('|'.join(KERNEL_NAMES))
 
-#: Gradient-method and operator modules that import numerics-lab; measured 2026-10-18 at 4.
+#: Solver, operator and model modules that import numerics-lab; measured 2026-10-18 at 4.
+#: RE-TAKEN 2026-10-18 AT 12: P14 (simplex, interior point, QP route, ADMM) read 13; 329e959 (P11) read 9.
 #: RE-TAKEN 2026-10-18 AT 16: every least-squares / triangular solve moved to numerics_lab.linear.dense (9 -> 16).
 NUMERICS_IMPORTER_FLOOR: Final = 16
 NUMERICS_IMPORTER_HEADROOM: Final = 6

@@ -59,6 +59,7 @@ class Halt(StrEnum):
     ITERATION_LIMIT = 'iteration_limit'
     STALLED = 'stalled'
     INFEASIBLE = 'infeasible'
+    UNBOUNDED = 'unbounded'
     UNEVALUABLE = 'unevaluable'
 
 

@@ -1,6 +1,6 @@
 r"""FAMILY-CONFIG-IS-RENDERED, for THIS checkout -- a hand edit to a shared artefact REDS.
 
-THE DEFECT THIS CLOSES. `.gitignore`, `.pre-commit-config.yaml` and `Makefile` are hand-maintained
+THE DEFECT THIS CLOSES. `.gitignore`, `.gitattributes`, `.rgignore` and `Makefile` are hand-maintained
 once per repo across the family, so a fix in one is a fix in one. `lab_commons.dev.famconfig` owns
 each BASE as data plus a renderer; `_famconfig` here declares only what is a fact about optimi-lab;
 the assertions are `lab_commons.dev.famtests.configrender`, which re-renders from the LIVE base and
@@ -9,8 +9,7 @@ upstream moves this verdict on the next run rather than on the next time somebod
 re-sync.
 
 THIS WAS THE CHEAPEST OF THE FIVE ROWS TO ADOPT BECAUSE THE SEAM WAS ALREADY DRAWN. Both labs wrote
-this file within hours of `famconfig` landing, both already imported `DELTAS`, `EXTRA_HOOK_IDS` and
-`REPO` from a local `_famconfig`, and both were 59% identical in CODE. What was missing was the
+this file within hours of `famconfig` landing, both already imported `DELTAS` and `REPO` from a local `_famconfig`, and both were 59% identical in CODE. What was missing was the
 other side of a seam this tree had already cut, so what moved is the verdict half and what stayed is
 the declaration half plus the numbers underneath it -- the hook floor, the directory floor, the
 re-render remedy and the planted edit.
@@ -31,14 +30,10 @@ this file exists to refuse. A duplicate control that cannot diverge from its ori
 maintenance cost with no evidence value, and the consumer half of all four is `assert_delta_is_not_a_fork`, which
 this file still runs on every declared artefact.
 
-WHAT THE ADOPTION MOVED IN THIS TREE, read back off the REAL hook engine rather than off this file's
-YAML: the `pre-commit-hooks` pin from v5.0.0 to v6.0.0 and `commitizen` from v4.6.0 to v4.13.9, and
-`default_stages: [pre-commit]`, which narrows thirteen stock hooks from eleven stages to one. THE
-NARROWING COSTS THIS CHECKOUT NOTHING, and that is a fact about the checkout rather than an
-argument: the only git hook installed here is `pre-commit`, so the ten stages it removes had nothing
-to run at. The sibling lab takes the identical base and records the identical change as a real LOSS
-because it HAS a pre-push hook. Same config, opposite premise -- which is why both the narrowed set
-and the premise under it are now pinned here instead of only the half this repo happened to notice.
+THE GIT-HOOK ARTEFACT LEFT THE FAMILY ON 2026-10-11 (lab-commons 900c5bf): hooks are declared in
+`[tool.lab_commons.hooks]` and run by `lab_commons.dev.githooks`, so the kit publishes no YAML base and
+the arms that read the pre-commit engine's stage resolution went with it. What the hook table holds is
+`test_the_declared_hooks_are_installed.py`'s subject now.
 """
 
 from __future__ import annotations
@@ -47,31 +42,13 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from _famconfig import DELTAS, EXTRA_HOOK_IDS, PRECOMMIT_STAGE_MOVE, REPO
-from lab_commons.dev import floors
+from _famconfig import DELTAS, REPO
 from lab_commons.dev.famconfig import RENDERED, REQUIRED, artefact_base
 from lab_commons.dev.famtests import configrender
-from lab_commons.dev.hook_install import hooks_dir
-from pre_commit.clientlib import load_config
-from pre_commit.repository import all_hooks
-from pre_commit.store import Store
 
 #: THE TREE UNDER TEST, not the working directory: a scan rooted at the CWD answers, plausibly,
 #: about somebody else's checkout.
 _ROOT: Final = Path(__file__).resolve().parents[2]
-
-#: The artefact the stage tests read. Named once so a rename cannot leave one of them measuring a
-#: path that no longer exists and reporting nothing found as nothing wrong.
-_PRECOMMIT: Final = '.pre-commit-config.yaml'
-
-#: The floor under a stage reading. A config the engine resolved to nothing is consistent with every
-#: claim about which hooks narrowed, so finding nothing there is vacuous rather than green. Set below
-#: the 19 this repo declares: a floor refuses an unread file, it is not a second pin on the count.
-_HOOK_FLOOR: Final = 15
-
-#: THE OTHER SIDE OF ``_HOOK_FLOOR``, re-measured 2026-09-18 at 19 resolved hooks: today's
-#: reading is 19 - 15 = 4.
-_HOOK_HEADROOM: Final = 10
 
 #: The floor under the reopening scan, and it is a fact about the BASE rather than about this repo:
 #: MEASURED 2026-09-17, the `.gitignore` base carries five directory rules (`**/__pycache__/`,
@@ -80,40 +57,10 @@ _HOOK_HEADROOM: Final = 10
 #: repo has a negation at all -- a fact about one delta, where the hazard is a fact about the base.
 _DIRECTORY_FLOOR: Final = 5
 
-#: The hooks that still reach pre-push after the adoption, MEASURED 2026-09-17 through
-#: `pre_commit.repository.all_hooks`. All five are stock and all five are here for the same reason:
-#: their UPSTREAM manifest declares `[pre-commit, pre-push, manual]`, so the base's
-#: `default_stages: [pre-commit]` never governed them. This repo declares no hook of its own, so
-#: there is nothing else on the list.
-_KEEPS_PRE_PUSH: Final = frozenset({
-    'check-added-large-files',
-    'check-shebang-scripts-are-executable',
-    'destroyed-symlinks',
-    'end-of-file-fixer',
-    'trailing-whitespace',
-})
-
-#: NO PRE-PUSH HOOK IS INSTALLED IN THIS CHECKOUT, MEASURED 2026-09-17, and that single bit is what
-#: makes the stage narrowing free here and a real loss in the sibling lab. Two-sided: installing one
-#: reds, which is the correct moment to re-decide the narrowing rather than to discover it later as
-#: a miss.
-_PRE_PUSH_INSTALLED: Final = False
-
 #: The command that re-renders this repo's artefacts. It is optimi-lab's own -- one lab runs an
 #: inline interpreter line and the other a Makefile target -- so a guessed remedy would be a refusal
 #: nobody can act on, which is how a refusal gets routed around.
 _RERENDER_HINT: Final = 're-render it from tests/architecture/_famconfig.py through famconfig.render'
-
-
-def _resolve(config: Path) -> list:
-    """Resolve *config* with pre-commit's OWN engine -- the code the git hook itself runs.
-
-    Not by parsing the YAML: a hook with no `stages:` key inherits them from the UPSTREAM manifest
-    of the repo it comes from, so a reading taken off this file alone would be a guess about another
-    repository dressed as a measurement. It is supplied as an argument because `pre_commit` is not a
-    dependency of `lab_commons.dev` and must not become one.
-    """
-    return all_hooks(load_config(str(config)), Store())
 
 
 def test_every_family_base_is_either_declared_or_refused() -> None:
@@ -162,79 +109,6 @@ def test_no_delta_line_reopens_a_rule_the_base_closed() -> None:
     )
 
 
-def test_the_stage_narrowing_the_adoption_made_is_what_the_hook_engine_reads() -> None:
-    """THE BEHAVIOUR CHANGE, MEASURED against the real engine rather than asserted in a docstring.
-
-    Before adoption this repo declared no `default_stages`, so any hook whose UPSTREAM manifest
-    declares none either inherited all eleven stages. The base declares `default_stages:
-    [pre-commit]`, which narrows them to one. `_famconfig.PRECOMMIT_STAGE_MOVE` names exactly which
-    thirteen ids that is -- a pin this file did not have before 2026-09-17 and could not see a hook
-    silently JOINING the narrowing without.
-
-    BOTH SETS ARE EQUALITIES. A declaration listing only what narrowed cannot see a hook joining the
-    move, and one listing only what survived cannot see a hook leaving.
-    """
-    configrender.assert_stage_declaration(
-        config=_ROOT / _PRECOMMIT,
-        resolve=_resolve,
-        hook_floor=_HOOK_FLOOR,
-        narrowed=frozenset(PRECOMMIT_STAGE_MOVE),
-        keeps_pre_push=_KEEPS_PRE_PUSH,
-    )
-
-
-def test_the_narrowing_is_free_here_only_while_no_pre_push_hook_is_installed() -> None:
-    """WHY THE NARROWING IS ADOPTED WITHOUT A DROP REASON, and the condition it rests on, PINNED.
-
-    Thirteen stock hooks lose ten stages each, and that costs this checkout nothing for one reason
-    only: the sole git hook installed here is `pre-commit`, so those stages had nothing to run at.
-    The sibling lab takes the identical base and records the identical change as a REAL loss,
-    because it has a pre-push hook. The difference is the installation, not the config.
-
-    THE FAMILY BODY MAKES THIS TWO-SIDED, which this repo's own version was not: a pre-push hook
-    arriving reds, and so does the declaration outliving an installation the sibling lab has. Either
-    way the premise is re-decided rather than discovered later as a miss.
-    """
-    configrender.assert_pre_push_premise(hooks_dir=hooks_dir(_ROOT), pre_push_installed=_PRE_PUSH_INSTALLED)
-
-
-def test_the_pins_the_adoption_moved_are_the_bases_own() -> None:
-    """THE OTHER THING THE ADOPTION MOVED, and it is a pin bump that must not pass unremarked.
-
-    This repo held `pre-commit-hooks` at v5.0.0 and `commitizen` at v4.6.0; the base takes the newest
-    measured pin of the three consumers, v6.0.0 and v4.13.9. Nothing in the rendered-bytes property
-    would distinguish a base whose pin moved from one whose hook LIST moved, so the thing worth
-    checking is that every id this repo declared before still RESOLVES at the new pin -- a stock hook
-    renamed or removed upstream would otherwise arrive as a config that validates and a guard that
-    quietly stopped running. It is a different question from the arm below, which reads the ids a
-    HUMAN can see in the file.
-    """
-    hooks = configrender.resolved_stages(_ROOT / _PRECOMMIT, resolve=_resolve)
-    floors.assert_floor(len(hooks), floor=_HOOK_FLOOR, what='FAMILY-CONFIG (resolved hooks)')
-    floors.assert_floor_still_binds(
-        len(hooks), floor=_HOOK_FLOOR, headroom=_HOOK_HEADROOM, what='FAMILY-CONFIG (resolved hooks)'
-    )
-    lost = sorted(set(EXTRA_HOOK_IDS) - set(hooks))
-    assert not lost, (
-        f'{lost} no longer resolve at the pins the base declares. A stock hook that vanished in an '
-        f'upstream release is a guard this repo lost by upgrading, not a line to delete.'
-    )
-    assert 'commitizen' in hooks, 'commitizen did not resolve at the pin the base declares'
-
-
-def test_the_extra_hook_ids_are_really_declared_in_this_repo() -> None:
-    """THE ANCHOR'S SUBJECT, read off the live file rather than restated.
-
-    `EXTRA_HOOK_IDS` is the evidence that the append-only limitation actually cost this repo
-    something: every one of these belongs INSIDE the `pre-commit-hooks` entry the base renders. A
-    named set nobody checks against the artefact is a claim about another tree, and a set that only
-    ever agreed with itself would stay green through losing every hook it names.
-    """
-    configrender.assert_declared_ids_survive(
-        config=_ROOT / _PRECOMMIT, extra_hook_ids=EXTRA_HOOK_IDS, hook_floor=_HOOK_FLOOR
-    )
-
-
 def test_this_guard_can_go_both_ways(tmp_path: Path) -> None:
     """PLANTED CONTROL. A guard green on the real tree could be asserting a constant.
 
@@ -247,7 +121,7 @@ def test_this_guard_can_go_both_ways(tmp_path: Path) -> None:
         deltas=DELTAS,
         repo=REPO,
         scratch=tmp_path,
-        edit=('uv.lock', 'uv.lock.bak'),
+        edit=('scratch/', 'scratchpad/'),
     )
 
 
@@ -258,9 +132,7 @@ def test_the_makefile_check_is_required_rather_than_rendered() -> None:
     targets, the `rm -rf` clean -- becomes a diff against a family file that cannot hold them. That
     is a change to argue with the kit, not to absorb here.
     """
-    configrender.assert_modes_are_as_agreed(
-        modes={'.gitignore': RENDERED, '.pre-commit-config.yaml': RENDERED, 'Makefile': REQUIRED}
-    )
+    configrender.assert_modes_are_as_agreed(modes={'.gitignore': RENDERED, 'Makefile': REQUIRED})
 
 
 @pytest.mark.parametrize('artefact', sorted(DELTAS))
@@ -272,14 +144,14 @@ def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded(artefact
     bare. Pinning the post-adoption reading is what makes a silent removal of a base line visible
     here as well as in the main property, by a route that does not go through the rendered bytes.
 
-    IT IS PARAMETRIZED OVER ALL THREE ARTEFACTS AND THE `Makefile` IS WHY, which is the kit's own
+    IT IS PARAMETRIZED OVER EVERY ADOPTED ARTEFACT AND THE `Makefile` IS WHY, which is the kit's own
     reason rather than a generalisation applied for symmetry: `assert_no_base_line_left_undeclared`
     exists so that a departing base line "is visible even where the mode is the weaker one", and
     `Makefile` is the only REQUIRED artefact in the family. Under REQUIRED the rendered-bytes
     property never compares this repo's 48 own lines against anything, so a base target NAME leaving
     this file was, until this arm covered it, caught by exactly one check instead of two. MEASURED
     2026-09-18: the survey reports 48 added / 0 dropped for `Makefile` and 16 / 0 for `.gitignore`,
-    so the drop set is empty for all three and the arm is green on arrival rather than aspirational.
+    so the drop set is empty for every artefact and the arm is green on arrival rather than aspirational.
 
     THE AXIS THIS IS BLIND TO, NAMED, because a scope claim nobody bounds is the lie shape. For
     `Makefile` the survey compares through `famconfig.satisfies`, which matches a base line ending in

@@ -1,9 +1,9 @@
 [
   {
-    "name": "SUBAGENT-NO-HEAVY-NO-PUSH",
-    "pattern": "(?:git(?:\\.exe)?(?:\\s+-C\\s+\\S+)*\\s+push\\b|(?:sh\\s+)?\\S*with-retry\\.sh\\s+push\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+-m\\s+lab_commons\\.dev\\.netverb\\b[^\\n]*\\spush\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+\\S*runner\\.py\\s+(?:gate|heavy)\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+\\S*runner\\.py\\b[^\\n]*\\s--with-heavy\\b|git(?:\\.exe)?\\b[^\\n]*\\s--no-verify\\b|SKIP=|\\$env:SKIP\\s*=)",
+    "name": "SUBAGENT-NO-PUSH",
+    "pattern": "(?:git(?:\\.exe)?(?:\\s+-C\\s+\\S+)*\\s+push\\b|(?:sh\\s+)?\\S*with-retry\\.sh\\s+push\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+-m\\s+lab_commons\\.dev\\.netverb\\b[^\\n]*\\spush\\b|git(?:\\.exe)?\\b[^\\n]*\\s--no-verify\\b|SKIP=|\\$env:SKIP\\s*=)",
     "matches": "command",
-    "reason": "SUBAGENT-NO-HEAVY-NO-PUSH: a subagent verdict duplicates the one run the main session makes on the integrated tree, and publishing is the main session`s.\nCommit on your lane and hand the commit SHA back to the main session; it merges every ready lane and runs the gate ONCE, then pushes. A targeted measure of the tests you touched is yours.\ndetails: docs-src/dev/refusals.md#subagent-no-heavy-no-push (lab-commons)",
+    "reason": "SUBAGENT-NO-PUSH: publishing is the main session`s, and a skipped hook publishes what nobody checked.\nCommit on your lane and hand the commit SHA back to the main session; it merges and pushes, and the forge produces the verdict. A targeted measure of the tests you touched is yours.\ndetails: docs-src/dev/refusals.md#subagent-no-push (lab-commons)",
     "scope": "subagent"
   },
   {
@@ -59,7 +59,7 @@
     "name": "PUSH-NO-VERIFY",
     "pattern": "\\bpush\\b[^\\n]*--no-verify\\b",
     "matches": "argument",
-    "reason": "PUSH-NO-VERIFY: `--no-verify` skips the pre-push hook where the verdict is taken, so the push vouches for nothing.\nTake the verdict first, and push once it is green: ./.venv/Scripts/python.exe -m lab_commons.dev.verify\ndetails: docs-src/dev/refusals.md#push-no-verify (lab-commons)"
+    "reason": "PUSH-NO-VERIFY: `--no-verify` skips the pre-push hooks (admission, the trunk proof), so the push publishes what no hook checked.\nPush without the flag: no hook runs a test, and the forge produces the part after the push. To check a change first, measure what you touched: ./.venv/Scripts/python.exe -m lab_commons.dev.verify\ndetails: docs-src/dev/refusals.md#push-no-verify (lab-commons)"
   },
   {
     "name": "WORKTREE-BASE-IS-EXPLICIT",
@@ -86,5 +86,11 @@
     "pattern": "[ef]?grep(?:\\.exe)?(?:\\s+\\S+)*?\\s+(?:-[a-zA-Z]*[rR][a-zA-Z]*|--(?:dereference-)?recursive)(?=\\s|$)",
     "matches": "command",
     "reason": "RECURSIVE-GREP: a recursive grep walks every git-ignored tree (.venv, output, target) and can run for minutes.\nSearch tracked files: git grep -n <pattern> [-- <paths>], or use the built-in Grep tool.\ndetails: docs-src/dev/refusals.md#recursive-grep (lab-commons)"
+  },
+  {
+    "name": "REPORTS-LIVE-IN-MEMORY",
+    "pattern": "(?:>>?|\\btee\\b(?:\\s+-a)?|\\bOut-File\\b(?:\\s+-FilePath)?|\\b(?:Set|Add)-Content\\b(?:\\s+-Path)?)\\s*[\"\\']?(?:[^\\s\"\\'<>|;&]*[/\\\\])?output[/\\\\][^\\s\"\\'<>|;&]*\\.md(?=[\"\\'\\s;&|)]|$)",
+    "matches": "argument",
+    "reason": "REPORTS-LIVE-IN-MEMORY: a written report (audit, analysis, design, plan, findings) is not regenerable, and output/ holds only what a program can regenerate.\nWrite it as a dated memory entry: .claude/memory/<yyyy>/<mm>/<dd>/<slug>.md with the MEMORY-SHAPE frontmatter (name, description, created, accessed, tags, metadata).\ndetails: docs-src/dev/refusals.md#reports-live-in-memory (lab-commons)"
   }
 ]

@@ -9,27 +9,30 @@
 
 | page | what it covers |
 |---|---|
-| [The three participants](../../../lab-commons/docs-src/dev/the-three-participants.md) | Who does what: the human, the concurrent dev agents, the coordinator that absorbs their work |
-| [The verdict model](../../../lab-commons/docs-src/dev/verdict-model.md) | What a verdict IS, why it starts INCONCLUSIVE, the three tiers and the destination each one gates |
-| [Testing discipline](../../../lab-commons/docs-src/dev/testing-discipline.md) | The lightweight/heavy partition, xfail never skip, one test session at a time |
-| [Branch layers](../../../lab-commons/docs-src/dev/branch-layers.md) | What a lane, an integration branch and `main` each PROVE, and why one cannot substitute for another |
-| [Alignment](../../../lab-commons/docs-src/dev/alignment.md) | The framework every branch develops against so an integration conflicts on CODE, never on bookkeeping |
-| [Fan-out](../../../lab-commons/docs-src/dev/fanout.md) | Parallel lanes in worktrees: environments, subagent bases, the shared hazards, landing |
-| [The shared checkout](../../../lab-commons/docs-src/dev/shared-checkout.md) | Where a tool's correctness argument stops transferring when the checkout is not exclusive |
-| [Killed runs and orphans](../../../lab-commons/docs-src/dev/orphans.md) | What survives a stopped run, why a lock does not time out, and the census a reaper needs |
-| [HPC grants and remote verdicts](../../../lab-commons/docs-src/dev/hpc.md) | Per-machine shares of shared Slurm accounts, usage read from job comments, a commit's suite on a cluster |
-| [Box resources](../../../lab-commons/docs-src/dev/box-resources.md) | What one workstation rations, the four defects measured in doing it by hand, and the broker shape |
-| [The forge](../../../lab-commons/docs-src/dev/forge.md) | How `main` is protected on a self-hosted forge: the push whitelist, the status check, branch disposal |
-| [Issues](../../../lab-commons/docs-src/dev/issues.md) | An issue is intent; todo/in-progress/ready/done are derived from origin refs and `lab/gate`, claims are comments |
-| [The integrator](../../../lab-commons/docs-src/dev/integrator.md) | Woken or self-polling, one derived merge queue: the ready predicate over `lab/gate` and `lab/heavy` |
-| [Retirement](../../../lab-commons/docs-src/dev/retirement.md) | An archive and a retired-spelling registry are a PLACE and a RULE, and why the rule cannot live in the place |
-| [The docs pipeline](../../../lab-commons/docs-src/dev/docs-pipeline.md) | The three properties a docs builder must hold, and why an unbuilt sub-site is announced rather than silent |
-| [Translations](../../../lab-commons/docs-src/dev/translations.md) | Why a `<stem>.zh.md` beside its `<stem>.md` escapes the CJK guard, and the non-ASCII goal |
-| [Worktrees stay inside](../../../lab-commons/docs-src/dev/worktrees.md) | Every checkout lives under `<repo>/.claude/worktrees/<name>`: the deny row, the detector, the ignore line |
-| [One branch per session](../../../lab-commons/docs-src/dev/branch-set.md) | One long-lived branch per session: the declared branch set, the census, and the merge-and-delete list |
-| [Auto mode runs the doors](../../../lab-commons/docs-src/dev/auto-doors.md) | Local cleanup and own-run stops are checked doors both clients allow; pushes and remote deletes stay human |
-| [Refusals](../../../lab-commons/docs-src/dev/refusals.md) | Every deny refusal is a clause, a door and a pointer; the full reasoning and history of each row |
-| [Project files](../../../lab-commons/docs-src/dev/project-files.md) | Every project-level file is rendered from a family base plus a delta, or owned by the repo with a reason |
+| [Migrating a workstation](../../../lab-commons/docs-src/dev/migrate.md) | Start here if you used to run the gate before a push: what to stop, and the five commands that replace it |
+| [The three participants](../../../lab-commons/docs-src/dev/the-three-participants.md) | Who does what: the human, the authors, the producers and the integrator |
+| [The verdict model](../../../lab-commons/docs-src/dev/verdict-model.md) | What a verdict is, the tiers, and which destination needs which forge parts |
+| [Testing discipline](../../../lab-commons/docs-src/dev/testing-discipline.md) | The lightweight/heavy partition, xfail never skip, one test session per box |
+| [Branch layers](../../../lab-commons/docs-src/dev/branch-layers.md) | Trunk, integration and child branches: what each proves and the one verb that moves it |
+| [Alignment](../../../lab-commons/docs-src/dev/alignment.md) | How every branch keeps shared bookkeeping out of merge conflicts |
+| [Fan-out](../../../lab-commons/docs-src/dev/fanout.md) | Parallel work in worktrees: environments, subagent bases, measuring, landing |
+| [The shared checkout](../../../lab-commons/docs-src/dev/shared-checkout.md) | What breaks when several parties write one checkout, and the habits that prevent it |
+| [Killed runs and orphans](../../../lab-commons/docs-src/dev/orphans.md) | What survives a stopped run, why a lock judges liveness, and how to reap |
+| [Box resources](../../../lab-commons/docs-src/dev/box-resources.md) | What one workstation rations, and the broker every run declares its cost to |
+| [The forge](../../../lab-commons/docs-src/dev/forge.md) | Parts, claims, `forge serve`, scheduling and `forge queue`: how a sha gets its verdict |
+| [The integrator](../../../lab-commons/docs-src/dev/integrator.md) | The integration tick, PRs into integration, `forge sync`, `integrate`, the merge audit, session-branch leases |
+| [Issues](../../../lab-commons/docs-src/dev/issues.md) | An issue is intent; its state is derived from refs and parts; claims and priority are labels and comments |
+| [HPC clusters](../../../lab-commons/docs-src/dev/hpc.md) | A cluster is one more `forge serve` host: grants, the one-line deploy, runs, records |
+| [Components](../../../lab-commons/docs-src/dev/components.md) | A product mounts its engines as submodules: the table, the derived-file check, the bump loop |
+| [Artefacts](../../../lab-commons/docs-src/dev/artefacts.md) | A run's declared outputs: the store, its layout and its retention |
+| [Retirement](../../../lab-commons/docs-src/dev/retirement.md) | The archive keeps old code, the registry keeps a dead spelling dead |
+| [The docs pipeline](../../../lab-commons/docs-src/dev/docs-pipeline.md) | The three properties a docs builder holds, and why a skipped sub-site is announced |
+| [Translations](../../../lab-commons/docs-src/dev/translations.md) | How a `<stem>.zh.md` beside its `<stem>.md` passes the CJK guard, and the non-ASCII goal |
+| [Worktrees stay inside](../../../lab-commons/docs-src/dev/worktrees.md) | Every checkout lives under `<repo>/.claude/worktrees/<name>` |
+| [One branch per session](../../../lab-commons/docs-src/dev/branch-set.md) | The declared branch set, merge-or-delete, and the push-time check |
+| [Auto mode runs the doors](../../../lab-commons/docs-src/dev/auto-doors.md) | Local cleanup and run stops are checked doors both clients allow unprompted |
+| [Refusals](../../../lab-commons/docs-src/dev/refusals.md) | Every deny refusal is a clause, a door and a pointer; the full text of each row |
+| [Project files](../../../lab-commons/docs-src/dev/project-files.md) | Every project file is rendered from a family base plus a delta, or owned by the repo; hooks and CI are TOML |
 
 ## What this repo has, and what it does not
 
