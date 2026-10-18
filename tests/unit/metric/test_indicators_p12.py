@@ -107,7 +107,7 @@ def test_the_signed_rank_p_value_matches_the_reference():
 def test_a_percentile_bootstrap_interval_brackets_the_sample_mean_at_the_normal_width():
     sample = np.random.default_rng(7).normal(10.0, 1.0, 200)
     low, high = bootstrap_interval(sample, np.mean, confidence=0.95, n_resamples=2000, rng=np.random.default_rng(8))
-    assert low < sample.mean() < high and high - low == pytest.approx(2 * 1.96 / np.sqrt(200), rel=0.2)
+    assert low < sample.mean() < high and high - low == pytest.approx(2 * 1.96 / np.sqrt(200), rel=0.2, abs=0.0)
 
 
 def test_a_confidence_outside_the_open_unit_interval_is_refused():

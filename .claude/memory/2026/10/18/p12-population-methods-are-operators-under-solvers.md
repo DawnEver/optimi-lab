@@ -1,6 +1,6 @@
 ---
 name: p12-population-methods-are-operators-under-solvers
-description: Track D phase P12 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D69-D115 delivered on rebuild/p12-population over P8; the 0.3 algorithm package split into optimi_lab.operator (L5) and optimi_lab.solver (L7); R1 met outside surrogates; two P8 operator defects found by the gate; what was not verified is listed.
+description: Track D phase P12 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D69-D115 delivered on rebuild/p12-population over P8; the 0.3 algorithm package split by layer into optimi_lab.operator (L5) and optimi_lab.solver (L7); R1 met outside surrogates; two P8 operator defects found by the gate; what was not verified is listed.
 metadata:
   type: project
 created: 2026-10-18
@@ -29,7 +29,8 @@ Base: P8 (`rebuild/p8-base`), then merged forward to optimi-lab main 240ed83.
   map_elites, nelder_mead, mads (progressive barrier), bobyqa (BOBYQA-like), Chain, scans,
   multistart, restarts, ipop_cmaes, warm_start, SuccessiveHalving, hyperband, ASHA. Sequential
   local methods are generators driven by `SequentialSolver`.
-- Retired and registered: `intelligent_algorithm`, `intelligent_algorithm.algorithms`, `_reference_directions`.
+- The 0.3 algorithm package, its factory module and the private direction grid are retired; the
+  spellings and their replacements are in `tests/architecture/test_a_retired_spelling_stays_retired.py`.
 - R1 guard: `test_the_runtime_takes_only_the_r1_scipy_submodules` (planted control).
 
 ## Oracles and what they showed
