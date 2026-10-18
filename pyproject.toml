@@ -38,6 +38,9 @@ dev = [
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
+    # pymoo is a TEST ORACLE only (ruling R1): tests/benchmarks compare every population method
+    # against its implementation; the runtime never imports it.
+    "pymoo",
     "coverage[toml]",
 
     'pdoc',
