@@ -11,6 +11,10 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :func:`pareto_continuation`: pure functions over ``evaluate(x)`` (:mod:`optimi_lab.solver.smooth`),
   driven by :class:`GradientSolver`;
 * local derivative-free -- :func:`nelder_mead`, :func:`mads`, :func:`bobyqa`;
+* gradient (P9) -- pure functions over ``evaluate(x)`` (:mod:`optimi_lab.solver.smooth`) driven by
+  :class:`GradientSolver`: :func:`projected_gradient`, :func:`lbfgsb`, :func:`newton_cg`, :func:`sqp`,
+  :func:`interior_point`, :func:`augmented_lagrangian`, :func:`mma`, :func:`mgda`,
+  :func:`pareto_continuation`;
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -55,7 +59,7 @@ from optimi_lab.solver.requires import (
 )
 from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
-from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Solution, Unevaluable, kkt_bar
+from optimi_lab.solver.smooth import Evaluate, Halt, SmoothView, Solution, Unevaluable
 from optimi_lab.solver.swarm import SwarmSolver, mopso
 from optimi_lab.solver.trust_region import TrustRegion, bobyqa
 

@@ -135,5 +135,5 @@ def mma(
 
 
 def gcmma(evaluate: Evaluate, x0, lo, hi, **settings) -> Solution:
-    """GCMMA: :func:`mma` with conservative inner iterations (``conservative=True``)."""
+    """GCMMA: :func:`mma` with conservative inner iterations, so every accepted step is feasible-descent."""
     return mma(evaluate, x0, lo, hi, conservative=True, **settings)

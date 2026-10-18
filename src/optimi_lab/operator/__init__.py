@@ -1,9 +1,12 @@
-"""L5 operator: the pieces a solver composes -- variation, repair, selection, scalarisation, stratified sampling,
-QPs, KKT assembly and merit functions (whose solves are numerics-lab's).
+"""L5 operator: the pieces a solver composes.
 
-Every operator is a function of the arrays it acts on (unit-cube points, minimised normalised
-objective rows, one total violation per row) and of an explicit generator; none reads module state
-or knows which solver calls it. Solvers (L7, :mod:`optimi_lab.solver`) bind them.
+* population -- variation, discrete moves, repair, selection, reference directions, indicators,
+  scalarisation, stratified sampling: each a function of the arrays it acts on and of an explicit
+  generator, reading no module state;
+* gradient -- the generalised Cauchy point, QPs, KKT assembly and merit functions. Every linear solve, line search, trust-region
+  step and quasi-Newton update is numerics-lab's; this layer assembles what they are applied to.
+
+Solvers (L7, :mod:`optimi_lab.solver`) bind them.
 """
 
 from optimi_lab.operator.cauchy import cauchy_point

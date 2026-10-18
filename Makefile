@@ -47,7 +47,7 @@ test-open: test
 adoption:
 	python -m pytest tests/architecture/test_optimi_lab_adopts_the_shared_registry.py -v
 
-# The runtime of this library must stay numpy/scipy/scikit-learn. `lab-commons[dev]` brings
+# The runtime of this library must stay numpy/scipy/numerics-lab/lab_commons.outcomes. `lab-commons[dev]` brings
 # structlog, pint and pydantic and is a DEV extra: CI installs it to run the tests, so the one
 # thing CI must not do is install everything and then never check that the RUNTIME table stayed
 # pure. This target is that check. It is static (pyproject + the import graph), so installing

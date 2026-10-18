@@ -57,8 +57,10 @@ EXEMPT: Final = ()
 #: RE-TAKEN 2026-10-16 AT 383, from 346: the analysis branch read 415; half a headroom below it.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 562.
+#: RE-TAKEN 2026-10-18 AT 620: the P9 + P12 merge read 651.
+#: RE-TAKEN 2026-10-18 AT 680: P10 (surrogates, optimi_lab.model) read 710.
 #: RE-TAKEN 2026-10-18 AT 620: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 674.
-FUNCTION_FLOOR: Final = 620
+FUNCTION_FLOOR: Final = 680
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65

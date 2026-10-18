@@ -3,11 +3,12 @@
 `optimi_lab` is a generic multi-objective optimization library. Everything below is a property a
 reader could violate in one commit, and each names the mechanism that refuses it.
 
-- **The RUNTIME is numpy, scipy, scikit-learn, numerics-lab and `lab_commons.outcomes`, nothing else**
+- **The RUNTIME is numpy, scipy, numerics-lab and `lab_commons.outcomes`, nothing else**
   (`test_the_runtime_stays_pure.py`); no logging/unit/plotting/config library -- motronics inherits
   ours. Equation solving is numerics-lab's (R4): no line search, trust region, quasi-Newton, Krylov,
-  factorisation or KKT solve of our own; scipy only `linalg`/`sparse`/`special` + the named stats
-  debt, `scipy.optimize` in tests only (`test_equation_solving_is_numerics_labs.py`).
+  factorisation or KKT solve of our own (`test_equation_solving_is_numerics_labs.py`); scipy only
+  `linalg`/`sparse`/`sparse.linalg`/`special`, `scipy.optimize`/`scipy.stats` in tests only (R1,
+  `test_the_runtime_takes_only_the_r1_scipy_submodules`).
 - **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one
   task-outcome vocabulary for every engine). The base install takes it without extras; the dev kit
   (`lab-commons[dev]`) stays in the `dev` extra. Both are bare `git+https` URLs, never pinned (R8):
@@ -16,9 +17,9 @@ reader could violate in one commit, and each names the mechanism that refuses it
   (numpy print options, matplotlib backend, warnings filters, random seed) is mutated at import.
   A library that reconfigures its host process is unusable inside another library.
 - **A member of a declared set is resolved through that set, and a stranger RAISES** — `Refusal`
-  from `optimi_lab.core.errors.refuse`, with the valid set QUOTED in the message. `REGISTRY` /
-  `SURROGATE_KEYS`, `SampleKind` / `SAMPLE_KINDS` and every `StrEnum` are those sets. A silent
-  fallback to a default regressor or a default sampler is the forbidden shape: the caller asked
+  from `optimi_lab.core.errors.refuse`, with the valid set QUOTED in the message. `SURROGATES`,
+  `KERNEL_FAMILIES`, `RADIAL_KERNELS`, `SampleKind` / `SAMPLE_KINDS` and every `StrEnum` are those
+  sets. A silent fallback to a default model or a default sampler is the forbidden shape: the caller asked
   for something specific and cannot tell it did not get it.
 - **A point that did not compute is never a number.** An `outcomes.Cell` carries values only as
   `OK` or `PARTIAL`; every other status carries a reason and no value (II.3). Nothing

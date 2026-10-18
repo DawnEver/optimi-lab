@@ -10,7 +10,7 @@ So the property is two-part and both parts are checked: the call RAISES `Refusal
 QUOTES at least one member of the valid set. A refusal that does not say what would have worked
 sends the caller to read the source, which is the registry it was supposed to be told about.
 
-THE SETS ARE TAKEN FROM THE PACKAGE, NOT RETYPED HERE. A hand-kept copy of `SURROGATE_KEYS` would
+THE SETS ARE TAKEN FROM THE PACKAGE, NOT RETYPED HERE. A hand-kept copy of `SURROGATES` would
 agree with itself forever while a new key arrived unchecked -- that is the defect one layer up.
 """
 
@@ -22,7 +22,7 @@ import pytest
 
 from optimi_lab.core.errors import Refusal, coerce_enum
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec
-from optimi_lab.surrogate_model.registry import SURROGATE_KEYS, resolve
+from optimi_lab.model import KERNEL_FAMILIES, RADIAL_KERNELS, SURROGATES, GaussianProcess, RadialBasis, surrogate
 
 #: The stranger. Not a typo of a real key on purpose: a near-miss could be served by a fuzzy match
 #: nobody documented, and this must be a value no reasonable set contains.
@@ -30,7 +30,9 @@ _STRANGER = 'no_such_member_zzz'
 
 #: `(name, call, valid set)` -- one row per declared set that a caller can name from outside.
 _SETS: list[tuple[str, Callable[[str], object], tuple[str, ...]]] = [
-    ('surrogate registry', lambda key: resolve(key, 'surrogate'), tuple(SURROGATE_KEYS)),
+    ('surrogate registry', surrogate, tuple(SURROGATES)),
+    ('kernel families', GaussianProcess, KERNEL_FAMILIES),
+    ('radial kernels', RadialBasis, RADIAL_KERNELS),
     ('sample kinds', lambda key: coerce_enum(SampleKind, key, 'sample kind'), tuple(SAMPLE_KINDS)),
 ]
 

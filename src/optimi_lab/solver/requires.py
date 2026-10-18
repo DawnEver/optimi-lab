@@ -126,14 +126,14 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
 
 _SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
 _SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
+_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
+_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
 
 #: Every solver this package ships, by name. Population and local solvers rank by Deb's rule (or a
 #: barrier on the total violation), so they take black-box constraints natively; MOEA/D decomposes
 #: by Tchebycheff weights; a scan returns one point per scalarisation; the multi-fidelity schedules
 #: need Fidelity levels. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
-#: the box methods take no other constraint, the constrained ones every constraint with a gradient.
-_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
-_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
+#: the box methods take no other constraint, the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
     **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
     'projected_gradient': Requires(MultiObjective.SINGLE, information=_SLOPES),
@@ -146,6 +146,7 @@ SOLVERS: Final[dict[str, Requires]] = {
     'gcmma': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
     'mgda': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES),
     'pareto_continuation': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES, constraints=_SMOOTH),
+    **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
     'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=frozenset({BlackBox})),
     **dict.fromkeys(
         ('ga', 'cmaes', 'ipop_cmaes', 'map_elites', 'nelder_mead', 'mads', 'bobyqa', 'multistart'), _SINGLE
