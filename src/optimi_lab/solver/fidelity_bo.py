@@ -18,7 +18,7 @@ THE PICK (Huang, Allen, Notz and Miller, 2006) is the point AND the level maximi
 with ``EI_L`` the truth level's expected improvement over the EFFECTIVE best ``min (mean_L + std_L)``
 at the told points, ``corr = prod_{t > l} scale_t sqrt(var_l / var_L)`` under the AR1 chain (clipped to
 ``[0, 1]``), and the level's cost from its declaration. Each level's acquisition is maximised by
-:func:`~optimi_lab.solver.bayesian.maximise`; one point is asked at a time.
+:func:`~optimi_lab.solver.model_based.maximise`; one point is asked at a time.
 
 :attr:`MultiFidelityBO.best` is the told OK TRUTH-level result of lowest score (B0-08): a cheap level
 steers, the truth reports. Constraints are refused (penalise them first).
@@ -36,7 +36,7 @@ from optimi_lab.model import CoKriging, FittedCoKriging
 from optimi_lab.operator import expected_improvement
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Problem
-from optimi_lab.solver.bayesian import maximise, require_modelable
+from optimi_lab.solver.model_based import maximise, require_modelable
 from optimi_lab.solver.population import Scalarise, build, require_one_score, score_rows
 
 __all__ = ['MultiFidelityBO', 'mfbo']

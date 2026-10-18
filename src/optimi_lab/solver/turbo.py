@@ -32,7 +32,7 @@ from optimi_lab.core.qmc import maximin_latin_hypercube, sobol
 from optimi_lab.model import GaussianProcess
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Problem
-from optimi_lab.solver.bayesian import require_modelable
+from optimi_lab.solver.model_based import require_modelable
 from optimi_lab.solver.population import Scalarise, build, require_one_score, score_rows
 
 __all__ = ['TuRBO', 'turbo']

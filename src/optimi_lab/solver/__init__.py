@@ -17,7 +17,7 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :func:`pareto_continuation`;
 * model-based (P11) -- :func:`bo` (log-EI/EI/PI/UCB/KG, constrained EI), :func:`parego`,
   :func:`ehvi`, :func:`nehvi`, each batching and running asynchronously through Kriging-believer
-  fantasies (:mod:`optimi_lab.solver.bayesian`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
+  fantasies (:mod:`optimi_lab.solver.model_based`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
   :func:`turbo` (TuRBO-1), :func:`prescreened` (surrogate-prescreened NSGA-II/GA),
   :func:`model_trust_region` (trust-region model management);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
@@ -27,18 +27,7 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 Operators live one layer down, in :mod:`optimi_lab.operator`.
 """
 
-from optimi_lab.solver.bayesian import (
-    ACQUISITIONS,
-    BayesianOptimisation,
-    HypervolumeImprovement,
-    ModelBased,
-    ParEGO,
-    bo,
-    ehvi,
-    maximise,
-    nehvi,
-    parego,
-)
+from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
@@ -61,9 +50,11 @@ from optimi_lab.solver.gradient import METHODS, GradientSolver
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, map_elites
 from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
+from optimi_lab.solver.model_based import ModelBased, maximise
 from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_region
 from optimi_lab.solver.moving_asymptotes import gcmma, mma
 from optimi_lab.solver.multiobjective import mgda, pareto_continuation
+from optimi_lab.solver.pareto_bo import HypervolumeImprovement, ParEGO, ehvi, nehvi, parego
 from optimi_lab.solver.population import EvolutionarySolver, PopulationSolver, Scalarise
 from optimi_lab.solver.prescreened import Prescreened, prescreened
 from optimi_lab.solver.protocol import Solver

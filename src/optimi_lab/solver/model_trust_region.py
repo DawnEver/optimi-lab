@@ -13,7 +13,7 @@ trusted only as far as it has predicted well:
   was measured on 4-D Rosenbrock (2026-10-18) to mis-predict until the radius collapsed at
   f = 3.0 after 20 evaluations.
 * STEP -- the corrected model minimised inside the trust box ``|x - x_c|_inf <= radius`` intersected
-  with the unit cube, by :func:`~optimi_lab.solver.bayesian.maximise` (Sobol candidates, then
+  with the unit cube, by :func:`~optimi_lab.solver.model_based.maximise` (Sobol candidates, then
   numerics-lab's L-BFGS polish).
 * RATIO -- ``rho = (f(x_c) - f(x)) / (m(x_c) - m(x))``; ``rho > 0`` moves the centre, ``rho > 0.75``
   with the step on the box boundary doubles the radius (to ``radius_max``).
@@ -33,7 +33,7 @@ from optimi_lab.core import refuse
 from optimi_lab.model import RadialBasis, Surrogate
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
-from optimi_lab.solver.bayesian import maximise
+from optimi_lab.solver.model_based import maximise
 from optimi_lab.solver.population import build
 from optimi_lab.solver.sequential import Search, SequentialSolver
 
