@@ -66,7 +66,8 @@ BAR: Final = 'ratio'
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 137.
 #: RE-TAKEN 2026-10-18 AT 135: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 153.
-PYTHON_FILE_FLOOR: Final = 135
+#: RE-TAKEN 2026-10-18 AT 165: P9 merged onto P10 (surrogates, optimi_lab.model) read 178.
+PYTHON_FILE_FLOOR: Final = 165
 
 #: THE OTHER SIDE OF `PYTHON_FILE_FLOOR`. Today's slack is 57 - 40 = 17, inside this band.
 PYTHON_FILE_HEADROOM: Final = 25
