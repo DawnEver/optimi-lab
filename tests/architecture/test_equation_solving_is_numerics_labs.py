@@ -1,4 +1,4 @@
-"""R4 and R1, checked: optimi-lab keeps no numeric kernel of its own, and its scipy is the R1 surface.
+"""R4, checked: optimi-lab keeps no numeric kernel of its own.
 
 R4 (plan I.1): equation solving is ONE engine, numerics-lab; optimi-lab depends on it. So no shipped
 module DEFINES a line search, a trust-region step, a quasi-Newton update, a Krylov method, a
@@ -6,11 +6,8 @@ factorisation or a KKT solve -- it calls numerics-lab's. The guard reads definit
 :data:`KERNEL_NAMES`; and the gradient methods must actually import numerics-lab (a floor), so a
 method that quietly inlined its own search would show up on one side or the other.
 
-R1: the runtime touches scipy only through ``scipy.linalg``, ``scipy.sparse`` (with
-``sparse.linalg``) and ``scipy.special``. Two shipped modules still read ``scipy.stats``; they are
-the NAMED debt :data:`STATS_DEBT`, each with the item that retires it, pinned on BOTH sides -- a new
-user reds, and so does a retired one left in the set. ``scipy.optimize`` is a reference oracle and
-appears in tests only.
+R1 (which scipy submodules the runtime may import) is guarded once, by
+``test_the_runtime_stays_pure.py::test_the_runtime_takes_only_the_r1_scipy_submodules``.
 
 Every guard is one function, called on the tree and on a planted violation.
 """
@@ -48,16 +45,6 @@ KERNEL_NAMES: Final = (
 )
 _KERNEL: Final = re.compile('|'.join(KERNEL_NAMES))
 
-#: scipy submodules the runtime may import (R1).
-SCIPY_ALLOWED: Final = ('scipy.linalg', 'scipy.sparse', 'scipy.special')
-
-#: Shipped modules still importing scipy.stats -> the plan item that retires the import.
-STATS_DEBT: Final[dict[str, str]] = {
-    'src/optimi_lab/core/sampling.py': 'D58 (self-implemented space-filling designs)',
-    'src/optimi_lab/analysis/sensitivity.py': 'D69-D71 (self-implemented Sobol/Morris)',
-    'src/optimi_lab/analysis/decision.py': 'D69-D71 (self-implemented rank statistics)',
-}
-
 #: Gradient-method and operator modules that import numerics-lab; measured 2026-10-18 at 4.
 NUMERICS_IMPORTER_FLOOR: Final = 4
 NUMERICS_IMPORTER_HEADROOM: Final = 6
@@ -70,21 +57,6 @@ def kernels_defined(module: ast.Module) -> list[str]:
         for node in ast.walk(module)
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
         and _KERNEL.search(node.name.lower().replace('_', ''))
-    )
-
-
-def scipy_beyond_r1(module: ast.Module) -> list[str]:
-    """Every scipy module *module* imports that is outside :data:`SCIPY_ALLOWED`."""
-    names: list[str] = []
-    for node in ast.walk(module):
-        if isinstance(node, ast.Import):
-            names.extend(a.name for a in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-            names.append(node.module)
-    return sorted(
-        n
-        for n in names
-        if (n == 'scipy' or n.startswith('scipy.')) and not any(n == a or n.startswith(a + '.') for a in SCIPY_ALLOWED)
     )
 
 
@@ -112,22 +84,11 @@ def test_the_gradient_methods_import_numerics_lab() -> None:
     )
 
 
-def test_runtime_scipy_is_the_r1_surface_plus_the_named_debt() -> None:
-    found = {name: beyond for name, module in _shipped().items() if (beyond := scipy_beyond_r1(module))}
-    debt = {name for name, beyond in found.items() if beyond and all(b.startswith('scipy.stats') for b in beyond)}
-    assert set(found) - debt == set(), f'{ {k: found[k] for k in set(found) - debt} } import scipy beyond R1.'
-    assert debt == set(STATS_DEBT), (
-        f'scipy.stats debt is {sorted(debt)}, declared {sorted(STATS_DEBT)}: a new user is refused, a retired one '
-        f'is deleted from STATS_DEBT in the same commit.'
-    )
-
-
 def test_planted_controls_each_guard_names_its_violation() -> None:
     planted = ast.parse(
         'from scipy.optimize import minimize\nimport scipy.stats\nfrom scipy.sparse.linalg import spsolve\n\n\n'
         'def strong_wolfe_search(phi):\n    return phi\n\n\nclass LBFGSUpdate:\n    pass\n'
     )
     assert kernels_defined(planted) == ['LBFGSUpdate', 'strong_wolfe_search']
-    assert scipy_beyond_r1(planted) == ['scipy.optimize', 'scipy.stats']
     assert _imports_numerics(ast.parse('from numerics_lab.line_search import armijo\n'))
     assert not _imports_numerics(planted)

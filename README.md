@@ -78,7 +78,7 @@ from optimi_lab import (
     from_function,
     run,
 )
-from optimi_lab.intelligent_algorithm import nsga2
+from optimi_lab.solver import nsga2
 
 problem = Problem(
     Space((Real('x', 0.0, 1.0), Real('y', 0.0, 1.0))),

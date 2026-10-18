@@ -59,7 +59,7 @@ RETIRED: Final[dict[str, str]] = {
     # The eleven one-regressor modules and the two base modules they shared.
     'surrogate_model_base': 'optimi_lab.surrogate_model.base',
     'mixture_surrogate_model': 'optimi_lab.surrogate_model.mixture',
-    'pso_operators': 'optimi_lab.intelligent_algorithm.swarm',
+    'pso_operators': 'optimi_lab.operator (pso_velocity, pso_position)',
     # The `key@oc<N>@max|min` grammar and the package that parsed it.
     'object_function': 'optimi_lab.problem.Objective, whose fields are not a parse',
     # P8 (plan PLAN-engines-and-one-outcome-vocabulary, D30): the 0.3 evaluation/record/driver
@@ -78,11 +78,11 @@ RETIRED: Final[dict[str, str]] = {
     'retune': 'settings fixed at construction; adaptation is the policy layer (L8)',
     'steer': 'the policy layer (L8)',
     'build_proposer': 'a factory returning a Solver: nsga2(problem, capability, spec=...)',
-    'PopulationProposer': 'optimi_lab.intelligent_algorithm.PopulationSolver',
-    'EvolutionaryProposer': 'optimi_lab.intelligent_algorithm.EvolutionarySolver',
-    'SwarmProposer': 'optimi_lab.intelligent_algorithm.SwarmSolver',
-    'DecompositionProposer': 'optimi_lab.intelligent_algorithm.DecompositionSolver',
-    'intelligent_algorithm.proposers': 'optimi_lab.intelligent_algorithm.solvers',
+    'PopulationProposer': 'optimi_lab.solver.PopulationSolver',
+    'EvolutionaryProposer': 'optimi_lab.solver.EvolutionarySolver',
+    'SwarmProposer': 'optimi_lab.solver.SwarmSolver',
+    'DecompositionProposer': 'optimi_lab.solver.DecompositionSolver',
+    'intelligent_algorithm.proposers': 'optimi_lab.solver.population',
     'SampleKind.IMPORT': 'evaluate the points you already have; a matrix handed in is not a sample',
     'optimi_lab.benchmarks': 'optimi_lab.metric (indicators); problems with known fronts live in tests/benchmarks',
     'core.space': 'optimi_lab.problem.Space and optimi_lab.problem.Objective',
@@ -92,6 +92,10 @@ RETIRED: Final[dict[str, str]] = {
     'ConstraintSet': 'Problem.constraints, a tuple of constraint kinds',
     'Direction': 'optimi_lab.problem.Sense',
     'to_minimization': 'optimi_lab.problem.Objective.minimized (fixed normalisation, signed)',
+    # P12 (plan D69-D115): the 0.3 algorithm package split by layer -- operators (L5) and solvers (L7).
+    'intelligent_algorithm': 'optimi_lab.operator (operators) and optimi_lab.solver (solvers and factories)',
+    'intelligent_algorithm.algorithms': 'optimi_lab.solver.evolutionary',
+    '_reference_directions': 'optimi_lab.operator.das_dennis',
 }
 
 #: The trees a retired spelling may not appear in. `archived/` and `examples/` are deliberately
@@ -112,7 +116,8 @@ SECOND_CHECKOUTS: Final = frozenset({'worktrees'})
 #: Floors. Both directions matter: a registry with nothing in it proves nothing, and a scan that
 #: reached three files reports exactly what a clean tree reports. Measured 2026-09-15.
 #: RE-MEASURED 2026-09-18: 7 spellings registered.
-REGISTRY_FLOOR: Final = 30
+#: RE-TAKEN 2026-10-18 by P12 (population methods): 37 spellings registered.
+REGISTRY_FLOOR: Final = 34
 
 #: THE OTHER SIDE OF ``REGISTRY_FLOOR``. Today's reading is 7 - 6 = 1.
 REGISTRY_HEADROOM: Final = 5
@@ -121,8 +126,9 @@ REGISTRY_HEADROOM: Final = 5
 #: would have passed a walk reaching two fifths of the tree; re-measured rather than absorbed by a
 #: wider headroom.
 #: RE-TAKEN 2026-10-04 AT 70, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 77.
-#: RE-TAKEN 2026-10-18 AT 120: the P9 gradient methods (operator, solver, tests) read 135.
-SCANNED_FILE_FLOOR: Final = 120
+#: RE-TAKEN 2026-10-18 by P12 (population methods): the scan reached 145 files.
+#: RE-TAKEN 2026-10-18 AT 150: the P9 + P12 merge read 164.
+SCANNED_FILE_FLOOR: Final = 150
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
 SCANNED_FILE_HEADROOM: Final = 25

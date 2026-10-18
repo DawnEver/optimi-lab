@@ -1,7 +1,7 @@
 """D29 -- the B0 counterexamples the plan names for the base: each states the wrong belief it refutes.
 
 P8's gate is B0-06, B0-12 and B0-18: they pass here. B0-08, B0-11, B0-16 and B0-20 are answered by
-the base as well. B0-02, B0-03, B0-04, B0-05 and B0-14 need machinery from later phases and are
+the base as well, and P12 answers B0-02. B0-03, B0-04, B0-05 and B0-14 need machinery from later phases and are
 ``xfail(strict=True)`` naming the item that answers them -- when it lands, the test turns red and is
 promoted, never skipped.
 """
@@ -17,6 +17,7 @@ from catalogue import RandomSearch
 from lab_commons.outcomes import Cell, Cost, Evidence, Reason, Record, Status
 
 from optimi_lab.archive import Archive
+from optimi_lab.operator import tchebycheff, weighted_sum
 from optimi_lab.oracle import Action, Capability, Result, from_function
 from optimi_lab.problem import Categorical, Fidelity, Level, Linear, Objective, Problem, Real, Space
 from optimi_lab.problem import Path as PathConstraint
@@ -130,11 +131,10 @@ def test_b0_20_every_registered_solver_declares_how_it_treats_many_objectives() 
     assert SOLVERS['nsga2'].objectives is MultiObjective.NATIVE_PARETO
 
 
-@pytest.mark.xfail(strict=True, reason='B0-02: needs D84 scalarisation with declared reach and D110 scans (P12)')
 def test_b0_02_a_weighted_sum_cannot_reach_the_middle_of_a_concave_front() -> None:
-    from optimi_lab.operator import weighted_sum  # noqa: PLC0415 -- the missing module IS the expected failure
-
+    """Promoted by P12 (D84, D110): the reach is declared, and the scan tests hold it to behaviour."""
     assert weighted_sum.reach == 'convex_hull'
+    assert tchebycheff.reach == 'whole_front'
 
 
 @pytest.mark.xfail(strict=True, reason='B0-03: needs D117 estimators for joint chance constraints (P13)')
