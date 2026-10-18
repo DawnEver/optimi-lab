@@ -167,6 +167,8 @@ SOLVERS: Final[dict[str, Requires]] = {
     'model_trust_region': _SINGLE,
     'lp': _LINEAR,
     'milp': _LINEAR,
+    'dynamic_programming': Requires(MultiObjective.SINGLE, forms=frozenset({Form.SEPARABLE})),
+    'cp': Requires(MultiObjective.SINGLE, constraints=frozenset({Explicit, Linear})),
     'qp': Requires(
         MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.QUADRATIC, Form.CONVEX})
     ),

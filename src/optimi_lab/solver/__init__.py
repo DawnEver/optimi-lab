@@ -22,7 +22,8 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :func:`model_trust_region` (trust-region model management);
 * structured (P14) -- :func:`lp` (revised simplex, Mehrotra interior point), :func:`qp` (a route
   onto P9's QPs), :func:`milp` (branch and bound with Gomory cuts) over a :class:`LinearProgram`,
-  each reporting a :class:`StructuredSolution`;
+  each reporting a :class:`StructuredSolution`; :func:`dynamic_programming` (backward induction)
+  and :func:`cp` (finite-domain search with forward checking);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -35,7 +36,9 @@ from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.branch_and_bound import milp
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
+from optimi_lab.solver.constraint_programming import CPSolution, Rule, all_different, cp
 from optimi_lab.solver.decomposition import DecompositionSolver, moead
+from optimi_lab.solver.dynamic_programming import DPSolution, dynamic_programming
 from optimi_lab.solver.evolutionary import (
     differential,
     ga,
@@ -94,7 +97,9 @@ __all__ = [
     'RTOL',
     'SOLVERS',
     'BayesianOptimisation',
+    'CPSolution',
     'Chain',
+    'DPSolution',
     'DecompositionSolver',
     'Descriptor',
     'Eligible',
@@ -118,6 +123,7 @@ __all__ = [
     'Prescreened',
     'ReferenceVectorSolver',
     'Requires',
+    'Rule',
     'SampleAverage',
     'Scalarise',
     'SequentialSolver',
@@ -130,12 +136,15 @@ __all__ = [
     'TrustRegion',
     'TuRBO',
     'Unevaluable',
+    'all_different',
     'asha',
     'augmented_lagrangian',
     'bo',
     'bobyqa',
     'cmaes',
+    'cp',
     'differential',
+    'dynamic_programming',
     'ehvi',
     'ga',
     'gcmma',
