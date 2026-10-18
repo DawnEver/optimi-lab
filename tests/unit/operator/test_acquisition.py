@@ -11,7 +11,7 @@ from scipy.special import ndtr
 
 from optimi_lab.core import Refusal
 from optimi_lab.metric import hypervolume
-from optimi_lab.operator import asf
+from optimi_lab.operator import tchebycheff
 from optimi_lab.operator.acquisition import (
     expected_hypervolume_improvement,
     expected_improvement,
@@ -162,10 +162,13 @@ def test_nehvi_over_identical_draws_is_the_plain_improvement_with_no_error():
     assert estimate.std_error == 0.0 and estimate.n == 8
 
 
-def test_parego_scores_do_not_depend_on_the_objective_units():
+def test_parego_scores_are_knowles_augmented_tchebycheff_free_of_the_objective_units():
     rng = np.random.default_rng(2)
-    values, weights = rng.random((30, 2)), np.array([0.3, 0.7])
+    values, weights = rng.random((30, 2)), np.array([0.0, 1.0])
+    scaled = (values - values.min(0)) / (values.max(0) - values.min(0))
+    knowles = np.max(weights * scaled, axis=1) + 0.05 * np.sum(weights * scaled, axis=1)
+    assert np.allclose(parego_scores(values, weights), knowles, rtol=1e-12, atol=0.0)
     rescaled = values * np.array([1.0, 1e3]) + np.array([0.0, 5.0])
     assert np.allclose(parego_scores(values, weights), parego_scores(rescaled, weights), rtol=1e-12, atol=0.0)
     # the control: without the normalisation the score moves with the unit
-    assert not np.allclose(asf(values, weights, np.zeros(2), rho=0.05), asf(rescaled, weights, np.zeros(2), rho=0.05))
+    assert not np.allclose(tchebycheff(values, weights, np.zeros(2)), tchebycheff(rescaled, weights, np.zeros(2)))

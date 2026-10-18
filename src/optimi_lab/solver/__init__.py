@@ -15,6 +15,9 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :class:`GradientSolver`: :func:`projected_gradient`, :func:`lbfgsb`, :func:`newton_cg`, :func:`sqp`,
   :func:`interior_point`, :func:`augmented_lagrangian`, :func:`mma`, :func:`mgda`,
   :func:`pareto_continuation`;
+* model-based (P11) -- :func:`bo` (log-EI/EI/PI/UCB/KG, constrained EI), :func:`parego`,
+  :func:`ehvi`, :func:`nehvi`, each batching and running asynchronously through Kriging-believer
+  fantasies (:mod:`optimi_lab.solver.bayesian`);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -22,6 +25,18 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 Operators live one layer down, in :mod:`optimi_lab.operator`.
 """
 
+from optimi_lab.solver.bayesian import (
+    ACQUISITIONS,
+    BayesianOptimisation,
+    HypervolumeImprovement,
+    ModelBased,
+    ParEGO,
+    bo,
+    ehvi,
+    maximise,
+    nehvi,
+    parego,
+)
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
@@ -65,6 +80,7 @@ from optimi_lab.solver.swarm import SwarmSolver, mopso
 from optimi_lab.solver.trust_region import TrustRegion, bobyqa
 
 __all__ = [
+    'ACQUISITIONS',
     'ASHA',
     'ATOL',
     'CMAES',
@@ -72,6 +88,7 @@ __all__ = [
     'METHODS',
     'RTOL',
     'SOLVERS',
+    'BayesianOptimisation',
     'Chain',
     'DecompositionSolver',
     'Descriptor',
@@ -80,12 +97,15 @@ __all__ = [
     'EvolutionarySolver',
     'GradientSolver',
     'Halt',
+    'HypervolumeImprovement',
     'Ineligible',
     'MapElites',
     'Match',
+    'ModelBased',
     'MultiObjective',
     'NeedsTransform',
     'NelderMead',
+    'ParEGO',
     'PopulationSolver',
     'ReferenceVectorSolver',
     'Requires',
@@ -101,9 +121,11 @@ __all__ = [
     'Unevaluable',
     'asha',
     'augmented_lagrangian',
+    'bo',
     'bobyqa',
     'cmaes',
     'differential',
+    'ehvi',
     'ga',
     'gcmma',
     'hyperband',
@@ -114,16 +136,19 @@ __all__ = [
     'mads',
     'map_elites',
     'match',
+    'maximise',
     'mgda',
     'mma',
     'mode',
     'moead',
     'mopso',
     'multistart',
+    'nehvi',
     'nelder_mead',
     'newton_cg',
     'nsga2',
     'nsga3',
+    'parego',
     'pareto_continuation',
     'projected_gradient',
     'restarts',

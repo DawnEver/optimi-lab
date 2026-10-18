@@ -93,3 +93,4 @@ def test_every_registered_solver_names_a_shipped_factory_and_back():
 
     assert set(SOLVERS) <= set(package.__all__)
     assert {'nsga2', 'spea2', 'rvea', 'sms_emoa', 'cmaes', 'nelder_mead', 'mads', 'bobyqa', 'hyperband'} <= set(SOLVERS)
+    assert {'bo', 'parego', 'ehvi', 'nehvi'} <= set(SOLVERS)

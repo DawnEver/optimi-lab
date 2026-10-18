@@ -30,8 +30,10 @@ Several objectives, reference point ``reference``:
 * :func:`noisy_expected_hypervolume_improvement` -- NEHVI (Daulton et al., 2021): over joint draws
   of the baseline (observed and pending points) and the candidate, the mean improvement of the
   candidate over each draw's own front, with its standard error.
-* :func:`parego_scores` -- ParEGO's scalarisation (Knowles, 2006), here the augmented ASF of
-  :data:`~optimi_lab.operator.scalarisation.asf` on columns normalised to ``[0, 1]`` by their range.
+* :func:`parego_scores` -- ParEGO's scalarisation (Knowles, 2006): the augmented achievement
+  function with the weights as MULTIPLIERS, ``max_j w_j f_j + rho sum_j w_j f_j`` (Tchebycheff plus
+  ``rho`` times the weighted sum), on columns normalised to ``[0, 1]`` by their range. A weight
+  row may hold zeros; a divided ASF would make a zero weight the dominant term.
 """
 
 from typing import Final
@@ -41,7 +43,7 @@ from scipy.special import erfcx, log_ndtr, ndtr
 
 from optimi_lab.core import non_dominated_sorting, refuse
 from optimi_lab.operator.estimators import Estimate
-from optimi_lab.operator.scalarisation import asf
+from optimi_lab.operator.scalarisation import tchebycheff, weighted_sum
 
 __all__ = [
     'expected_hypervolume_improvement',
@@ -62,6 +64,10 @@ _LOG_SQRT_2PI: Final = 0.5 * float(np.log(2.0 * np.pi))
 _LOG_SQRT_HALF_PI: Final = 0.5 * float(np.log(np.pi / 2.0))
 _SERIES_FROM: Final = -1e3
 """Below this ``z`` the ``erfcx`` form loses digits to cancellation and the asymptotic series is exact to eps."""
+_SAME_SLOPE: Final = 1e-12
+"""Relative to the largest slope: lines closer than this are one line (their crossing is noise)."""
+_FAR: Final = 40.0
+"""A breakpoint beyond ``|z| = 40`` adds ``h(-40) ~ 1e-350``: zero in double precision."""
 
 
 def _gaussian(mean: object, std: object) -> tuple[np.ndarray, np.ndarray]:
@@ -145,15 +151,16 @@ def knowledge_gradient(a: object, b: object) -> float:
     """``E[max_i (a_i + b_i Z)] - max_i a_i``, ``Z ~ N(0, 1)``: the value of one more observation.
 
     ``a`` are the current values of the set (larger is better), ``b`` how each moves per unit of the
-    observation's standardised outcome. Lines sorted by slope are reduced to their upper envelope;
-    with breakpoints ``c_j`` it is ``sum_j (b_{j+1} - b_j) h(-|c_j|)``.
+    observation's standardised outcome. Lines sorted by slope (slopes within ``1e-12`` relative are
+    one line, the best of them) are reduced to their upper envelope; with breakpoints ``c_j`` it is
+    ``sum_j (b_{j+1} - b_j) h(-|c_j|)``.
     """
     a, b = np.asarray(a, dtype=float).ravel(), np.asarray(b, dtype=float).ravel()
     if a.shape != b.shape or a.size == 0:
         refuse(f'a and b pair one value with one slope per point, got {a.shape} and {b.shape}')
     order = np.lexsort((a, b))
     a, b = a[order], b[order]
-    keep = np.append(b[1:] != b[:-1], True)
+    keep = np.append(np.diff(b) > _SAME_SLOPE * max(float(np.abs(b).max()), np.finfo(float).tiny), True)
     a, b = a[keep], b[keep]
     lines: list[int] = []
     cuts: list[float] = []
@@ -171,7 +178,7 @@ def knowledge_gradient(a: object, b: object) -> float:
     if len(lines) == 1:
         return 0.0
     slopes = np.diff(b[lines])
-    return float(np.sum(slopes * _h(-np.abs(np.array(cuts)))))
+    return float(np.sum(slopes * _h(-np.minimum(np.abs(np.array(cuts)), _FAR))))
 
 
 def log_probability_of_feasibility(margin_mean: object, margin_std: object) -> np.ndarray:
@@ -247,8 +254,9 @@ def noisy_expected_hypervolume_improvement(baseline: object, candidate: object, 
 
 
 def parego_scores(values: object, weights: object, *, rho: float = 0.05) -> np.ndarray:
-    """ParEGO's score of each minimised row: the augmented ASF of the range-normalised columns."""
+    """ParEGO's score of each minimised row: the augmented Tchebycheff of the range-normalised columns."""
     values = np.atleast_2d(np.asarray(values, dtype=float))
     low, high = values.min(axis=0), values.max(axis=0)
-    span = np.where(high > low, high - low, 1.0)
-    return asf((values - low) / span, np.asarray(weights, dtype=float), np.zeros(values.shape[1]), rho=rho)
+    scaled = (values - low) / np.where(high > low, high - low, 1.0)
+    origin = np.zeros(values.shape[1])
+    return tchebycheff(scaled, weights, origin) + rho * weighted_sum(scaled, weights, origin)
