@@ -16,11 +16,10 @@ reader could violate in one commit, and each names the mechanism that refuses it
 - **Importing the package does nothing.** No file is read, no directory is created, no global
   (numpy print options, matplotlib backend, warnings filters, random seed) is mutated at import.
   A library that reconfigures its host process is unusable inside another library.
-- **A member of a declared set is resolved through that set, and a stranger RAISES** — `Refusal`
-  from `optimi_lab.core.errors.refuse`, with the valid set QUOTED in the message. `SURROGATES`,
-  `KERNEL_FAMILIES`, `RADIAL_KERNELS`, `SampleKind` / `SAMPLE_KINDS` and every `StrEnum` are those
-  sets. A silent fallback to a default model or a default sampler is the forbidden shape: the caller asked
-  for something specific and cannot tell it did not get it.
+- **A member of a declared set is resolved through that set, and a stranger RAISES** — `Refusal` from
+  `optimi_lab.core.errors.refuse`, quoting the valid set. `SURROGATES`, `KERNEL_FAMILIES`, `RADIAL_KERNELS`,
+  `SampleKind` / `SAMPLE_KINDS` and every `StrEnum` are those sets. A silent fallback to a default model or
+  sampler is the forbidden shape: the caller asked for something specific and cannot tell it did not get it.
 - **A point that did not compute is never a number.** An `outcomes.Cell` carries values only as
   `OK` or `PARTIAL`; every other status carries a reason and no value (II.3). Nothing
   downstream — a front, a metric, a surrogate fit — may reintroduce a placeholder number for a
