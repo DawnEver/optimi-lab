@@ -2,7 +2,7 @@
 
 The cell carries the status, the scalar output values, the reason, the evidence and the cost --
 the II.3 vocabulary, never a local copy of it. Around it: derivatives (``gradient``, ``jvp``,
-``hvp``), per-output ``uncertainty`` (a standard deviation in the output's unit), ``quality``
+``hvp`` -- the product with the action's ``direction``), per-output ``uncertainty`` (a standard deviation in the output's unit), ``quality``
 indicators (residuals, mesh error), ``provenance`` (versions, hosts, seeds) and ``series`` -- the
 trajectories a :class:`~optimi_lab.problem.Path` constraint is judged on.
 
@@ -87,6 +87,8 @@ class Result(_ResultFields):
         carried = [name for name, part in parts.items() if part]
         if carried and cell.status not in _CARRIERS:
             refuse(f'a {cell.status.name} result carries no derivative, uncertainty or series, got {carried}')
+        if parts['hvp'] and action.direction is None:
+            refuse('an hvp answers a direction; this action asked none (Action.of(..., direction=v))')
         negative = sorted(k for k, v in parts['uncertainty'].items() if not v >= 0)
         if negative:
             refuse(f'an uncertainty is a standard deviation >= 0; {negative} are not')

@@ -9,10 +9,14 @@
    ``lab_commons.outcomes.Cell`` (status, values, reason, evidence, cost) plus derivatives. A point
    that did not compute carries a status and a reason, never a number.
 3. **What was learned** -- :mod:`optimi_lab.archive`: views over one ``outcomes.Record``.
-4. **How a run proceeds** -- :func:`run`: ask, dispatch, file, tell, until a named reason stops it;
+4. **How a solver searches** -- :mod:`optimi_lab.solver`: a :class:`GradientSolver` runs a gradient
+   method (L-BFGS-B, SQP, interior point, MMA, MGDA, ...) built on numerics-lab's line searches,
+   trust regions, quasi-Newton updates and KKT solves.
+5. **How a run proceeds** -- :func:`run`: ask, dispatch, file, tell, until a named reason stops it;
    an interrupted run resumes by replaying its record.
 
-The runtime is numpy, scipy, scikit-learn and ``lab_commons.outcomes``; importing this package reads
+The runtime is numpy, scipy, numerics-lab and ``lab_commons.outcomes``; every surrogate (:mod:`optimi_lab.model`)
+is self-implemented. Importing this package reads
 nothing, writes nothing and leaves the host process's globals untouched.
 """
 
@@ -38,7 +42,7 @@ from optimi_lab.problem import (
     When,
 )
 from optimi_lab.run import Budget, Termination, run
-from optimi_lab.solver import Solver, match
+from optimi_lab.solver import GradientSolver, Solver, match
 
 __all__ = [
     'Action',
@@ -51,6 +55,7 @@ __all__ = [
     'Explicit',
     'Fidelity',
     'Field',
+    'GradientSolver',
     'Information',
     'Integer',
     'Linear',

@@ -68,7 +68,10 @@ EXEMPT: Final[tuple[str, ...]] = ()
 #: and core/constraints.py) read 78; the floor sits half a headroom below it.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 138.
-FILE_FLOOR: Final = 128
+#: RE-TAKEN 2026-10-18 AT 145: the P9 + P12 merge read 154.
+#: RE-TAKEN 2026-10-18 AT 165: P10 (surrogates, optimi_lab.model) read 173.
+#: RE-TAKEN 2026-10-18 AT 145: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 158.
+FILE_FLOOR: Final = 168
 
 #: THE OTHER SIDE, and the side no copy in this family ever wrote. This is how far past its floor the
 #: population may grow before the floor is RE-MEASURED -- never how much slack the floor may be

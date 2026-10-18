@@ -7,6 +7,9 @@
 * :class:`Penalty` -- a constrained problem as an unconstrained one: each objective is worsened by
   ``weight * total violation`` normalised units. A chance constraint is refused: one sample says
   nothing about a probability.
+* :func:`check_gradient` -- not a transform but its audit: an oracle's DECLARED gradient against
+  finite differences of its own values, per output. A gradient that leaves out a state's
+  contribution (the partial where the total derivative is meant, B0-09) is named here.
 * :func:`embed` -- every unembedded categorical gets a one-hot embedding, the one metric that does
   not depend on the order the levels were written in (B0-11).
 
@@ -31,7 +34,7 @@ from optimi_lab.oracle.oracle import Oracle
 from optimi_lab.oracle.result import Result
 from optimi_lab.problem import Categorical, Chance, Field, Problem, Real, Sense, Space
 
-__all__ = ['Penalty', 'Scheme', 'embed', 'finite_difference', 'with_finite_differences']
+__all__ = ['Penalty', 'Scheme', 'check_gradient', 'embed', 'finite_difference', 'with_finite_differences']
 
 
 class Scheme(StrEnum):
@@ -94,11 +97,15 @@ class _Differenced:
         for i in range(u.size):
             e = np.zeros_like(u)
             e[i] = h[i]
-            if self.scheme is Scheme.CENTRAL:
+            # A step past the unit cube would be clipped by the decode map; the difference turns one-sided.
+            room_ahead, room_behind = u[i] + h[i] <= 1.0, u[i] - h[i] >= 0.0
+            if self.scheme is Scheme.CENTRAL and room_ahead and room_behind:
                 ahead, behind = await asyncio.gather(self._values(action, u + e), self._values(action, u - e))
                 span = 2 * h[i]
-            else:
+            elif room_ahead:
                 ahead, behind, span = await self._values(action, u + e), centre, h[i]
+            else:
+                ahead, behind, span = centre, await self._values(action, u - e), h[i]
             if ahead.cell.status is not Status.OK or behind.cell.status is not Status.OK:
                 failed = ahead if ahead.cell.status is not Status.OK else behind
                 reason = Reason('derivative_failed', f'a perturbed evaluation ended {failed.cell.status.name}')
@@ -125,6 +132,30 @@ def with_finite_differences(
     provides = oracle.capability.provides | {Information.JVP, Information.VJP}
     capability = replace(oracle.capability, provides=provides, version=f'{oracle.capability.version}+fd:{scheme}')
     return _Differenced(oracle, problem, scheme, STEPS[scheme] if step is None else step, capability)
+
+
+async def check_gradient(
+    oracle: Oracle, problem: Problem, design: dict[str, object], *, scheme: str = 'central', step: float | None = None
+) -> dict[str, float]:
+    """Per output, ``|g - g_fd|_max / |g_fd|_max`` between *oracle*'s declared gradient and differences of its values.
+
+    The error is RELATIVE, so it carries no unit; two zero gradients agree exactly.
+    """
+    if Information.VJP not in oracle.capability.provides:
+        refuse('the oracle declares no gradient (Information.VJP); there is nothing to check')
+    want = frozenset({Information.VALUES, Information.VJP})
+    declared = await oracle(Action.of(problem, oracle.capability, design, want=want))
+    differenced_oracle = with_finite_differences(oracle, problem, scheme=scheme, step=step)
+    differenced = await differenced_oracle(Action.of(problem, differenced_oracle.capability, design, want=want))
+    for result in (declared, differenced):
+        if result.cell.status is not Status.OK:
+            refuse(f'the gradient check needs OK evaluations at {design}; one ended {result.cell.status.name}')
+    errors = {}
+    for name in problem.outputs:
+        g, reference = declared.gradient[name], differenced.gradient[name]
+        scale = max(float(np.max(np.abs(reference))), float(np.max(np.abs(g))))
+        errors[name] = float(np.max(np.abs(g - reference))) / scale if scale > 0 else 0.0
+    return errors
 
 
 @dataclass(frozen=True, slots=True)

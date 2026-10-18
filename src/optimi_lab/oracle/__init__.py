@@ -4,7 +4,14 @@ from optimi_lab.oracle.action import Action
 from optimi_lab.oracle.capability import Capability, Information
 from optimi_lab.oracle.oracle import Infeasible, Invalid, NotConverged, Oracle, Unavailable, from_function
 from optimi_lab.oracle.result import Result
-from optimi_lab.oracle.transforms import Penalty, Scheme, embed, finite_difference, with_finite_differences
+from optimi_lab.oracle.transforms import (
+    Penalty,
+    Scheme,
+    check_gradient,
+    embed,
+    finite_difference,
+    with_finite_differences,
+)
 
 __all__ = [
     'Action',
@@ -18,6 +25,7 @@ __all__ = [
     'Result',
     'Scheme',
     'Unavailable',
+    'check_gradient',
     'embed',
     'finite_difference',
     'from_function',

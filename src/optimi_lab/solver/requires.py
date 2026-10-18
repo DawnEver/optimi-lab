@@ -124,13 +124,28 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
     return NeedsTransform(tuple(transforms), per_action) if transforms else Eligible()
 
 
+_SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
+_SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
+_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
+_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
+
 #: Every solver this package ships, by name. Population and local solvers rank by Deb's rule (or a
 #: barrier on the total violation), so they take black-box constraints natively; MOEA/D decomposes
 #: by Tchebycheff weights; a scan returns one point per scalarisation; the multi-fidelity schedules
-#: need Fidelity levels.
-_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
-_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
+#: need Fidelity levels. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
+#: the box methods take no other constraint, the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
+    **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
+    'projected_gradient': Requires(MultiObjective.SINGLE, information=_SLOPES),
+    'lbfgsb': Requires(MultiObjective.SINGLE, information=_SLOPES),
+    'newton_cg': Requires(MultiObjective.SINGLE, information=_SLOPES),
+    'sqp': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'interior_point': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'augmented_lagrangian': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'mma': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'gcmma': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'mgda': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES),
+    'pareto_continuation': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES, constraints=_SMOOTH),
     **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
     'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=frozenset({BlackBox})),
     **dict.fromkeys(
