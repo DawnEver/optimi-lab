@@ -529,6 +529,15 @@ wheels = [
 ]
 
 [[package]]
+name = "numerics-lab"
+version = "0.1.0"
+source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git#9f16d44091d99eb53dbdb7177eba5ad462d8764f" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scipy" },
+]
+
+[[package]]
 name = "numpy"
 version = "2.5.4"
 source = { registry = "https://pypi.org/simple" }
@@ -595,8 +604,8 @@ name = "optimi-lab"
 source = { editable = "." }
 dependencies = [
     { name = "lab-commons" },
+    { name = "numerics-lab" },
     { name = "numpy" },
-    { name = "scikit-learn" },
     { name = "scipy" },
 ]
 
@@ -612,6 +621,7 @@ dev = [
     { name = "pytest-mock" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+    { name = "scikit-learn" },
 ]
 
 [package.metadata]
@@ -620,6 +630,7 @@ requires-dist = [
     { name = "coverage", extras = ["toml"], marker = "extra == 'dev'" },
     { name = "lab-commons", git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git" },
     { name = "lab-commons", extras = ["dev"], marker = "extra == 'dev'", git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git" },
+    { name = "numerics-lab", git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git" },
     { name = "numpy" },
     { name = "pdoc", marker = "extra == 'dev'" },
     { name = "pre-commit", marker = "extra == 'dev'" },
@@ -628,7 +639,7 @@ requires-dist = [
     { name = "pytest-mock", marker = "extra == 'dev'" },
     { name = "pytest-xdist", marker = "extra == 'dev'" },
     { name = "ruff", marker = "extra == 'dev'" },
-    { name = "scikit-learn" },
+    { name = "scikit-learn", marker = "extra == 'dev'" },
     { name = "scipy" },
 ]
 provides-extras = ["dev"]

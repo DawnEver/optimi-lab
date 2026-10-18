@@ -697,9 +697,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
     ),
     'tests/architecture/test_equation_solving_is_numerics_labs.py': Placement(
         STAYS,
-        "THE BOUNDARY IT CHECKS IS THIS PACKAGE'S OWN (plan R4/R1, P9): which numeric kernels optimi_lab "
-        'may not define because numerics-lab owns them, and which scipy submodules its runtime may touch, '
-        'with the named scipy.stats debt and the items that retire it. No other repo has that boundary.',
+        "THE BOUNDARY IT CHECKS IS THIS PACKAGE'S OWN (plan R4, P9): which numeric kernels optimi_lab "
+        'may not define because numerics-lab owns them, and that the gradient methods import it. No other '
+        'repo has that boundary. (Its R1 scipy half went to `test_the_runtime_stays_pure.py`, the one R1 guard.)',
     ),
     'tests/architecture/test_the_layers_point_one_way.py': Placement(
         STAYS,
@@ -711,7 +711,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_runtime_stays_pure.py': Placement(
         STAYS,
         "THE CLAIM IT CHECKS IS THIS PACKAGE'S OWN SENTENCE: `src/optimi_lab/__init__.py` states the "
-        'runtime is numpy, scipy and scikit-learn -- "no plotting, no logging framework, no path '
+        'runtime is numpy, scipy, numerics-lab and lab_commons.outcomes -- "no plotting, no logging framework, no path '
         'resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until '
         'this file both were PROSE, and a `structlog` import added to one function would have left '
         'every word of the claim reading exactly as it does now. Which three distributions are '
@@ -898,6 +898,12 @@ MINIMUM_REFUSES: Final = 0.65
 #: `test_the_public_surface_is_declared.py` (0.62%) and `_famconfig.py` (1.23%) sit under the bar
 #: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
+    'tests/architecture/test_equation_solving_is_numerics_labs.py': (
+        'MEASURED 2026-10-18: own=57 hits=1 -> 1.75%, seven lines over the binder ceiling. The lines are '
+        "the KERNEL NAME list -- numerics-lab's nouns (line search, trust region, quasi-Newton, Krylov, "
+        "Cholesky, KKT), which are another repo's names by construction, so a scan for this repo's nouns "
+        'cannot see the very thing the guard is about. Thinning it would delete the list it enforces.'
+    ),
     'tests/architecture/test_the_install_doors_deliver_the_declared_kit.py': (
         'MEASURED 2026-10-04: own=75 hits=1 -> 1.33%, twenty-five lines over the binder ceiling. The '
         'lines are the door-census ROWS that came home from lab-commons -- paths, counts and reasons, '
@@ -967,7 +973,7 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'RE-MEASURED 2026-10-18: own=109 repo=1 -> 0.92%, down from own=90 repo=1 -> 1.11% on 2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, from own=86 repo=2 -> 2.33% on '
         '2026-09-17, under the 3.0% bar and over the ceiling. The '
         'reading is honest: the fact this file enforces is WHICH THREE DISTRIBUTIONS are permitted, '
-        "and `numpy`, `scipy` and `scikit-learn` are other people's names, so a scan for this "
+        "and `numpy`, `scipy` and `numerics-lab` are other people's names, so a scan for this "
         "repo's nouns cannot see the very thing the guard is about. THE REMEDY IS NOT TO THIN IT: "
         'the import walk is twenty lines and the permitted set is the deliverable. It sits under a '
         'bar written for a different shape, which is what this row records rather than argues away.'

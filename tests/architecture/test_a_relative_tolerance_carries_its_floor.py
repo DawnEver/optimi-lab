@@ -34,7 +34,7 @@ the question it has always asked; the other bar is defensible and is a different
 MEASURED HERE 2026-09-18 AND THE PREDICTED RED DID NOT ARRIVE, which is worth recording rather than
 passing over. The adoption was expected to red on the kit's positional reading, on the argument that
 this repo's two call sites would be re-read. They are not: both are `pytest.approx(x)` with no
-tolerance argument at all -- `test_variation.py` (the PSO step check) and `test_surrogate_models.py:99` -- so they
+tolerance argument at all -- `test_variation.py` (the PSO step check) and a surrogate-scoring check since retired -- so they
 carry no ratio positionally or otherwise and are clean under `'ratio'`. They WOULD both convict under
 `'unconditional'`, which is the same two-bar disagreement one level down and is the reason the bar is
 stated here rather than inherited.
@@ -76,7 +76,8 @@ PYTHON_FILE_HEADROOM: Final = 25
 #: RE-TAKEN 2026-10-16 AT 19, from 9: merged with the routing/steering and Sobol tests, the scan read 19.
 #: RE-TAKEN 2026-10-18 AT 28, from 19: the P8 layer tests read 31.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 59.
-APPROX_CALL_FLOOR: Final = 56
+#: RE-TAKEN 2026-10-18 AT 59: P10 (surrogates, optimi_lab.model) read 62.
+APPROX_CALL_FLOOR: Final = 59
 
 #: THE OTHER SIDE OF `APPROX_CALL_FLOOR`. The floor sits ON the population, so any growth at all is
 #: worth re-reading; 19 + 5 = 24 is the point at which this constant must be re-measured.

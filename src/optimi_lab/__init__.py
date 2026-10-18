@@ -15,7 +15,8 @@
 5. **How a run proceeds** -- :func:`run`: ask, dispatch, file, tell, until a named reason stops it;
    an interrupted run resumes by replaying its record.
 
-The runtime is numpy, scipy, scikit-learn, numerics-lab and ``lab_commons.outcomes``; importing this package reads
+The runtime is numpy, scipy, numerics-lab and ``lab_commons.outcomes``; every surrogate (:mod:`optimi_lab.model`)
+is self-implemented. Importing this package reads
 nothing, writes nothing and leaves the host process's globals untouched.
 """
 
