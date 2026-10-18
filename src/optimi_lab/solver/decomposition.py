@@ -129,7 +129,7 @@ class DecompositionSolver(PopulationSolver):
         """
         for position, subproblem in enumerate(subproblems):
             neighbors = self._neighbors[subproblem]
-            scores = tchebycheff(values[position : position + 1], self._weights[neighbors], self._ideal)[0]
+            scores = tchebycheff(values[position : position + 1], self._weights[neighbors], self._ideal)
             current = tchebycheff(self._values[neighbors], self._weights[neighbors], self._ideal)
             held = self._violation[neighbors]
             wins = (violation[position] < held) | ((violation[position] == held) & (scores < current))
