@@ -169,6 +169,8 @@ SOLVERS: Final[dict[str, Requires]] = {
     'milp': _LINEAR,
     'dynamic_programming': Requires(MultiObjective.SINGLE, forms=frozenset({Form.SEPARABLE})),
     'cp': Requires(MultiObjective.SINGLE, constraints=frozenset({Explicit, Linear})),
+    'benders': _LINEAR,
+    'admm': Requires(MultiObjective.SINGLE, forms=frozenset({Form.CONVEX, Form.SEPARABLE})),
     'qp': Requires(
         MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.QUADRATIC, Form.CONVEX})
     ),

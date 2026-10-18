@@ -23,7 +23,8 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 * structured (P14) -- :func:`lp` (revised simplex, Mehrotra interior point), :func:`qp` (a route
   onto P9's QPs), :func:`milp` (branch and bound with Gomory cuts) over a :class:`LinearProgram`,
   each reporting a :class:`StructuredSolution`; :func:`dynamic_programming` (backward induction)
-  and :func:`cp` (finite-domain search with forward checking);
+  and :func:`cp` (finite-domain search with forward checking); :func:`benders` (two-stage
+  decomposition) and :func:`admm` (consensus ADMM over proximal operators);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -31,7 +32,9 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 Operators live one layer down, in :mod:`optimi_lab.operator`.
 """
 
+from optimi_lab.solver.admm import Prox, admm, box_prox, l1_prox, quadratic_prox
 from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
+from optimi_lab.solver.benders import benders
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.branch_and_bound import milp
 from optimi_lab.solver.cmaes import CMAES, cmaes
@@ -121,6 +124,7 @@ __all__ = [
     'ParEGO',
     'PopulationSolver',
     'Prescreened',
+    'Prox',
     'ReferenceVectorSolver',
     'Requires',
     'Rule',
@@ -136,11 +140,14 @@ __all__ = [
     'TrustRegion',
     'TuRBO',
     'Unevaluable',
+    'admm',
     'all_different',
     'asha',
     'augmented_lagrangian',
+    'benders',
     'bo',
     'bobyqa',
+    'box_prox',
     'cmaes',
     'cp',
     'differential',
@@ -152,6 +159,7 @@ __all__ = [
     'interior_point',
     'ipop_cmaes',
     'kkt_bar',
+    'l1_prox',
     'lbfgsb',
     'lp',
     'mads',
@@ -177,6 +185,7 @@ __all__ = [
     'prescreened',
     'projected_gradient',
     'qp',
+    'quadratic_prox',
     'restarts',
     'rnsga3',
     'rvea',
