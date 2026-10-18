@@ -13,6 +13,13 @@ A prediction's ``variance`` is LATENT -- of the mean function, without the noise
 values' squared units. :meth:`FittedGaussianProcess.leave_one_out` is Dubrule's closed form at the
 fitted ``theta``: each point predicted from all the others, its variance that of the held-out
 OBSERVATION (noise included), without n refits.
+
+For model-based optimisation (P11) a fitted GP also gives the JOINT latent posterior
+(:meth:`FittedGaussianProcess.posterior_covariance`, :meth:`~FittedGaussianProcess.posterior`), joint
+draws from it under caller-held standard normals (:meth:`~FittedGaussianProcess.draw`, so a caller
+fixes its base samples), its observation noise, and :meth:`~FittedGaussianProcess.condition` -- the
+model with further points appended at the SAME hyperparameters and normalisation: a fantasy, never a
+refit.
 """
 
 from __future__ import annotations
@@ -156,6 +163,65 @@ class FittedGaussianProcess:
             np.column_stack(variances) if variance else None,
             np.stack(slopes, axis=1) if gradient else None,
         )
+
+    @property
+    def noise(self) -> np.ndarray:
+        """Each column's fitted observation-noise variance ``(k,)``, in the values' squared units."""
+        return np.array([np.exp(c.theta[-1]) * c.scale**2 for c in self.columns])
+
+    def posterior_covariance(self, a, b) -> np.ndarray:
+        """The latent posterior covariance between points *a* ``(p, d)`` and *b* ``(q, d)``: ``(k, p, q)``."""
+        a, b = query_points(a, self.x.shape[1]), query_points(b, self.x.shape[1])
+        blocks = []
+        for c in self.columns:
+            amplitude, lengths = np.exp(c.theta[0]), np.exp(c.theta[1:-1])
+            va = solve_triangular(c.lower, amplitude * correlation(c.family, self.x, a, lengths), lower=True)
+            vb = solve_triangular(c.lower, amplitude * correlation(c.family, self.x, b, lengths), lower=True)
+            blocks.append((amplitude * correlation(c.family, a, b, lengths) - va.T @ vb) * c.scale**2)
+        return np.stack(blocks)
+
+    def posterior(self, x) -> tuple[np.ndarray, np.ndarray]:
+        """The joint latent posterior at ``(m, d)`` points: mean ``(m, k)`` and covariance ``(k, m, m)``."""
+        return self.predict(x).mean, self.posterior_covariance(x, x)
+
+    def draw(self, x, base: np.ndarray) -> np.ndarray:
+        """Joint posterior draws at ``(m, d)`` points under standard normals *base* ``(s, m, k)``: ``(s, m, k)``.
+
+        The factor is numerics-lab's jittered Cholesky of each column's covariance; one *base* gives
+        one set of draws, which is what keeps an acquisition built on them deterministic.
+        """
+        mean, cov = self.posterior(x)
+        base = np.asarray(base, dtype=float)
+        if base.ndim != 3 or base.shape[1:] != mean.shape:
+            refuse(
+                f'base normals are (samples, points, outputs) = (s, {mean.shape[0]}, {mean.shape[1]}), got {base.shape}'
+            )
+        draws = np.empty_like(base)
+        for k, block in enumerate(cov):
+            chol = factor(0.5 * (block + block.T))
+            if chol is None:
+                refuse('the posterior covariance cannot be factored even with jitter')
+            draws[:, :, k] = mean[:, k] + base[:, :, k] @ chol.lower.T
+        return draws
+
+    def condition(self, x, y) -> FittedGaussianProcess:
+        """The model with ``(x (p, d), y (p, k))`` appended, at the same hyperparameters and normalisation."""
+        x, y = training_data(x, y)
+        if x.shape[1] != self.x.shape[1] or y.shape[1] != len(self.columns):
+            refuse(f'conditioning data is (p, {self.x.shape[1]}) points and (p, {len(self.columns)}) values')
+        joined = np.vstack([self.x, x])
+        columns = tuple(
+            GaussianProcessColumn.at(
+                c.family,
+                c.theta,
+                joined,
+                np.concatenate([c.values, (y[:, k] - c.level) / c.scale]),
+                level=c.level,
+                scale=c.scale,
+            )
+            for k, c in enumerate(self.columns)
+        )
+        return FittedGaussianProcess(joined, columns)
 
     def leave_one_out(self) -> Prediction:
         """Each training point predicted from the others (Dubrule): mean, and the held-out observation's variance."""
