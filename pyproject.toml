@@ -21,7 +21,7 @@ authors = [{ name = "Mingyang Bao" }]
 # library only), the task-outcome vocabulary every engine shares (plan II.1/II.3) -- no extra, never
 # pinned (R8). rtoml, pint, pydantic, pandas and matplotlib went with the roles that needed them.
 dependencies = [
-    "lab-commons @ git+https://github.com/DawnEver/lab-commons.git",
+    "lab-commons @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git",
     "numpy",
     "scikit-learn",
     "scipy",
@@ -46,7 +46,7 @@ dev = [
     # structlog, pint and pydantic, and this library is imported BY other libraries, so none of
     # those may become a runtime dependency here. The URL is bare on purpose: a pin to a sha or a
     # tag is a ceiling nobody re-argued, and a repo held at one stops being told when a rule moved.
-    "lab-commons[dev] @ git+https://github.com/DawnEver/lab-commons.git",
+    "lab-commons[dev] @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git",
 ]
 # The `reminder` extra (resend) went with optimi_lab.utils.email_reminder: a numerics library
 # does not send mail.
