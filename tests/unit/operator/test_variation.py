@@ -1,13 +1,15 @@
-"""The operators, at the level the operator defects were measured on."""
+"""The variation and selection operators (D74, D75, D78), at the level their defects were measured on."""
 
 import numpy as np
 import pytest
 
 from optimi_lab.core import Refusal
-from optimi_lab.intelligent_algorithm import (
+from optimi_lab.operator import (
+    DEStrategy,
+    binomial_crossover,
     crowding_select,
     differential_mutation,
-    nsga2,
+    exponential_crossover,
     polynomial_mutation,
     pso_position,
     pso_velocity,
@@ -18,6 +20,7 @@ from optimi_lab.intelligent_algorithm import (
 )
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Objective, Problem, Real, Space
+from optimi_lab.solver import nsga2
 
 SPACE = 2  # every operator works in the unit cube of this width
 VALUES = np.array([[1.0, 2.0], [2.0, 1.0], [1.0, 1.0], [0.5, 0.5], [0.0, 3.0]])
@@ -135,3 +138,77 @@ def test_a_misspelled_setting_names_the_valid_ones():
 
     assert 'eta_crossoverr' in str(refusal.value)
     assert 'eta_crossover' in str(refusal.value)
+
+
+POPULATION = np.array([[0.1, 0.2], [0.4, 0.9], [0.7, 0.3], [0.2, 0.6], [0.9, 0.8], [0.5, 0.5], [0.3, 0.1]])
+
+#: Each strategy's definition: which rows it reads, as a function of the row, best and donors.
+DEFINITIONS = {
+    DEStrategy.RAND_1: (3, lambda x, _i, _b, r, f: x[r[0]] + f * (x[r[1]] - x[r[2]])),
+    DEStrategy.RAND_2: (5, lambda x, _i, _b, r, f: x[r[0]] + f * (x[r[1]] - x[r[2]]) + f * (x[r[3]] - x[r[4]])),
+    DEStrategy.BEST_1: (2, lambda x, _i, b, r, f: x[b] + f * (x[r[0]] - x[r[1]])),
+    DEStrategy.BEST_2: (4, lambda x, _i, b, r, f: x[b] + f * (x[r[0]] - x[r[1]]) + f * (x[r[2]] - x[r[3]])),
+    DEStrategy.CURRENT_TO_BEST_1: (2, lambda x, i, b, r, f: x[i] + f * (x[b] - x[i]) + f * (x[r[0]] - x[r[1]])),
+    DEStrategy.CURRENT_TO_RAND_1: (3, lambda x, i, _b, r, f: x[i] + f * (x[r[0]] - x[i]) + f * (x[r[1]] - x[r[2]])),
+}
+
+
+@pytest.mark.parametrize('strategy', list(DEStrategy))
+def test_every_de_strategy_builds_its_trial_by_its_published_formula(strategy):
+    """D75: a trial is reproduced by the definition for SOME distinct donors other than the row itself."""
+    from itertools import permutations  # noqa: PLC0415 -- the brute-force search is this test's alone
+
+    count, formula = DEFINITIONS[strategy]
+    best = np.full(len(POPULATION), 5)
+    trial = differential_mutation(
+        POPULATION, 2, strategy=strategy, sizing_factor=0.3, best=best, rng=np.random.default_rng(1), clip=False
+    )
+    for i, row in enumerate(trial):
+        others = [k for k in range(len(POPULATION)) if k != i]
+        assert any(
+            np.allclose(row, formula(POPULATION, i, 5, donors, 0.3)) for donors in permutations(others, count)
+        ), f'{strategy} row {i} matches no donor choice'
+
+
+def test_a_planted_wrong_formula_matches_no_trial():
+    """The control: the brute-force search above can fail -- rand/1 trials are not best/1 trials."""
+    from itertools import permutations  # noqa: PLC0415
+
+    trial = differential_mutation(POPULATION, 2, sizing_factor=0.3, rng=np.random.default_rng(1), clip=False)
+    _, best_formula = DEFINITIONS[DEStrategy.BEST_1]
+    misses = [
+        not any(np.allclose(row, best_formula(POPULATION, i, 5, d, 0.3)) for d in permutations(range(7), 2))
+        for i, row in enumerate(trial)
+    ]
+    assert any(misses)
+
+
+def test_a_best_strategy_without_a_best_row_is_refused():
+    with pytest.raises(Refusal, match='best'):
+        differential_mutation(POPULATION, 2, strategy=DEStrategy.BEST_1, rng=np.random.default_rng(0))
+
+
+def test_exponential_crossover_takes_one_contiguous_run_from_the_donor():
+    parent, donor = np.zeros((50, 6)), np.ones((50, 6))
+    child = exponential_crossover(parent, donor, 6, crossover_rate=0.7, rng=np.random.default_rng(2))
+    for row in child.astype(int):
+        doubled = ''.join(map(str, row)) * 2
+        assert row.sum() >= 1 and '1' * row.sum() in doubled, 'the donor genes form one cyclic run'
+
+
+def test_binomial_crossover_takes_at_least_one_donor_gene():
+    child = binomial_crossover(np.zeros((40, 3)), np.ones((40, 3)), 3, crossover_rate=0.0, rng=np.random.default_rng(0))
+    assert np.all(child.sum(axis=1) == 1)
+
+
+def test_sbx_is_symmetric_between_its_parents():
+    """SBX's two children mirror each other about the parents' midpoint, so their mean IS that midpoint.
+
+    The P8 operator returned only the child beside the LOWER parent: its mean sat below the midpoint
+    and every generation drifted toward smaller coordinates.
+    """
+    low, high = np.full((20000, 1), 0.3), np.full((20000, 1), 0.7)
+    children = simulated_binary_crossover(
+        low, high, 1, crossover_rate=1.0, eta_crossover=2.0, rng=np.random.default_rng(0)
+    )
+    assert children.mean() == pytest.approx(0.5, abs=0.005)

@@ -353,7 +353,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'September 2026 deleted public `optimi_lab` names outright, with no compat shim and no '
         'deprecation alias, and recorded which ones only in their commit messages. The scan that '
         'refuses a resurrection is small; the LIST of what was retired is the file, and it means '
-        'nothing anywhere else. RE-MEASURED 2026-10-17: own=108 repo=25 -> 23.15%, after the P8 retirements, up from own=83 repo=8 -> 9.64% on 2026-10-03, up from own=78 '
+        'nothing anywhere else. RE-MEASURED 2026-10-18: own=111 repo=28 -> 25.23%, after the P12 retirements, up from own=108 repo=25 -> 23.15% after the P8 retirements on 2026-10-17, up from own=83 repo=8 -> 9.64% on 2026-10-03, up from own=78 '
         'repo=8 -> 10.26% on 2026-09-19, itself down from own=80 repo=8 -> 10.00% on 2026-09-17. THE '
         'FIVE LINES ARE THE `SECOND_CHECKOUTS` EXCLUSION and the paragraph giving its reason: the '
         'scan read 3926 files against a floor of 50 because `.claude/worktrees/` holds one full '
@@ -709,8 +709,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until '
         'this file both were PROSE, and a `structlog` import added to one function would have left '
         'every word of the claim reading exactly as it does now. Which three distributions are '
-        "permitted is this library's decision and nobody else's. RE-MEASURED 2026-10-17: own=90 "
-        'repo=1 -> 1.11%, after P8 admitted lab_commons.outcomes, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on 2026-09-17, a `BELOW_THE_BAR` row: '
+        "permitted is this library's decision and nobody else's. RE-MEASURED 2026-10-18: own=109 "
+        'repo=1 -> 0.92%, after P12 added the R1 scipy guard, down from own=90 repo=1 -> 1.11% after P8 admitted lab_commons.outcomes on 2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on 2026-09-17, a `BELOW_THE_BAR` row: '
         'the facts are three distribution NAMES, which are strings.',
     ),
     'tests/architecture/test_the_verdict_run_takes_the_box.py': Placement(
@@ -958,7 +958,7 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'density", not "this row is wrong".'
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': (
-        'RE-MEASURED 2026-10-17: own=90 repo=1 -> 1.11%, down from own=84 repo=2 -> 2.38% on 2026-09-19, from own=86 repo=2 -> 2.33% on '
+        'RE-MEASURED 2026-10-18: own=109 repo=1 -> 0.92%, down from own=90 repo=1 -> 1.11% on 2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, from own=86 repo=2 -> 2.33% on '
         '2026-09-17, under the 3.0% bar and over the ceiling. The '
         'reading is honest: the fact this file enforces is WHICH THREE DISTRIBUTIONS are permitted, '
         "and `numpy`, `scipy` and `scikit-learn` are other people's names, so a scan for this "

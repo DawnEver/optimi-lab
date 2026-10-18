@@ -13,14 +13,23 @@ Tchebycheff comparison. With no constraint every violation is zero, which is the
 
 import numpy as np
 
-from optimi_lab.core import SampleSpec, refuse
-from optimi_lab.intelligent_algorithm.selection import decomposition_weights, nearest_neighbors, tchebycheff
-from optimi_lab.intelligent_algorithm.solvers import PopulationSolver
-from optimi_lab.intelligent_algorithm.variation import polynomial_mutation, simulated_binary_crossover
+from optimi_lab.core import refuse
+from optimi_lab.operator import (
+    decomposition_weights,
+    nearest_neighbors,
+    polynomial_mutation,
+    simulated_binary_crossover,
+    tchebycheff,
+)
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
+from optimi_lab.solver.population import PopulationSolver, build
 
-__all__ = ['DecompositionSolver']
+__all__ = ['DecompositionSolver', 'moead']
+
+_WEIGHT_FLOOR = 1e-6
+"""A zero Tchebycheff weight ignores its objective, so its subproblem's optimum is only WEAKLY Pareto;
+every weight is floored here, as Zhang and Li's implementation does."""
 
 
 class DecompositionSolver(PopulationSolver):
@@ -44,10 +53,9 @@ class DecompositionSolver(PopulationSolver):
         eta_crossover: float = 20.0,
         mutation_rate: float = 0.1,
         eta_mutation: float = 20.0,
-        spec: SampleSpec | None = None,
-        seed: int = 0,
+        **base: object,
     ) -> None:
-        super().__init__(problem, capability, spec=spec, seed=seed)
+        super().__init__(problem, capability, **base)
         if neighborhood_size is None:
             neighborhood_size = self._pop_size
         if neighborhood_size < 2:
@@ -102,7 +110,9 @@ class DecompositionSolver(PopulationSolver):
     def _admit(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray, mask: np.ndarray) -> None:
         if self._population is None:
             self._population, self._values, self._violation = inputs, values, violation
-            self._weights = decomposition_weights(values.shape[1], len(inputs), rng=self._rng)
+            self._weights = np.maximum(
+                decomposition_weights(values.shape[1], len(inputs), rng=self._rng), _WEIGHT_FLOOR
+            )
             # A neighbourhood is bounded by the subproblems that exist: the first batch can lose a
             # point, and the count it was built with is the constructor's, not this batch's.
             self._neighbors = nearest_neighbors(self._weights, min(self._neighborhood_size, len(inputs)))
@@ -130,3 +140,12 @@ class DecompositionSolver(PopulationSolver):
 
     def _propose(self) -> np.ndarray:
         return self._child(self._population, self._width, self._rng)
+
+
+def moead(problem: Problem, capability: Capability, **settings: object) -> DecompositionSolver:
+    """MOEA/D (Zhang and Li, 2007): one Tchebycheff subproblem per weight vector, two objectives or more.
+
+    ``**settings`` are :class:`DecompositionSolver`'s neighbourhood and SBX/mutation rates and the base
+    solver's ``spec``, ``initial`` and ``seed``.
+    """
+    return build(DecompositionSolver, problem, capability, 'moead', **settings)

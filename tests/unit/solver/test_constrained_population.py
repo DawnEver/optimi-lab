@@ -12,13 +12,13 @@ import pytest
 from lab_commons.outcomes import Record
 
 from optimi_lab.core import SampleSpec
-from optimi_lab.intelligent_algorithm import mode, moead, mopso, nsga2, nsga3
-from optimi_lab.intelligent_algorithm.selection import crowding_select, reference_select, tournament_select
+from optimi_lab.operator import crowding_select, reference_select, tournament_select
 from optimi_lab.oracle import Action, Capability, from_function
 from optimi_lab.problem import BlackBox, Objective, Problem, Real, Space
 from optimi_lab.run import Budget, run
+from optimi_lab.solver import mode, moead, mopso, nsga2, nsga3, spea2, unsga3
 
-ALGORITHMS = (nsga2, nsga3, mode, moead, mopso)
+ALGORITHMS = (nsga2, nsga3, unsga3, spea2, mode, moead, mopso)
 SPACE = Space(tuple(Real(f'x{index}', 0.0, 1.0) for index in range(3)))
 STRIP = (BlackBox('x0', '>=', 0.8),)
 SLACK = (BlackBox('x0', '<=', 10.0),)

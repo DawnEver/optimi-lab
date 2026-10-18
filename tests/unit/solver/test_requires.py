@@ -85,3 +85,11 @@ def test_d27_chance_structure_and_uncertainty_are_refused_with_the_reason() -> N
 def test_d27_planted_control_an_unregistered_solver_name_is_refused_naming_the_registry() -> None:
     with pytest.raises(Refusal, match='registered'):
         Requires.of('nsga9')
+
+
+def test_every_registered_solver_names_a_shipped_factory_and_back():
+    """The registry and the exported factories are one named set."""
+    import optimi_lab.solver as package  # noqa: PLC0415 -- the namespace whose exports are read
+
+    assert set(SOLVERS) <= set(package.__all__)
+    assert {'nsga2', 'spea2', 'rvea', 'sms_emoa', 'cmaes', 'nelder_mead', 'mads', 'bobyqa', 'hyperband'} <= set(SOLVERS)
