@@ -952,7 +952,7 @@ wheels = [
 [[package]]
 name = "numerics-lab"
 version = "0.1.0"
-source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git#4257a1cc517b89d847a1507ad3768a0eda668cb5" }
+source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git#e8551a5f1ae0e94b8da944b7c0c254b633e30c2e" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
