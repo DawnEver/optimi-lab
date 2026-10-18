@@ -119,7 +119,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # Every guard is called on PLANTED input: a dropped dependency's import, a silent module, a
     # second home for one name, a deferred import, an oversize module, a skip, a count pin, a
     # forked memory path, a stale frontmatter date, a resurrected spelling, each ratchet direction,
-    # a second run contending for a real box seat, a verdict held while the environment is pushed,
+    # an entry point that names the box without entering it, a verdict held while the environment is pushed,
     # a tolerance written as a bare ratio.
     'PLANTED-CONTROL': (
         _PURITY,
@@ -198,12 +198,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'SHARED-CHECKOUT': (_ORIGIN,),
     # CLOSED 2026-09-17, and the reason on record was refuted by this repo's own entry point: it
     # said there is "no runner to queue on a box lock", which answers about a RUNNER while
-    # `lab_commons.dev.verify` -- the only verdict command this repo has -- already calls
-    # `hold_the_box` and holds the box-scoped seat across ruff and pytest. So this repo was already
-    # a party to the rendezvous and had nothing that could notice the seat being dropped. The
-    # mechanism is the family's (`boxlock`/`boxwait`); what is local is the assertion that THIS
-    # repo's entry point takes it, contention planted on real locks in an isolated records
-    # directory, and the PATH half -- a job under a pool name of its own is refused anyway.
+    # `lab_commons.dev.verify` -- the only verdict command this repo has -- already took the box
+    # across its run. So this repo was already a party to the rendezvous and had nothing that could
+    # notice the box being dropped. The mechanism is the family's (`lab_commons.box`, since 96a90c8);
+    # what is local is the assertion, read off the installed source with a planted control, that
+    # THIS repo's entry point still routes its run through `verifybox.boxed`.
     'ONE-BOX-ONE-LOCK': (_BOX,),
     # CLOSED 2026-09-17. The old reason said nothing here issues a verdict another party cites;
     # `.verify/verify-*.log` carries an `env=` key computed when the run ENDS, which is exactly the
