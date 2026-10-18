@@ -156,7 +156,9 @@ class Penalty:
         for o in self.original.objectives:
             sign = -1.0 if o.sense is Sense.MAXIMIZE else 1.0
             values[o.name] += sign * excess * o.normalization.scale
-        return replace(result, cell=replace(result.cell, values=values))
+        cell = result.cell
+        penalised = Cell(cell.status, values=values, reason=cell.reason, evidence=cell.evidence, cost=cell.cost)
+        return replace(result, cell=penalised)
 
 
 def embed(space: Space) -> Space:

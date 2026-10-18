@@ -28,10 +28,11 @@ Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-v
   dispatch + `serial`.
 - D27 `solver.match` + `SOLVERS` registry with MultiObjective (B0-20); D28 layering test;
   D29 `tests/benchmarks` (ZDT1/2, DTLZ2, BNH, B0 tests; 02/03/04/05/14 strict xfail naming the item).
-- D30: retired and registered (see the retired registry): Evaluation, Outcome, core Record/optimize,
-  routing (Router, integer SCREENED), protocols (Proposer, Evaluator, Tunable/retune/steer),
-  build_proposer, SampleKind.IMPORT, root benchmarks, VariableSet/ObjectiveSet/ConstraintSet/
-  Direction, `*Proposer` classes and the `proposers` module.
+- D30: the 0.3 evaluation batch, its per-cell outcome enum, the core record and driver, routing,
+  the proposer/evaluator/tunable protocols, the pop-size factory argument, the import sample kind,
+  the root benchmark module, the set-of-declarations classes and the proposer classes are retired;
+  each spelling and its replacement is in `tests/architecture/test_a_retired_spelling_stays_retired.py`
+  (34 entries), which is the one file allowed to write them.
 
 ## Behaviour changes
 
@@ -39,7 +40,7 @@ Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-v
   guard updated; any other `lab_commons.*` import still refused).
 - Population solvers work in the unit cube and the normalised minimised frame; the first sample is
   the population; a whole generation is told in any order before the next is built; conditional
-  spaces and unembedded categoricals are refused. Settings are fixed at construction (no retune).
+  spaces and unembedded categoricals are refused. Settings are fixed at construction.
 - The run tells each batch in ASK order; completion order lives in the record. An identity asked
   twice is evaluated once; a DECIDED result is reused uncharged.
 - Sampling returns unit-cube points; the anchor is a unit-cube point.
