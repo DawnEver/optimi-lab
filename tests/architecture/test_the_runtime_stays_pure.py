@@ -59,7 +59,7 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
 #: RE-TAKEN 2026-10-17 AT 37: the P8 base (problem, oracle, archive, run, solver) read 48 shipped modules.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
 #: RE-TAKEN 2026-10-18 AT 66: the P9 + P12 merge read 72.
-SOURCE_FILE_FLOOR: Final = 66
+SOURCE_FILE_FLOOR: Final = 80
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12

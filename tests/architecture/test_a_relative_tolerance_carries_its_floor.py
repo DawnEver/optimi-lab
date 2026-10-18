@@ -65,7 +65,7 @@ BAR: Final = 'ratio'
 #: RE-TAKEN 2026-10-04 AT 60, from 40: lab-commons ec5e8c5 and the consumer-facts merge read 69.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 137.
-PYTHON_FILE_FLOOR: Final = 125
+PYTHON_FILE_FLOOR: Final = 153
 
 #: THE OTHER SIDE OF `PYTHON_FILE_FLOOR`. Today's slack is 57 - 40 = 17, inside this band.
 PYTHON_FILE_HEADROOM: Final = 25

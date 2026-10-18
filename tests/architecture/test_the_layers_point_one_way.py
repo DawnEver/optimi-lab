@@ -43,7 +43,7 @@ EXEMPT: Final = frozenset({'__init__', '__version__'})
 
 #: Shipped modules the walk must reach; re-measured 2026-10-17 at 43 with headroom 12.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
-MODULE_FLOOR: Final = 55
+MODULE_FLOOR: Final = 80
 MODULE_HEADROOM: Final = 20
 
 

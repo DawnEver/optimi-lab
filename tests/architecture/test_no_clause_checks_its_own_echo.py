@@ -58,7 +58,7 @@ EXEMPT: Final = ()
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 562.
 #: RE-TAKEN 2026-10-18 AT 620: the P9 + P12 merge read 651.
-FUNCTION_FLOOR: Final = 620
+FUNCTION_FLOOR: Final = 697
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65

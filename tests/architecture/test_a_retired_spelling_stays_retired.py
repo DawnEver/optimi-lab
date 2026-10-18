@@ -128,7 +128,7 @@ REGISTRY_HEADROOM: Final = 5
 #: RE-TAKEN 2026-10-04 AT 70, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 77.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan reached 145 files.
 #: RE-TAKEN 2026-10-18 AT 150: the P9 + P12 merge read 164.
-SCANNED_FILE_FLOOR: Final = 150
+SCANNED_FILE_FLOOR: Final = 179
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
 SCANNED_FILE_HEADROOM: Final = 25

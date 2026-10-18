@@ -1,9 +1,9 @@
 """D29 -- the B0 counterexamples the plan names for the base: each states the wrong belief it refutes.
 
 P8's gate is B0-06, B0-12 and B0-18: they pass here. B0-08, B0-11, B0-16 and B0-20 are answered by
-the base as well, and P12 answers B0-02. B0-03, B0-04, B0-05 and B0-14 need machinery from later phases and are
-``xfail(strict=True)`` naming the item that answers them -- when it lands, the test turns red and is
-promoted, never skipped.
+the base as well, P12 answers B0-02 and P13 answers B0-03 and B0-14. B0-04 and B0-05 need machinery
+from later phases and are ``xfail(strict=True)`` naming the item that answers them -- when it lands,
+the test turns red and is promoted, never skipped.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from catalogue import RandomSearch
 from lab_commons.outcomes import Cell, Cost, Evidence, Reason, Record, Status
 
 from optimi_lab.archive import Archive
-from optimi_lab.operator import tchebycheff, weighted_sum
+from optimi_lab.operator import cvar, joint_probability, tchebycheff, weighted_sum
 from optimi_lab.oracle import Action, Capability, Result, from_function
 from optimi_lab.problem import Categorical, Fidelity, Level, Linear, Objective, Problem, Real, Space
 from optimi_lab.problem import Path as PathConstraint
@@ -137,11 +137,21 @@ def test_b0_02_a_weighted_sum_cannot_reach_the_middle_of_a_concave_front() -> No
     assert tchebycheff.reach == 'whole_front'
 
 
-@pytest.mark.xfail(strict=True, reason='B0-03: needs D117 estimators for joint chance constraints (P13)')
-def test_b0_03_two_95_percent_chances_are_a_90_25_percent_joint_chance() -> None:
-    from optimi_lab.operator import joint_probability  # noqa: PLC0415
+def test_b0_03_two_95_percent_chances_are_a_90_25_percent_joint_chance_only_when_independent() -> None:
+    """Promoted by P13 (D117): the joint chance is ESTIMATED from the joint samples, never assumed.
 
-    assert joint_probability((0.95, 0.95)) == pytest.approx(0.9025)
+    Two independent 95 % events hold together 90.25 % of the time; the same two events made
+    comonotone hold together 95 %. A product of marginals is right for the first and wrong for the
+    second, which is why the estimator reads the sample matrix rather than the marginals.
+    """
+    rng = np.random.default_rng(3)
+    z = rng.standard_normal((200_000, 2))
+    bound = 1.6448536269514722  # the standard normal 95 % quantile
+    independent = joint_probability(z <= bound)
+    comonotone = joint_probability(np.column_stack([z[:, 0], z[:, 0]]) <= bound)
+    assert abs(independent.value - 0.9025) <= 4 * independent.std_error
+    assert abs(comonotone.value - 0.95) <= 4 * comonotone.std_error
+    assert abs(comonotone.value - 0.9025) > 20 * comonotone.std_error  # the product belief, refuted
 
 
 @pytest.mark.xfail(strict=True, reason='B0-04: needs D138 path quantifier with interpolation (P15)')
@@ -158,8 +168,6 @@ def test_b0_05_simultaneous_is_not_bilevel() -> None:
     assert Bilevel
 
 
-@pytest.mark.xfail(strict=True, reason='B0-14: needs D116 CVaR risk operator (P13)')
 def test_b0_14_cvar_of_a_discrete_tail_is_the_tail_value() -> None:
-    from optimi_lab.operator import cvar  # noqa: PLC0415
-
+    """Promoted by P13 (D116): the 10 % atom IS the 10 % tail; averaging 'the values at or above VaR' gives 5."""
     assert cvar(np.array([0.0, 10.0]), np.array([0.9, 0.1]), alpha=0.9) == 10.0

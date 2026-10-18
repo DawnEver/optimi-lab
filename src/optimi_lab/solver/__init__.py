@@ -56,6 +56,7 @@ from optimi_lab.solver.requires import (
 from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
 from optimi_lab.solver.smooth import Evaluate, Halt, SmoothView, Solution, Unevaluable
+from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
 from optimi_lab.solver.swarm import SwarmSolver, mopso
 from optimi_lab.solver.trust_region import TrustRegion, bobyqa
 
@@ -82,6 +83,7 @@ __all__ = [
     'PopulationSolver',
     'ReferenceVectorSolver',
     'Requires',
+    'SampleAverage',
     'Scalarise',
     'SequentialSolver',
     'SmoothView',
@@ -120,6 +122,8 @@ __all__ = [
     'restarts',
     'rnsga3',
     'rvea',
+    'saa',
+    'sample_average',
     'sbx_polynomial',
     'scalarisation_scan',
     'sms_emoa',

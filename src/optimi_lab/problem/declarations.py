@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 import numpy as np
+from scipy.special import ndtr, ndtri
 
 from optimi_lab.core.errors import refuse, require_declared_names
 
@@ -69,6 +70,14 @@ class Normal:
     def draw(self, n: int, rng: np.random.Generator) -> np.ndarray:
         return rng.normal(self.mean, self.std, n)
 
+    def quantile(self, u: np.ndarray) -> np.ndarray:
+        """The inverse CDF at unit-cube coordinates *u*."""
+        return self.mean + self.std * ndtri(u)
+
+    def from_standard(self, z: np.ndarray) -> np.ndarray:
+        """The value at standard-normal coordinates *z* (the iso-probabilistic map)."""
+        return self.mean + self.std * np.asarray(z, dtype=float)
+
 
 @dataclass(frozen=True, slots=True)
 class Uniform:
@@ -85,6 +94,14 @@ class Uniform:
 
     def draw(self, n: int, rng: np.random.Generator) -> np.ndarray:
         return rng.uniform(self.lo, self.hi, n)
+
+    def quantile(self, u: np.ndarray) -> np.ndarray:
+        """The inverse CDF at unit-cube coordinates *u*."""
+        return self.lo + (self.hi - self.lo) * np.asarray(u, dtype=float)
+
+    def from_standard(self, z: np.ndarray) -> np.ndarray:
+        """The value at standard-normal coordinates *z* (the iso-probabilistic map)."""
+        return self.quantile(ndtr(z))
 
 
 @dataclass(frozen=True, slots=True)
@@ -110,6 +127,27 @@ class Uncertainty(_UncertaintyFields):
         if not isinstance(rng, np.random.Generator):
             refuse(f'sampling needs an explicit numpy Generator, got {type(rng).__name__}; global state is not a seed')
         return {p.name: p.draw(n, rng) for p in self.parameters}
+
+    def at_unit(self, u: np.ndarray) -> dict[str, np.ndarray]:
+        """Rows of unit-cube points ``(n, len(parameters))`` mapped through each inverse CDF."""
+        u = self._columns(u)
+        if np.any((u < 0.0) | (u > 1.0)):
+            refuse('unit-cube points must lie in [0, 1]')
+        return {p.name: p.quantile(u[:, i]) for i, p in enumerate(self.parameters)}
+
+    def at_standard(self, z: np.ndarray) -> dict[str, np.ndarray]:
+        """Rows of standard-normal points ``(n, len(parameters))`` mapped to parameter values.
+
+        The parameters are independent, so this is the Rosenblatt (and Nataf) transform exactly.
+        """
+        z = self._columns(z)
+        return {p.name: p.from_standard(z[:, i]) for i, p in enumerate(self.parameters)}
+
+    def _columns(self, points: np.ndarray) -> np.ndarray:
+        points = np.atleast_2d(np.asarray(points, dtype=float))
+        if points.ndim != 2 or points.shape[1] != len(self.parameters):
+            refuse(f'points need {len(self.parameters)} columns, one per parameter {self.names}, got {points.shape}')
+        return points
 
 
 @dataclass(frozen=True, slots=True)
