@@ -1,12 +1,10 @@
 """P12 gate -- every Pareto population solver reaches its benchmark's TRUE front within a stated IGD.
 
-THE ORACLE. The plan names pymoo's reference fronts at equal seeds and budget. pymoo is not
-installable into this checkout's environment (the dependency door, ``scripts/dep.py``, needs the
-lab-commons ``boxlock`` this kit predates), so the reference here is the closed-form Pareto front of
-each benchmark (``catalogue.py``), which is what pymoo's reference fronts are themselves sampled
-from. The tolerance is an IGD in the benchmark's own objective units (ZDT1 and DTLZ2 are
+THE ORACLE. The reference is the closed-form Pareto front of each benchmark (``catalogue.py``);
+the equal-seed comparison against pymoo's implementation of each method is
+``test_pymoo_oracle.py``. The tolerance is an IGD in the benchmark's own objective units (ZDT1 and DTLZ2 are
 dimensionless), on the MEDIAN of three seeds at a fixed budget, read off the run's whole evaluated
-set; each value below is the measured median rounded up with headroom, re-measured 2026-10-18.
+set; each value below is the measured median rounded up with headroom, re-measured 2026-10-18 (MOEA/D after its replacement fix).
 
 The solvers are driven in memory (``catalogue.drive``): the run layer's record costs two fsyncs per
 evaluation, and this gate measures the algorithms. The run path has its own tests.
@@ -25,11 +23,11 @@ SEEDS = (1, 2, 3)
 #: (benchmark, population, evaluations) -> {solver: IGD ceiling, objective units}.
 GATE = {
     ('zdt1', 40, 2400): {
-        'nsga2': 0.02, 'nsga3': 0.02, 'unsga3': 0.02, 'spea2': 0.02, 'mode': 0.005, 'moead': 0.05,
+        'nsga2': 0.02, 'nsga3': 0.02, 'unsga3': 0.02, 'spea2': 0.02, 'mode': 0.005, 'moead': 0.01,
         'mopso': 0.01, 'rvea': 0.03, 'sms_emoa': 0.01,
     },
     ('dtlz2', 60, 3600): {
-        'nsga2': 0.035, 'nsga3': 0.035, 'unsga3': 0.035, 'spea2': 0.035, 'mode': 0.035, 'moead': 0.2,
+        'nsga2': 0.035, 'nsga3': 0.035, 'unsga3': 0.035, 'spea2': 0.035, 'mode': 0.035, 'moead': 0.035,
         'mopso': 0.08, 'rvea': 0.035,
     },
 }  # fmt: skip

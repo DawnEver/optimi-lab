@@ -40,6 +40,9 @@ dev = [
     "pytest-xdist",
     # Reference oracles for the self-implemented surrogates (plan R1): tests only, never runtime.
     "scikit-learn",
+    # pymoo is a TEST ORACLE only (ruling R1): tests/benchmarks compare every population method
+    # against its implementation; the runtime never imports it.
+    "pymoo",
     "coverage[toml]",
 
     'pdoc',

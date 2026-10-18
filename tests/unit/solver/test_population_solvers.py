@@ -103,3 +103,22 @@ def test_a_setting_the_algorithm_does_not_take_is_refused_with_the_valid_set():
 
     assert 'crossover_rat' in str(refusal.value)
     assert 'crossover_rate' in str(refusal.value)
+
+
+def test_a_moead_child_is_scored_under_each_neighbours_own_weight():
+    """A child displaces neighbour j when it beats j's incumbent on j's OWN Tchebycheff weight.
+
+    The child (0, 1) is proposed for subproblem 2 (weight 0.1/0.9), where it loses; under subproblem
+    0's weight (0.9/0.1) it scores 0.1 against the incumbent's 0.45 and must take that slot. Scored
+    once, under the proposer's weight, it would win nowhere -- the MOEA/D-on-DTLZ2 stall P12 left open.
+    """
+    problem = Problem(Space((Real('x', 0.0, 1.0),)), TWO)
+    solver = moead(problem, Capability(outputs=('f', 'g')), spec=SampleSpec(n_samples=3, seed=1), seed=1)
+    solver._weights = np.array([[0.9, 0.1], [0.5, 0.5], [0.1, 0.9]])
+    solver._neighbors = np.array([[0, 1, 2], [1, 0, 2], [2, 1, 0]])
+    solver._ideal = np.zeros(2)
+    solver._population = np.array([[0.5], [0.5], [0.5]])
+    solver._values = np.full((3, 2), 0.5)
+    solver._violation = np.zeros(3)
+    solver._replace(np.array([[0.0]]), np.array([[0.0, 1.0]]), np.zeros(1), np.array([2]))
+    assert solver._values.tolist() == [[0.0, 1.0], [0.5, 0.5], [0.5, 0.5]]
