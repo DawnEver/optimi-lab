@@ -166,4 +166,8 @@ SOLVERS: Final[dict[str, Requires]] = {
     'prescreened': _PARETO,
     'model_trust_region': _SINGLE,
     'lp': _LINEAR,
+    'milp': _LINEAR,
+    'qp': Requires(
+        MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.QUADRATIC, Form.CONVEX})
+    ),
 }

@@ -20,8 +20,9 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   fantasies (:mod:`optimi_lab.solver.model_based`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
   :func:`turbo` (TuRBO-1), :func:`prescreened` (surrogate-prescreened NSGA-II/GA),
   :func:`model_trust_region` (trust-region model management);
-* structured (P14) -- :func:`lp` (revised simplex, Mehrotra interior point) over a
-  :class:`LinearProgram`, reporting a :class:`StructuredSolution`;
+* structured (P14) -- :func:`lp` (revised simplex, Mehrotra interior point), :func:`qp` (a route
+  onto P9's QPs), :func:`milp` (branch and bound with Gomory cuts) over a :class:`LinearProgram`,
+  each reporting a :class:`StructuredSolution`;
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -31,6 +32,7 @@ Operators live one layer down, in :mod:`optimi_lab.operator`.
 
 from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
+from optimi_lab.solver.branch_and_bound import milp
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
 from optimi_lab.solver.decomposition import DecompositionSolver, moead
@@ -62,6 +64,7 @@ from optimi_lab.solver.pareto_bo import HypervolumeImprovement, ParEGO, ehvi, ne
 from optimi_lab.solver.population import EvolutionarySolver, PopulationSolver, Scalarise
 from optimi_lab.solver.prescreened import Prescreened, prescreened
 from optimi_lab.solver.protocol import Solver
+from optimi_lab.solver.quadratic import qp
 from optimi_lab.solver.requires import (
     SOLVERS,
     Eligible,
@@ -148,6 +151,7 @@ __all__ = [
     'maximise',
     'mfbo',
     'mgda',
+    'milp',
     'mma',
     'mode',
     'model_trust_region',
@@ -163,6 +167,7 @@ __all__ = [
     'pareto_continuation',
     'prescreened',
     'projected_gradient',
+    'qp',
     'restarts',
     'rnsga3',
     'rvea',
