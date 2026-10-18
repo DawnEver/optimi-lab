@@ -121,9 +121,24 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
     return NeedsTransform(tuple(transforms), per_action) if transforms else Eligible()
 
 
+_SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
+_SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
+
 #: Every solver this package ships, by name. The population solvers rank by Deb's rule, so they take
-#: black-box constraints natively; MOEA/D decomposes by Tchebycheff weights.
+#: black-box constraints natively; MOEA/D decomposes by Tchebycheff weights. The gradient methods
+#: (``optimi_lab.solver.gradient.METHODS``) need slopes; the box methods take no other constraint,
+#: the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
+    'projected_gradient': Requires(MultiObjective.SINGLE, information=_SLOPES),
+    'lbfgsb': Requires(MultiObjective.SINGLE, information=_SLOPES),
+    'newton_cg': Requires(MultiObjective.SINGLE, information=_SLOPES),
+    'sqp': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'interior_point': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'augmented_lagrangian': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'mma': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'gcmma': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
+    'mgda': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES),
+    'pareto_continuation': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES, constraints=_SMOOTH),
     'nsga2': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
     'nsga3': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
     'mode': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),

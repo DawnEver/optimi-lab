@@ -1,4 +1,4 @@
-"""The RUNTIME of `optimi_lab` is numpy, scipy, scikit-learn and `lab_commons.outcomes` -- checked, not claimed.
+"""The RUNTIME of `optimi_lab` is numpy, scipy, scikit-learn, numerics-lab and `lab_commons.outcomes` -- checked.
 
 PLAN II.1 (2026-10-17) moved lab-commons into the base install for ONE module: `lab_commons.outcomes`,
 the standard-library-only task-outcome vocabulary every engine shares. Any other lab-commons module
@@ -20,6 +20,10 @@ prove nothing about the guard that ships.
 structlog, pint and pydantic; `foreign_roots` admits `lab_commons.outcomes` and names any other
 `lab_commons.*` import, and `test_lab_commons_floats_and_the_dev_kit_stays_in_dev` keeps the dev kit
 (`lab-commons[dev]`) in the dev extra.
+
+NUMERICS-LAB IS THE FIFTH ENTRY, by decision (plan R4, P9): equation solving is one engine and this
+library keeps no numeric kernel of its own (`test_equation_solving_is_numerics_labs.py`). It floats
+like lab-commons -- a bare repository URL, never a ref (`test_every_engine_floats`).
 """
 
 from __future__ import annotations
@@ -36,17 +40,25 @@ from lab_commons.dev import floors
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
 
-#: The whole runtime dependency set. A fourth entry is a decision taken in this file, by name.
-RUNTIME: Final = frozenset({'numpy', 'scipy', 'scikit-learn', 'lab-commons'})
+#: The whole runtime dependency set. A sixth entry is a decision taken in this file, by name.
+RUNTIME: Final = frozenset({'numpy', 'scipy', 'scikit-learn', 'lab-commons', 'numerics-lab'})
 
 #: The import roots those distributions provide, plus the package itself. `sklearn` is
 #: `scikit-learn`'s import name and the two spellings are not derivable from one another.
-RUNTIME_IMPORT_ROOTS: Final = frozenset({'numpy', 'scipy', 'sklearn', 'optimi_lab', 'lab_commons.outcomes'})
+RUNTIME_IMPORT_ROOTS: Final = frozenset({
+    'numpy',
+    'scipy',
+    'sklearn',
+    'optimi_lab',
+    'lab_commons.outcomes',
+    'numerics_lab',
+})
 
 #: A floor on the scan. Finding no foreign import across three files is not a pure package, it is a
 #: walk that stopped reaching one.
 #: RE-TAKEN 2026-10-17 AT 37: the P8 base (problem, oracle, archive, run, solver) read 48 shipped modules.
-SOURCE_FILE_FLOOR: Final = 37
+#: RE-TAKEN 2026-10-18 AT 45: the P9 gradient methods (operator, solver, tests) read 53.
+SOURCE_FILE_FLOOR: Final = 45
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12
@@ -127,6 +139,21 @@ def test_lab_commons_floats_and_the_dev_kit_stays_in_dev() -> None:
         assert '@' not in tail, (
             f'{line!r} pins lab-commons to a ref. A pin is a ceiling nobody re-argued: libraries float (R8).'
         )
+
+
+#: The engines this library depends on by repository; each floats (R8).
+ENGINES: Final = ('lab-commons', 'numerics-lab')
+
+
+@pytest.mark.parametrize('engine', ENGINES)
+def test_every_engine_floats(engine: str) -> None:
+    """An engine is a bare repository URL in the runtime: a ref would be a ceiling nobody re-argued (R8)."""
+    runtime, _ = _requirements()
+    lines = [line for line in runtime if _distribution(line) == engine]
+    assert lines, f'{engine} is not a runtime dependency; ENGINES names it, so either it is or the name goes.'
+    for line in lines:
+        assert 'git+https' in line, f'{line!r} does not resolve {engine} from its repository.'
+        assert '@' not in line.split('git+https', 1)[1], f'{line!r} pins {engine} to a ref; libraries float (R8).'
 
 
 def test_no_runtime_requirement_carries_an_upper_bound() -> None:

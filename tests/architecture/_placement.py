@@ -259,8 +259,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-17 after the P8 layering row: own=548 '
-        'project=44 -> 8.58%, up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale rows, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on 2026-10-04, itself up from own=517 project=44 -> 8.51% after a2f50b9, itself down from own=518 project=44 -> 8.49% after 9ce57c3 the day before, up from own=505 project=44 -> 8.71% earlier that day, up from own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
+        'family half in it to split off. RE-MEASURED 2026-10-18 after the P9 numerics-lab row: own=553 '
+        'project=44 -> 8.68%, up from own=548 project=44 -> 8.58% on 2026-10-17 (P8), up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale rows, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on 2026-10-04, itself up from own=517 project=44 -> 8.51% after a2f50b9, itself down from own=518 project=44 -> 8.49% after 9ce57c3 the day before, up from own=505 project=44 -> 8.71% earlier that day, up from own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
         'that day, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
         'project=42 -> 8.81% at the 2026-09-19 re-take, itself up from own=402 project=30 -> 7.46% at the '
         '2026-09-18 adoption. THIS RE-TAKE IS THE TABLE MEASURING ITSELF, which is why it is worth the '
@@ -695,6 +695,12 @@ PLACEMENT: Final[dict[str, Placement]] = {
         're-reads is the other, and no mechanism here catches it. That gap is named in the row for '
         '`test_a_pin_is_a_named_set.py`, not closed by this one.',
     ),
+    'tests/architecture/test_equation_solving_is_numerics_labs.py': Placement(
+        STAYS,
+        "THE BOUNDARY IT CHECKS IS THIS PACKAGE'S OWN (plan R4/R1, P9): which numeric kernels optimi_lab "
+        'may not define because numerics-lab owns them, and which scipy submodules its runtime may touch, '
+        'with the named scipy.stats debt and the items that retire it. No other repo has that boundary.',
+    ),
     'tests/architecture/test_the_layers_point_one_way.py': Placement(
         STAYS,
         "THE LAYER TABLE IS THIS PACKAGE'S ARCHITECTURE (plan II.7, D28): which of `optimi_lab`'s own "
@@ -709,8 +715,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until '
         'this file both were PROSE, and a `structlog` import added to one function would have left '
         'every word of the claim reading exactly as it does now. Which three distributions are '
-        "permitted is this library's decision and nobody else's. RE-MEASURED 2026-10-17: own=90 "
-        'repo=1 -> 1.11%, after P8 admitted lab_commons.outcomes, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on 2026-09-17, a `BELOW_THE_BAR` row: '
+        "permitted is this library's decision and nobody else's. RE-MEASURED 2026-10-18: own=106 "
+        'repo=2 -> 1.89%, after P9 admitted numerics-lab, up from own=90 repo=1 -> 1.11% on 2026-10-17 (P8), down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on 2026-09-17, a `BELOW_THE_BAR` row: '
         'the facts are three distribution NAMES, which are strings.',
     ),
     'tests/architecture/test_the_verdict_run_takes_the_box.py': Placement(
@@ -888,7 +894,7 @@ MINIMUM_REFUSES: Final = 0.65
 #:
 #: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. ONE reads 0.00% -- re-measured 2026-09-19,
 #: down from four as the adopting rows left -- which is the same reading a
-#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (1.11%),
+#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (1.89%),
 #: `test_the_public_surface_is_declared.py` (0.62%) and `_famconfig.py` (1.23%) sit under the bar
 #: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
@@ -958,7 +964,7 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'density", not "this row is wrong".'
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': (
-        'RE-MEASURED 2026-10-17: own=90 repo=1 -> 1.11%, down from own=84 repo=2 -> 2.38% on 2026-09-19, from own=86 repo=2 -> 2.33% on '
+        'RE-MEASURED 2026-10-18: own=106 repo=2 -> 1.89%, up from own=90 repo=1 -> 1.11% on 2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, from own=86 repo=2 -> 2.33% on '
         '2026-09-17, under the 3.0% bar and over the ceiling. The '
         'reading is honest: the fact this file enforces is WHICH THREE DISTRIBUTIONS are permitted, '
         "and `numpy`, `scipy` and `scikit-learn` are other people's names, so a scan for this "

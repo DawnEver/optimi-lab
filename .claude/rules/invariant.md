@@ -3,11 +3,11 @@
 `optimi_lab` is a generic multi-objective optimization library. Everything below is a property a
 reader could violate in one commit, and each names the mechanism that refuses it.
 
-- **The RUNTIME is numpy, scipy, scikit-learn and `lab_commons.outcomes`, and nothing else.**
-  `[project.dependencies]` is that list; another entry is a decision, not a convenience. No logging,
-  unit, validation, plotting, path or config library -- callers own those choices, and one of them
-  (motronics) would inherit ours. Refused by `tests/architecture/test_the_runtime_stays_pure.py`,
-  which reads `pyproject.toml` and the import graph rather than trusting a docstring.
+- **The RUNTIME is numpy, scipy, scikit-learn, numerics-lab and `lab_commons.outcomes`, nothing else**
+  (`test_the_runtime_stays_pure.py`); no logging/unit/plotting/config library -- motronics inherits
+  ours. Equation solving is numerics-lab's (R4): no line search, trust region, quasi-Newton, Krylov,
+  factorisation or KKT solve of our own; scipy only `linalg`/`sparse`/`special` + the named stats
+  debt, `scipy.optimize` in tests only (`test_equation_solving_is_numerics_labs.py`).
 - **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one
   task-outcome vocabulary for every engine). The base install takes it without extras; the dev kit
   (`lab-commons[dev]`) stays in the `dev` extra. Both are bare `git+https` URLs, never pinned (R8):

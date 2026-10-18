@@ -56,7 +56,8 @@ EXEMPT: Final = ()
 #: and core/constraints.py) read 378; the floor sits half a headroom below it.
 #: RE-TAKEN 2026-10-16 AT 383, from 346: the analysis branch read 415; half a headroom below it.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
-FUNCTION_FLOOR: Final = 427
+#: RE-TAKEN 2026-10-18 AT 500: the P9 gradient methods (operator, solver, tests) read 547.
+FUNCTION_FLOOR: Final = 500
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65

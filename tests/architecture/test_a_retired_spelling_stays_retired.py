@@ -121,7 +121,8 @@ REGISTRY_HEADROOM: Final = 5
 #: would have passed a walk reaching two fifths of the tree; re-measured rather than absorbed by a
 #: wider headroom.
 #: RE-TAKEN 2026-10-04 AT 70, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 77.
-SCANNED_FILE_FLOOR: Final = 95
+#: RE-TAKEN 2026-10-18 AT 120: the P9 gradient methods (operator, solver, tests) read 135.
+SCANNED_FILE_FLOOR: Final = 120
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
 SCANNED_FILE_HEADROOM: Final = 25
