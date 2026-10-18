@@ -206,8 +206,10 @@ def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
 
 #: R1 (plan PLAN-engines-and-one-outcome-vocabulary, 2026-10-17): the runtime takes from scipy only
 #: these submodules; every optimisation, sampling and statistics ALGORITHM is self-implemented, and
-#: scipy.optimize / scipy.stats appear only in tests, as reference oracles.
-R1_SCIPY: Final = frozenset({'scipy.linalg', 'scipy.sparse', 'scipy.sparse.linalg', 'scipy.special'})
+#: scipy.optimize / scipy.stats appear only in tests, as reference oracles. scipy.linalg and
+#: scipy.sparse.linalg LEFT the set 2026-10-18 (R4): every linear solve -- least squares, triangular,
+#: Cholesky, KKT -- and its failure type are numerics-lab's (``numerics_lab.linear``).
+R1_SCIPY: Final = frozenset({'scipy.sparse', 'scipy.special'})
 
 
 def scipy_beyond_r1(module: ast.Module) -> frozenset[str]:
@@ -228,9 +230,15 @@ def test_the_runtime_takes_only_the_r1_scipy_submodules() -> None:
         p.relative_to(_ROOT).as_posix(): sorted(scipy_beyond_r1(ast.parse(p.read_text(encoding='utf-8'))))
         for p in files
     }
-    assert not {k: v for k, v in found.items() if v}
+    offenders = {k: v for k, v in found.items() if v}
+    assert not offenders, (
+        f'{offenders} import scipy beyond R1 {sorted(R1_SCIPY)}; a linear solve is numerics_lab.linear.'
+    )
 
 
 def test_the_r1_guard_names_a_planted_scipy_algorithm() -> None:
-    planted = ast.parse('from scipy.stats import qmc\nimport scipy.optimize\nfrom scipy.special import ndtr\n')
-    assert scipy_beyond_r1(planted) == {'scipy.stats', 'scipy.optimize'}
+    planted = ast.parse(
+        'from scipy.stats import qmc\nimport scipy.optimize\nfrom scipy.special import ndtr\n'
+        'from scipy.linalg import lstsq\nimport scipy.sparse as sp\n'
+    )
+    assert scipy_beyond_r1(planted) == {'scipy.stats', 'scipy.optimize', 'scipy.linalg'}

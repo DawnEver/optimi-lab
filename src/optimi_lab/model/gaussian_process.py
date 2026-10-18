@@ -27,7 +27,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.linalg import solve_triangular
+from numerics_lab.linear.dense import solve_triangular
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.model.kernel import correlation, input_slopes, length_slopes, require_family
@@ -227,7 +227,9 @@ class FittedGaussianProcess:
         """Each training point predicted from the others (Dubrule): mean, and the held-out observation's variance."""
         means, variances = [], []
         for c in self.columns:
-            inverse = solve_triangular(c.lower.T, solve_triangular(c.lower, np.eye(len(self.x)), lower=True))
+            inverse = solve_triangular(
+                c.lower.T, solve_triangular(c.lower, np.eye(len(self.x)), lower=True), lower=False
+            )
             diagonal = np.diag(inverse)
             means.append(c.level + c.scale * (c.values - c.alpha / diagonal))
             variances.append(c.scale**2 / diagonal)

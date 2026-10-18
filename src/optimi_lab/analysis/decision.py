@@ -12,6 +12,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
+from numerics_lab.linear.dense import least_squares
 
 from optimi_lab.core.errors import refuse, require_finite
 from optimi_lab.core.pareto import non_dominated_sorting
@@ -87,7 +88,7 @@ def power_law_fit(inputs: np.ndarray, outputs: np.ndarray) -> PowerLaw | None:
         return None
     design = np.column_stack([np.ones(len(outputs)), np.log(inputs)])
     log_out = np.log(outputs)
-    coef, *_ = np.linalg.lstsq(design, log_out, rcond=None)
+    coef = least_squares(design, log_out)
     residual = float(((log_out - design @ coef) ** 2).sum())
     spread = float(((log_out - log_out.mean()) ** 2).sum())
     r2 = 1.0 - residual / spread if spread > 0 else 1.0

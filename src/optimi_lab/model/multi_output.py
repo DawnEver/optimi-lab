@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.linalg import solve_triangular
+from numerics_lab.linear.dense import solve_triangular
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.model.kernel import correlation, input_slopes, length_slopes, require_family
