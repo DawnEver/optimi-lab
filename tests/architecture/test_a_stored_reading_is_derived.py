@@ -55,7 +55,8 @@ SPELLINGS: Final = frozenset({'own', 'hits', storedreadings.PERCENT})
 #: checkout applies at every floor re-take. Below this the reader lost most of its corpus, and a
 #: reader that read nothing reports exactly what a fixed roster reports.
 #: RE-TAKEN 2026-10-04 AT 65, from 51: lab-commons ec5e8c5 and its five placement rows read 77.
-LIVE_CLAIM_FLOOR: Final = 65
+#: RE-TAKEN 2026-10-18 AT 74, from 65: the rows re-measured against lab-commons 96a90c8 read 87.
+LIVE_CLAIM_FLOOR: Final = 74
 
 #: THE OTHER SIDE. 51 + 20 = 71 against today's 64. The remedy for a breach is to RE-MEASURE THE
 #: FLOOR: the claim population grows every time a row records a re-measurement, which is the growth

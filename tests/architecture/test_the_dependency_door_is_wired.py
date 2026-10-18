@@ -27,8 +27,8 @@ a fact about this checkout and about `lab_commons.dev.verify.LOG_DIRECTORY` toge
 the kit's arms answers for one half only.
 
 THE MUTATE-DRIVING ARMS NEED A PRIVATE SEAT RECORDS ROOT, and the kit's own suite is where this
-file learned it. `lab_commons.dev.boxwait.hold_run_seats` takes `EnvironmentSeat(sys.prefix)` for
-the WHOLE of a verdict run, and `lab_commons.dev.dep._change` takes the same seat for a mutation --
+file learned it. A verdict run takes `EnvironmentSeat(sys.prefix)` on the box ledger for
+the WHOLE of its run, and `lab_commons.dev.dep._change` takes the same seat for a mutation --
 so a dry run inside a verdict is refused before it can report, which is what MEASURED 2026-10-07 as
 four reds in this file. Pointing
 `lab_commons.box.BOX_ENV` -- the one box ledger file, relocated FOR TESTS, and the

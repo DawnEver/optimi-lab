@@ -146,7 +146,7 @@ def test_no_row_whose_subject_the_kit_already_holds_is_still_declared_moves() ->
 #: EXAMPLE of the calibration comment it deliberately does NOT read (`ADMIT scripts/dep.py own= 22
 #: repo=1`). So the PROVENANCE detector fires on a sentence whose whole content is that the module
 #: has nothing to do with that file, and the IMPORT detector correctly does not: `scripts/dep.py`
-#: imports `lab_commons.dev.dep`, `boxlock` and `verify`, and importing `storedreadings` there would
+#: imports `lab_commons.dev.dep` and `verify` (and, in 2026-09, the box lock), and importing `storedreadings` there would
 #: be wrong. This is a FALSE POSITIVE INSIDE THE INSTRUMENT, the same class as the six of 2026-09-18
 #: and a different cause, and the remedy is upstream: this family's own integration page already
 #: rules that naming the SHAPE of a thing beats naming an EXAMPLE of it, because an example is a
