@@ -10,8 +10,8 @@ starting gradient, floored by ``atol``). Constraints other than the box are refu
   generalised Cauchy point along the projected path (:func:`~optimi_lab.operator.cauchy_point`),
   subspace minimisation over the variables it leaves free (conjugate gradients, truncated to the
   box -- the direct primal method), then a strong-Wolfe search capped at the box with Armijo as the
-  fallback. numerics-lab publishes no compact L-BFGS matrix, so the model is ``theta I`` carried
-  through the stored pairs by its dense ``bfgs_update`` -- the same matrix, assembled densely.
+  fallback. The model is numerics-lab's :class:`~numerics_lab.quasi_newton.LbfgsMemory` in its
+  compact direct form ``theta I - W M W^T``.
 * :func:`newton_cg` -- a trust-region Newton method: Steihaug-CG on the free variables' Hessian.
   The Hessian-vector product is the caller's ``hvp(x, v)`` -- an oracle's declared product -- or,
   ONLY when asked for by name, ``hvp="finite_difference"``: a forward difference of gradients, one
@@ -27,7 +27,7 @@ from collections.abc import Callable
 import numpy as np
 from numerics_lab.line_search import WolfeSearchFailed, armijo, backtracking, strong_wolfe
 from numerics_lab.linear.krylov import conjugate_gradient, steihaug_cg
-from numerics_lab.quasi_newton import bfgs_update, secant_pair
+from numerics_lab.quasi_newton import LbfgsMemory
 from numerics_lab.trust_region import agreement, update_radius
 
 from optimi_lab.core.errors import refuse
@@ -124,15 +124,12 @@ def lbfgsb(
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     point = _start(evaluate, x0, lo, hi)
     bar = kkt_bar(point.gradient, rtol=rtol, atol=atol)
-    pairs: list = []
+    secants = LbfgsMemory(memory)
     n = point.x.size
     for iteration in range(max_iterations):
         if _gap(point, lo, hi) <= bar:
             return _halt(point, (lo, hi), iteration, Halt.CONVERGED)
-        theta = float(pairs[-1].y @ pairs[-1].y) * pairs[-1].rho if pairs else 1.0
-        model = theta * np.eye(n)
-        for pair in pairs:
-            model = bfgs_update(model, pair.s, pair.y)
+        model = secants.hessian() if secants.pairs else np.eye(n)
         z = cauchy_point(point.x, point.gradient, model, lo, hi)
         d = _subspace_step(point, model, z, lo, hi)
         slope = float(point.gradient @ d)
@@ -151,16 +148,14 @@ def lbfgsb(
 
         try:
             accepted = along(strong_wolfe(phi_and_slope, point.objective, slope, step=1.0, max_step=1.0).step)
-        except (WolfeSearchFailed, ZeroDivisionError):  # numerics-lab zoom divides by a collapsed bracket
+        except WolfeSearchFailed:
             search = armijo(
                 lambda t: None if along(t) is None else along(t).objective, point.objective, slope, c1=_ARMIJO
             )
             accepted = along(search.step) if search.accepted else None
         if accepted is None:
             return _halt(point, (lo, hi), iteration, Halt.STALLED, 'no step along the model direction decreased f')
-        pair = secant_pair(accepted.x - point.x, accepted.gradient - point.gradient)
-        if pair is not None and pair.rho > 0:
-            pairs = [*pairs, pair][-memory:]
+        secants.push(accepted.x - point.x, accepted.gradient - point.gradient)
         point = accepted
     return _halt(point, (lo, hi), max_iterations, Halt.ITERATION_LIMIT)
 
