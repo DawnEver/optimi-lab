@@ -76,6 +76,17 @@ def test_maximise_polishes_onto_the_closed_form_argmax():
     assert np.linalg.norm(coarse - target) > ARGMAX
 
 
+def test_maximise_keeps_its_best_candidate_where_the_slope_squares_to_zero():
+    # A slope of 1e-170 squares below the smallest float: the engine sees no descent and refuses
+    # the line search by its declared type, so maximise keeps the best Sobol candidate.
+    def acquisition(points):
+        return 1e-170 * points[:, 0]
+
+    found = maximise(acquisition, 2, rng=np.random.default_rng(0), candidates=16, polish=2)
+    coarse = maximise(acquisition, 2, rng=np.random.default_rng(0), candidates=16, polish=0)
+    assert acquisition(found[None])[0] >= acquisition(coarse[None])[0]
+
+
 @pytest.mark.parametrize('acquisition', ACQUISITIONS)
 def test_every_acquisition_finds_branins_minimum(acquisition):
     problem, oracle = _branin()

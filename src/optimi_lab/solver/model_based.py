@@ -45,8 +45,6 @@ Acquisition = Callable[[np.ndarray], np.ndarray]
 
 _STEP: Final = 1e-6
 """Central-difference step of the acquisition, in logit coordinates of the box."""
-_FLAT: Final = 1e-150
-"""Acquisition units per logit unit: a slope below it squares to zero, and the search would see no descent."""
 
 
 def margins(problem: Problem, result: Result) -> np.ndarray:
@@ -86,7 +84,7 @@ def maximise(
     for start in order[:polish]:
         if not np.isfinite(scores[start]):
             break
-        x = box.theta(minimize_lbfgs(negative, box.u(points[start]), rtol=1e-6, atol=_FLAT, max_iter=50).x)
+        x = box.theta(minimize_lbfgs(negative, box.u(points[start]), rtol=1e-6, max_iter=50).x)
         score = float(acquisition(x[None])[0])
         if score > best_score:
             best, best_score = x, score
