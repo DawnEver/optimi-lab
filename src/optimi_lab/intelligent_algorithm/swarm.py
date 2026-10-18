@@ -15,12 +15,14 @@ from collections.abc import Callable
 
 import numpy as np
 
-from optimi_lab.core import Evaluation, VariableSet, constrained_dominates, refuse, require_positive
-from optimi_lab.intelligent_algorithm.proposers import PopulationProposer
+from optimi_lab.core import SampleSpec, constrained_dominates, refuse, require_positive
 from optimi_lab.intelligent_algorithm.selection import crowding_select
+from optimi_lab.intelligent_algorithm.solvers import PopulationSolver
 from optimi_lab.intelligent_algorithm.variation import pso_position, pso_velocity
+from optimi_lab.oracle import Capability
+from optimi_lab.problem import Problem
 
-__all__ = ['SwarmProposer']
+__all__ = ['SwarmSolver']
 
 _ARCHIVE_PER_POPULATION = 2
 """A MOPSO archive is bounded by this many times the population before it is thinned."""
@@ -29,7 +31,7 @@ _EXPLORATION_RATE = 0.1
 """Probability that a particle keeps a new position that neither dominates nor is dominated."""
 
 
-class SwarmProposer(PopulationProposer):
+class SwarmSolver(PopulationSolver):
     """MOPSO: particles with personal bests, led by a bounded archive of the non-dominated points.
 
     ``max_velocity_fraction`` is the fraction of each variable's own range a particle may cross in
@@ -40,8 +42,8 @@ class SwarmProposer(PopulationProposer):
 
     def __init__(
         self,
-        space: VariableSet,
-        pop_size: int,
+        problem: Problem,
+        capability: Capability,
         *,
         inertia: float = 0.4,
         cognitive: float = 2.0,
@@ -49,9 +51,10 @@ class SwarmProposer(PopulationProposer):
         max_velocity_fraction: float = 0.1,
         archive_size: int | None = None,
         selection: Callable[..., np.ndarray] = crowding_select,
+        spec: SampleSpec | None = None,
         seed: int = 0,
     ) -> None:
-        super().__init__(space, pop_size, seed=seed)
+        super().__init__(problem, capability, spec=spec, seed=seed)
         if not 0.0 <= inertia <= 1.0:
             refuse(f'inertia must be in [0, 1], got {inertia!r}')
         if cognitive < 0 or social < 0:
@@ -77,12 +80,11 @@ class SwarmProposer(PopulationProposer):
         self._personal_best: np.ndarray | None = None
         self._personal_best_values: np.ndarray | None = None
         self._personal_best_violation: np.ndarray | None = None
-        self._archive = np.zeros((0, self._space.n_var))
+        self._archive = np.zeros((0, self._width))
         self._archive_values = np.zeros((0, 1))
         self._archive_violation = np.zeros(0)
 
-    def _admit(self, evaluation: Evaluation) -> None:
-        inputs, values, violation, mask = self._complete(evaluation)
+    def _admit(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray, mask: np.ndarray) -> None:
         if self._positions is None:
             self._start(inputs, values, violation)
             return
@@ -133,11 +135,11 @@ class SwarmProposer(PopulationProposer):
             self._positions,
             self._personal_best,
             self._archive,
-            self._space,
+            self._width,
             inertia=self._inertia,
             cognitive=self._cognitive,
             social=self._social,
             max_velocity_fraction=self._max_velocity_fraction,
             rng=self._rng,
         )
-        return pso_position(self._positions, self._velocities, self._space)
+        return pso_position(self._positions, self._velocities, self._width)

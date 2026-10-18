@@ -39,7 +39,6 @@ LAYERS: Final[dict[str, int]] = {
     'intelligent_algorithm': 7,
     'policy': 8,
     'run': 9,
-    'benchmarks': 9,
 }
 EXEMPT: Final = frozenset({'__init__', '__version__'})
 

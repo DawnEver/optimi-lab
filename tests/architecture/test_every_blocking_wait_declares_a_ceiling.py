@@ -66,7 +66,8 @@ EXEMPT: Final[tuple[str, ...]] = ()
 #: RE-TAKEN 2026-10-04 AT 62, from 54: lab-commons ec5e8c5 and the consumer-facts merge read 70.
 #: RE-TAKEN 2026-10-16 AT 71, from 62: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 78; the floor sits half a headroom below it.
-FILE_FLOOR: Final = 71
+#: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
+FILE_FLOOR: Final = 102
 
 #: THE OTHER SIDE, and the side no copy in this family ever wrote. This is how far past its floor the
 #: population may grow before the floor is RE-MEASURED -- never how much slack the floor may be

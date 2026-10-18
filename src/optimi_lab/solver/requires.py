@@ -9,7 +9,7 @@ The information an evaluator offers decides what an algorithm can be used for (p
   (B0-20);
 * :class:`Ineligible` -- not usable, with the reason and what would make it usable.
 
-:data:`REGISTRY` names every solver this package ships, so a stranger is refused naming the set.
+:data:`SOLVERS` names every solver this package ships, so a stranger is refused naming the set.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from optimi_lab.core.errors import refuse
 from optimi_lab.oracle import Capability, Information
 from optimi_lab.problem import BlackBox, Categorical, Chance, Explicit, Field, Form, Linear, Path, Problem, Real
 
-__all__ = ['REGISTRY', 'Eligible', 'Ineligible', 'Match', 'MultiObjective', 'NeedsTransform', 'Requires', 'match']
+__all__ = ['SOLVERS', 'Eligible', 'Ineligible', 'Match', 'MultiObjective', 'NeedsTransform', 'Requires', 'match']
 
 
 class MultiObjective(StrEnum):
@@ -50,9 +50,9 @@ class Requires:
     @staticmethod
     def of(name: str) -> Requires:
         """The registered needs of solver *name*."""
-        if name not in REGISTRY:
-            refuse(f'no solver {name!r} is registered; the registered solvers are {sorted(REGISTRY)}')
-        return REGISTRY[name]
+        if name not in SOLVERS:
+            refuse(f'no solver {name!r} is registered; the registered solvers are {sorted(SOLVERS)}')
+        return SOLVERS[name]
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,7 +123,7 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
 
 #: Every solver this package ships, by name. The population solvers rank by Deb's rule, so they take
 #: black-box constraints natively; MOEA/D decomposes by Tchebycheff weights.
-REGISTRY: Final[dict[str, Requires]] = {
+SOLVERS: Final[dict[str, Requires]] = {
     'nsga2': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
     'nsga3': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
     'mode': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),

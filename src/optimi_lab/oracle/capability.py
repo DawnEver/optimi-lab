@@ -27,29 +27,39 @@ class Information(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class Capability:
-    """*provides* (always VALUES), *outputs* produced together, *fidelities*, *nodes* in parallel, *version*.
-
-    *version* names the evaluator build; it enters every action's identity (B0-12), so a result from
-    one solver version is never served for another.
-    """
-
+class _CapabilityFields:
     outputs: tuple[str, ...]
     provides: frozenset[Information] = frozenset({Information.VALUES})
     fidelities: tuple[str, ...] = ()
     nodes: int = 1
     version: str = ''
 
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'outputs', tuple(self.outputs))
-        object.__setattr__(self, 'fidelities', tuple(self.fidelities))
-        object.__setattr__(self, 'provides', frozenset(Information(i) for i in self.provides))
-        if Information.VALUES not in self.provides:
-            refuse(f'an oracle provides VALUES at least, got {sorted(self.provides)}')
-        if not isinstance(self.nodes, int) or self.nodes < 1:
-            refuse(f'an oracle runs on nodes >= 1, got {self.nodes!r}')
-        if not self.outputs:
+
+@dataclass(frozen=True, slots=True, init=False)
+class Capability(_CapabilityFields):
+    """*provides* (always VALUES), *outputs* produced together, *fidelities*, *nodes* in parallel, *version*.
+
+    *version* names the evaluator build; it enters every action's identity (B0-12), so a result from
+    one solver version is never served for another.
+    """
+
+    def __init__(
+        self,
+        outputs: tuple[str, ...],
+        provides: frozenset[Information] = frozenset({Information.VALUES}),
+        fidelities: tuple[str, ...] = (),
+        nodes: int = 1,
+        version: str = '',
+    ) -> None:
+        outputs, fidelities = tuple(outputs), tuple(fidelities)
+        provides = frozenset(Information(i) for i in provides)
+        if Information.VALUES not in provides:
+            refuse(f'an oracle provides VALUES at least, got {sorted(provides)}')
+        if not isinstance(nodes, int) or nodes < 1:
+            refuse(f'an oracle runs on nodes >= 1, got {nodes!r}')
+        if not outputs:
             refuse('an oracle produces at least one output')
+        _CapabilityFields.__init__(self, outputs, provides, fidelities, nodes, version)
 
     def require(self, problem: Problem) -> None:
         """Refuse, naming what is missing, unless this oracle can evaluate *problem*."""

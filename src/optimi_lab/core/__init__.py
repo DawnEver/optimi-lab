@@ -1,22 +1,11 @@
-"""The core: what a run is described by, what it produced, and the loop between them.
+"""The core: what every layer stands on -- refusals, dominance, and the unit-cube sampler.
 
-Pure numerics. numpy, scipy and scikit-learn are the only dependencies, no module here mutates
-process-global state when imported, and nothing here reads or writes a file, resolves a path, or
-attaches a log handler. The removed ``optimi_lab.utils.visualization`` set three matplotlib
-rcParams at import time, and a bare ``import optimi_lab.utils.<anything>`` used to create a
-per-run output directory and rebind the process's active logger: a library that is merely
-imported must not do that to its host.
-
-The modules are grouped by the question each answers — :mod:`~optimi_lab.core.space` (what is
-optimized), :mod:`~optimi_lab.core.constraints` (what it must satisfy), :mod:`~optimi_lab.core.sampling`
-(the first batch), :mod:`~optimi_lab.core.outcomes`
-(what an evaluation produced), :mod:`~optimi_lab.core.pareto` (dominance),
-:mod:`~optimi_lab.core.protocols` (the interfaces), :mod:`~optimi_lab.core.routing` (which
-evaluator, if any, spends its budget on a point) and :mod:`~optimi_lab.core.optimize` (the driver
-and its record).
+Pure numerics, no import-time side effect. Problems, results and runs live in the II.7 layers above
+(:mod:`optimi_lab.problem`, :mod:`optimi_lab.oracle`, :mod:`optimi_lab.archive`,
+:mod:`optimi_lab.run`); the 0.3 evaluation, record and driver this package held are retired and
+named in ``tests/architecture/test_a_retired_spelling_stays_retired.py``.
 """
 
-from optimi_lab.core.constraints import Constraint, ConstraintSet, Sense
 from optimi_lab.core.errors import (
     Refusal,
     coerce_enum,
@@ -25,8 +14,6 @@ from optimi_lab.core.errors import (
     require_finite,
     require_positive,
 )
-from optimi_lab.core.optimize import Record, optimize
-from optimi_lab.core.outcomes import Evaluation, Outcome
 from optimi_lab.core.pareto import (
     constrained_dominates,
     constrained_non_dominated_sorting,
@@ -35,54 +22,23 @@ from optimi_lab.core.pareto import (
     partition_count,
     total_violation,
 )
-from optimi_lab.core.protocols import Evaluator, Proposer, Surrogate, Tunable
-from optimi_lab.core.routing import SCREENED, Router, routed
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec, sample
-from optimi_lab.core.space import (
-    Direction,
-    Objective,
-    ObjectiveSet,
-    Variable,
-    VariableSet,
-)
 
-# `__all__` is written out rather than aliased from the submodules: the guard helpers are
-# reachable as `optimi_lab.core.refuse` for a package that wants one refusal shape, but the
-# surface a user reads is the one below.
 __all__ = [
     'SAMPLE_KINDS',
-    'SCREENED',
-    'Constraint',
-    'ConstraintSet',
-    'Direction',
-    'Evaluation',
-    'Evaluator',
-    'Objective',
-    'ObjectiveSet',
-    'Outcome',
-    'Proposer',
-    'Record',
     'Refusal',
-    'Router',
     'SampleKind',
     'SampleSpec',
-    'Sense',
-    'Surrogate',
-    'Tunable',
-    'Variable',
-    'VariableSet',
     'coerce_enum',
     'constrained_dominates',
     'constrained_non_dominated_sorting',
     'dominates',
     'non_dominated_sorting',
-    'optimize',
     'partition_count',
     'refuse',
     'require_axis',
     'require_finite',
     'require_positive',
-    'routed',
     'sample',
     'total_violation',
 ]

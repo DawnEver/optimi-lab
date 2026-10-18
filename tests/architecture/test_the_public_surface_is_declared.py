@@ -44,7 +44,8 @@ _SRC: Final = _ROOT / 'src' / 'optimi_lab'
 _TESTS: Final = _ROOT / 'tests'
 
 #: RE-MEASURED 2026-09-18: 22 shipped modules and 26 test modules.
-SOURCE_FILE_FLOOR: Final = 15
+#: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
+SOURCE_FILE_FLOOR: Final = 37
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``, which nothing here ever guarded: how far past its floor
 #: the population may grow before the number stops separating a clean scan from a walk that did not
@@ -61,7 +62,8 @@ SOURCE_FILE_HEADROOM: Final = 12
 #: RE-TAKEN 2026-10-04 AT 35, from 25: lab-commons ec5e8c5 and the consumer-facts merge read 40.
 #: RE-TAKEN 2026-10-16 AT 42, from 35: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 47; the floor sits half a headroom below it.
-TEST_FILE_FLOOR: Final = 42
+#: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
+TEST_FILE_FLOOR: Final = 52
 
 #: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 32 - 25 = 7.
 TEST_FILE_HEADROOM: Final = 10
@@ -261,11 +263,12 @@ def test_no_test_is_skipped() -> None:
 
 def test_the_floor_refuses_a_walk_that_reached_nothing() -> None:
     """THE CONTROL FOR EVERY FLOOR, since all five scans route through one function."""
-    with pytest.raises(floors.FloorUnmet, match='below its measured floor of 15'):
+    with pytest.raises(floors.FloorUnmet, match=f'below its measured floor of {SOURCE_FILE_FLOOR}'):
         bind_source_floor([Path('a.py'), Path('b.py')])
-    assert len(bind_source_floor([Path(f'{i}.py') for i in range(20)])) == 20
-    with pytest.raises(floors.SlackFloor, match='past the 12 headroom'):
-        bind_source_floor([Path(f'{i}.py') for i in range(40)])
+    reached = SOURCE_FILE_FLOOR + SOURCE_FILE_HEADROOM
+    assert len(bind_source_floor([Path(f'{i}.py') for i in range(reached)])) == reached
+    with pytest.raises(floors.SlackFloor, match=f'past the {SOURCE_FILE_HEADROOM} headroom'):
+        bind_source_floor([Path(f'{i}.py') for i in range(reached + 1)])
 
 
 def test_the_surface_guard_names_a_planted_silent_module() -> None:

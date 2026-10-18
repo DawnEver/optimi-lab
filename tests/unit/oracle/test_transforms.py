@@ -78,7 +78,7 @@ def test_d17_the_oracle_transform_returns_a_unit_cube_gradient() -> None:
     )
     result = asyncio.run(oracle(action))
     # d f / d u = d f / d x * span: (2 x * 2, 3 * 4)
-    assert result.gradient['f'].tolist() == pytest.approx([4.0, 12.0], rel=1e-6)
+    assert result.gradient['f'].tolist() == pytest.approx([4.0, 12.0], rel=1e-6, abs=0.0)
     assert result.cell.values['f'] == pytest.approx(4.0)
 
 

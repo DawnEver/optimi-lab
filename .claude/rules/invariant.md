@@ -20,8 +20,8 @@ reader could violate in one commit, and each names the mechanism that refuses it
   `SURROGATE_KEYS`, `SampleKind` / `SAMPLE_KINDS` and every `StrEnum` are those sets. A silent
   fallback to a default regressor or a default sampler is the forbidden shape: the caller asked
   for something specific and cannot tell it did not get it.
-- **A point that did not compute is never a number.** `Outcome.OK` is the one outcome carrying a
-  value; every other outcome has its value replaced by NaN at `Evaluation` construction. Nothing
+- **A point that did not compute is never a number.** An `outcomes.Cell` carries values only as
+  `OK` or `PARTIAL`; every other status carries a reason and no value (II.3). Nothing
   downstream — a front, a metric, a surrogate fit — may reintroduce a placeholder number for a
   failed evaluation.
 - **A benchmark metric is verified against a CLOSED-FORM value, never against its own output.**

@@ -1,8 +1,9 @@
-"""The five published algorithms, as ``build_proposer`` factories over the three loops.
+"""The five published algorithms, as factories of :class:`optimi_lab.solver.Solver` over three loops.
 
-:func:`optimi_lab.core.optimize.optimize` takes ``build_proposer: Callable[[int], Proposer]`` --
-the population size, one proposer -- so each function here returns that callable and a run reads
-``optimize(..., build_proposer=nsga2(space))``. The algorithms are parameterizations: NSGA-II and
+Each function takes the problem and the oracle capability and returns a solver for
+:func:`optimi_lab.run.run`: ``run(problem, oracle, nsga2(problem, oracle.capability), record, budget)``.
+The population size is the row count of ``spec``'s first sample. The algorithms are
+parameterizations: NSGA-II and
 NSGA-III are the same generation with a different fill of the front that overflows, MODE is that
 generation with a differential variation and no mating pool, and MOEA/D and MOPSO are loops of
 their own.
@@ -20,17 +21,19 @@ from functools import partial
 
 import numpy as np
 
-from optimi_lab.core import Proposer, VariableSet, refuse
-from optimi_lab.intelligent_algorithm.decomposition import DecompositionProposer
-from optimi_lab.intelligent_algorithm.proposers import EvolutionaryProposer, PopulationProposer
+from optimi_lab.core import SampleSpec, refuse
+from optimi_lab.intelligent_algorithm.decomposition import DecompositionSolver
 from optimi_lab.intelligent_algorithm.selection import crowding_select, reference_select, tournament_select
-from optimi_lab.intelligent_algorithm.swarm import SwarmProposer
+from optimi_lab.intelligent_algorithm.solvers import EvolutionarySolver, PopulationSolver
+from optimi_lab.intelligent_algorithm.swarm import SwarmSolver
 from optimi_lab.intelligent_algorithm.variation import (
     binomial_crossover,
     differential_mutation,
     polynomial_mutation,
     simulated_binary_crossover,
 )
+from optimi_lab.oracle import Capability
+from optimi_lab.problem import Problem
 
 __all__ = ['mode', 'moead', 'mopso', 'nsga2', 'nsga3']
 
@@ -41,7 +44,16 @@ def _require_settings(owner: Callable[..., object], settings: dict, what: str) -
     The accepted names are read off ``owner``'s signature, so the valid set a refusal names is the
     operator's own and cannot drift from it.
     """
-    accepted = set(inspect.signature(owner).parameters) - {'self', 'space', 'pop_size', 'population', 'rng'}
+    accepted = set(inspect.signature(owner).parameters) - {
+        'self',
+        'problem',
+        'capability',
+        'spec',
+        'seed',
+        'population',
+        'width',
+        'rng',
+    }
     unknown = sorted(set(settings) - accepted)
     if unknown:
         refuse(f'{unknown} are not settings of {what}; the valid settings are {sorted(accepted)}')
@@ -53,21 +65,24 @@ def _settings_of(variation: Callable[..., np.ndarray], settings: dict, what: str
     return settings
 
 
-def _proposer(
-    owner: type[PopulationProposer], space: VariableSet, seed: int, settings: dict, what: str
-) -> Callable[[int], Proposer]:
-    """Return the ``build_proposer`` of ``owner`` as ``what``, refusing a setting it does not take."""
+def _solver(
+    owner: type[PopulationSolver],
+    problem: Problem,
+    *,
+    capability: Capability,
+    spec: SampleSpec | None,
+    seed: int,
+    settings: dict,
+    what: str,
+) -> PopulationSolver:
+    """``owner`` as ``what``, refusing a setting it does not take."""
     _require_settings(owner, settings, what)
-
-    def build(pop_size: int) -> Proposer:
-        return owner(space, pop_size, seed=seed, **settings)
-
-    return build
+    return owner(problem, capability, spec=spec, seed=seed, **settings)
 
 
 def _sbx_polynomial(
     population: np.ndarray,
-    space: VariableSet,
+    width: int,
     rng: np.random.Generator,
     *,
     crossover_rate: float = 0.9,
@@ -78,32 +93,34 @@ def _sbx_polynomial(
     """One SBX generation: recombine each individual with the one selected before it, then mutate."""
     partner = np.roll(population, 1, axis=0)
     children = simulated_binary_crossover(
-        population, partner, space, crossover_rate=crossover_rate, eta_crossover=eta_crossover, rng=rng
+        population, partner, width, crossover_rate=crossover_rate, eta_crossover=eta_crossover, rng=rng
     )
-    return polynomial_mutation(children, space, mutation_rate=mutation_rate, eta_mutation=eta_mutation, rng=rng)
+    return polynomial_mutation(children, width, mutation_rate=mutation_rate, eta_mutation=eta_mutation, rng=rng)
 
 
 def _differential(
     population: np.ndarray,
-    space: VariableSet,
+    width: int,
     rng: np.random.Generator,
     *,
     sizing_factor: float = 0.5,
     crossover_rate: float = 0.5,
 ) -> np.ndarray:
     """One differential-evolution generation: mutate by difference vectors, then cross over."""
-    trial = differential_mutation(population, space, sizing_factor=sizing_factor, rng=rng)
-    return binomial_crossover(population, trial, space, crossover_rate=crossover_rate, rng=rng)
+    trial = differential_mutation(population, width, sizing_factor=sizing_factor, rng=rng)
+    return binomial_crossover(population, trial, width, crossover_rate=crossover_rate, rng=rng)
 
 
 def nsga2(
-    space: VariableSet,
+    problem: Problem,
+    capability: Capability,
     *,
+    spec: SampleSpec | None = None,
     selection_operator: Callable[..., np.ndarray] = crowding_select,
     parent_selection_operator: Callable[..., np.ndarray] = tournament_select,
     seed: int = 0,
     **variation: float,
-) -> Callable[[int], Proposer]:
+) -> PopulationSolver:
     """Non-dominated Sorting Genetic Algorithm II (Deb et al., 2002): SBX, crowding distance.
 
     Parents by tournament, offspring by SBX and polynomial mutation, survivors by Pareto front and
@@ -117,18 +134,22 @@ def nsga2(
         'selection': selection_operator,
         'parent_selection': parent_selection_operator,
     }
-    return _proposer(EvolutionaryProposer, space, seed, settings, 'nsga2')
+    return _solver(
+        EvolutionarySolver, problem, capability=capability, spec=spec, seed=seed, settings=settings, what='nsga2'
+    )
 
 
 def nsga3(
-    space: VariableSet,
+    problem: Problem,
+    capability: Capability,
     *,
+    spec: SampleSpec | None = None,
     partitions: int | None = None,
     selection_operator: Callable[..., np.ndarray] = reference_select,
     parent_selection_operator: Callable[..., np.ndarray] = tournament_select,
     seed: int = 0,
     **variation: float,
-) -> Callable[[int], Proposer]:
+) -> PopulationSolver:
     """Non-dominated Sorting Genetic Algorithm III (Deb and Jain, 2014): reference directions.
 
     The generation is :func:`nsga2`'s -- SBX then polynomial mutation, with the same ``**variation``
@@ -144,7 +165,9 @@ def nsga3(
             )
         selection_operator = partial(reference_select, partitions=partitions)
     return nsga2(
-        space,
+        problem,
+        capability,
+        spec=spec,
         selection_operator=selection_operator,
         parent_selection_operator=parent_selection_operator,
         seed=seed,
@@ -153,12 +176,14 @@ def nsga3(
 
 
 def mode(
-    space: VariableSet,
+    problem: Problem,
+    capability: Capability,
     *,
+    spec: SampleSpec | None = None,
     selection_operator: Callable[..., np.ndarray] = crowding_select,
     seed: int = 0,
     **variation: float,
-) -> Callable[[int], Proposer]:
+) -> PopulationSolver:
     """Multi-Objective Differential Evolution (Xue et al., 2005): difference vectors, no mating pool.
 
     Every individual is a parent -- a trial vector is built for each one from three others and
@@ -171,32 +196,48 @@ def mode(
         'variation_settings': _settings_of(_differential, variation, 'mode'),
         'selection': selection_operator,
     }
-    return _proposer(EvolutionaryProposer, space, seed, settings, 'mode')
+    return _solver(
+        EvolutionarySolver, problem, capability=capability, spec=spec, seed=seed, settings=settings, what='mode'
+    )
 
 
-def moead(space: VariableSet, *, seed: int = 0, **settings: object) -> Callable[[int], Proposer]:
+def moead(
+    problem: Problem, capability: Capability, *, spec: SampleSpec | None = None, seed: int = 0, **settings: object
+) -> PopulationSolver:
     """Multi-Objective Evolutionary Algorithm based on Decomposition (Zhang and Li, 2007).
 
-    ``**settings`` are :class:`~optimi_lab.intelligent_algorithm.decomposition.DecompositionProposer`'s:
+    ``**settings`` are :class:`~optimi_lab.intelligent_algorithm.decomposition.DecompositionSolver`'s:
     the neighbourhood (``neighborhood_size``, ``neighbor_rate``, ``max_replace``) and the
     SBX/mutation rates of a child. One subproblem per weight vector is ranked by Tchebycheff
     distance to the ideal point, so two objectives or more are required: one objective has nothing
     to decompose.
     """
-    return _proposer(DecompositionProposer, space, seed, settings, 'moead')
+    return _solver(
+        DecompositionSolver, problem, capability=capability, spec=spec, seed=seed, settings=settings, what='moead'
+    )
 
 
 def mopso(
-    space: VariableSet,
+    problem: Problem,
+    capability: Capability,
     *,
+    spec: SampleSpec | None = None,
     selection_operator: Callable[..., np.ndarray] = crowding_select,
     seed: int = 0,
     **settings: object,
-) -> Callable[[int], Proposer]:
+) -> PopulationSolver:
     """Multi-Objective Particle Swarm Optimization (Coello Coello and Lechuga, 2002).
 
     ``selection_operator`` thins the archive of non-dominated points the swarm draws its leaders
-    from; ``**settings`` are :class:`~optimi_lab.intelligent_algorithm.swarm.SwarmProposer`'s
+    from; ``**settings`` are :class:`~optimi_lab.intelligent_algorithm.swarm.SwarmSolver`'s
     ``inertia``, ``cognitive``, ``social``, ``max_velocity_fraction`` and ``archive_size``.
     """
-    return _proposer(SwarmProposer, space, seed, {'selection': selection_operator, **settings}, 'mopso')
+    return _solver(
+        SwarmSolver,
+        problem,
+        capability=capability,
+        spec=spec,
+        seed=seed,
+        settings={'selection': selection_operator, **settings},
+        what='mopso',
+    )

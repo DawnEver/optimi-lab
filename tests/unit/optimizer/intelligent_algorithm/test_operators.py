@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from optimi_lab import Refusal, Variable, VariableSet
+from optimi_lab.core import Refusal
 from optimi_lab.intelligent_algorithm import (
     crowding_select,
     differential_mutation,
@@ -16,8 +16,10 @@ from optimi_lab.intelligent_algorithm import (
     simulated_binary_crossover,
     tournament_select,
 )
+from optimi_lab.oracle import Capability
+from optimi_lab.problem import Objective, Problem, Real, Space
 
-SPACE = VariableSet([Variable('x', 0.0, 1.0), Variable('y', 0.0, 1.0)])
+SPACE = 2  # every operator works in the unit cube of this width
 VALUES = np.array([[1.0, 2.0], [2.0, 1.0], [1.0, 1.0], [0.5, 0.5], [0.0, 3.0]])
 
 
@@ -57,27 +59,26 @@ def test_a_tournament_answers_with_indices_of_the_rows_it_was_given(size):
 
 
 def test_pso_velocity_limit_is_a_fraction_of_each_variable_own_range():
-    """``max_velocity_fraction`` is relative: the RATIO between two ranges is the ranges' ratio.
+    """``max_velocity_fraction`` is relative: in the unit cube, a fraction of EVERY variable's range.
 
     The old ``v_max`` was documented "relative to variable range" and clipped as an absolute 0.1,
-    so the widest variable a particle could cross in one step was 0.1 on every problem.
+    so the widest variable a particle could cross in one step was 0.1 on every problem. Encoding
+    each variable onto ``[0, 1]`` (:meth:`optimi_lab.problem.Space.encode`) makes the limit a range
+    fraction for a 5000-wide variable and a 1-wide one alike.
     """
-    space = VariableSet([Variable('wide', 0.0, 5000.0), Variable('narrow', 0.0, 1.0)])
-    positions = np.array([[0.0, 0.0]])
-    personal_best = np.array([[5000.0, 1.0]])  # as far from the particle as each variable allows
-
     velocities = pso_velocity(
-        np.zeros_like(positions),
-        positions,
-        personal_best,
+        np.zeros((1, 2)),
+        np.array([[0.0, 0.0]]),
+        np.array([[1.0, 1.0]]),
         None,
-        space,
+        SPACE,
         max_velocity_fraction=0.1,
         rng=np.random.default_rng(0),
     )
-
-    np.testing.assert_allclose(np.abs(velocities), [[500.0, 0.1]])
-    assert np.abs(velocities[0, 0]) / np.abs(velocities[0, 1]) == pytest.approx(5000.0 / 1.0)
+    np.testing.assert_allclose(np.abs(velocities), [[0.1, 0.1]])
+    wide = Space((Real('wide', 0.0, 5000.0), Real('narrow', 0.0, 1.0)))
+    step = wide.decode(np.abs(velocities[0]))
+    assert step == {'wide': pytest.approx(500.0), 'narrow': pytest.approx(0.1)}
 
 
 def test_pso_velocity_without_an_archive_has_no_leader():
@@ -91,25 +92,20 @@ def test_pso_velocity_without_an_archive_has_no_leader():
     assert np.all(led > 0.0), 'a distant leader must pull the particle, or the assertion above is vacuous'
 
 
-def test_pso_position_stays_on_the_declared_bounds():
-    """``space`` is read, not decorative: this is the only place a particle is held in the interval."""
+def test_pso_position_stays_in_the_unit_cube():
+    """The clip is the only place a particle is held in the interval."""
     positions = pso_position(np.array([[0.0, 0.0]]), np.array([[1e9, -1e9]]), SPACE)
 
     np.testing.assert_allclose(positions, [[1.0, 0.0]])
 
 
-def test_the_crossover_and_mutation_stay_inside_ranges_four_orders_of_apart():
-    """The bounds a ``VariableSet`` declares cannot be ``None``, so the old ``TypeError`` is gone."""
-    space = VariableSet([Variable('wide', -2500.0, 2500.0), Variable('tiny', 0.0, 1e-3)])
-    parents = np.array([[-2500.0, 0.0], [2500.0, 1e-3]])
-    parents = np.vstack([parents, parents + 1e-4])
-
-    children = simulated_binary_crossover(parents[:2], parents[2:], space, rng=np.random.default_rng(0))
-    mutated = polynomial_mutation(children, space, mutation_rate=1.0, rng=np.random.default_rng(0))
-
+def test_the_crossover_and_mutation_stay_inside_the_unit_cube():
+    parents = np.array([[0.0, 0.0], [1.0, 1.0], [1e-4, 1e-4], [1.0, 1.0 - 1e-4]])
+    children = simulated_binary_crossover(parents[:2], parents[2:], SPACE, rng=np.random.default_rng(0))
+    mutated = polynomial_mutation(children, SPACE, mutation_rate=1.0, rng=np.random.default_rng(0))
     for points in (children, mutated):
         assert points.shape == (2, 2)
-        assert np.all(points >= space.lower_bounds) and np.all(points <= space.upper_bounds)
+        assert np.all(points >= 0.0) and np.all(points <= 1.0)
 
 
 def test_differential_mutation_refuses_a_population_below_its_own_floor():
@@ -131,7 +127,11 @@ def test_the_reference_selection_needs_two_objectives_and_says_so():
 def test_a_misspelled_setting_names_the_valid_ones():
     """The accepted names come from the operator's own signature, so a refusal cannot drift from it."""
     with pytest.raises(Refusal) as refusal:
-        nsga2(SPACE, eta_crossoverr=1.0)
+        nsga2(
+            Problem(Space((Real('x', 0.0, 1.0),)), (Objective('f'), Objective('g'))),
+            Capability(outputs=('f', 'g')),
+            eta_crossoverr=1.0,
+        )
 
     assert 'eta_crossoverr' in str(refusal.value)
     assert 'eta_crossover' in str(refusal.value)

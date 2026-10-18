@@ -22,7 +22,7 @@ import numpy as np
 from optimi_lab.oracle import Action, Capability, Oracle, Result, from_function
 from optimi_lab.problem import BlackBox, Objective, Problem, Real, Space
 
-__all__ = ['CATALOGUE', 'Benchmark', 'RandomSearch', 'igd']
+__all__ = ['CATALOGUE', 'Benchmark', 'RandomSearch']
 
 
 @dataclass(frozen=True)
@@ -132,12 +132,6 @@ CATALOGUE: dict[str, Benchmark] = {
         _bnh(),
     )
 }
-
-
-def igd(front: np.ndarray, reference: np.ndarray) -> float:
-    """Mean distance from each reference point to its nearest point of *front* (a test-side metric)."""
-    distances = np.linalg.norm(reference[:, None, :] - front[None, :, :], axis=2)
-    return float(distances.min(axis=1).mean())
 
 
 class RandomSearch:

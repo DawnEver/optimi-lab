@@ -43,7 +43,7 @@ class SurrogateModel:
 
     The model is declared once — ``SurrogateModel('bag', n_estimators=5)`` — and every parameter is
     scikit-learn's own, passed through to it. Nothing here reads a variable or objective name: the
-    columns are the caller's, in the order their ``VariableSet`` declared them.
+    columns are the caller's, in the order their ``Space`` encodes them.
     """
 
     __slots__ = ('_estimator', '_n_obj', '_n_splits', '_params', '_regressor', '_score_methods', '_scores')
@@ -100,7 +100,7 @@ class SurrogateModel:
     def fit(self, inputs: np.ndarray, values: np.ndarray) -> Self:
         """Fit on ``(n_points, n_var)`` inputs and ``(n_points, n_obj)`` MEASURED values.
 
-        A row of ``values`` is a measured one — what ``Evaluation.complete`` hands out. One model
+        A row of ``values`` is a measured one — an ``OK`` result of ``Archive.complete``. One model
         is kept, fitted on every row; the folds that score it never decide what it is fitted on.
         """
         inputs = _require_points(inputs, 'the inputs a surrogate is fitted on')
@@ -121,7 +121,7 @@ class SurrogateModel:
         """Return predictions of shape ``(n_points, n_obj)``, refusing any other shape.
 
         A prediction is a number the caller may use and must label as one; it is not an
-        ``Evaluation`` and cannot be told to a proposer as if the points had run.
+        observation and is filed, if at all, as ``Evidence.PREDICTED``.
         """
         estimator = self._require_fitted()
         points = _require_points(inputs, 'the inputs a surrogate predicts on')

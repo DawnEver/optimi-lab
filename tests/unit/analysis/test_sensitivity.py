@@ -12,11 +12,12 @@ estimators sit within 0.02 of the truth; the binned main effect on 20000 random 
 import numpy as np
 import pytest
 
-from optimi_lab import Refusal, Variable, VariableSet
 from optimi_lab.analysis import SobolIndices, main_effect, sobol_indices
+from optimi_lab.core.errors import Refusal
+from optimi_lab.problem import Real, Space
 
 A, B = 7.0, 0.1
-SPACE = VariableSet(tuple(Variable(f'x{i}', -np.pi, np.pi) for i in (1, 2, 3)))
+SPACE = Space(tuple(Real(f'x{i}', -np.pi, np.pi) for i in (1, 2, 3)))
 
 _V = A**2 / 8 + B * np.pi**4 / 5 + B**2 * np.pi**8 / 18 + 0.5
 _V1 = 0.5 * (1 + B * np.pi**4 / 5) ** 2
@@ -73,7 +74,7 @@ def test_sobol_refuses_a_constant_function():
 
 
 def test_main_effect_reads_the_first_order_indices_from_an_existing_sample():
-    points = SPACE.scale(np.random.default_rng(2).uniform(size=(20000, 3)))
+    points = -np.pi + 2 * np.pi * np.random.default_rng(2).uniform(size=(20000, 3))
     assert main_effect(points, ishigami(points), n_bins=20) == pytest.approx(FIRST, abs=0.03)
 
 

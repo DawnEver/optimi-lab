@@ -7,10 +7,11 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from catalogue import CATALOGUE, RandomSearch, igd
+from catalogue import CATALOGUE, RandomSearch
 from lab_commons.outcomes import Record
 
 from optimi_lab.core.pareto import non_dominated_sorting
+from optimi_lab.metric import igd
 from optimi_lab.oracle import Action
 from optimi_lab.run import Budget, Termination, run
 

@@ -106,7 +106,8 @@ NOT_CITATIONS: Final[tuple[str, ...]] = ()
 #: same reading -- an 8x difference, which is why this number cannot have a default.
 #: RE-TAKEN 2026-10-04 AT 65, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 73.
 #: RE-TAKEN 2026-10-16 AT 77, from 65: the analysis branch (sensitivity, decision) read 87.
-SCANNED_FILE_FLOOR: Final = 77
+#: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
+SCANNED_FILE_FLOOR: Final = 102
 SCANNED_FILE_HEADROOM: Final = 20
 
 #: MEASURED 2026-09-18: 182 `def test_*` under `tests/`. THIS IS A DIFFERENT POPULATION FROM THE ONE

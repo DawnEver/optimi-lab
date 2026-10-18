@@ -9,13 +9,16 @@ metric, so asking it for coordinates names the ``embedding=`` that would supply 
 ``active_if`` makes a variable conditional on an earlier discrete one (:class:`When`). An inactive
 variable is not part of the design at all: :class:`~optimi_lab.problem.space.Space` drops it from
 the canonical form, so two designs that differ only in a switched-off value are the same design.
+
+Each record normalises in an explicit ``__init__`` over a generated ``_*Fields`` base -- the
+package's one shape for a frozen record that coerces its input (no reflection, NO-REFLECTION).
 """
 
 from __future__ import annotations
 
 import math
 from collections.abc import Hashable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import StrEnum
 
 import numpy as np
@@ -33,16 +36,20 @@ class Scale(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class When:
-    """``active_if``: the variable exists only while the discrete variable *name* takes one of *levels*."""
-
+class _WhenFields:
     name: str
     levels: tuple[Hashable, ...]
 
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'levels', tuple(self.levels))
-        if not self.name or not self.levels:
-            refuse(f'a When needs a parent name and at least one level, got {self.name!r} and {self.levels!r}')
+
+@dataclass(frozen=True, slots=True, init=False)
+class When(_WhenFields):
+    """``active_if``: the variable exists only while the discrete variable *name* takes one of *levels*."""
+
+    def __init__(self, name: str, levels: tuple[Hashable, ...]) -> None:
+        levels = tuple(levels)
+        if not name or not levels:
+            refuse(f'a When needs a parent name and at least one level, got {name!r} and {levels!r}')
+        _WhenFields.__init__(self, name, levels)
 
 
 def _require_name(name: str, kind: str) -> None:
@@ -56,9 +63,7 @@ def _require_interval(name: str, lo: float, hi: float) -> None:
 
 
 @dataclass(frozen=True, slots=True)
-class Real:
-    """A continuous variable on ``[lo, hi]`` in *unit*; ``scale=LOG`` spaces it by its logarithm."""
-
+class _RealFields:
     name: str
     lo: float
     hi: float
@@ -66,19 +71,35 @@ class Real:
     scale: Scale = Scale.LINEAR
     active_if: When | None = None
 
-    def __post_init__(self) -> None:
-        _require_name(self.name, 'real')
-        object.__setattr__(self, 'lo', float(self.lo))
-        object.__setattr__(self, 'hi', float(self.hi))
-        object.__setattr__(self, 'scale', coerce_enum(Scale, self.scale, f'the scale of {self.name!r}'))
-        _require_interval(self.name, self.lo, self.hi)
-        if self.scale is Scale.LOG and not self.lo > 0:
-            refuse(f'log variable {self.name!r} needs lo > 0, got lo={self.lo!r}; a logarithm has no zero')
 
-    width = 1
+@dataclass(frozen=True, slots=True, init=False)
+class Real(_RealFields):
+    """A continuous variable on ``[lo, hi]`` in *unit*; ``scale=LOG`` spaces it by its logarithm."""
+
+    def __init__(
+        self,
+        name: str,
+        lo: float,
+        hi: float,
+        *,
+        unit: str | None = None,
+        scale: Scale = Scale.LINEAR,
+        active_if: When | None = None,
+    ) -> None:
+        _require_name(name, 'real')
+        lo, hi = float(lo), float(hi)
+        scale = coerce_enum(Scale, scale, f'the scale of {name!r}')
+        _require_interval(name, lo, hi)
+        if scale is Scale.LOG and not lo > 0:
+            refuse(f'log variable {name!r} needs lo > 0, got lo={lo!r}; a logarithm has no zero')
+        _RealFields.__init__(self, name, lo, hi, unit, scale, active_if)
+
+    @property
+    def width(self) -> int:
+        return 1
 
     def contains(self, value: object) -> bool:
-        return isinstance(value, (int, float)) and self.lo <= float(value) <= self.hi
+        return isinstance(value, (int, float)) and not isinstance(value, bool) and self.lo <= float(value) <= self.hi
 
     def canonical(self, value: object) -> float:
         return float(value)  # type: ignore[arg-type]
@@ -98,28 +119,30 @@ class Real:
 
 
 @dataclass(frozen=True, slots=True)
-class Integer:
-    """An integer variable on the grid ``lo, lo + step, ..., hi``."""
-
+class _IntegerFields:
     name: str
     lo: int
     hi: int
     step: int = 1
     active_if: When | None = None
 
-    def __post_init__(self) -> None:
-        _require_name(self.name, 'integer')
-        if not all(isinstance(v, (int, np.integer)) and not isinstance(v, bool) for v in (self.lo, self.hi, self.step)):
-            refuse(
-                f'integer variable {self.name!r} needs integer lo, hi and step, got {self.lo!r}, {self.hi!r}, {self.step!r}'
-            )
-        _require_interval(self.name, self.lo, self.hi)
-        if self.step < 1 or (self.hi - self.lo) % self.step:
-            refuse(
-                f'integer variable {self.name!r} needs a step >= 1 that divides hi - lo = {self.hi - self.lo}, got {self.step}'
-            )
 
-    width = 1
+@dataclass(frozen=True, slots=True, init=False)
+class Integer(_IntegerFields):
+    """An integer variable on the grid ``lo, lo + step, ..., hi``."""
+
+    def __init__(self, name: str, lo: int, hi: int, step: int = 1, active_if: When | None = None) -> None:
+        _require_name(name, 'integer')
+        if not all(isinstance(v, (int, np.integer)) and not isinstance(v, bool) for v in (lo, hi, step)):
+            refuse(f'integer variable {name!r} needs integer lo, hi and step, got {lo!r}, {hi!r}, {step!r}')
+        _require_interval(name, lo, hi)
+        if step < 1 or (hi - lo) % step:
+            refuse(f'integer variable {name!r} needs a step >= 1 that divides hi - lo = {hi - lo}, got {step}')
+        _IntegerFields.__init__(self, name, int(lo), int(hi), int(step), active_if)
+
+    @property
+    def width(self) -> int:
+        return 1
 
     @property
     def levels(self) -> tuple[int, ...]:
@@ -145,37 +168,39 @@ class Integer:
 
 
 @dataclass(frozen=True, slots=True)
-class Categorical:
-    """One of *levels*. No metric unless *embedding* gives each level a coordinate vector."""
-
+class _CategoricalFields:
     name: str
     levels: tuple[Hashable, ...]
     embedding: tuple[tuple[float, ...], ...] | None = None
     active_if: When | None = None
-    _lo: np.ndarray | None = field(default=None, init=False, repr=False, compare=False)
-    _span: np.ndarray | None = field(default=None, init=False, repr=False, compare=False)
 
-    def __post_init__(self) -> None:
-        _require_name(self.name, 'categorical')
-        object.__setattr__(self, 'levels', tuple(self.levels))
-        if len(self.levels) < 2 or len(set(self.levels)) != len(self.levels):
-            refuse(f'categorical {self.name!r} needs at least two distinct levels, got {self.levels!r}')
-        if self.embedding is None:
-            return
-        rows = tuple(tuple(float(c) for c in row) for row in self.embedding)
-        object.__setattr__(self, 'embedding', rows)
-        matrix = np.array(rows, dtype=float)
-        if matrix.ndim != 2 or matrix.shape[0] != len(self.levels) or not np.all(np.isfinite(matrix)):
-            refuse(
-                f'the embedding of {self.name!r} needs one finite coordinate row per level ({len(self.levels)}), got {rows!r}'
-            )
-        if len({tuple(row) for row in rows}) != len(rows):
-            refuse(
-                f'the embedding of {self.name!r} maps two levels to one point, so a decode could not tell them apart'
-            )
-        lo, hi = matrix.min(axis=0), matrix.max(axis=0)
-        object.__setattr__(self, '_lo', lo)
-        object.__setattr__(self, '_span', np.where(hi > lo, hi - lo, 1.0))
+
+@dataclass(frozen=True, slots=True, init=False)
+class Categorical(_CategoricalFields):
+    """One of *levels*. No metric unless *embedding* gives each level a coordinate vector."""
+
+    def __init__(
+        self,
+        name: str,
+        levels: tuple[Hashable, ...],
+        embedding: tuple[tuple[float, ...], ...] | None = None,
+        active_if: When | None = None,
+    ) -> None:
+        _require_name(name, 'categorical')
+        levels = tuple(levels)
+        if len(levels) < 2 or len(set(levels)) != len(levels):
+            refuse(f'categorical {name!r} needs at least two distinct levels, got {levels!r}')
+        if embedding is not None:
+            embedding = tuple(tuple(float(c) for c in row) for row in embedding)
+            matrix = np.array(embedding, dtype=float)
+            if matrix.ndim != 2 or matrix.shape[0] != len(levels) or not np.all(np.isfinite(matrix)):
+                refuse(
+                    f'the embedding of {name!r} needs one finite coordinate row per level ({len(levels)}), '
+                    f'got {embedding!r}'
+                )
+            if len(set(embedding)) != len(embedding):
+                refuse(f'the embedding of {name!r} maps two levels to one point, so a decode could not tell them apart')
+        _CategoricalFields.__init__(self, name, levels, embedding, active_if)
 
     @property
     def width(self) -> int:
@@ -187,26 +212,26 @@ class Categorical:
     def canonical(self, value: object) -> Hashable:
         return value  # type: ignore[return-value]
 
-    def _require_metric(self) -> np.ndarray:
+    def _coordinates(self) -> np.ndarray:
+        """Each level's embedding row, scaled per column onto ``[0, 1]``; refused without an embedding."""
         if self.embedding is None:
             refuse(
                 f'categorical {self.name!r} has no metric: its levels {list(self.levels)} are unordered; '
                 f'supply embedding= (one coordinate row per level) to place it in the unit cube'
             )
-        return (np.array(self.embedding) - self._lo) / self._span
+        matrix = np.array(self.embedding)
+        lo, hi = matrix.min(axis=0), matrix.max(axis=0)
+        return (matrix - lo) / np.where(hi > lo, hi - lo, 1.0)
 
     def encode(self, value: Hashable) -> np.ndarray:
-        return self._require_metric()[self.levels.index(value)]
+        return self._coordinates()[self.levels.index(value)]
 
     def decode(self, unit: np.ndarray) -> Hashable:
-        coordinates = self._require_metric()
-        return self.levels[int(np.argmin(np.sum((coordinates - unit) ** 2, axis=1)))]
+        return self.levels[int(np.argmin(np.sum((self._coordinates() - unit) ** 2, axis=1)))]
 
 
 @dataclass(frozen=True, slots=True)
-class Field:
-    """*n_cells* reals on ``[lo, hi]`` with a cell adjacency (*neighbors*), e.g. a topology density."""
-
+class _FieldFields:
     name: str
     n_cells: int
     lo: float
@@ -214,25 +239,40 @@ class Field:
     neighbors: tuple[tuple[int, int], ...] = ()
     active_if: When | None = None
 
-    def __post_init__(self) -> None:
-        _require_name(self.name, 'field')
-        if not isinstance(self.n_cells, int) or self.n_cells < 1:
-            refuse(f'field {self.name!r} needs n_cells >= 1, got {self.n_cells!r}')
-        object.__setattr__(self, 'lo', float(self.lo))
-        object.__setattr__(self, 'hi', float(self.hi))
-        _require_interval(self.name, self.lo, self.hi)
-        edges = tuple((int(a), int(b)) for a, b in self.neighbors)
-        bad = [e for e in edges if not (0 <= e[0] < self.n_cells and 0 <= e[1] < self.n_cells) or e[0] == e[1]]
+
+@dataclass(frozen=True, slots=True, init=False)
+class Field(_FieldFields):
+    """*n_cells* reals on ``[lo, hi]`` with a cell adjacency (*neighbors*), e.g. a topology density."""
+
+    def __init__(
+        self,
+        name: str,
+        n_cells: int,
+        lo: float,
+        hi: float,
+        *,
+        neighbors: tuple[tuple[int, int], ...] = (),
+        active_if: When | None = None,
+    ) -> None:
+        _require_name(name, 'field')
+        if not isinstance(n_cells, int) or n_cells < 1:
+            refuse(f'field {name!r} needs n_cells >= 1, got {n_cells!r}')
+        lo, hi = float(lo), float(hi)
+        _require_interval(name, lo, hi)
+        edges = tuple((int(a), int(b)) for a, b in neighbors)
+        bad = [e for e in edges if not (0 <= e[0] < n_cells and 0 <= e[1] < n_cells) or e[0] == e[1]]
         if bad:
-            refuse(f'field {self.name!r} has neighbour pairs outside cells 0..{self.n_cells - 1} or self-loops: {bad}')
-        object.__setattr__(self, 'neighbors', edges)
+            refuse(f'field {name!r} has neighbour pairs outside cells 0..{n_cells - 1} or self-loops: {bad}')
+        _FieldFields.__init__(self, name, n_cells, lo, hi, edges, active_if)
 
     @property
     def width(self) -> int:
         return self.n_cells
 
     def contains(self, value: object) -> bool:
-        array = np.asarray(value, dtype=float) if not isinstance(value, (str, bytes)) else np.array([])
+        if isinstance(value, (str, bytes)):
+            return False
+        array = np.asarray(value, dtype=float)
         return array.shape == (self.n_cells,) and bool(np.all((array >= self.lo) & (array <= self.hi)))
 
     def canonical(self, value: object) -> tuple[float, ...]:

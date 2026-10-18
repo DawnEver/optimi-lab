@@ -1,18 +1,15 @@
 """How one generation is made from the last: crossover, mutation and the swarm updates.
 
-Each operator is a function of the arrays it acts on, the space it must stay inside and the
-generator it draws from, so nothing here reads module state. Measures this module removes:
-``best_inputs``, a mutation argument documented "not used; present for API compatibility"; the
-``None`` bounds that made ``SimulatedBinaryCrossover`` raise ``TypeError`` on ``>=`` -- a
-:class:`~optimi_lab.core.space.VariableSet` refuses ``lower >= upper``, so no bound-less space can
-arrive and :meth:`VariableSet.clip` is the one place a bound is enforced; and
-``PSOVelocityUpdate.v_max``, documented "relative to variable range" and clipped as an ABSOLUTE
-0.1, which on a range 5000 wide is a particle that cannot move.
+Each operator is a function of the arrays it acts on, the unit-cube WIDTH they live in and the
+generator it draws from, so nothing here reads module state. Every operator works in the unit cube a
+:class:`~optimi_lab.problem.Space` encodes into, so a bound is enforced in one place (:func:`_clip`)
+and a velocity limit is a fraction of a range by construction -- the old absolute ``v_max`` of 0.1
+was, on a range 5000 wide, a particle that cannot move.
 """
 
 import numpy as np
 
-from optimi_lab.core import VariableSet, refuse, require_axis
+from optimi_lab.core import refuse, require_axis
 
 __all__ = [
     'binomial_crossover',
@@ -27,6 +24,11 @@ _MINIMUM_DIFFERENTIAL_POPULATION = 4
 """DE/rand/1 draws a base and three other rows, so it is defined from four rows up."""
 
 
+def _clip(points: np.ndarray) -> np.ndarray:
+    """A copy of *points* inside the unit cube, where every operator works."""
+    return np.clip(points, 0.0, 1.0)
+
+
 def _require_rate(rate: float, what: str) -> float:
     """Return a probability in ``[0, 1]``, or refuse naming the interval it must lie in."""
     if not 0.0 <= rate <= 1.0:
@@ -34,10 +36,10 @@ def _require_rate(rate: float, what: str) -> float:
     return rate
 
 
-def _require_pair(parent_1: np.ndarray, parent_2: np.ndarray, space: VariableSet):
+def _require_pair(parent_1: np.ndarray, parent_2: np.ndarray, width: int):
     """Return both parents as matching ``(n_points, n_var)`` arrays, or refuse naming the shapes."""
-    first = require_axis(parent_1, space.n_var, 1, 'parent_1')
-    second = require_axis(parent_2, space.n_var, 1, 'parent_2')
+    first = require_axis(parent_1, width, 1, 'parent_1')
+    second = require_axis(parent_2, width, 1, 'parent_2')
     if first.shape != second.shape:
         refuse(f'parent_1 and parent_2 must hold one row per pair, got {first.shape} and {second.shape}')
     return first, second
@@ -46,7 +48,7 @@ def _require_pair(parent_1: np.ndarray, parent_2: np.ndarray, space: VariableSet
 def binomial_crossover(
     parent_1: np.ndarray,
     parent_2: np.ndarray,
-    space: VariableSet,
+    width: int,
     *,
     crossover_rate: float = 0.5,
     rng: np.random.Generator,
@@ -55,18 +57,18 @@ def binomial_crossover(
 
     The forced gene keeps the operator total: an all-False mask would return a copy of ``parent_1``.
     """
-    parent_1, parent_2 = _require_pair(parent_1, parent_2, space)
+    parent_1, parent_2 = _require_pair(parent_1, parent_2, width)
     _require_rate(crossover_rate, 'crossover_rate')
     n_points, n_var = parent_1.shape
     donor = rng.random((n_points, n_var)) < crossover_rate
     donor[np.arange(n_points), rng.integers(0, n_var, n_points)] = True
-    return space.clip(np.where(donor, parent_2, parent_1))
+    return _clip(np.where(donor, parent_2, parent_1))
 
 
 def simulated_binary_crossover(
     parent_1: np.ndarray,
     parent_2: np.ndarray,
-    space: VariableSet,
+    width: int,
     *,
     crossover_rate: float = 0.9,
     eta_crossover: float = 20.0,
@@ -77,7 +79,7 @@ def simulated_binary_crossover(
     The parents are sorted per gene first, so neither argument is privileged, and a gene whose two
     parents are equal is copied through: there is no span to draw a spread from.
     """
-    parent_1, parent_2 = _require_pair(parent_1, parent_2, space)
+    parent_1, parent_2 = _require_pair(parent_1, parent_2, width)
     _require_rate(crossover_rate, 'crossover_rate')
     if not eta_crossover >= 0:
         refuse(f'eta_crossover must be non-negative, got {eta_crossover!r}')
@@ -88,12 +90,12 @@ def simulated_binary_crossover(
     exponent = 1.0 / (eta_crossover + 1.0)
     beta = np.where(draw <= 0.5, np.power(2.0 * draw, exponent), np.power(1.0 / (2.0 * (1.0 - draw)), exponent))
     child = 0.5 * ((1.0 + beta) * lower + (1.0 - beta) * upper)
-    return space.clip(np.where(crossing, child, parent_1))
+    return _clip(np.where(crossing, child, parent_1))
 
 
 def polynomial_mutation(
     offspring: np.ndarray,
-    space: VariableSet,
+    width: int,
     *,
     mutation_rate: float = 0.1,
     eta_mutation: float = 20.0,
@@ -104,12 +106,12 @@ def polynomial_mutation(
     The gene is mapped onto its own variable's ``[0, 1]`` interval first, so one setting is the same
     relative move on a 5000-wide variable and on a 1-wide one.
     """
-    offspring = require_axis(offspring, space.n_var, 1, 'the offspring to mutate')
+    offspring = require_axis(offspring, width, 1, 'the offspring to mutate')
     _require_rate(mutation_rate, 'mutation_rate')
     if not eta_mutation > 0:
         refuse(f'eta_mutation must be greater than 0, got {eta_mutation!r}')
-    span = space.upper_bounds - space.lower_bounds
-    position = np.clip((offspring - space.lower_bounds) / span, 0.0, 1.0)
+    span = 1.0
+    position = np.clip(offspring, 0.0, 1.0)
     mutate = rng.random(offspring.shape) < mutation_rate
     draw = rng.random(offspring.shape)
     exponent = 1.0 / (eta_mutation + 1.0)
@@ -118,18 +120,18 @@ def polynomial_mutation(
         np.power(2.0 * draw + (1.0 - 2.0 * draw) * np.power(1.0 - position, eta_mutation + 1.0), exponent) - 1.0,
         1.0 - np.power(2.0 * (1.0 - draw) + 2.0 * (draw - 0.5) * np.power(position, eta_mutation + 1.0), exponent),
     )
-    return space.clip(offspring + delta * span * mutate)
+    return _clip(offspring + delta * span * mutate)
 
 
 def differential_mutation(
-    population: np.ndarray, space: VariableSet, *, sizing_factor: float = 0.5, rng: np.random.Generator
+    population: np.ndarray, width: int, *, sizing_factor: float = 0.5, rng: np.random.Generator
 ) -> np.ndarray:
     """DE/rand/1: ``x[r1] + sizing_factor * (x[r2] - x[r3])``, three other rows drawn per row.
 
     Fewer than four rows is REFUSED: the old body copied the individual through, a mutation that
     mutates nothing while reporting success.
     """
-    population = require_axis(population, space.n_var, 1, 'the population to mutate')
+    population = require_axis(population, width, 1, 'the population to mutate')
     n_points = population.shape[0]
     if n_points < _MINIMUM_DIFFERENTIAL_POPULATION:
         refuse(
@@ -142,7 +144,7 @@ def differential_mutation(
     for row in range(n_points):
         donors[row] = rng.choice(np.delete(np.arange(n_points), row), 3, replace=False)
     trial = population[donors[:, 0]] + sizing_factor * (population[donors[:, 1]] - population[donors[:, 2]])
-    return space.clip(trial)
+    return _clip(trial)
 
 
 def pso_velocity(
@@ -150,7 +152,7 @@ def pso_velocity(
     positions: np.ndarray,
     personal_best: np.ndarray,
     global_best: np.ndarray | None,
-    space: VariableSet,
+    width: int,
     *,
     inertia: float = 0.4,
     cognitive: float = 2.0,
@@ -164,9 +166,9 @@ def pso_velocity(
     everywhere. An empty archive means there is no leader and the social term is zero -- the swarm
     is pulled by its own bests alone until a point has been ranked onto the archive.
     """
-    positions = require_axis(positions, space.n_var, 1, 'positions')
-    velocities = require_axis(velocities, space.n_var, 1, 'velocities')
-    personal_best = require_axis(personal_best, space.n_var, 1, 'personal_best_positions')
+    positions = require_axis(positions, width, 1, 'positions')
+    velocities = require_axis(velocities, width, 1, 'velocities')
+    personal_best = require_axis(personal_best, width, 1, 'personal_best_positions')
     if velocities.shape != positions.shape or personal_best.shape != positions.shape:
         refuse(
             f'velocities {velocities.shape} and personal_best_positions {personal_best.shape} must each hold one row '
@@ -180,25 +182,24 @@ def pso_velocity(
     if global_best is None or len(global_best) == 0:
         leader = positions
     else:
-        archive = require_axis(global_best, space.n_var, 1, 'global_best_positions')
+        archive = require_axis(global_best, width, 1, 'global_best_positions')
         leader = archive[rng.integers(0, archive.shape[0], positions.shape[0])]
     updated = (
         inertia * velocities
         + cognitive * rng.random(positions.shape) * (personal_best - positions)
         + social * rng.random(positions.shape) * (leader - positions)
     )
-    limit = max_velocity_fraction * (space.upper_bounds - space.lower_bounds)
+    limit = max_velocity_fraction
     return np.clip(updated, -limit, limit)
 
 
-def pso_position(positions: np.ndarray, velocities: np.ndarray, space: VariableSet) -> np.ndarray:
-    """``x <- x + v``, clipped onto the bounds ``space`` declares.
+def pso_position(positions: np.ndarray, velocities: np.ndarray, width: int) -> np.ndarray:
+    """``x <- x + v``, clipped onto the unit cube.
 
-    ``space`` is read, not decorative: it is the only thing holding a particle inside the search
-    interval, and a range of zero cannot exist here to make the clip a no-op.
+    The clip is the only thing holding a particle inside the search interval.
     """
-    positions = require_axis(positions, space.n_var, 1, 'positions')
-    velocities = require_axis(velocities, space.n_var, 1, 'velocities')
+    positions = require_axis(positions, width, 1, 'positions')
+    velocities = require_axis(velocities, width, 1, 'velocities')
     if velocities.shape != positions.shape:
         refuse(f'velocities {velocities.shape} must hold one row per particle, as positions {positions.shape} does')
-    return space.clip(positions + velocities)
+    return _clip(positions + velocities)

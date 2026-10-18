@@ -20,7 +20,7 @@ from optimi_lab.problem import (
     Structure,
     Uncertainty,
 )
-from optimi_lab.solver import REGISTRY, Eligible, Ineligible, MultiObjective, NeedsTransform, Requires, match
+from optimi_lab.solver import SOLVERS, Eligible, Ineligible, MultiObjective, NeedsTransform, Requires, match
 
 REAL = Space((Real('x', 0.0, 1.0), Real('y', 0.0, 1.0)))
 TWO = (Objective('f'), Objective('g'))
@@ -63,7 +63,7 @@ def test_d27_b0_20_how_a_solver_handles_many_objectives_is_declared_and_single_i
     }
     verdict = match(Requires(objectives=MultiObjective.SINGLE), Problem(REAL, TWO), VALUES)
     assert isinstance(verdict, Ineligible) and 'scalarisation' in verdict.reason
-    assert all(isinstance(r.objectives, MultiObjective) for r in REGISTRY.values())
+    assert all(isinstance(r.objectives, MultiObjective) for r in SOLVERS.values())
 
 
 def test_d27_chance_structure_and_uncertainty_are_refused_with_the_reason() -> None:

@@ -2,7 +2,8 @@
 
 :func:`sobol_indices` draws two scrambled Sobol' matrices ``A`` and ``B`` of ``n`` rows over the
 unit cube (one ``2k``-dimensional sequence split in half), builds the ``k`` cross matrices ``AB_i``
-(``A`` with column ``i`` taken from ``B``), scales all of them onto the :class:`VariableSet`, and
+(``A`` with column ``i`` taken from ``B``), maps all of them onto the :class:`~optimi_lab.problem.Space` (Real variables only, so the
+measure is a product of intervals), and
 calls the vectorised function ONCE on the stacked ``n (k + 2)`` points. The estimators are the
 standard pair (Saltelli et al. 2010, Table 2): first order ``mean(f_B (f_AB_i - f_A)) / V`` and
 Jansen's total ``mean((f_A - f_AB_i)^2) / (2 V)``. A percentile bootstrap over the ``n`` base rows
@@ -22,7 +23,7 @@ import numpy as np
 from scipy.stats import qmc
 
 from optimi_lab.core.errors import refuse, require_finite, require_positive
-from optimi_lab.core.space import VariableSet
+from optimi_lab.problem import Real, Space
 
 __all__ = ['SobolIndices', 'main_effect', 'sobol_indices']
 
@@ -47,8 +48,8 @@ def _estimate(f_a: np.ndarray, f_b: np.ndarray, f_ab: np.ndarray) -> tuple[np.nd
     return first, total
 
 
-def sobol_indices(  # noqa: PLR0913 -- the estimate's knobs, every one keyword-only past the problem.
-    space: VariableSet,
+def sobol_indices(
+    space: Space,
     function: Callable[[np.ndarray], np.ndarray],
     n_base: int,
     *,
@@ -68,12 +69,16 @@ def sobol_indices(  # noqa: PLR0913 -- the estimate's knobs, every one keyword-o
         refuse(f'n_base must be a power of two for a balanced Sobol sequence, got {n_base}')
     if not 0.0 < confidence < 1.0:
         refuse(f'a confidence level lies strictly between 0 and 1, got {confidence}')
-    n_var = space.n_var
+    strangers = [v.name for v in space if not isinstance(v, Real) or v.active_if is not None]
+    if strangers:
+        refuse(f'Sobol indices here need unconditional Real variables; {strangers} are not')
+    n_var = space.width
     unit = qmc.Sobol(d=2 * n_var, seed=seed).random_base2(int(n_base).bit_length() - 1)
     unit_a, unit_b = unit[:, :n_var], unit[:, n_var:]
     unit_ab = np.repeat(unit_a[None], n_var, axis=0)
     unit_ab[np.arange(n_var), :, np.arange(n_var)] = unit_b.T
-    points = space.scale(np.vstack([unit_a, unit_b, *unit_ab]))
+    unit_points = np.vstack([unit_a, unit_b, *unit_ab])
+    points = np.array([[v.decode(row[i : i + 1]) for i, v in enumerate(space)] for row in unit_points])
     values = np.asarray(function(points), dtype=float)
     if values.shape != (points.shape[0],):
         refuse(f'the function must return one value per point, shape ({points.shape[0]},); got {values.shape}')

@@ -13,7 +13,7 @@ under. The design is reduced to its canonical form first, so an inactive value n
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, is_dataclass
 
 from lab_commons.outcomes import Identity
 
@@ -31,10 +31,8 @@ def _plain(item: object) -> object:
     """A declaration as identity-ready plain data; a callable is named by its qualified name."""
     if callable(item):
         return f'{item.__module__}.{item.__qualname__}'
-    if hasattr(item, '__dataclass_fields__'):
-        return {'kind': type(item).__name__} | {
-            k: _plain(getattr(item, k)) for k in item.__dataclass_fields__ if not k.startswith('_')
-        }
+    if is_dataclass(item) and not isinstance(item, type):
+        return {'kind': type(item).__name__} | _plain(asdict(item))
     if isinstance(item, Mapping):
         return {str(k): _plain(v) for k, v in item.items()}
     if isinstance(item, (tuple, list, frozenset, set)):
@@ -44,20 +42,38 @@ def _plain(item: object) -> object:
 
 
 @dataclass(frozen=True, slots=True)
-class Problem:
-    """Space, objectives, constraints, and the optional structure, uncertainty and fidelity."""
-
+class _ProblemFields:
     space: Space
     objectives: tuple[Objective, ...]
     constraints: tuple[Constraint, ...] = ()
     structure: Structure | None = None
     uncertainty: Uncertainty | None = None
     fidelity: Fidelity | None = None
-    identity: Identity = field(init=False, compare=False)
 
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'objectives', tuple(self.objectives))
-        object.__setattr__(self, 'constraints', tuple(self.constraints))
+
+@dataclass(frozen=True, slots=True, init=False)
+class Problem(_ProblemFields):
+    """Space, objectives, constraints, and the optional structure, uncertainty and fidelity."""
+
+    def __init__(
+        self,
+        space: Space,
+        objectives: tuple[Objective, ...],
+        *,
+        constraints: tuple[Constraint, ...] = (),
+        structure: Structure | None = None,
+        uncertainty: Uncertainty | None = None,
+        fidelity: Fidelity | None = None,
+    ) -> None:
+        _ProblemFields.__init__(self, space, tuple(objectives), tuple(constraints), structure, uncertainty, fidelity)
+        self._check()
+
+    @property
+    def identity(self) -> Identity:
+        """The ``outcomes.Identity`` of the whole declaration."""
+        return Identity.of(self.to_plain())
+
+    def _check(self) -> None:
         if not self.objectives:
             refuse('a problem needs at least one objective')
         require_declared_names(
@@ -66,12 +82,12 @@ class Problem:
         numeric = {v.name for v in self.space if isinstance(v, (Real, Integer))}
         for constraint in self.constraints:
             if isinstance(constraint, Linear):
-                unknown = sorted(set(constraint.coefficients) - set(self.space.names))
+                unknown = sorted(set(constraint.weights) - set(self.space.names))
                 if unknown:
                     refuse(
                         f'linear constraint {constraint.name!r} names {unknown[0]!r}, which the space does not declare'
                     )
-                bad = sorted(set(constraint.coefficients) - numeric)
+                bad = sorted(set(constraint.weights) - numeric)
                 if bad:
                     refuse(
                         f'linear constraint {constraint.name!r} weighs {bad}, which are not numeric (Real or Integer)'
@@ -81,7 +97,7 @@ class Problem:
                     f'chance constraint {constraint.name!r} needs an Uncertainty to take the chance over; declare one'
                 )
         if self.structure is not None:
-            unknown = sorted(set(self.structure.forms) - set(self.outputs) - {c.name for c in self.constraints})
+            unknown = sorted(set(self.structure.outputs) - set(self.outputs) - {c.name for c in self.constraints})
             if unknown:
                 refuse(
                     f'the structure describes {unknown[0]!r}, which is not an output of this problem {list(self.outputs)}'
@@ -90,7 +106,6 @@ class Problem:
             clash = sorted(set(self.uncertainty.names) & set(self.space.names))
             if clash:
                 refuse(f'uncertain parameter {clash[0]!r} is also a design variable; one name, one meaning')
-        object.__setattr__(self, 'identity', Identity.of(self.to_plain()))
 
     @property
     def outputs(self) -> tuple[str, ...]:

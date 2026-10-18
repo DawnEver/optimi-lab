@@ -1,9 +1,9 @@
 """Decision support over a finished front: redundancy, a knee, a TOPSIS ranking and a power law.
 
 Every objective matrix here is in the MINIMIZATION frame of :mod:`optimi_lab.core.pareto` -- the
-caller negates a maximised column once, through :meth:`~optimi_lab.core.space.ObjectiveSet.
-to_minimization` -- so no function takes a direction and none reads a name. Feasibility is
-:meth:`~optimi_lab.core.constraints.ConstraintSet.feasible_mask` and non-domination is
+caller signs and normalises each column once, through :meth:`~optimi_lab.problem.Objective.minimized`
+-- so no function takes a direction and none reads a name. Feasibility is
+:meth:`~optimi_lab.oracle.Result.violation` and non-domination is
 :func:`~optimi_lab.core.pareto.non_dominated_sorting`; this module reuses both rather than holding
 a copy. The caller declares thresholds and weights; this module only applies them.
 """

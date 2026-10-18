@@ -61,7 +61,37 @@ RETIRED: Final[dict[str, str]] = {
     'mixture_surrogate_model': 'optimi_lab.surrogate_model.mixture',
     'pso_operators': 'optimi_lab.intelligent_algorithm.swarm',
     # The `key@oc<N>@max|min` grammar and the package that parsed it.
-    'object_function': 'optimi_lab.core.space.Objective, whose fields are not a parse',
+    'object_function': 'optimi_lab.problem.Objective, whose fields are not a parse',
+    # P8 (plan PLAN-engines-and-one-outcome-vocabulary, D30): the 0.3 evaluation/record/driver
+    # surface, replaced by the II.7 layers over lab_commons.outcomes. Dotted spellings where the bare
+    # name now means something else (`Record` is outcomes.Record, `SCREENED` an outcomes.Status).
+    'Evaluation': 'optimi_lab.oracle.Result -- an outcomes.Cell per action',
+    'Outcome': 'lab_commons.outcomes.Status, which knows its DECIDED/RETRYABLE family',
+    'core.outcomes': 'lab_commons.outcomes',
+    'core.optimize': 'optimi_lab.run.run, filing into an outcomes.Record',
+    'core.routing': 'a policy-layer screen (L8, D143) emitting Status.SCREENED cells',
+    'Router': 'a policy-layer screen (L8, D143)',
+    'core.protocols': 'optimi_lab.solver.Solver and optimi_lab.oracle.Oracle',
+    'Proposer': 'optimi_lab.solver.Solver',
+    'Evaluator': 'optimi_lab.oracle.Oracle',
+    'Tunable': 'settings fixed at construction; adaptation is the policy layer (L8)',
+    'retune': 'settings fixed at construction; adaptation is the policy layer (L8)',
+    'steer': 'the policy layer (L8)',
+    'build_proposer': 'a factory returning a Solver: nsga2(problem, capability, spec=...)',
+    'PopulationProposer': 'optimi_lab.intelligent_algorithm.PopulationSolver',
+    'EvolutionaryProposer': 'optimi_lab.intelligent_algorithm.EvolutionarySolver',
+    'SwarmProposer': 'optimi_lab.intelligent_algorithm.SwarmSolver',
+    'DecompositionProposer': 'optimi_lab.intelligent_algorithm.DecompositionSolver',
+    'intelligent_algorithm.proposers': 'optimi_lab.intelligent_algorithm.solvers',
+    'SampleKind.IMPORT': 'evaluate the points you already have; a matrix handed in is not a sample',
+    'optimi_lab.benchmarks': 'optimi_lab.metric (indicators); problems with known fronts live in tests/benchmarks',
+    'core.space': 'optimi_lab.problem.Space and optimi_lab.problem.Objective',
+    'core.constraints': 'optimi_lab.problem constraint kinds (Linear, Explicit, BlackBox, Chance, Path)',
+    'VariableSet': 'optimi_lab.problem.Space',
+    'ObjectiveSet': 'Problem.objectives, a tuple of optimi_lab.problem.Objective',
+    'ConstraintSet': 'Problem.constraints, a tuple of constraint kinds',
+    'Direction': 'optimi_lab.problem.Sense',
+    'to_minimization': 'optimi_lab.problem.Objective.minimized (fixed normalisation, signed)',
 }
 
 #: The trees a retired spelling may not appear in. `archived/` and `examples/` are deliberately
@@ -82,7 +112,7 @@ SECOND_CHECKOUTS: Final = frozenset({'worktrees'})
 #: Floors. Both directions matter: a registry with nothing in it proves nothing, and a scan that
 #: reached three files reports exactly what a clean tree reports. Measured 2026-09-15.
 #: RE-MEASURED 2026-09-18: 7 spellings registered.
-REGISTRY_FLOOR: Final = 6
+REGISTRY_FLOOR: Final = 30
 
 #: THE OTHER SIDE OF ``REGISTRY_FLOOR``. Today's reading is 7 - 6 = 1.
 REGISTRY_HEADROOM: Final = 5
@@ -91,7 +121,7 @@ REGISTRY_HEADROOM: Final = 5
 #: would have passed a walk reaching two fifths of the tree; re-measured rather than absorbed by a
 #: wider headroom.
 #: RE-TAKEN 2026-10-04 AT 70, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 77.
-SCANNED_FILE_FLOOR: Final = 70
+SCANNED_FILE_FLOOR: Final = 95
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
 SCANNED_FILE_HEADROOM: Final = 25

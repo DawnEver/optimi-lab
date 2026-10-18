@@ -21,7 +21,7 @@ from optimi_lab.oracle import Action, Capability, Result, from_function
 from optimi_lab.problem import Categorical, Fidelity, Level, Linear, Objective, Problem, Real, Space
 from optimi_lab.problem import Path as PathConstraint
 from optimi_lab.run import Budget, run
-from optimi_lab.solver import REGISTRY, MultiObjective
+from optimi_lab.solver import SOLVERS, MultiObjective
 
 SPACE = Space((Real('x', 0.0, 1.0),))
 CAPABILITY = Capability(outputs=('f', 'g'), version='maxwell 24.1')
@@ -125,9 +125,9 @@ def test_b0_16_one_simulation_that_yields_two_outputs_is_one_evaluation(tmp_path
 
 
 def test_b0_20_every_registered_solver_declares_how_it_treats_many_objectives() -> None:
-    assert REGISTRY and all(isinstance(r.objectives, MultiObjective) for r in REGISTRY.values())
-    assert REGISTRY['moead'].objectives is MultiObjective.WEIGHTED
-    assert REGISTRY['nsga2'].objectives is MultiObjective.NATIVE_PARETO
+    assert SOLVERS and all(isinstance(r.objectives, MultiObjective) for r in SOLVERS.values())
+    assert SOLVERS['moead'].objectives is MultiObjective.WEIGHTED
+    assert SOLVERS['nsga2'].objectives is MultiObjective.NATIVE_PARETO
 
 
 @pytest.mark.xfail(strict=True, reason='B0-02: needs D84 scalarisation with declared reach and D110 scans (P12)')

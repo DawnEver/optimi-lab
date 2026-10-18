@@ -14,7 +14,7 @@ slope either. A gradient is taken with respect to the space's unit-cube coordina
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Any
 
@@ -25,11 +25,12 @@ from optimi_lab.core.errors import refuse
 from optimi_lab.oracle.action import Action
 from optimi_lab.problem import BlackBox, Chance, Path, Problem
 
-__all__ = ['Result']
+__all__ = ['EXTRAS', 'Result']
 
 _CARRIERS = frozenset({Status.OK, Status.PARTIAL})
-_VECTORS = ('gradient', 'hvp')
-_SCALARS = ('jvp', 'uncertainty', 'quality')
+
+#: The parts of a result beside its cell, as :meth:`Result.extras` files them.
+EXTRAS = ('gradient', 'jvp', 'hvp', 'uncertainty', 'quality', 'provenance', 'series')
 
 
 def _frozen(mapping: Mapping[str, Any] | None, convert: Callable[[Any], Any]) -> Mapping[str, Any]:
@@ -47,32 +48,60 @@ def _series(value: object) -> tuple[float, ...]:
 
 
 @dataclass(frozen=True, slots=True, eq=False)
-class Result:
-    """The *action*, its *cell*, and the extras around it (see the module docstring)."""
-
+class _ResultFields:
     action: Action
     cell: Cell
-    gradient: Mapping[str, np.ndarray] = field(default_factory=dict)
-    jvp: Mapping[str, float] = field(default_factory=dict)
-    hvp: Mapping[str, np.ndarray] = field(default_factory=dict)
-    uncertainty: Mapping[str, float] = field(default_factory=dict)
-    quality: Mapping[str, float] = field(default_factory=dict)
-    provenance: Mapping[str, str] = field(default_factory=dict)
-    series: Mapping[str, tuple[float, ...]] = field(default_factory=dict)
+    gradient: Mapping[str, np.ndarray]
+    jvp: Mapping[str, float]
+    hvp: Mapping[str, np.ndarray]
+    uncertainty: Mapping[str, float]
+    quality: Mapping[str, float]
+    provenance: Mapping[str, str]
+    series: Mapping[str, tuple[float, ...]]
 
-    def __post_init__(self) -> None:
-        for name in _VECTORS:
-            object.__setattr__(self, name, _frozen(getattr(self, name), _vector))
-        for name in _SCALARS:
-            object.__setattr__(self, name, _frozen(getattr(self, name), float))
-        object.__setattr__(self, 'provenance', _frozen(self.provenance, str))
-        object.__setattr__(self, 'series', _frozen(self.series, _series))
-        carried = [name for name in ('gradient', 'jvp', 'hvp', 'uncertainty', 'series') if getattr(self, name)]
-        if carried and self.cell.status not in _CARRIERS:
-            refuse(f'a {self.cell.status.name} result carries no derivative, uncertainty or series, got {carried}')
-        negative = sorted(k for k, v in self.uncertainty.items() if not v >= 0)
+
+@dataclass(frozen=True, slots=True, eq=False, init=False)
+class Result(_ResultFields):
+    """The *action*, its *cell*, and the extras around it (see the module docstring)."""
+
+    def __init__(
+        self,
+        action: Action,
+        cell: Cell,
+        *,
+        gradient: Mapping[str, object] | None = None,
+        jvp: Mapping[str, float] | None = None,
+        hvp: Mapping[str, object] | None = None,
+        uncertainty: Mapping[str, float] | None = None,
+        quality: Mapping[str, float] | None = None,
+        provenance: Mapping[str, str] | None = None,
+        series: Mapping[str, object] | None = None,
+    ) -> None:
+        parts = {
+            'gradient': _frozen(gradient, _vector),
+            'jvp': _frozen(jvp, float),
+            'hvp': _frozen(hvp, _vector),
+            'uncertainty': _frozen(uncertainty, float),
+            'series': _frozen(series, _series),
+        }
+        carried = [name for name, part in parts.items() if part]
+        if carried and cell.status not in _CARRIERS:
+            refuse(f'a {cell.status.name} result carries no derivative, uncertainty or series, got {carried}')
+        negative = sorted(k for k, v in parts['uncertainty'].items() if not v >= 0)
         if negative:
             refuse(f'an uncertainty is a standard deviation >= 0; {negative} are not')
+        _ResultFields.__init__(
+            self,
+            action,
+            cell,
+            parts['gradient'],
+            parts['jvp'],
+            parts['hvp'],
+            parts['uncertainty'],
+            _frozen(quality, float),
+            _frozen(provenance, str),
+            parts['series'],
+        )
 
     def conform(self, problem: Problem) -> Result:
         """Return self after checking every part against *problem*'s outputs and space width."""
@@ -110,18 +139,21 @@ class Result:
 
     def extras(self) -> dict[str, Any]:
         """The JSON-ready extras an archive files beside the cell."""
-        plain: dict[str, Any] = {}
-        for name in _VECTORS:
-            if getattr(self, name):
-                plain[name] = {k: v.tolist() for k, v in getattr(self, name).items()}
-        for name in (*_SCALARS, 'provenance'):
-            if getattr(self, name):
-                plain[name] = dict(getattr(self, name))
-        if self.series:
-            plain['series'] = {k: list(v) for k, v in self.series.items()}
-        return plain
+        parts = {
+            'gradient': {k: v.tolist() for k, v in self.gradient.items()},
+            'jvp': dict(self.jvp),
+            'hvp': {k: v.tolist() for k, v in self.hvp.items()},
+            'uncertainty': dict(self.uncertainty),
+            'quality': dict(self.quality),
+            'provenance': dict(self.provenance),
+            'series': {k: list(v) for k, v in self.series.items()},
+        }
+        return {name: part for name, part in parts.items() if part}
 
     @classmethod
     def from_extras(cls, action: Action, cell: Cell, extras: Mapping[str, Any]) -> Result:
-        """The inverse of :meth:`extras`."""
-        return cls(action, cell, **{k: v for k, v in extras.items() if k in cls.__dataclass_fields__})
+        """The inverse of :meth:`extras`; a key it does not know is refused."""
+        unknown = sorted(set(extras) - set(EXTRAS))
+        if unknown:
+            refuse(f'filed extras {unknown} are not result extras; the known ones are {list(EXTRAS)}')
+        return cls(action, cell, **extras)

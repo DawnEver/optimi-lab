@@ -33,21 +33,24 @@ class Form(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class Structure:
-    """Output name -> the set of :class:`Form` it is declared to have."""
+class _StructureFields:
+    forms: tuple[tuple[str, frozenset[Form]], ...]
 
-    forms: Mapping[str, frozenset[Form]]
 
-    def __post_init__(self) -> None:
-        object.__setattr__(
-            self, 'forms', {name: frozenset(Form(f) for f in forms) for name, forms in sorted(self.forms.items())}
-        )
+@dataclass(frozen=True, slots=True, init=False)
+class Structure(_StructureFields):
+    """Output name -> the set of :class:`Form` it is declared to have (stored as sorted pairs)."""
 
-    def __hash__(self) -> int:
-        return hash(tuple(self.forms.items()))
+    def __init__(self, forms: Mapping[str, frozenset[Form]]) -> None:
+        pairs = tuple(sorted((str(name), frozenset(Form(f) for f in kinds)) for name, kinds in dict(forms).items()))
+        _StructureFields.__init__(self, pairs)
+
+    @property
+    def outputs(self) -> tuple[str, ...]:
+        return tuple(name for name, _ in self.forms)
 
     def has(self, output: str, form: Form) -> bool:
-        return form in self.forms.get(output, frozenset())
+        return form in dict(self.forms).get(output, frozenset())
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,14 +88,18 @@ class Uniform:
 
 
 @dataclass(frozen=True, slots=True)
-class Uncertainty:
-    """Independent random parameters; drawn only through a caller-owned generator."""
-
+class _UncertaintyFields:
     parameters: tuple[Normal | Uniform, ...]
 
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'parameters', tuple(self.parameters))
-        require_declared_names(tuple(p.name for p in self.parameters), 'uncertainty')
+
+@dataclass(frozen=True, slots=True, init=False)
+class Uncertainty(_UncertaintyFields):
+    """Independent random parameters; drawn only through a caller-owned generator."""
+
+    def __init__(self, parameters: tuple[Normal | Uniform, ...]) -> None:
+        parameters = tuple(parameters)
+        require_declared_names(tuple(p.name for p in parameters), 'uncertainty')
+        _UncertaintyFields.__init__(self, parameters)
 
     @property
     def names(self) -> tuple[str, ...]:
@@ -118,17 +125,21 @@ class Level:
 
 
 @dataclass(frozen=True, slots=True)
-class Fidelity:
-    """Levels cheapest first, costs strictly increasing; the last level is the truth."""
-
+class _FidelityFields:
     levels: tuple[Level, ...]
 
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'levels', tuple(self.levels))
-        require_declared_names(tuple(level.name for level in self.levels), 'fidelity')
-        costs = [level.cost for level in self.levels]
+
+@dataclass(frozen=True, slots=True, init=False)
+class Fidelity(_FidelityFields):
+    """Levels cheapest first, costs strictly increasing; the last level is the truth."""
+
+    def __init__(self, levels: tuple[Level, ...]) -> None:
+        levels = tuple(levels)
+        require_declared_names(tuple(level.name for level in levels), 'fidelity')
+        costs = [level.cost for level in levels]
         if any(b <= a for a, b in itertools.pairwise(costs)):
             refuse(f'fidelity costs must be strictly increasing, cheapest first, got {costs}')
+        _FidelityFields.__init__(self, levels)
 
     @property
     def truth(self) -> Level:

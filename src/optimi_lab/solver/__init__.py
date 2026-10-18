@@ -5,7 +5,7 @@ The solvers themselves are rebuilt with P9-P15; the population solvers of P12 ar
 
 from optimi_lab.solver.protocol import Solver
 from optimi_lab.solver.requires import (
-    REGISTRY,
+    SOLVERS,
     Eligible,
     Ineligible,
     Match,
@@ -16,7 +16,7 @@ from optimi_lab.solver.requires import (
 )
 
 __all__ = [
-    'REGISTRY',
+    'SOLVERS',
     'Eligible',
     'Ineligible',
     'Match',

@@ -1,9 +1,8 @@
 """Surrogate models: one fit over a registered estimator, and a mixture over several fits.
 
-:class:`~optimi_lab.core.protocols.Surrogate` says what a surrogate IS — ``fit`` returns the fitted
-model, ``predict`` reads it back — and a surrogate is a fit, never a mode. A prediction is not an
-:class:`~optimi_lab.core.outcomes.Outcome`, so nothing here can hand one to ``Proposer.tell`` and
-have it scored as if the points had run. No module here reads a variable name list, a configuration
+A surrogate is a fit, never a mode -- ``fit`` returns the fitted model, ``predict`` reads it back.
+A prediction is a plain array; labelled as an ``outcomes.Cell`` it carries ``Evidence.PREDICTED``,
+which :class:`~optimi_lab.archive.Archive` keeps apart from every observation (B0-08). No module here reads a variable name list, a configuration
 file or a validity flag.
 
     >>> import numpy as np

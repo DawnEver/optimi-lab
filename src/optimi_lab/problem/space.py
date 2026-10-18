@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Iterator, Mapping
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass
 
 import numpy as np
 
@@ -26,15 +26,16 @@ _KINDS = (Real, Integer, Categorical, Field)
 
 
 @dataclass(frozen=True, slots=True)
-class Space:
+class _SpaceFields:
+    variables: tuple[Variable, ...]
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class Space(_SpaceFields):
     """Variables in declaration order; a ``When`` parent must be declared earlier and be discrete."""
 
-    variables: tuple[Variable, ...]
-    _slices: tuple[slice, ...] = field(default=(), init=False, repr=False, compare=False)
-
-    def __post_init__(self) -> None:
-        variables = tuple(self.variables)
-        object.__setattr__(self, 'variables', variables)
+    def __init__(self, variables: tuple[Variable, ...]) -> None:
+        variables = tuple(variables)
         strangers = [v for v in variables if not isinstance(v, _KINDS)]
         if strangers:
             refuse(f'a Space holds Real, Integer, Categorical or Field variables, got {strangers!r}')
@@ -56,8 +57,12 @@ class Space:
                         f'{variable.name!r} is active_if {condition.name!r} in {missing}, which is not a level of it'
                     )
             seen[variable.name] = variable
-        offsets = np.cumsum([0, *(v.width for v in variables)])
-        object.__setattr__(self, '_slices', tuple(slice(a, b) for a, b in itertools.pairwise(offsets)))
+        _SpaceFields.__init__(self, variables)
+
+    @property
+    def _slices(self) -> tuple[slice, ...]:
+        offsets = np.cumsum([0, *(v.width for v in self.variables)])
+        return tuple(slice(int(a), int(b)) for a, b in itertools.pairwise(offsets))
 
     @property
     def names(self) -> tuple[str, ...]:
@@ -66,7 +71,7 @@ class Space:
     @property
     def width(self) -> int:
         """Dimensions of the unit-cube vector."""
-        return self._slices[-1].stop if self._slices else 0
+        return sum(v.width for v in self.variables)
 
     def __getitem__(self, name: str) -> Variable:
         for variable in self.variables:
@@ -132,13 +137,4 @@ class Space:
 
     def to_plain(self) -> list[dict[str, object]]:
         """The declaration as plain data, for an identity."""
-        plain = []
-        for v in self.variables:
-            row = {
-                'kind': type(v).__name__,
-                **{k: getattr(v, k) for k in v.__dataclass_fields__ if not k.startswith('_')},
-            }
-            if v.active_if is not None:
-                row['active_if'] = {'name': v.active_if.name, 'levels': list(v.active_if.levels)}
-            plain.append(row)
-        return plain
+        return [{'kind': type(v).__name__, **asdict(v)} for v in self.variables]

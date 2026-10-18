@@ -1,13 +1,13 @@
 """Dominance, non-dominated sorting, and the size of a Das-Dennis reference grid.
 
 Everything here works in the MINIMIZATION frame — every column smaller-is-better. A caller with
-a maximizing objective negates that column first (:meth:`optimi_lab.core.space.ObjectiveSet.
-to_minimization`); nothing in this module knows about directions, and nothing here reads a name.
+a maximizing objective negates that column first (:meth:`optimi_lab.problem.Objective.minimized`);
+nothing in this module knows about directions, and nothing here reads a name.
 
 Non-finite input is refused rather than sorted. ``NaN <= x`` is False for every comparison, so a
 point holding a NaN is dominated by nothing and dominates nothing — it lands on the first front
 by arithmetic accident. The only rows that reach here are the ones whose every objective
-produced a value (:meth:`optimi_lab.core.outcomes.Evaluation.complete`).
+produced a value (an ``OK`` cell, :meth:`optimi_lab.archive.Archive.complete`).
 """
 
 from math import comb

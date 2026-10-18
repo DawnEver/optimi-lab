@@ -13,15 +13,17 @@ Tchebycheff comparison. With no constraint every violation is zero, which is the
 
 import numpy as np
 
-from optimi_lab.core import Evaluation, VariableSet, refuse
-from optimi_lab.intelligent_algorithm.proposers import PopulationProposer
+from optimi_lab.core import SampleSpec, refuse
 from optimi_lab.intelligent_algorithm.selection import decomposition_weights, nearest_neighbors, tchebycheff
+from optimi_lab.intelligent_algorithm.solvers import PopulationSolver
 from optimi_lab.intelligent_algorithm.variation import polynomial_mutation, simulated_binary_crossover
+from optimi_lab.oracle import Capability
+from optimi_lab.problem import Problem
 
-__all__ = ['DecompositionProposer']
+__all__ = ['DecompositionSolver']
 
 
-class DecompositionProposer(PopulationProposer):
+class DecompositionSolver(PopulationSolver):
     """MOEA/D: one subproblem per weight vector, each ranked by Tchebycheff distance to the ideal.
 
     The population is one solution per subproblem and never a shorter list of them: a child that
@@ -32,8 +34,8 @@ class DecompositionProposer(PopulationProposer):
 
     def __init__(
         self,
-        space: VariableSet,
-        pop_size: int,
+        problem: Problem,
+        capability: Capability,
         *,
         neighborhood_size: int | None = None,
         neighbor_rate: float = 0.9,
@@ -42,9 +44,10 @@ class DecompositionProposer(PopulationProposer):
         eta_crossover: float = 20.0,
         mutation_rate: float = 0.1,
         eta_mutation: float = 20.0,
+        spec: SampleSpec | None = None,
         seed: int = 0,
     ) -> None:
-        super().__init__(space, pop_size, seed=seed)
+        super().__init__(problem, capability, spec=spec, seed=seed)
         if neighborhood_size is None:
             neighborhood_size = self._pop_size
         if neighborhood_size < 2:
@@ -77,7 +80,7 @@ class DecompositionProposer(PopulationProposer):
         self._neighbors: np.ndarray | None = None
         self._ideal: np.ndarray | None = None
 
-    def _child(self, population: np.ndarray, space: VariableSet, rng: np.random.Generator) -> np.ndarray:
+    def _child(self, population: np.ndarray, width: int, rng: np.random.Generator) -> np.ndarray:
         """One child per subproblem, from two parents its own neighbourhood supplies."""
         count = len(population)
         pairs = np.empty((count, 2), dtype=np.intp)
@@ -87,17 +90,16 @@ class DecompositionProposer(PopulationProposer):
         children = simulated_binary_crossover(
             population[pairs[:, 0]],
             population[pairs[:, 1]],
-            space,
+            width,
             crossover_rate=self._crossover_rate,
             eta_crossover=self._eta_crossover,
             rng=rng,
         )
         return polynomial_mutation(
-            children, space, mutation_rate=self._mutation_rate, eta_mutation=self._eta_mutation, rng=rng
+            children, width, mutation_rate=self._mutation_rate, eta_mutation=self._eta_mutation, rng=rng
         )
 
-    def _admit(self, evaluation: Evaluation) -> None:
-        inputs, values, violation, mask = self._complete(evaluation)
+    def _admit(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray, mask: np.ndarray) -> None:
         if self._population is None:
             self._population, self._values, self._violation = inputs, values, violation
             self._weights = decomposition_weights(values.shape[1], len(inputs), rng=self._rng)
@@ -127,4 +129,4 @@ class DecompositionProposer(PopulationProposer):
             self._violation[better] = violation[position]
 
     def _propose(self) -> np.ndarray:
-        return self._child(self._population, self._space, self._rng)
+        return self._child(self._population, self._width, self._rng)

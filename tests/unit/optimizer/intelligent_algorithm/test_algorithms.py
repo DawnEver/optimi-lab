@@ -1,135 +1,85 @@
-"""The five proposers against a trivial two-objective problem, and the declarations they owe.
+"""The five population solvers against a trivial two-objective problem, and the declarations they owe.
 
-Every algorithm is run through :func:`optimi_lab.core.optimize.optimize` -- the path the user
-takes -- and the per-batch sizes are traced, because the defect being ratcheted here (a first
-generation that is the whole sample grid rather than the population) is only visible in the
-sizes a run actually asks for.
+Every algorithm is driven by :func:`optimi_lab.run.run` -- the path the user takes -- and the
+per-batch sizes are traced, because the defect being ratcheted here (a first generation that is the
+whole sample grid rather than the population) is only visible in the sizes a run actually asks for.
 """
 
+import asyncio
 import inspect
 import pathlib
 
 import numpy as np
 import pytest
+from lab_commons.outcomes import Cell, Reason, Record, Status
 
 import optimi_lab.intelligent_algorithm as package
-from optimi_lab import (
-    Evaluation,
-    Objective,
-    ObjectiveSet,
-    Outcome,
-    Refusal,
-    SampleSpec,
-    Variable,
-    VariableSet,
-    optimize,
-)
+from optimi_lab.core import Refusal, SampleSpec
 from optimi_lab.intelligent_algorithm import mode, moead, mopso, nsga2, nsga3
+from optimi_lab.oracle import Action, Capability, Result, from_function
+from optimi_lab.problem import Objective, Problem, Real, Space
+from optimi_lab.run import Budget, run
 
 ALGORITHMS = (nsga2, nsga3, mode, moead, mopso)
-SPACE = VariableSet([Variable('x', 0.0, 1.0), Variable('y', 0.0, 1.0)])
-OBJECTIVES = ObjectiveSet([Objective('to_origin'), Objective('to_one')])
+SPACE = Space((Real('x', 0.0, 1.0), Real('y', 0.0, 1.0)))
+TWO = (Objective('to_origin'), Objective('to_one'))
 MODULES = sorted(pathlib.Path(package.__file__).parent.glob('*.py'))
 
 
-def evaluate(points: np.ndarray) -> Evaluation:
+def _bowls(action: Action) -> dict[str, float]:
     """Two quadratic bowls, so the Pareto front is the quarter circle from ``(1, 0)`` to ``(0, 1)``."""
-    values = np.column_stack([np.sum(points**2, axis=1), np.sum((points - 1.0) ** 2, axis=1)])
-    return Evaluation(inputs=points, values=values)
+    p = np.array([action.design['x'], action.design['y']])
+    return {'to_origin': float(np.sum(p**2)), 'to_one': float(np.sum((p - 1.0) ** 2))}
 
 
-def run(factory, objectives: ObjectiveSet = OBJECTIVES, n_samples: int = 8, n_batches: int = 3, **settings):
-    """Drive one algorithm through the driver, with the evaluator matching the declared objectives."""
-
-    def scoring(points: np.ndarray) -> Evaluation:
-        values = np.zeros((points.shape[0], len(objectives)))
-        for column in range(len(objectives)):
-            values[:, column] = np.sum((points - column) ** 2, axis=1)
-        return Evaluation(inputs=points, values=values)
-
-    return optimize(
-        space=SPACE,
-        objectives=objectives,
-        evaluate=scoring,
-        build_proposer=factory(SPACE, **settings),
-        spec=SampleSpec(n_samples=n_samples, seed=1),
-        n_batches=n_batches,
+def _drive(factory, path, *, objectives=TWO, n_samples=8, n_batches=3, evaluate=_bowls, **settings):
+    problem = Problem(SPACE, objectives)
+    names = tuple(o.name for o in objectives)
+    oracle = from_function(
+        lambda a: {k: v for k, v in dict(evaluate(a)).items() if k in names}, Capability(outputs=names)
     )
+    solver = factory(problem, oracle.capability, spec=SampleSpec(n_samples=n_samples, seed=1), **settings)
+    return run(problem, oracle, solver, Record(path), Budget(evaluations=n_samples * n_batches))
 
 
 @pytest.mark.parametrize('factory', ALGORITHMS)
-def test_every_algorithm_finds_a_front_of_points_that_produced_values(factory):
-    """Construct, minimise, and assert a non-empty front whose every outcome is ``OK``."""
-    record = run(factory)
-
-    assert [outcome.value for outcome in record.evaluation.outcomes.ravel()] == ['ok'] * len(record) * 2
-    front = record.pareto()
-    assert len(front) > 0
-    assert all(outcome is Outcome.OK for outcome in front.outcomes.ravel())
+def test_every_algorithm_finds_a_front_of_points_that_produced_values(factory, tmp_path):
+    outcome = _drive(factory, tmp_path / 'r.jsonl')
+    assert all(r.cell.status is Status.OK for r in outcome.archive.results())
+    assert len(outcome.archive.front()) > 0
 
 
 @pytest.mark.parametrize('factory', ALGORITHMS)
 @pytest.mark.parametrize('n_samples', [8, 9])
 def test_every_batch_holds_the_population_the_sample_drew(factory, n_samples):
-    """One count, not two: the sample's row count IS the population, whatever the sampler returned.
-
-    The old run took its first batch from ``variable_space.var_space_matrix`` and stepped a
-    population of its own size, measured ``[121, 8, 8, 8]`` for ``pop_size=8``; a grid that is not
-    the population (9 rows here) also broadcast an 8-particle swarm against it.
-    """
+    """One count, not two: the sample's row count IS the population, whatever the sampler returned."""
+    problem = Problem(SPACE, TWO)
+    oracle = from_function(_bowls, Capability(outputs=('to_origin', 'to_one')))
+    solver = factory(problem, oracle.capability, spec=SampleSpec(n_samples=n_samples, seed=1))
     sizes = []
-
-    def tracing(points: np.ndarray) -> Evaluation:
-        sizes.append(points.shape[0])
-        return evaluate(points)
-
-    record = optimize(
-        space=SPACE,
-        objectives=OBJECTIVES,
-        evaluate=tracing,
-        build_proposer=factory(SPACE),
-        spec=SampleSpec(n_samples=n_samples, seed=1),
-        n_batches=4,
-    )
-
-    assert sizes == [n_samples] * 4, 'every batch must be the count the sample set'
-    assert len(record) == n_samples * 4
+    for _ in range(4):
+        asked = solver.ask(10_000)
+        sizes.append(len(asked))
+        solver.tell([asyncio.run(oracle(a)) for a in asked])
+    assert sizes == [n_samples] * 4, 'every generation must be the count the sample set'
 
 
 @pytest.mark.parametrize('factory', ALGORITHMS)
-def test_a_point_that_produced_no_value_is_dropped_and_never_scored(factory):
+def test_a_point_that_produced_no_value_is_dropped_and_never_scored(factory, tmp_path):
     """A point that did not compute leaves the population; it never enters a ranking as a number."""
-    calls = []
+    seen = []
 
-    def flaky(points: np.ndarray) -> Evaluation:
-        values = evaluate(points).values
-        outcomes = np.full(values.shape, Outcome.OK, dtype=object)
-        outcomes[0] = Outcome.ERROR
-        calls.append(points.shape[0])
-        return Evaluation(inputs=points, values=values, outcomes=outcomes)
+    def flaky(action: Action) -> dict[str, float] | Result:
+        seen.append(action)
+        if len(seen) % 8 == 1:
+            return Result(action, Cell(Status.ERROR, reason=Reason('error', 'planted')))
+        return _bowls(action)
 
-    record = optimize(
-        space=SPACE,
-        objectives=OBJECTIVES,
-        evaluate=flaky,
-        build_proposer=factory(SPACE),
-        spec=SampleSpec(n_samples=8, seed=1),
-        n_batches=3,
-    )
-
-    assert calls[0] == 8, 'the first batch is the sample the driver drew'
-    assert len(calls) == 3 and min(calls) >= 1, 'the run continues after a point failed'
-    assert any(outcome is Outcome.ERROR for outcome in record.evaluation.outcomes.ravel())
-    front = record.pareto()
-    assert len(front) > 0
-    assert all(np.isfinite(value) for value in front.values.ravel())
-
-
-@pytest.mark.parametrize('factory', ALGORITHMS)
-def test_a_proposer_refuses_to_ask_before_it_is_told(factory):
-    """The first batch is the driver's, so a proposer asked to invent one refuses and says why."""
-    with pytest.raises(Refusal, match=r'ask\(\) was called before tell'):
-        factory(SPACE)(4).ask()
+    outcome = _drive(factory, tmp_path / 'r.jsonl', evaluate=flaky)
+    assert any(r.cell.status is Status.ERROR for r in outcome.archive.results())
+    assert outcome.ledger.evaluations == 24, 'the run continues after a point failed'
+    front = outcome.archive.front()
+    assert front and all(r.cell.status is Status.OK for r in front)
 
 
 @pytest.mark.parametrize('factory', ALGORITHMS)
@@ -142,19 +92,17 @@ def test_selection_operator_is_spelled_the_same_by_every_algorithm(factory):
         assert 'selection_operator' in parameters
 
 
-def test_one_objective_is_refused_by_the_methods_that_need_two():
+def test_one_objective_is_refused_by_the_methods_that_need_two(tmp_path):
     """MOEA/D has nothing to decompose and NSGA-III no grid to refine, so both refuse and name it."""
-    single = ObjectiveSet([Objective('to_origin')])
-
     for factory in (moead, nsga3):
         with pytest.raises(Refusal, match='at least 2 objectives'):
-            run(factory, objectives=single, n_batches=2)
+            _drive(factory, tmp_path / f'{factory.__name__}.jsonl', objectives=(Objective('to_origin'),), n_batches=2)
 
 
 def test_a_setting_the_algorithm_does_not_take_is_refused_with_the_valid_set():
     """A misspelled setting is a refusal naming the ones accepted, not a ``TypeError`` later."""
     with pytest.raises(Refusal) as refusal:
-        nsga2(SPACE, crossover_rat=0.5)
+        nsga2(Problem(SPACE, TWO), Capability(outputs=('to_origin', 'to_one')), crossover_rat=0.5)
 
     assert 'crossover_rat' in str(refusal.value)
     assert 'crossover_rate' in str(refusal.value)
@@ -166,8 +114,8 @@ def test_the_package_holds_its_own_declarations():
         '__init__.py',
         'algorithms.py',
         'decomposition.py',
-        'proposers.py',
         'selection.py',
+        'solvers.py',
         'swarm.py',
         'variation.py',
     ]
@@ -192,10 +140,10 @@ def test_every_public_name_of_the_subpackage_is_reachable():
     assert sorted(package.__all__) == package.__all__
     assert len(package.__all__) == len(set(package.__all__))
     exports = (
-        package.DecompositionProposer,
-        package.EvolutionaryProposer,
-        package.PopulationProposer,
-        package.SwarmProposer,
+        package.DecompositionSolver,
+        package.EvolutionarySolver,
+        package.PopulationSolver,
+        package.SwarmSolver,
         package.binomial_crossover,
         package.crowding_distance,
         package.crowding_select,
