@@ -134,7 +134,8 @@ _SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozen
 #: by Tchebycheff weights; a scan returns one point per scalarisation; the multi-fidelity schedules
 #: need Fidelity levels. The model-based solvers (P11) model each BlackBox constraint by its own GP;
 #: ParEGO scalarises by a fresh weight per pick (WEIGHTED), EHVI/NEHVI keep the front (NATIVE_PARETO);
-#: multi-fidelity BO and TuRBO model no constraint (penalise first). The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
+#: multi-fidelity BO and TuRBO model no constraint (penalise first); the prescreened EA ranks by
+#: Deb's rule on predicted rows and model management is an extreme barrier, like BOBYQA. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
 #: the box methods take no other constraint, the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
     **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
@@ -160,4 +161,6 @@ SOLVERS: Final[dict[str, Requires]] = {
     **dict.fromkeys(('ehvi', 'nehvi'), _PARETO),
     'mfbo': Requires(MultiObjective.SINGLE, metric=True, fidelity=True),
     'turbo': Requires(MultiObjective.SINGLE, metric=True),
+    'prescreened': _PARETO,
+    'model_trust_region': _SINGLE,
 }

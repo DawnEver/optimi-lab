@@ -18,7 +18,8 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 * model-based (P11) -- :func:`bo` (log-EI/EI/PI/UCB/KG, constrained EI), :func:`parego`,
   :func:`ehvi`, :func:`nehvi`, each batching and running asynchronously through Kriging-believer
   fantasies (:mod:`optimi_lab.solver.bayesian`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
-  :func:`turbo` (TuRBO-1);
+  :func:`turbo` (TuRBO-1), :func:`prescreened` (surrogate-prescreened NSGA-II/GA),
+  :func:`model_trust_region` (trust-region model management);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -60,9 +61,11 @@ from optimi_lab.solver.gradient import METHODS, GradientSolver
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, map_elites
 from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
+from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_region
 from optimi_lab.solver.moving_asymptotes import gcmma, mma
 from optimi_lab.solver.multiobjective import mgda, pareto_continuation
 from optimi_lab.solver.population import EvolutionarySolver, PopulationSolver, Scalarise
+from optimi_lab.solver.prescreened import Prescreened, prescreened
 from optimi_lab.solver.protocol import Solver
 from optimi_lab.solver.requires import (
     SOLVERS,
@@ -105,12 +108,14 @@ __all__ = [
     'MapElites',
     'Match',
     'ModelBased',
+    'ModelTrustRegion',
     'MultiFidelityBO',
     'MultiObjective',
     'NeedsTransform',
     'NelderMead',
     'ParEGO',
     'PopulationSolver',
+    'Prescreened',
     'ReferenceVectorSolver',
     'Requires',
     'SampleAverage',
@@ -146,6 +151,7 @@ __all__ = [
     'mgda',
     'mma',
     'mode',
+    'model_trust_region',
     'moead',
     'mopso',
     'multistart',
@@ -156,6 +162,7 @@ __all__ = [
     'nsga3',
     'parego',
     'pareto_continuation',
+    'prescreened',
     'projected_gradient',
     'restarts',
     'rnsga3',
