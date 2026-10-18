@@ -7,9 +7,8 @@ factorisation or a KKT solve -- it calls numerics-lab's. The guard reads definit
 method that quietly inlined its own search would show up on one side or the other.
 
 R1: the runtime touches scipy only through ``scipy.linalg``, ``scipy.sparse`` (with
-``sparse.linalg``) and ``scipy.special``. Two shipped modules still read ``scipy.stats``; they are
-the NAMED debt :data:`STATS_DEBT`, each with the item that retires it, pinned on BOTH sides -- a new
-user reds, and so does a retired one left in the set. ``scipy.optimize`` is a reference oracle and
+``sparse.linalg``) and ``scipy.special``. P12 retired the last ``scipy.stats`` user, so the NAMED
+debt :data:`STATS_DEBT` is empty and pinned on BOTH sides -- a new user reds. ``scipy.optimize`` is a reference oracle and
 appears in tests only.
 
 Every guard is one function, called on the tree and on a planted violation.
@@ -52,11 +51,7 @@ _KERNEL: Final = re.compile('|'.join(KERNEL_NAMES))
 SCIPY_ALLOWED: Final = ('scipy.linalg', 'scipy.sparse', 'scipy.special')
 
 #: Shipped modules still importing scipy.stats -> the plan item that retires the import.
-STATS_DEBT: Final[dict[str, str]] = {
-    'src/optimi_lab/core/sampling.py': 'D58 (self-implemented space-filling designs)',
-    'src/optimi_lab/analysis/sensitivity.py': 'D69-D71 (self-implemented Sobol/Morris)',
-    'src/optimi_lab/analysis/decision.py': 'D69-D71 (self-implemented rank statistics)',
-}
+STATS_DEBT: Final[dict[str, str]] = {}
 
 #: Gradient-method and operator modules that import numerics-lab; measured 2026-10-18 at 4.
 NUMERICS_IMPORTER_FLOOR: Final = 4

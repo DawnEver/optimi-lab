@@ -57,8 +57,9 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
 #: A floor on the scan. Finding no foreign import across three files is not a pure package, it is a
 #: walk that stopped reaching one.
 #: RE-TAKEN 2026-10-17 AT 37: the P8 base (problem, oracle, archive, run, solver) read 48 shipped modules.
-#: RE-TAKEN 2026-10-18 AT 45: the P9 gradient methods (operator, solver, tests) read 53.
-SOURCE_FILE_FLOOR: Final = 45
+#: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
+#: RE-TAKEN 2026-10-18 AT 65 after merging P9 (operator, gradient solvers) onto P12.
+SOURCE_FILE_FLOOR: Final = 65
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12
@@ -197,3 +198,35 @@ def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
         f'the guard did not name a planted {planted!r} import. A scan that cannot fail on a planted '
         f'violation is not evidence about the tree it reports green.'
     )
+
+
+#: R1 (plan PLAN-engines-and-one-outcome-vocabulary, 2026-10-17): the runtime takes from scipy only
+#: these submodules; every optimisation, sampling and statistics ALGORITHM is self-implemented, and
+#: scipy.optimize / scipy.stats appear only in tests, as reference oracles.
+R1_SCIPY: Final = frozenset({'scipy.linalg', 'scipy.sparse', 'scipy.sparse.linalg', 'scipy.special'})
+
+
+def scipy_beyond_r1(module: ast.Module) -> frozenset[str]:
+    """THE GUARD: every scipy module *module* imports that is not one of the R1 submodules."""
+    names: list[str] = []
+    for node in ast.walk(module):
+        if isinstance(node, ast.Import):
+            names.extend(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            names.append(node.module)
+    return frozenset(n for n in names if n.split('.')[0] == 'scipy' and n not in R1_SCIPY)
+
+
+def test_the_runtime_takes_only_the_r1_scipy_submodules() -> None:
+    files = _source_files()
+    floors.assert_floor(len(files), floor=SOURCE_FILE_FLOOR, what='R1 scipy scan (shipped modules)')
+    found = {
+        p.relative_to(_ROOT).as_posix(): sorted(scipy_beyond_r1(ast.parse(p.read_text(encoding='utf-8'))))
+        for p in files
+    }
+    assert not {k: v for k, v in found.items() if v}
+
+
+def test_the_r1_guard_names_a_planted_scipy_algorithm() -> None:
+    planted = ast.parse('from scipy.stats import qmc\nimport scipy.optimize\nfrom scipy.special import ndtr\n')
+    assert scipy_beyond_r1(planted) == {'scipy.stats', 'scipy.optimize'}

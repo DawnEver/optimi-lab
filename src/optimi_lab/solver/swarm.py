@@ -15,14 +15,13 @@ from collections.abc import Callable
 
 import numpy as np
 
-from optimi_lab.core import SampleSpec, constrained_dominates, refuse, require_positive
-from optimi_lab.intelligent_algorithm.selection import crowding_select
-from optimi_lab.intelligent_algorithm.solvers import PopulationSolver
-from optimi_lab.intelligent_algorithm.variation import pso_position, pso_velocity
+from optimi_lab.core import constrained_dominates, constrained_non_dominated_sorting, refuse, require_positive
+from optimi_lab.operator import crowding_select, polynomial_mutation, pso_position, pso_velocity
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
+from optimi_lab.solver.population import PopulationSolver, build
 
-__all__ = ['SwarmSolver']
+__all__ = ['SwarmSolver', 'mopso']
 
 _ARCHIVE_PER_POPULATION = 2
 """A MOPSO archive is bounded by this many times the population before it is thinned."""
@@ -37,7 +36,8 @@ class SwarmSolver(PopulationSolver):
     ``max_velocity_fraction`` is the fraction of each variable's own range a particle may cross in
     one step, ``archive_size`` how many points the archive keeps (None is twice the population),
     ``cognitive``/``social``/``inertia`` the three weights of the velocity update, and ``selection``
-    the rule the archive is thinned by.
+    the rule the archive is thinned by. ``mutation_rate`` (None: one gene per particle) is the
+    turbulence of Coello Coello et al. (2004): polynomial mutation of the moved positions.
     """
 
     def __init__(
@@ -48,13 +48,14 @@ class SwarmSolver(PopulationSolver):
         inertia: float = 0.4,
         cognitive: float = 2.0,
         social: float = 2.0,
-        max_velocity_fraction: float = 0.1,
+        max_velocity_fraction: float = 0.5,
         archive_size: int | None = None,
         selection: Callable[..., np.ndarray] = crowding_select,
-        spec: SampleSpec | None = None,
-        seed: int = 0,
+        mutation_rate: float | None = None,
+        **base: object,
     ) -> None:
-        super().__init__(problem, capability, spec=spec, seed=seed)
+        super().__init__(problem, capability, **base)
+        self._mutation_rate = 1.0 / self._width if mutation_rate is None else mutation_rate
         if not 0.0 <= inertia <= 1.0:
             refuse(f'inertia must be in [0, 1], got {inertia!r}')
         if cognitive < 0 or social < 0:
@@ -114,15 +115,17 @@ class SwarmSolver(PopulationSolver):
         self._grow_archive(inputs, values, violation)
 
     def _grow_archive(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray) -> None:
-        """Add the new points, then thin the archive back to ``archive_size``.
+        """Add the new points, keep the constrained first front, and thin it to ``archive_size``.
 
-        The count asked of the selection is the archive bound WHERE THE POPULATION REACHES IT: the
-        first generation holds fewer points than the bound, and asking a selector for more rows
-        than exist is what the old MOPSO did on every run shorter than two generations.
+        The archive is the NON-DOMINATED set: a leader is never a dominated point. (The P8 port
+        filled the archive to its bound from later fronts, so the swarm followed dominated leaders.)
         """
-        combined_inputs = np.vstack([self._archive, inputs])
-        combined_values = np.vstack([self._archive_values, values])
-        combined_violation = np.concatenate([self._archive_violation, violation])
+        first = constrained_non_dominated_sorting(
+            np.vstack([self._archive_values, values]), np.concatenate([self._archive_violation, violation])
+        )
+        combined_inputs = np.vstack([self._archive, inputs])[first]
+        combined_values = np.vstack([self._archive_values, values])[first]
+        combined_violation = np.concatenate([self._archive_violation, violation])[first]
         keep = self._selection(
             combined_values, min(self._archive_size, len(combined_values)), violation=combined_violation
         )
@@ -142,4 +145,16 @@ class SwarmSolver(PopulationSolver):
             max_velocity_fraction=self._max_velocity_fraction,
             rng=self._rng,
         )
-        return pso_position(self._positions, self._velocities, self._width)
+        moved = pso_position(self._positions, self._velocities, self._width)
+        return polynomial_mutation(moved, self._width, mutation_rate=self._mutation_rate, rng=self._rng)
+
+
+def mopso(
+    problem: Problem,
+    capability: Capability,
+    *,
+    selection_operator: Callable[..., np.ndarray] = crowding_select,
+    **settings: object,
+) -> SwarmSolver:
+    """MOPSO (Coello Coello and Lechuga, 2002): particles led by a bounded archive thinned by *selection_operator*."""
+    return build(SwarmSolver, problem, capability, 'mopso', selection=selection_operator, **settings)

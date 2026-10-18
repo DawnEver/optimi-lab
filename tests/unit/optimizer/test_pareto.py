@@ -23,7 +23,7 @@ import numpy as np
 import pytest
 
 from optimi_lab.core import Refusal, dominates, non_dominated_sorting, partition_count
-from optimi_lab.intelligent_algorithm import crowding_distance
+from optimi_lab.operator import crowding_distance
 
 #: Four points chosen so that every front has a different size: `(0, 0)` dominates everything,
 #: `(1, 1)` dominates the two trade-off points, and those two dominate nothing and each other.

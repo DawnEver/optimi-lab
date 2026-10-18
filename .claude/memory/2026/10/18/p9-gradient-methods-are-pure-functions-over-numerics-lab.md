@@ -57,10 +57,8 @@ Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-v
 
 ## Not done / open
 
-- numerics-lab has no remote: the dependency is declared as
-  `numerics-lab @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git` (floating,
-  per the components docs: an engine floats, a product overrides with a path source). `uv lock`
-  cannot resolve it until that repo exists, so `uv.lock` is NOT re-locked for it; the dev venv
-  reaches numerics-lab through a `.pth` to the local checkout (machine-local, uncommitted).
-  The lane cannot merge to main until the remote exists.
+- numerics-lab is a floating runtime dependency (bare repository URL, no ref -- the components
+  docs: an engine floats, a product overrides it with a path source). Its repository was created
+  later the same day (main 9f16d44, Apache-2.0); the lock was then re-taken and holds it, and the
+  venv installs it from the lock (the interim machine-local `.pth` is gone).
 - Pre-existing kit-drift reds on main are untouched (listed in the hand-back report).

@@ -13,7 +13,7 @@ The linear systems this assembles are solved by numerics-lab (``numerics_lab.lin
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -27,40 +27,42 @@ def _rows(values: np.ndarray | None, n: int) -> np.ndarray:
 
 
 @dataclass(frozen=True, slots=True, eq=False)
-class Linearization:
+class _LinearizationFields:
+    x: np.ndarray
+    f: np.ndarray
+    df: np.ndarray
+    c: np.ndarray
+    dc: np.ndarray
+    h: np.ndarray
+    dh: np.ndarray
+
+
+@dataclass(frozen=True, slots=True, eq=False, init=False)
+class Linearization(_LinearizationFields):
     """Values and first derivatives at *x*: objectives ``f (k,)``/``df (k, n)``, ``c``/``dc``, ``h``/``dh``.
 
     ``c`` are inequalities ``c <= 0`` and ``h`` equalities ``h = 0``, each already scaled to a
     dimensionless violation. An absent kind is an empty array, never ``None``.
     """
 
-    x: np.ndarray
-    f: np.ndarray
-    df: np.ndarray
-    c: np.ndarray = field(default_factory=lambda: np.zeros(0))
-    dc: np.ndarray | None = None
-    h: np.ndarray = field(default_factory=lambda: np.zeros(0))
-    dh: np.ndarray | None = None
-
-    def __post_init__(self) -> None:
-        x = np.asarray(self.x, dtype=float)
+    def __init__(self, x, f, df, *, c=(), dc=None, h=(), dh=None) -> None:
+        x = np.asarray(x, dtype=float)
         n = x.size
-        f = np.atleast_1d(np.asarray(self.f, dtype=float))
         parts = {
             'x': x,
-            'f': f,
-            'df': _rows(self.df, n),
-            'c': np.atleast_1d(np.asarray(self.c, dtype=float)),
-            'dc': _rows(self.dc, n),
-            'h': np.atleast_1d(np.asarray(self.h, dtype=float)),
-            'dh': _rows(self.dh, n),
+            'f': np.atleast_1d(np.asarray(f, dtype=float)),
+            'df': _rows(df, n),
+            'c': np.atleast_1d(np.asarray(c, dtype=float)),
+            'dc': _rows(dc, n),
+            'h': np.atleast_1d(np.asarray(h, dtype=float)),
+            'dh': _rows(dh, n),
         }
         for value, slope in (('f', 'df'), ('c', 'dc'), ('h', 'dh')):
             if parts[slope].shape[0] != parts[value].size:
                 refuse(f'{slope} has {parts[slope].shape[0]} row(s) for {parts[value].size} value(s) of {value}')
-        for name, part in parts.items():
+        for part in parts.values():
             part.setflags(write=False)
-            object.__setattr__(self, name, part)
+        _LinearizationFields.__init__(self, **parts)
 
     @property
     def objective(self) -> float:

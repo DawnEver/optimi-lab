@@ -46,6 +46,7 @@ class Requires:
     constraints: frozenset[type] = frozenset()
     uncertainty: bool = False
     forms: frozenset[Form] = frozenset()
+    fidelity: bool = False
 
     @staticmethod
     def of(name: str) -> Requires:
@@ -87,6 +88,8 @@ def _refusals(requires: Requires, problem: Problem, capability: Capability) -> I
     chance = [c.name for c in problem.constraints if isinstance(c, Chance) and Chance not in requires.constraints]
     if chance:
         yield f'Chance constraints {chance} need an estimator over replicates; the solver handles none'
+    if requires.fidelity and problem.fidelity is None:
+        yield 'the solver promotes through fidelity levels and the problem declares no Fidelity'
     if problem.uncertainty is not None and not requires.uncertainty:
         yield 'the problem declares uncertainty and the solver has no risk estimator'
     for form in sorted(requires.forms):
@@ -124,11 +127,15 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
 _SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
 _SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
 
-#: Every solver this package ships, by name. The population solvers rank by Deb's rule, so they take
-#: black-box constraints natively; MOEA/D decomposes by Tchebycheff weights. The gradient methods
-#: (``optimi_lab.solver.gradient.METHODS``) need slopes; the box methods take no other constraint,
-#: the constrained ones every constraint that has a gradient.
+#: Every solver this package ships, by name. Population and local solvers rank by Deb's rule (or a
+#: barrier on the total violation), so they take black-box constraints natively; MOEA/D decomposes
+#: by Tchebycheff weights; a scan returns one point per scalarisation; the multi-fidelity schedules
+#: need Fidelity levels. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
+#: the box methods take no other constraint, the constrained ones every constraint with a gradient.
+_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
+_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
 SOLVERS: Final[dict[str, Requires]] = {
+    **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
     'projected_gradient': Requires(MultiObjective.SINGLE, information=_SLOPES),
     'lbfgsb': Requires(MultiObjective.SINGLE, information=_SLOPES),
     'newton_cg': Requires(MultiObjective.SINGLE, information=_SLOPES),
@@ -139,9 +146,10 @@ SOLVERS: Final[dict[str, Requires]] = {
     'gcmma': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
     'mgda': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES),
     'pareto_continuation': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES, constraints=_SMOOTH),
-    'nsga2': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
-    'nsga3': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
-    'mode': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
-    'mopso': Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox})),
     'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=frozenset({BlackBox})),
+    **dict.fromkeys(
+        ('ga', 'cmaes', 'ipop_cmaes', 'map_elites', 'nelder_mead', 'mads', 'bobyqa', 'multistart'), _SINGLE
+    ),
+    'scalarisation_scan': Requires(MultiObjective.EXTERNAL_SCAN, metric=True, constraints=frozenset({BlackBox})),
+    **dict.fromkeys(('hyperband', 'asha'), Requires(MultiObjective.SINGLE, metric=True, fidelity=True)),
 }

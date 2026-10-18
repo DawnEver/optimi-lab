@@ -26,7 +26,7 @@ from optimi_lab.operator import Linearization, kkt_residual
 from optimi_lab.solver.bounded import lbfgsb
 from optimi_lab.solver.smooth import Evaluate, Halt, Solution, kkt_bar
 
-__all__ = ['mma']
+__all__ = ['gcmma', 'mma']
 
 #: Svanberg's artificial-variable costs ``c_i`` and ``d_i``.
 _COST, _CURVATURE = 1000.0, 1.0
@@ -131,3 +131,8 @@ def mma(
         history = [*history, x][-2:]
         point = candidate
     return Solution(Halt.ITERATION_LIMIT, point.x, point, max_iterations, kkt_residual(point, lo, hi, z=lam).worst)
+
+
+def gcmma(evaluate: Evaluate, x0, lo, hi, **settings) -> Solution:
+    """GCMMA: :func:`mma` with conservative inner iterations (``conservative=True``)."""
+    return mma(evaluate, x0, lo, hi, conservative=True, **settings)

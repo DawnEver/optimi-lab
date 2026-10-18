@@ -10,15 +10,15 @@ sample drawn.
 Two measured defects are foreclosed here:
 
 * ``VariableSpace(sample_type='poisson_disk')`` returned ONE row at every ``n_count``: its radius
-  was derived as ``(1 / n_count) ** (-d)``, the exponent inverted, and scipy answers a radius
-  that large with a single point. ``sample_type='import'`` was worse — it left
-  nothing at all.
+  was derived as ``(1 / n_count) ** (-d)``, the exponent inverted, and a radius that large admits
+  a single point. ``sample_type='import'`` was worse — it left nothing at all.
 * The initial sample size and the population size were TWO numbers. The first iteration
   evaluated the whole grid (measured ``[121, 8, 8, 8]``) while ``_pop_size`` was documented
   "per iteration". Here :func:`sample` returns exactly ``n_samples`` rows for every kind, and the
-  population solver derives its size FROM that matrix (``intelligent_algorithm.solvers``).
+  population solver derives its size FROM that matrix (``optimi_lab.solver.population``).
 
-Every kind therefore either returns ``n_samples`` rows or refuses naming what it got.
+Every kind therefore either returns ``n_samples`` rows or refuses naming what it got. Every kind is
+self-implemented (R1): the point sets are :mod:`optimi_lab.core.qmc`'s, the Poisson disk is below.
 """
 
 from dataclasses import dataclass
@@ -27,9 +27,9 @@ from itertools import product
 from math import prod
 
 import numpy as np
-from scipy.stats.qmc import LatinHypercube, PoissonDisk
 
 from optimi_lab.core.errors import coerce_enum, refuse, require_finite, require_positive
+from optimi_lab.core.qmc import halton, latin_hypercube, maximin_latin_hypercube, sobol
 
 __all__ = [
     'DEFAULT_SAMPLES',
@@ -47,7 +47,10 @@ class SampleKind(StrEnum):
 
     GRID = 'grid'
     LATIN_HYPERCUBE = 'latin_hypercube'
+    MAXIMIN_LATIN_HYPERCUBE = 'maximin_latin_hypercube'
     POISSON_DISK = 'poisson_disk'
+    SOBOL = 'sobol'
+    HALTON = 'halton'
 
 
 SAMPLE_KINDS = tuple(kind.value for kind in SampleKind)
@@ -64,6 +67,9 @@ longer a factorial, and nothing downstream could tell."""
 
 _MAX_RADIUS_HALVINGS = 32
 """Ceiling on the Poisson-disk radius search, so a radius that cannot be met terminates."""
+
+_DART_CANDIDATES = 30
+"""Bridson's k: candidates tried around an active point before it is retired."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -184,8 +190,13 @@ def sample(width: int, spec: SampleSpec | None = None) -> np.ndarray:
     spec = SampleSpec() if spec is None else spec
     samplers = {
         SampleKind.GRID: _grid,
-        SampleKind.LATIN_HYPERCUBE: _latin_hypercube,
+        SampleKind.LATIN_HYPERCUBE: lambda w, s, n: latin_hypercube(n, w, np.random.default_rng(s.seed)),
+        SampleKind.MAXIMIN_LATIN_HYPERCUBE: lambda w, s, n: maximin_latin_hypercube(
+            n, w, np.random.default_rng(s.seed)
+        ),
         SampleKind.POISSON_DISK: _poisson_disk,
+        SampleKind.SOBOL: lambda w, s, n: sobol(n, w, rng=np.random.default_rng(s.seed)),
+        SampleKind.HALTON: lambda w, s, n: halton(n, w, rng=np.random.default_rng(s.seed)),
     }
     anchor = _require_anchor(width, spec.anchor)
     n_anchor = 0 if anchor is None else 1
@@ -245,33 +256,52 @@ def _grid(width: int, spec: SampleSpec, n_drawn: int) -> np.ndarray:
     return np.array(list(product(*columns)), dtype=float)
 
 
-def _latin_hypercube(width: int, spec: SampleSpec, n_drawn: int) -> np.ndarray:
-    """A Latin hypercube: one point per stratum in every dimension."""
-    return LatinHypercube(d=width, seed=spec.seed).random(n=n_drawn)
+def _bridson(width: int, radius: float, rng: np.random.Generator) -> np.ndarray:
+    """Every point a radius admits (Bridson 2007): darts in the shell ``[r, 2r)`` around active points.
+
+    Distances are checked against every accepted point at once, so the cost is quadratic in the
+    count and independent of the width -- a background grid would cost ``5 ** width`` cells a probe.
+    """
+    accepted = [rng.random(width)]
+    active = [0]
+    while active:
+        slot = rng.integers(len(active))
+        centre = accepted[active[slot]]
+        direction = rng.normal(size=(_DART_CANDIDATES, width))
+        direction /= np.linalg.norm(direction, axis=1, keepdims=True)
+        candidates = centre + direction * radius * (1.0 + rng.random((_DART_CANDIDATES, 1)))
+        placed = False
+        for candidate in candidates[np.all((candidates >= 0.0) & (candidates < 1.0), axis=1)]:
+            if np.min(np.linalg.norm(np.asarray(accepted) - candidate, axis=1)) >= radius:
+                accepted.append(candidate)
+                active.append(len(accepted) - 1)
+                placed = True
+                break
+        if not placed:
+            active.pop(slot)
+    return np.asarray(accepted)
 
 
 def _poisson_disk(width: int, spec: SampleSpec, n_drawn: int) -> np.ndarray:
-    """A Poisson-disk (blue-noise) set, subsampled to exactly ``n_drawn`` points.
+    """A Poisson-disk (blue-noise) set: every pair at least ``radius`` apart, thinned to ``n_drawn``.
 
-    scipy's ``random(n)`` returns FEWER than ``n`` points when the radius leaves no room, so
-    the batch is filled by ``fill_space()`` — every point the radius admits — and then thinned
-    to ``n_drawn``. The radius search is bounded, and a radius that stays too large is
-    refused naming the count it could reach rather than returning a short batch.
+    A radius the caller GAVE is a guarantee and is never shrunk: a set it cannot fill is refused,
+    naming the count it reached. A radius derived from ``n_drawn`` is halved until the set fills,
+    within a bounded search.
     """
+    rng = np.random.default_rng(spec.seed)
     radius = spec.radius if spec.radius is not None else 0.5 * n_drawn ** (-1.0 / width)
+    halvings = 1 if spec.radius is not None else _MAX_RADIUS_HALVINGS
     admitted = np.empty((0, width))
-    for _ in range(_MAX_RADIUS_HALVINGS):
-        admitted = PoissonDisk(d=width, radius=radius, seed=spec.seed).fill_space()
+    for _ in range(halvings):
+        admitted = _bridson(width, radius, rng)
         if admitted.shape[0] >= n_drawn:
             break
         radius /= 2
     else:
         refuse(
-            f'poisson_disk admitted {admitted.shape[0]} point(s) at the smallest radius tried in '
-            f'{_MAX_RADIUS_HALVINGS} halvings, short of {n_drawn}; pass radius= a smaller positive '
-            f'value, or a smaller n_samples'
+            f'poisson_disk admitted {admitted.shape[0]} point(s) at radius {radius * 2:g}, short of {n_drawn}; '
+            f'pass a smaller radius= or a smaller n_samples'
         )
-    if admitted.shape[0] > n_drawn:
-        chosen = np.random.default_rng(spec.seed).choice(admitted.shape[0], size=n_drawn, replace=False)
-        admitted = admitted[np.sort(chosen)]
-    return admitted
+    chosen = rng.choice(admitted.shape[0], size=n_drawn, replace=False)
+    return admitted[np.sort(chosen)]

@@ -58,7 +58,8 @@ DECLARED: Final[frozenset[str]] = frozenset()
 #: RE-TAKEN 2026-10-16 AT 92, from 80: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 99; the floor sits half a headroom below it.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
-FILES_READ_FLOOR: Final = 120
+#: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 160.
+FILES_READ_FLOOR: Final = 150
 
 #: How far past the floor this corpus may grow before the floor stops binding and must be re-taken.
 #: 70 + 15 = 85 against today's 77. This is the side the old floor did not have, and its absence is

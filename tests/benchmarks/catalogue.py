@@ -14,15 +14,19 @@ test tree.
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 import numpy as np
+from lab_commons.outcomes import Status
 
+from optimi_lab.core import non_dominated_sorting
 from optimi_lab.oracle import Action, Capability, Oracle, Result, from_function
 from optimi_lab.problem import BlackBox, Objective, Problem, Real, Space
+from optimi_lab.solver import Solver
 
-__all__ = ['CATALOGUE', 'Benchmark', 'RandomSearch']
+__all__ = ['CATALOGUE', 'Benchmark', 'RandomSearch', 'drive', 'front_of']
 
 
 @dataclass(frozen=True)
@@ -155,3 +159,38 @@ class RandomSearch:
     @property
     def done(self) -> bool:
         return False
+
+
+def drive(solver: Solver, oracle: Oracle, evaluations: int) -> list[Result]:
+    """Ask, evaluate and tell in memory until *evaluations* are spent or the solver concludes.
+
+    The run layer's record costs two fsyncs per evaluation; an ALGORITHM gate measures the algorithm,
+    so it drives the solver directly. An identity asked twice is evaluated once, as the run does.
+    """
+
+    async def loop() -> list[Result]:
+        seen: dict[str, Result] = {}
+        spent = 0
+        while spent < evaluations and not solver.done:
+            asked = list(solver.ask(evaluations - spent))
+            if not asked:
+                break
+            answers = []
+            for action in asked:
+                if action.identity.key not in seen:
+                    seen[action.identity.key] = await oracle(action)
+                    spent += 1
+                answers.append(seen[action.identity.key])
+            solver.tell(answers)
+        return list(seen.values())
+
+    return asyncio.run(loop())
+
+
+def front_of(problem: Problem, results: Sequence[Result]) -> np.ndarray:
+    """The feasible non-dominated objective rows of *results*, minimised frame."""
+    kept = [r for r in results if r.cell.status is Status.OK and r.violation(problem) == 0.0]
+    if not kept:
+        return np.zeros((0, len(problem.objectives)))
+    values = np.array([[o.minimized(r.cell.values[o.name]) for o in problem.objectives] for r in kept])
+    return values[non_dominated_sorting(values)]
