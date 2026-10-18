@@ -17,7 +17,8 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :func:`pareto_continuation`;
 * model-based (P11) -- :func:`bo` (log-EI/EI/PI/UCB/KG, constrained EI), :func:`parego`,
   :func:`ehvi`, :func:`nehvi`, each batching and running asynchronously through Kriging-believer
-  fantasies (:mod:`optimi_lab.solver.bayesian`);
+  fantasies (:mod:`optimi_lab.solver.bayesian`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
+  :func:`turbo` (TuRBO-1);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -54,6 +55,7 @@ from optimi_lab.solver.evolutionary import (
     unsga3,
 )
 from optimi_lab.solver.fidelity import ASHA, SuccessiveHalving, asha, hyperband
+from optimi_lab.solver.fidelity_bo import MultiFidelityBO, mfbo
 from optimi_lab.solver.gradient import METHODS, GradientSolver
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, map_elites
@@ -78,6 +80,7 @@ from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Sol
 from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
 from optimi_lab.solver.swarm import SwarmSolver, mopso
 from optimi_lab.solver.trust_region import TrustRegion, bobyqa
+from optimi_lab.solver.turbo import TuRBO, turbo
 
 __all__ = [
     'ACQUISITIONS',
@@ -102,6 +105,7 @@ __all__ = [
     'MapElites',
     'Match',
     'ModelBased',
+    'MultiFidelityBO',
     'MultiObjective',
     'NeedsTransform',
     'NelderMead',
@@ -118,6 +122,7 @@ __all__ = [
     'SuccessiveHalving',
     'SwarmSolver',
     'TrustRegion',
+    'TuRBO',
     'Unevaluable',
     'asha',
     'augmented_lagrangian',
@@ -137,6 +142,7 @@ __all__ = [
     'map_elites',
     'match',
     'maximise',
+    'mfbo',
     'mgda',
     'mma',
     'mode',
@@ -161,6 +167,7 @@ __all__ = [
     'sms_emoa',
     'spea2',
     'sqp',
+    'turbo',
     'unsga3',
     'warm_start',
 ]

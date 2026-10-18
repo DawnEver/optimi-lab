@@ -77,6 +77,7 @@ __all__ = [
     'maximise',
     'nehvi',
     'parego',
+    'require_modelable',
 ]
 
 #: Unit-cube rows ``(n, d)`` -> one score per row ``(n,)``, larger is better.
@@ -136,6 +137,21 @@ def maximise(
     return best
 
 
+def require_modelable(problem: Problem, *, constraints: bool) -> None:
+    """Refuse what a model over the unit cube cannot read: a conditional or unembedded variable, a foreign constraint.
+
+    With ``constraints=False`` every constraint is refused, naming the ``penalise`` transform.
+    """
+    conditional = [v.name for v in problem.space if v.active_if is not None]
+    unembedded = [v.name for v in problem.space if isinstance(v, Categorical) and v.embedding is None]
+    if conditional or unembedded:
+        refuse(f'a model needs every variable active and metric; {conditional + unembedded} are not (embed first)')
+    foreign = [c.name for c in problem.constraints if not (constraints and isinstance(c, BlackBox))]
+    if foreign:
+        kind = 'BlackBox constraints only' if constraints else 'no constraint'
+        refuse(f'this solver models {kind}; apply optimi_lab.oracle.penalise to {foreign}')
+
+
 class ModelBased(ABC):
     """The ask/tell shell every Gaussian-process solver shares: initial design, pending set, data, fantasies."""
 
@@ -152,15 +168,7 @@ class ModelBased(ABC):
         max_evaluations: int | None = None,
         seed: int = 0,
     ) -> None:
-        conditional = [v.name for v in problem.space if v.active_if is not None]
-        unembedded = [v.name for v in problem.space if isinstance(v, Categorical) and v.embedding is None]
-        if conditional or unembedded:
-            refuse(f'a model needs every variable active and metric; {conditional + unembedded} are not (embed first)')
-        foreign = [c.name for c in problem.constraints if not isinstance(c, BlackBox)]
-        if foreign:
-            refuse(
-                f'model-based solvers model BlackBox constraints only; apply optimi_lab.oracle.penalise to {foreign}'
-            )
+        require_modelable(problem, constraints=True)
         if surrogate is not None and not isinstance(surrogate, GaussianProcess):
             refuse(f'the acquisitions read a joint posterior and fantasies; pass a GaussianProcess, got {surrogate!r}')
         width = problem.space.width
