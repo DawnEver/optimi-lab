@@ -1,10 +1,9 @@
 """INSTALL-DOOR-DELIVERS-THE-DECLARATION, and this repo's answer is that it was ALREADY CORRECT.
 
-THE RULE'S SUBJECT IS HERE. `pyproject.toml` declares
-``lab-commons[dev] @ git+https://github.com/DawnEver/lab-commons.git`` with no ref and `uv.lock` is
-not tracked, so the requirement says "whatever that URL holds now" -- and this checkout's untracked
-lock pins `0.2.2.dev26+gba3bf6de`, sixteen commits behind the declared build measured on 2026-09-17.
-The hazard is fully loaded; what is missing is a door that fires it.
+THE RULE'S SUBJECT IS HERE. `pyproject.toml` declares lab-commons and numerics-lab as bare git URLs
+with no ref, so each requirement says "whatever that URL holds now". On 2026-09-17 `uv.lock` was not
+tracked and pinned a build sixteen commits behind the declared one; it is committed since PIN +
+FRESHNESS (2026-10-17), so a lock-consuming door is now judged against the COMMITTED lock.
 
 MEASURED 2026-09-17, AND NOTHING WAS CHANGED AS A RESULT. All 22 installer-capable commands across
 the files below are `uv pip install` / `pip install` / `python -m`, and with uv 0.12.5 a
@@ -22,8 +21,8 @@ THE DOOR SET IS OPTIMI-LAB'S OWN AND THAT IS WHY THIS FILE STAYS HERE, which `_p
 the deciding fact. Which files in a tree can move an environment is not portable: this repo installs
 through a `.github/workflows/ci.yml` the sibling lab does not have, and the sibling installs through
 a `generate-changelog` git hook and an update script that optimi-lab does not have. The MECHANISM
-around the set -- `scan_doors`, `floating_requirements`, `reverting`, `assert_doors_deliver` -- is
-entirely `lab_commons.dev.installdoor`, so what is genuinely this package's is the five paths in
+around the set -- `scan_doors`, `floating_requirements`, `unlocked`, `assert_doors_deliver` -- is
+entirely `lab_commons.dev.installdoor`, so what is genuinely this package's is the four paths in
 `_DOORS` and the floor under them, and that is the whole of it.
 """
 
@@ -36,10 +35,10 @@ import pytest
 from lab_commons.dev.doorcensus import DoorRow, assert_census, door_text
 from lab_commons.dev.installdoor import (
     Delivery,
-    RevertingDoorsError,
+    UnlockedDoorsError,
     assert_doors_deliver,
     floating_requirements,
-    reverting,
+    unlocked,
 )
 from lab_commons.dev.synccensus import pruning_sites
 
@@ -56,10 +55,12 @@ DOOR_ROWS: Final[tuple[DoorRow, ...]] = (
     DoorRow(
         repo=_HERE,
         path='Makefile',
-        commands=16,
+        commands=15,
         deliveries=frozenset({'INERT', 'RESOLVES'}),
         why=(
-            'Measured correct on 2026-09-17 and changed as a result of nothing, which is a result '
+            '16 -> 15 ON 2026-10-18: `install-dev` lost `python -m pre-commit autoupdate`, which '
+            'updated a configuration the retired pre-commit framework no longer reads; deliveries '
+            'unchanged. Measured correct on 2026-09-17 and changed as a result of nothing, which is a result '
             'rather than a skip: this repo carried the hazard fully loaded -- a floating kit '
             'requirement and an untracked lock -- and simply had no door that fired it. Every install '
             'here is `uv pip install`, which re-resolves; the row keeps that true.'
@@ -74,18 +75,6 @@ DOOR_ROWS: Final[tuple[DoorRow, ...]] = (
             'A DOOR WITH A PERSON IN THE MIDDLE. What a README tells a human to type moves an '
             'environment exactly as a Makefile target does, and it is the door with no CI and no '
             'hook to catch it drifting away from the Makefile beside it.'
-        ),
-    ),
-    DoorRow(
-        repo=_HERE,
-        path='.pre-commit-config.yaml',
-        commands=0,
-        deliveries=frozenset(),
-        why=(
-            'ZERO, AND THIS IS THE SIBLING OF THE FILE THAT CARRIED THE DEFECT: the sibling lab '
-            'reverted the kit on every push through a hook entry in a file of this exact name, and '
-            'this repo has no such entry. The day a `uv run` hook is added here, this count moves '
-            'off zero and the census says so before the first push does.'
         ),
     ),
     DoorRow(
@@ -117,22 +106,22 @@ DOOR_ROWS: Final[tuple[DoorRow, ...]] = (
 #: The door set every other arm reads, DERIVED from the rows so the paths are stated once.
 _DOORS: Final[tuple[str, ...]] = tuple(row.path for row in DOOR_ROWS)
 
-#: MEASURED 2026-09-17 at 22 installer-capable commands across those five files; the per-file counts
-#: are held by EQUALITY in `DOOR_ROWS`. The floor sits under it, because "no reverting door" over a
-#: set that was never read is a vacuous green.
+#: MEASURED 2026-09-17 at 22 installer-capable commands, 21 across these four files since 2026-10-18;
+#: the per-file counts are held by EQUALITY in `DOOR_ROWS`. The floor sits under it, because "no
+#: unlocked door" over a set that was never read is a vacuous green.
 _DOOR_FLOOR: Final = 15
 
 
 def test_this_repo_declares_the_kit_as_a_floating_requirement() -> None:
     """The rule's subject, asserted rather than assumed: with no floating requirement it is vacuous."""
-    assert floating_requirements(_ROOT / 'pyproject.toml') == ('lab-commons',)
+    assert floating_requirements(_ROOT / 'pyproject.toml') == ('lab-commons', 'numerics-lab')
 
 
 def test_every_install_door_already_delivers_the_declared_kit() -> None:
     """THE GUARD, and today it passes on a tree that needed no repair -- which is a result, not a skip."""
     names = floating_requirements(_ROOT / 'pyproject.toml')
     doors = assert_doors_deliver(_ROOT, list(_DOORS), names, floor=_DOOR_FLOOR)
-    assert reverting(doors) == ()
+    assert unlocked(doors) == ()
     assert Delivery.RESOLVES in {door.delivery for door in doors}, (
         'every door here classified INERT, so this scan is no longer watching an install path at all'
     )
@@ -147,15 +136,14 @@ def test_the_guard_fires_on_a_lock_consuming_target_planted_in_this_makefile(tmp
     """
     text = (_ROOT / 'Makefile').read_text(encoding='utf-8').replace('uv pip install -e "."', 'uv sync')
     (tmp_path / 'Makefile').write_text(text, encoding='utf-8')
-    with pytest.raises(RevertingDoorsError, match=r'Makefile:\d+'):
+    with pytest.raises(UnlockedDoorsError, match=r'Makefile:\d+'):
         assert_doors_deliver(tmp_path, ['Makefile'], ('lab-commons',), floor=1)
 
 
 def test_every_declared_door_still_measures_what_its_row_records() -> None:
     """THE CENSUS, through the kit's `assert_census`, over this checkout's WORKING TREE.
 
-    Equality per file in both directions, plus the kit's refusal of a tracked ``uv.lock`` -- the
-    condition every lock-consuming door would rest on.
+    Equality per file in both directions.
     """
     seen = assert_census(
         _ROOT.parent, {_HERE: _ROOT.name}, DOOR_ROWS, repo_floor=1, door_floor=len(DOOR_ROWS), here=_HERE
