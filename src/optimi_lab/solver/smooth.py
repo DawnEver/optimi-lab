@@ -34,10 +34,15 @@ from optimi_lab.operator import Linearization
 from optimi_lab.oracle import Result
 from optimi_lab.problem import BlackBox, Explicit, Field, Linear, Problem, Real, Relation, Scale
 
-__all__ = ['Evaluate', 'Halt', 'SmoothView', 'Solution', 'Unevaluable', 'kkt_bar', 'trial']
+__all__ = ['ATOL', 'RTOL', 'Evaluate', 'Halt', 'SmoothView', 'Solution', 'Unevaluable', 'kkt_bar', 'trial']
 
 #: ``evaluate(x) -> Linearization``; raises :class:`Unevaluable`.
 Evaluate = Callable[[np.ndarray], Linearization]
+
+#: Default relative stopping bar, against the starting gradient (dimensionless).
+RTOL = 1e-8
+#: Default absolute floor: normalised objective units per unit-cube width.
+ATOL = 1e-10
 
 #: The central-difference step for an Explicit constraint, relative to ``max(1, |value|)``.
 _EXPLICIT_STEP = 6e-6
@@ -68,6 +73,8 @@ class Solution:
     residual: float
     front: tuple[Linearization, ...] = field(default=())
     reason: str = ''
+    #: Named choices that shaped the answer, e.g. ``'hvp:finite_difference'`` -- never silent.
+    evidence: tuple[str, ...] = ()
 
 
 def trial(evaluate: Evaluate, x: np.ndarray) -> Linearization | None:
@@ -146,6 +153,17 @@ class SmoothView:
             dc.append(sign * row / constraint.scale)
         return c, dc, h, dh
 
+    def objective_hvp(self, result: Result) -> np.ndarray:
+        """The first objective's Hessian times the action's direction, in the minimised normalised frame."""
+        if result.cell.status is not Status.OK:
+            msg = f'{result.cell.status.name}: an hvp evaluation did not compute'
+            raise Unevaluable(msg)
+        objective = self.problem.objectives[0]
+        if objective.name not in result.hvp:
+            refuse(f'an OK result carries no hvp of {objective.name!r}; the oracle must answer the HVP it was asked')
+        sign = -1.0 if objective.sense.value == 'maximize' else 1.0
+        return sign * result.hvp[objective.name] / objective.normalization.scale
+
     def linearize(self, x: np.ndarray, result: Result) -> Linearization:
         """The linearisation at unit point *x* from an OK *result*; a result without values is Unevaluable."""
         if result.cell.status is not Status.OK:
@@ -179,9 +197,15 @@ class SmoothView:
         )
 
 
-def kkt_bar(point: Linearization, tolerance: float) -> float:
-    """The KKT bar RELATIVE to the starting gradient: ``tolerance * (1 + |grad f0|_max)``, fixed for the run.
+def kkt_bar(initial_gradient: np.ndarray, *, rtol: float, atol: float) -> float:
+    """The stopping bar: ``max(rtol * |grad f(x0)|_max, atol)`` -- residual <= rtol x start OR <= atol.
 
-    An absolute bar carries the objective's unit (TOLERANCE-CARRIES-A-UNIT); this one does not.
+    *atol* is in the normalised objective's units per unit-cube width (the frame every method works
+    in) and must be > 0: it is the floor that stops a start whose gradient is ~0, where the relative
+    bar alone would be ~0 and never met.
     """
-    return tolerance * (1.0 + float(np.max(np.abs(point.df[0]), initial=0.0)))
+    if not atol > 0:
+        refuse(f'atol is the floor of the stopping bar and must be > 0, got {atol!r}')
+    if not rtol >= 0:
+        refuse(f'rtol must be >= 0, got {rtol!r}')
+    return max(rtol * float(np.max(np.abs(initial_gradient), initial=0.0)), float(atol))

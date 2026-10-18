@@ -1,12 +1,12 @@
-"""The RUNTIME of `optimi_lab` is numpy, scipy, scikit-learn, numerics-lab and `lab_commons.outcomes` -- checked.
+"""The RUNTIME of `optimi_lab` is numpy, scipy, numerics-lab and `lab_commons.outcomes` -- checked.
 
 PLAN II.1 (2026-10-17) moved lab-commons into the base install for ONE module: `lab_commons.outcomes`,
 the standard-library-only task-outcome vocabulary every engine shares. Any other lab-commons module
 (structlog, pint and pydantic behind `log`, `units`, `config`) is still refused here, by the same
 guard, which now matches an allowed import by its dotted PREFIX rather than its root.
 
-`src/optimi_lab/__init__.py` states "Dependencies are numpy, scipy and scikit-learn. No plotting,
-no logging framework, no path resolution, no configuration file" and `pyproject.toml` repeats it in
+`src/optimi_lab/__init__.py` states which distributions the runtime is, and that it has no plotting,
+no logging framework, no path resolution and no configuration file; `pyproject.toml` repeats it in
 a comment. Until this module, both were PROSE: a `structlog` import added to one function would
 have left every word of that claim reading exactly as it does now. A declaration the code does not
 enforce is the defect this family names first, so the claim is read off the two places it can
@@ -41,14 +41,13 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
 
 #: The whole runtime dependency set. A sixth entry is a decision taken in this file, by name.
-RUNTIME: Final = frozenset({'numpy', 'scipy', 'scikit-learn', 'lab-commons', 'numerics-lab'})
+RUNTIME: Final = frozenset({'numpy', 'scipy', 'lab-commons', 'numerics-lab'})
 
-#: The import roots those distributions provide, plus the package itself. `sklearn` is
-#: `scikit-learn`'s import name and the two spellings are not derivable from one another.
+#: The import roots those distributions provide, plus the package itself. scikit-learn left the
+#: runtime with P10 (plan R1, D58): every surrogate is self-implemented and sklearn is a TEST oracle.
 RUNTIME_IMPORT_ROOTS: Final = frozenset({
     'numpy',
     'scipy',
-    'sklearn',
     'optimi_lab',
     'lab_commons.outcomes',
     'numerics_lab',
@@ -59,6 +58,8 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
 #: RE-TAKEN 2026-10-17 AT 37: the P8 base (problem, oracle, archive, run, solver) read 48 shipped modules.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
 #: RE-TAKEN 2026-10-18 AT 66: the P9 + P12 merge read 72.
+#: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, optimi_lab.model) read 84.
+#: RE-TAKEN 2026-10-18 AT 65 after merging P9 (operator, gradient solvers) onto P12.
 SOURCE_FILE_FLOOR: Final = 80
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
@@ -186,7 +187,9 @@ def test_no_shipped_module_imports_outside_the_runtime_set() -> None:
     )
 
 
-@pytest.mark.parametrize('planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'lab_commons', 'lab_commons.log'])
+@pytest.mark.parametrize(
+    'planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'sklearn', 'lab_commons', 'lab_commons.log']
+)
 def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
     """THE CONTROL. Plant the import in a module and call the REAL guard, not a copy of it.
 

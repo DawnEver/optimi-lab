@@ -36,7 +36,8 @@ __all__ = ['Archive']
 def _action(data: dict[str, Any]) -> Action:
     identity = Identity(data['identity'], data['key'])
     want = frozenset(Information(i) for i in data['want'])
-    return Action(data['design'], data['fidelity'], want, data['replicate'], identity)
+    direction = None if data['direction'] is None else tuple(data['direction'])
+    return Action(data['design'], data['fidelity'], want, data['replicate'], identity, direction)
 
 
 class Archive:

@@ -732,8 +732,8 @@ wheels = [
 
 [[package]]
 name = "lab-commons"
-version = "0.3.1.dev653+g997a3d52b"
-source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git#997a3d52bacf8dc2725d48c0ef5f94ce6b7e84b4" }
+version = "0.3.1.dev655+g36e187785"
+source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git#36e1877852eb36cdef7275c70bf36140030d9082" }
 
 [package.optional-dependencies]
 dev = [
@@ -1027,7 +1027,6 @@ dependencies = [
     { name = "lab-commons" },
     { name = "numerics-lab" },
     { name = "numpy" },
-    { name = "scikit-learn" },
     { name = "scipy" },
 ]
 
@@ -1044,6 +1043,7 @@ dev = [
     { name = "pytest-mock" },
     { name = "pytest-xdist" },
     { name = "ruff" },
+    { name = "scikit-learn" },
 ]
 
 [package.metadata]
@@ -1062,7 +1062,7 @@ requires-dist = [
     { name = "pytest-mock", marker = "extra == 'dev'" },
     { name = "pytest-xdist", marker = "extra == 'dev'" },
     { name = "ruff", marker = "extra == 'dev'" },
-    { name = "scikit-learn" },
+    { name = "scikit-learn", marker = "extra == 'dev'" },
     { name = "scipy" },
 ]
 provides-extras = ["dev"]

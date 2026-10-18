@@ -21,7 +21,7 @@ from numerics_lab.line_search import backtracking
 from optimi_lab.core.errors import refuse
 from optimi_lab.operator import Linearization, active_set_qp
 from optimi_lab.solver.constrained import sqp
-from optimi_lab.solver.smooth import Evaluate, Halt, Solution, trial
+from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, Solution, kkt_bar, trial
 
 __all__ = ['mgda', 'pareto_continuation']
 
@@ -43,14 +43,15 @@ def _direction(point: Linearization, lo: np.ndarray, hi: np.ndarray) -> np.ndarr
     return active_set_qp(h, g, a_in=a_in, b_in=b_in).x[:n]
 
 
-def _descend(evaluate: Evaluate, x0, lo, hi, *, tolerance: float, max_iterations: int) -> Solution:
+def _descend(evaluate: Evaluate, x0, lo, hi, *, rtol: float, atol: float, max_iterations: int) -> Solution:
     point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
+    bar = kkt_bar(point.df, rtol=rtol, atol=atol)
     if point.c.size or point.h.size:
         refuse('mgda takes no constraints beyond the box; penalise them, or use pareto_continuation')
     for iteration in range(max_iterations):
         d = _direction(point, lo, hi)
         size = float(np.max(np.abs(d), initial=0.0))
-        if size <= tolerance:
+        if size <= bar:
             return Solution(Halt.CONVERGED, point.x, point, iteration, size)
         slopes = point.df @ d
 
@@ -69,11 +70,13 @@ def _descend(evaluate: Evaluate, x0, lo, hi, *, tolerance: float, max_iterations
     )
 
 
-def mgda(evaluate: Evaluate, x0, lo, hi, *, tolerance: float = 1e-8, max_iterations: int = 500) -> Solution:
+def mgda(
+    evaluate: Evaluate, x0, lo, hi, *, rtol: float = RTOL, atol: float = ATOL, max_iterations: int = 500
+) -> Solution:
     """MGDA from each row of *x0*; the solution's *front* holds every critical point reached."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     starts = np.atleast_2d(np.asarray(x0, dtype=float))
-    found = [_descend(evaluate, start, lo, hi, tolerance=tolerance, max_iterations=max_iterations) for start in starts]
+    found = [_descend(evaluate, start, lo, hi, rtol=rtol, atol=atol, max_iterations=max_iterations) for start in starts]
     worst = max(found, key=lambda s: s.residual)
     halt = Halt.CONVERGED if all(s.halt is Halt.CONVERGED for s in found) else worst.halt
     return Solution(
@@ -103,7 +106,15 @@ def _restricted(evaluate: Evaluate, keep: int, level: float | None = None, scale
 
 
 def pareto_continuation(
-    evaluate: Evaluate, x0, lo, hi, *, points: int = 11, tolerance: float = 1e-8, max_iterations: int = 200
+    evaluate: Evaluate,
+    x0,
+    lo,
+    hi,
+    *,
+    points: int = 11,
+    rtol: float = RTOL,
+    atol: float = ATOL,
+    max_iterations: int = 200,
 ) -> Solution:
     """The epsilon-constraint continuation of a bi-objective front; see the module docstring."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
@@ -112,7 +123,7 @@ def pareto_continuation(
         refuse(f'pareto_continuation traces a front of two objectives; this problem has {start.f.size}')
     if points < 2:
         refuse(f'a front needs points >= 2, got {points}')
-    settings = {'tolerance': tolerance, 'max_iterations': max_iterations}
+    settings = {'rtol': rtol, 'atol': atol, 'max_iterations': max_iterations}
     first = sqp(_restricted(evaluate, 0), start.x, lo, hi, **settings)
     last = sqp(_restricted(evaluate, 1), start.x, lo, hi, **settings)
     a, b = evaluate(first.x), evaluate(last.x)

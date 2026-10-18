@@ -26,12 +26,14 @@ ROWS: Final[tuple[CollectRow, ...]] = (
         selected=('dev',),
         errors=frozenset(),
         degrades=frozenset(),
-        unresolved=frozenset(),
+        unresolved=frozenset({'sklearn'}),
         why=(
-            'A CLEAN REPO, and the clean answer is the claim: its `dev` extra is the only thing '
-            'putting lab-commons in the environment at all, so this row is what says that the ONE '
-            'selection CI makes also carries every import the test tree needs at module scope. An '
-            'empty residue means no name needs a reason, and the first one to arrive reds here.'
+            'Its `dev` extra is the only thing putting lab-commons in the environment at all, so this '
+            'row says the ONE selection CI makes also carries every import the test tree needs at module '
+            'scope. ONE NAME IS UNRESOLVED, by text alone: `sklearn`, the import name of `scikit-learn`, '
+            'which P10 moved from the runtime to the `dev` extra as the surrogate test oracle (plan '
+            'R1). The two spellings are not derivable from one another, so the manifest cannot settle '
+            'it; the dev extra does supply it.'
         ),
     ),
 )

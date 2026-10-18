@@ -135,6 +135,7 @@ _SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozen
 #: need Fidelity levels. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
 #: the box methods take no other constraint, the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
+    **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
     'projected_gradient': Requires(MultiObjective.SINGLE, information=_SLOPES),
     'lbfgsb': Requires(MultiObjective.SINGLE, information=_SLOPES),
     'newton_cg': Requires(MultiObjective.SINGLE, information=_SLOPES),

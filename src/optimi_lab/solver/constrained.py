@@ -1,7 +1,7 @@
 """Constrained gradient methods: SQP, a primal-dual interior point, and the augmented Lagrangian.
 
 All three solve ``min f  s.t.  h = 0, c <= 0, lo <= x <= hi`` and halt CONVERGED when the KKT
-residual (:func:`~optimi_lab.operator.kkt_residual`) falls to *tolerance*. The Lagrangian Hessian is
+residual (:func:`~optimi_lab.operator.kkt_residual`) falls to ``kkt_bar`` (``rtol`` x start, floored by ``atol``). The Lagrangian Hessian is
 a damped BFGS model (Powell damping here, the update numerics-lab's).
 
 * :func:`sqp` -- each step solves the QP of the quadratic model under the linearised constraints and
@@ -37,7 +37,7 @@ from optimi_lab.operator import (
     lagrangian_gradient,
 )
 from optimi_lab.solver.bounded import lbfgsb
-from optimi_lab.solver.smooth import Evaluate, Halt, Solution, kkt_bar, trial
+from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, Solution, kkt_bar, trial
 
 __all__ = ['augmented_lagrangian', 'interior_point', 'sqp']
 
@@ -58,11 +58,13 @@ def _secant(model: np.ndarray, old: Linearization, new: Linearization, y, z) -> 
     return bfgs_update(model, s, damped_secant(model, s, change)) if np.any(s) else model
 
 
-def sqp(evaluate: Evaluate, x0, lo, hi, *, tolerance: float = 1e-8, max_iterations: int = 200) -> Solution:
+def sqp(
+    evaluate: Evaluate, x0, lo, hi, *, rtol: float = RTOL, atol: float = ATOL, max_iterations: int = 200
+) -> Solution:
     """Line-search SQP on the l1 merit; see the module docstring."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
-    bar = kkt_bar(point, tolerance)
+    bar = kkt_bar(point.df[0], rtol=rtol, atol=atol)
     n = point.x.size
     model, nu = np.eye(n), 1.0
     y, z = np.zeros(point.h.size), np.zeros(point.c.size)
@@ -123,7 +125,8 @@ def interior_point(
     hi,
     *,
     sparse: bool = False,
-    tolerance: float = 1e-8,
+    rtol: float = RTOL,
+    atol: float = ATOL,
     max_iterations: int = 300,
 ) -> Solution:
     """A primal-dual interior-point method; see the module docstring."""
@@ -131,7 +134,7 @@ def interior_point(
     width = np.where(np.isfinite(hi - lo), hi - lo, 1.0)
     inner = np.clip(np.asarray(x0, dtype=float), lo + 0.01 * width, hi - 0.01 * width)
     point = evaluate(inner)
-    bar = kkt_bar(point, tolerance)
+    bar = kkt_bar(point.df[0], rtol=rtol, atol=atol)
     n = point.x.size
     values, jacobian = _rows(point, lo, hi, sparse)
     s = np.maximum(-values, 1e-2)
@@ -151,7 +154,7 @@ def interior_point(
         if max(primal_dual, float(np.max(s * z, initial=0.0))) <= bar:
             return _solution(point, (lo, hi), (y, z[: point.c.size]), iteration, Halt.CONVERGED)
         if max(primal_dual, float(np.max(np.abs(s * z - mu), initial=0.0))) <= 10 * mu:
-            mu = max(tolerance / 10, min(0.2 * mu, mu**1.5))
+            mu = max(bar / 10, min(0.2 * mu, mu**1.5))
         sigma = z / s
         weights = sp.diags(sigma) if sparse else np.diag(sigma)
         condensed = (sp.csr_matrix(model) if sparse else model) + jacobian.T @ weights @ jacobian
@@ -210,13 +213,13 @@ def interior_point(
 
 
 def augmented_lagrangian(
-    evaluate: Evaluate, x0, lo, hi, *, tolerance: float = 1e-8, rho: float = 10.0, max_outer: int = 40
+    evaluate: Evaluate, x0, lo, hi, *, rtol: float = RTOL, atol: float = ATOL, rho: float = 10.0, max_outer: int = 40
 ) -> Solution:
     """The bound-constrained augmented Lagrangian method; see the module docstring."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
     y, z = np.zeros(point.h.size), np.zeros(point.c.size)
-    previous, bar = np.inf, kkt_bar(point, tolerance)
+    previous, bar = np.inf, kkt_bar(point.df[0], rtol=rtol, atol=atol)
     for outer in range(max_outer):
         if outer and kkt_residual(point, lo, hi, y=y, z=z).worst <= bar:
             return _solution(point, (lo, hi), (y, z), outer, Halt.CONVERGED)
@@ -225,7 +228,7 @@ def augmented_lagrangian(
             value, gradient = augmented_lagrangian_merit(evaluate(x), y, z, rho)
             return Linearization(x=x, f=np.array([value]), df=gradient[None, :])
 
-        inner = lbfgsb(merit, point.x, lo, hi, tolerance=max(0.1 * tolerance, 10.0 ** -(outer + 2)))
+        inner = lbfgsb(merit, point.x, lo, hi, rtol=0.0, atol=max(0.1 * bar, 10.0 ** -(outer + 2)))
         point = evaluate(inner.x)
         infeasibility = max(
             float(np.max(np.abs(point.h), initial=0.0)),

@@ -34,7 +34,7 @@ the question it has always asked; the other bar is defensible and is a different
 MEASURED HERE 2026-09-18 AND THE PREDICTED RED DID NOT ARRIVE, which is worth recording rather than
 passing over. The adoption was expected to red on the kit's positional reading, on the argument that
 this repo's two call sites would be re-read. They are not: both are `pytest.approx(x)` with no
-tolerance argument at all -- `test_variation.py` (the PSO step check) and `test_surrogate_models.py:99` -- so they
+tolerance argument at all -- `test_variation.py` (the PSO step check) and a surrogate-scoring check since retired -- so they
 carry no ratio positionally or otherwise and are clean under `'ratio'`. They WOULD both convict under
 `'unconditional'`, which is the same two-bar disagreement one level down and is the reason the bar is
 stated here rather than inherited.
@@ -65,7 +65,9 @@ BAR: Final = 'ratio'
 #: RE-TAKEN 2026-10-04 AT 60, from 40: lab-commons ec5e8c5 and the consumer-facts merge read 69.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 137.
-PYTHON_FILE_FLOOR: Final = 153
+#: RE-TAKEN 2026-10-18 AT 135: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 153.
+#: RE-TAKEN 2026-10-18 AT 165: P9 merged onto P10 (surrogates, optimi_lab.model) read 178.
+PYTHON_FILE_FLOOR: Final = 165
 
 #: THE OTHER SIDE OF `PYTHON_FILE_FLOOR`. Today's slack is 57 - 40 = 17, inside this band.
 PYTHON_FILE_HEADROOM: Final = 25
@@ -76,7 +78,9 @@ PYTHON_FILE_HEADROOM: Final = 25
 #: RE-TAKEN 2026-10-16 AT 19, from 9: merged with the routing/steering and Sobol tests, the scan read 19.
 #: RE-TAKEN 2026-10-18 AT 28, from 19: the P8 layer tests read 31.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 59.
-APPROX_CALL_FLOOR: Final = 56
+#: RE-TAKEN 2026-10-18 AT 59: P10 (surrogates, optimi_lab.model) read 62.
+#: RE-TAKEN 2026-10-18 AT 60: the P9 ruling tests read 63 approx call sites.
+APPROX_CALL_FLOOR: Final = 60
 
 #: THE OTHER SIDE OF `APPROX_CALL_FLOOR`. The floor sits ON the population, so any growth at all is
 #: worth re-reading; 19 + 5 = 24 is the point at which this constant must be re-measured.

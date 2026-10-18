@@ -6,6 +6,10 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 * population, Pareto -- :func:`nsga2`, :func:`nsga3`, :func:`unsga3`, :func:`rnsga3`, :func:`spea2`,
   :func:`sms_emoa`, :func:`rvea`, :func:`mode`, :func:`moead`, :func:`mopso`;
 * population, one score -- :func:`ga`, :func:`cmaes`, :func:`map_elites`;
+* gradient (P9) -- :func:`lbfgsb`, :func:`projected_gradient`, :func:`newton_cg`, :func:`sqp`,
+  :func:`interior_point`, :func:`augmented_lagrangian`, :func:`mma`, :func:`mgda`,
+  :func:`pareto_continuation`: pure functions over ``evaluate(x)`` (:mod:`optimi_lab.solver.smooth`),
+  driven by :class:`GradientSolver`;
 * local derivative-free -- :func:`nelder_mead`, :func:`mads`, :func:`bobyqa`;
 * gradient (P9) -- pure functions over ``evaluate(x)`` (:mod:`optimi_lab.solver.smooth`) driven by
   :class:`GradientSolver`: :func:`projected_gradient`, :func:`lbfgsb`, :func:`newton_cg`, :func:`sqp`,
@@ -55,16 +59,18 @@ from optimi_lab.solver.requires import (
 )
 from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
-from optimi_lab.solver.smooth import Evaluate, Halt, SmoothView, Solution, Unevaluable
+from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Solution, Unevaluable, kkt_bar
 from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
 from optimi_lab.solver.swarm import SwarmSolver, mopso
 from optimi_lab.solver.trust_region import TrustRegion, bobyqa
 
 __all__ = [
     'ASHA',
+    'ATOL',
     'CMAES',
     'MADS',
     'METHODS',
+    'RTOL',
     'SOLVERS',
     'Chain',
     'DecompositionSolver',
@@ -103,6 +109,7 @@ __all__ = [
     'hyperband',
     'interior_point',
     'ipop_cmaes',
+    'kkt_bar',
     'lbfgsb',
     'mads',
     'map_elites',

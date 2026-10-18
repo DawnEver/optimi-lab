@@ -47,6 +47,8 @@ _TESTS: Final = _ROOT / 'tests'
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
 #: RE-TAKEN 2026-10-18 AT 66: the P9 + P12 merge read 72.
+#: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, optimi_lab.model) read 84.
+#: RE-TAKEN 2026-10-18 AT 65: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 73.
 SOURCE_FILE_FLOOR: Final = 80
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``, which nothing here ever guarded: how far past its floor
@@ -67,6 +69,8 @@ SOURCE_FILE_HEADROOM: Final = 12
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 67 test modules.
 #: RE-TAKEN 2026-10-18 AT 69: the P9 + P12 merge read 74.
+#: RE-TAKEN 2026-10-18 AT 76: P10 (surrogates, optimi_lab.model) read 81.
+#: RE-TAKEN 2026-10-18 AT 70: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 77.
 TEST_FILE_FLOOR: Final = 80
 
 #: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 32 - 25 = 7.

@@ -18,17 +18,17 @@ readme = "README.md"
 requires-python = ">=3.13"
 
 authors = [{ name = "Mingyang Bao" }]
-# numpy / scipy / scikit-learn, plus lab-commons for ONE module: `lab_commons.outcomes` (standard
+# numpy / scipy (R1: linalg, sparse, special only), plus lab-commons for ONE module: `lab_commons.outcomes` (standard
 # library only), the task-outcome vocabulary every engine shares (plan II.1/II.3) -- no extra, never
 # pinned (R8). numerics-lab is the equation-solving engine (R4): every line search, trust-region
 # step, quasi-Newton update and linear/KKT solve is its. Libraries float (R8): a bare repository URL,
 # no ref; a product that composes both mounts it as a component, whose path source overrides this.
-# rtoml, pint, pydantic, pandas and matplotlib went with the roles that needed them.
+# rtoml, pint, pydantic, pandas and matplotlib went with the roles that needed them; scikit-learn
+# left with P10 (every surrogate is self-implemented, optimi_lab.model) and is a TEST oracle only.
 dependencies = [
     "lab-commons @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git",
     "numerics-lab @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git",
     "numpy",
-    "scikit-learn",
     "scipy",
 ]
 
@@ -38,6 +38,8 @@ dev = [
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
+    # Reference oracles for the self-implemented surrogates (plan R1): tests only, never runtime.
+    "scikit-learn",
     # pymoo is a TEST ORACLE only (ruling R1): tests/benchmarks compare every population method
     # against its implementation; the runtime never imports it.
     "pymoo",

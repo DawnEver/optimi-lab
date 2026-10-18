@@ -4,8 +4,7 @@
          -> model (L6) -> solver (L7) -> policy (L8) -> run (L9)
 
 ``core`` (refusals, dominance, point sets) sits under everything. ``analysis`` (sensitivity,
-decision, conflict) reads finished samples and is a metric (L4); ``surrogate_model`` is a model (L6)
-until P10 rebuilds it. The package ``__init__`` is the facade over all of them and is the one module
+decision, conflict) reads finished samples and is a metric (L4). The package ``__init__`` is the facade over all of them and is the one module
 exempt.
 
 THE GUARD IS ONE FUNCTION, CALLED TWICE: :func:`against_the_arrow` runs on the real import graph and
@@ -34,7 +33,6 @@ LAYERS: Final[dict[str, int]] = {
     'analysis': 4,
     'operator': 5,
     'model': 6,
-    'surrogate_model': 6,
     'solver': 7,
     'policy': 8,
     'run': 9,
@@ -43,6 +41,7 @@ EXEMPT: Final = frozenset({'__init__', '__version__'})
 
 #: Shipped modules the walk must reach; re-measured 2026-10-17 at 43 with headroom 12.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
+#: RE-TAKEN 2026-10-18 AT 75: P10 (surrogates, optimi_lab.model) read 84.
 MODULE_FLOOR: Final = 80
 MODULE_HEADROOM: Final = 20
 

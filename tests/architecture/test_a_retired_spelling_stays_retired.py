@@ -45,20 +45,14 @@ RETIRED: Final[dict[str, str]] = {
     # modules. A non-OK cell now holds NaN and cannot be read as "very bad".
     'PENALTY_VALUE': 'optimi_lab.core.outcomes.Outcome, one per cell',
     # The flag that let predicted values be scored as if measured.
-    'use_surrogate_model': 'Surrogate.predict returns a plain array no Outcome can be built from',
+    'use_surrogate_model': 'optimi_lab.model.Prediction, filed (if at all) as Evidence.PREDICTED',
     # A list-valued parameter defaulting to `[]`, read at `[0]`, repaired by aliasing one dict.
     'base_params_dict_list': 'optimi_lab.core.space.Variable',
-    # NOT REGISTERED, and the reason is the registry's own admission rule rather than an oversight:
-    # the post-training validity flag is ALREADY refused by a live `isdisjoint(dir(model))`
-    # assertion in `tests/unit/optimizer/test_surrogate_models.py`, which names the attribute in
-    # order to prove it is gone. A spelling that one file must legitimately write is a spelling
-    # this scan would need an exception for, and an entry needing an exception is not retired yet.
-    # A `dir()` check on the real object is the stronger of the two mechanisms anyway: it answers
-    # for the class, where this scan only answers for the text.
-    #
+    # The post-training validity flag, consulted by nothing.
+    'check_valid': 'a fitted model is the value fit returns; there is no unfitted state to check',
     # The eleven one-regressor modules and the two base modules they shared.
-    'surrogate_model_base': 'optimi_lab.surrogate_model.base',
-    'mixture_surrogate_model': 'optimi_lab.surrogate_model.mixture',
+    'surrogate_model_base': 'optimi_lab.model (one module per model family)',
+    'mixture_surrogate_model': 'optimi_lab.model.Ensemble',
     'pso_operators': 'optimi_lab.operator (pso_velocity, pso_position)',
     # The `key@oc<N>@max|min` grammar and the package that parsed it.
     'object_function': 'optimi_lab.problem.Objective, whose fields are not a parse',
@@ -96,6 +90,17 @@ RETIRED: Final[dict[str, str]] = {
     'intelligent_algorithm': 'optimi_lab.operator (operators) and optimi_lab.solver (solvers and factories)',
     'intelligent_algorithm.algorithms': 'optimi_lab.solver.evolutionary',
     '_reference_directions': 'optimi_lab.operator.das_dennis',
+    # P10 (plan D42-D58): the scikit-learn-backed surrogate package, replaced by the self-implemented
+    # L6 package. Each model is a frozen declaration whose fit returns its fitted model.
+    'surrogate_model': 'optimi_lab.model',
+    'SurrogateModel': 'a model declaration from optimi_lab.model (e.g. GaussianProcess, Forest)',
+    'MixtureSurrogate': 'optimi_lab.model.Ensemble',
+    'SURROGATE_KEYS': 'optimi_lab.model.SURROGATES',
+    'score_regression': 'optimi_lab.model.score',
+    'SCORE_METHODS': 'optimi_lab.model.SCORES',
+    'WEIGHT_METHODS': 'optimi_lab.model.WEIGHTINGS',
+    'WeightMethod': 'optimi_lab.model.WEIGHTINGS',
+    'fraction_or_count': 'Forest(max_features=<fraction in (0, 1]>), one reading',
 }
 
 #: The trees a retired spelling may not appear in. `archived/` and `examples/` are deliberately
@@ -117,7 +122,8 @@ SECOND_CHECKOUTS: Final = frozenset({'worktrees'})
 #: reached three files reports exactly what a clean tree reports. Measured 2026-09-15.
 #: RE-MEASURED 2026-09-18: 7 spellings registered.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 37 spellings registered.
-REGISTRY_FLOOR: Final = 34
+#: RE-TAKEN 2026-10-18 AT 44: P10 (surrogates, optimi_lab.model) read 47 spellings.
+REGISTRY_FLOOR: Final = 44
 
 #: THE OTHER SIDE OF ``REGISTRY_FLOOR``. Today's reading is 7 - 6 = 1.
 REGISTRY_HEADROOM: Final = 5
@@ -128,6 +134,8 @@ REGISTRY_HEADROOM: Final = 5
 #: RE-TAKEN 2026-10-04 AT 70, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 77.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan reached 145 files.
 #: RE-TAKEN 2026-10-18 AT 150: the P9 + P12 merge read 164.
+#: RE-TAKEN 2026-10-18 AT 172: P10 (surrogates, optimi_lab.model) read 184.
+#: RE-TAKEN 2026-10-18 AT 150: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 168.
 SCANNED_FILE_FLOOR: Final = 179
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.

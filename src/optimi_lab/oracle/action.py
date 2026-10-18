@@ -32,6 +32,8 @@ class Action:
     want: frozenset[Information]
     replicate: int | None
     identity: Identity = field(compare=False)
+    #: The unit-cube direction ``v`` of an asked Hessian-vector product ``H v``; set iff HVP is wanted.
+    direction: tuple[float, ...] | None = None
 
     @classmethod
     def of(
@@ -43,6 +45,7 @@ class Action:
         fidelity: str | None = None,
         want: frozenset[Information] = frozenset({Information.VALUES}),
         replicate: int | None = None,
+        direction: tuple[float, ...] | None = None,
     ) -> Action:
         want = frozenset(Information(i) for i in want)
         beyond = sorted(want - capability.provides)
@@ -52,13 +55,19 @@ class Action:
             )
         if fidelity is not None and fidelity not in capability.fidelities:
             refuse(f'the oracle does not run fidelity {fidelity!r}; it runs {list(capability.fidelities)}')
+        if (Information.HVP in want) != (direction is not None):
+            refuse('a Hessian-vector product is asked WITH its direction: want HVP iff a direction is given')
+        if direction is not None:
+            direction = tuple(float(v) for v in direction)
+            if len(direction) != problem.space.width:
+                refuse(f'a direction has the space width {problem.space.width}, got {len(direction)}')
         canonical = problem.space.canonical(design)
         identity = problem.identify(
             canonical,
             fidelity,
-            extra={'want': sorted(want), 'replicate': replicate, 'oracle': capability.version},
+            extra={'want': sorted(want), 'replicate': replicate, 'oracle': capability.version, 'direction': direction},
         )
-        return cls(MappingProxyType(dict(canonical)), fidelity, want, replicate, identity)
+        return cls(MappingProxyType(dict(canonical)), fidelity, want, replicate, identity, direction)
 
     def to_plain(self) -> dict[str, object]:
         """The JSON-ready form an archive files with the submission."""
@@ -67,4 +76,5 @@ class Action:
             'fidelity': self.fidelity,
             'want': sorted(self.want),
             'replicate': self.replicate,
+            'direction': self.direction,
         }

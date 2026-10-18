@@ -6,13 +6,14 @@
 * stochastic -- risk measures, estimators with standard errors, MC/QMC robust evaluation,
   reliability (crude MC, importance sampling, subset simulation, FORM/SORM, surrogate), multilevel
   Monte Carlo and OCBA replicate allocation;
-* gradient -- QPs, KKT assembly and merit functions. Every linear solve, line search, trust-region
+* gradient -- the generalised Cauchy point, QPs, KKT assembly and merit functions. Every linear solve, line search, trust-region
   step and quasi-Newton update is numerics-lab's; this layer assembles what they are applied to.
 
 Solvers (L7, :mod:`optimi_lab.solver`) bind them.
 """
 
 from optimi_lab.operator.allocation import ocba
+from optimi_lab.operator.cauchy import cauchy_point
 from optimi_lab.operator.discrete import (
     Block,
     Lattice,
@@ -122,6 +123,7 @@ __all__ = [
     'augmented_lagrangian_merit',
     'binomial_crossover',
     'bound_qp',
+    'cauchy_point',
     'crowding_distance',
     'crowding_select',
     'crude_monte_carlo',

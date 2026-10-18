@@ -24,7 +24,7 @@ import numpy as np
 from optimi_lab.core.errors import refuse
 from optimi_lab.operator import Linearization, kkt_residual
 from optimi_lab.solver.bounded import lbfgsb
-from optimi_lab.solver.smooth import Evaluate, Halt, Solution, kkt_bar
+from optimi_lab.solver.smooth import ATOL, Evaluate, Halt, Solution, kkt_bar
 
 __all__ = ['gcmma', 'mma']
 
@@ -68,7 +68,7 @@ def _subproblem(p, q, r, *, lower, upper, alpha, beta, lam0):
         return Linearization(x=lam, f=np.array([-value]), df=-(f[1:] - y)[None, :])
 
     # Below ~1e-9 the dual gradient is rounding: the search stagnates there (measured 2026-10-18).
-    dual = lbfgsb(negative_dual, lam0, np.zeros(m), np.full(m, np.inf), tolerance=1e-8, max_iterations=500)
+    dual = lbfgsb(negative_dual, lam0, np.zeros(m), np.full(m, np.inf), rtol=0.0, atol=1e-8, max_iterations=500)
     return primal(dual.x), dual.x
 
 
@@ -79,7 +79,8 @@ def mma(
     hi,
     *,
     conservative: bool = False,
-    tolerance: float = 1e-6,
+    rtol: float = 1e-6,
+    atol: float = ATOL,
     max_iterations: int = 300,
     max_inner: int = 15,
 ) -> Solution:
@@ -87,7 +88,7 @@ def mma(
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     span = hi - lo
     point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
-    bar = kkt_bar(point, tolerance)
+    bar = kkt_bar(point.df[0], rtol=rtol, atol=atol)
     if point.h.size:
         refuse(f'MMA has no form for equality constraints; this problem has {point.h.size} -- use sqp')
     m = point.c.size
