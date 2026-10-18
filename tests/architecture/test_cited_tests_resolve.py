@@ -62,11 +62,11 @@ ROOT: Final = Path(__file__).resolve().parents[2]
 #: file at all in this checkout, so declaring it would add a pointer tree that contributes nothing.
 POINTER_DIRS: Final = ('src', 'scripts', 'tests')
 
-#: ROOT CONFIGURATION FILES READ AS PROSE. `#` starts a comment in all three formats, so they need no
+#: ROOT CONFIGURATION FILES READ AS PROSE. `#` starts a comment in both formats, so they need no
 #: separate reader. This argument exists because the originating incident hid in one: a lint config
 #: at the repo root cited a guard deleted weeks earlier and survived, for the single reason that the
 #: walk was two `.py` trees and a file at the root is in neither.
-ROOT_CONFIGS: Final = ('pyproject.toml', '.pre-commit-config.yaml', 'Makefile')
+ROOT_CONFIGS: Final = ('pyproject.toml', 'Makefile')
 
 #: THE FILE-LEVEL WAIVER HEADER AND THE TREES SEARCHED FOR IT. The header is the family's spelling;
 #: the tree list is EMPTY, and by construction rather than by omission -- that mechanism exists to
