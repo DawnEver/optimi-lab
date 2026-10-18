@@ -47,7 +47,6 @@ from lab_commons.dev.bounded import (
     NARROWED_FLOOR,
     blas_threads,
     logical_cores,
-    worker_width,
 )
 from lab_commons.dev.famtests.boundedremedy import (
     assert_a_run_inside_the_wall_is_left_alone,
@@ -147,16 +146,15 @@ def test_the_refusal_names_a_different_remedy_in_each_state() -> None:
     )
 
 
-def test_a_width_is_computed_rather_than_guessed() -> None:
-    """FLOOR ON THE BOX READING. Memory first and cores second, and never below the stated floor.
+def test_the_thread_arithmetic_reads_a_real_box() -> None:
+    """FLOOR ON THE BOX READING: the cores this box reports, and a thread budget at every width.
 
-    STAYS LOCAL: the kit's shared body asserts the REFUSAL SENTENCES, and this asks a different
-    question -- whether the width those sentences report is arithmetic on a real box reading. The
-    two labs answer it against different bounds, so there is no family body here to take.
+    STAYS LOCAL: the kit's shared body asserts the REFUSAL SENTENCES, and this asks whether the numbers
+    they report are arithmetic on a real box. A worker WIDTH is no longer computed here: lab-commons
+    96a90c8 deleted that helper and the box ledger admits a run on its measured room (`lab_commons.box`),
+    which the kit's own suite drives. What is left for this repo is the thread split, at both ends.
     """
     cores = logical_cores()
     assert cores >= 1, 'a box reporting no cores makes every width answer arithmetic on nothing'
-    width = worker_width(gb_per_worker=4.0, max_width=cores, floor=1, reserve_cores=1, fallback=max(1, cores - 1))
-    assert 1 <= width <= max(1, cores), 'the width is bounded by the box at both ends'
-    assert blas_threads(width) >= 1, 'a worker with zero threads computes nothing'
+    assert all(blas_threads(width) >= 1 for width in (1, cores)), 'a worker with zero threads computes nothing'
     assert_the_pool_vars_are_the_named_set()

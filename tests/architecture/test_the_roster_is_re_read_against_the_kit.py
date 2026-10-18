@@ -90,10 +90,12 @@ KIT_PACKAGE: Final = 'lab_commons.dev'
 #: famtests) reads 91, past 69 + 16. Same slack: 91 - 13 = 78.
 #: RE-TAKEN 2026-10-04 AT 90, from 78: lab-commons ec5e8c5 and the consumer-facts merge read 98.
 #: RE-TAKEN 2026-10-09 AT 95, from 90: lab-commons 2cca293 reads 108. Same slack: 108 - 13 = 95.
-KIT_MODULE_FLOOR: Final = 95
+#: RE-TAKEN 2026-10-18 AT 159, from 95: lab-commons 96a90c8 (the box, compute, forge and githooks
+#: packages) reads 172. Same slack: 172 - 13 = 159.
+KIT_MODULE_FLOOR: Final = 159
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
-#: 65 + 16 = 81 against today's 78. The kit grew 67 -> 74 -> 78 in three days, so this will bind
+#: 159 + 16 = 175 against today's 172. The kit grew 67 -> 74 -> 78 in three days in 2026-09, so this binds
 #: again soon -- and that is the arm working, not a nuisance. The headroom is UNCHANGED at 16 on
 #: purpose: it is the side that refuses, and the breach was answered by moving the floor.
 KIT_MODULE_HEADROOM: Final = 16
@@ -144,7 +146,7 @@ def test_no_row_whose_subject_the_kit_already_holds_is_still_declared_moves() ->
 #: EXAMPLE of the calibration comment it deliberately does NOT read (`ADMIT scripts/dep.py own= 22
 #: repo=1`). So the PROVENANCE detector fires on a sentence whose whole content is that the module
 #: has nothing to do with that file, and the IMPORT detector correctly does not: `scripts/dep.py`
-#: imports `lab_commons.dev.dep`, `boxlock` and `verify`, and importing `storedreadings` there would
+#: imports `lab_commons.dev.dep` and `verify` (and, in 2026-09, the box lock), and importing `storedreadings` there would
 #: be wrong. This is a FALSE POSITIVE INSIDE THE INSTRUMENT, the same class as the six of 2026-09-18
 #: and a different cause, and the remedy is upstream: this family's own integration page already
 #: rules that naming the SHAPE of a thing beats naming an EXAMPLE of it, because an example is a
