@@ -1,13 +1,13 @@
 """Dominance, non-dominated sorting, and the size of a Das-Dennis reference grid.
 
 Everything here works in the MINIMIZATION frame — every column smaller-is-better. A caller with
-a maximizing objective negates that column first (:meth:`optimi_lab.core.space.ObjectiveSet.
-to_minimization`); nothing in this module knows about directions, and nothing here reads a name.
+a maximizing objective negates that column first (:meth:`optimi_lab.problem.Objective.minimized`);
+nothing in this module knows about directions, and nothing here reads a name.
 
 Non-finite input is refused rather than sorted. ``NaN <= x`` is False for every comparison, so a
 point holding a NaN is dominated by nothing and dominates nothing — it lands on the first front
 by arithmetic accident. The only rows that reach here are the ones whose every objective
-produced a value (:meth:`optimi_lab.core.outcomes.Evaluation.complete`).
+produced a value (an ``OK`` cell, :meth:`optimi_lab.archive.Archive.complete`).
 """
 
 from math import comb
@@ -20,8 +20,11 @@ __all__ = [
     'constrained_dominates',
     'constrained_non_dominated_sorting',
     'dominates',
+    'epsilon_dominates',
+    'incremental_sort',
     'non_dominated_sorting',
     'partition_count',
+    'tolerance_dominates',
     'total_violation',
 ]
 
@@ -36,6 +39,56 @@ def dominates(obj_1: np.ndarray, obj_2: np.ndarray) -> np.ndarray | bool:
     axis, so ``dominates(a[:, None, :], b[None, :, :])`` answers every pair at once.
     """
     return np.all(obj_1 <= obj_2, axis=-1) & np.any(obj_1 < obj_2, axis=-1)
+
+
+def _require_relaxation(amount: float | np.ndarray, what: str) -> np.ndarray:
+    amount = np.asarray(amount, dtype=float)
+    if np.any(amount < 0.0):
+        refuse(f'{what} is a relaxation in objective units and must be non-negative, got {amount.tolist()}')
+    return amount
+
+
+def epsilon_dominates(obj_1: np.ndarray, obj_2: np.ndarray, epsilon: float | np.ndarray) -> np.ndarray | bool:
+    """Additive epsilon dominance: ``obj_1 - epsilon`` dominates ``obj_2`` (Laumanns et al., 2002).
+
+    ``epsilon`` is in the objective's own units, one value or one per column, and never negative.
+    """
+    return dominates(np.asarray(obj_1) - _require_relaxation(epsilon, 'epsilon'), obj_2)
+
+
+def tolerance_dominates(obj_1: np.ndarray, obj_2: np.ndarray, tolerance: float | np.ndarray) -> np.ndarray | bool:
+    """Dominance in which a gap of at most ``tolerance`` (objective units) is a tie, not a preference.
+
+    ``obj_1`` is no worse than ``obj_2 + tolerance`` everywhere and better than ``obj_2 - tolerance``
+    somewhere: two designs within a solver's noise floor of each other dominate neither way.
+    """
+    tolerance = _require_relaxation(tolerance, 'tolerance')
+    obj_1, obj_2 = np.asarray(obj_1), np.asarray(obj_2)
+    return np.all(obj_1 <= obj_2 + tolerance, axis=-1) & np.any(obj_1 < obj_2 - tolerance, axis=-1)
+
+
+def incremental_sort(values: np.ndarray) -> list[np.ndarray]:
+    """Every Pareto front, built by inserting points one at a time (ENS-SS, Zhang et al., 2015).
+
+    Points are inserted in lexicographic order, so none can dominate a point inserted before it;
+    each joins the first front holding no point that dominates it. Same fronts as
+    :func:`non_dominated_sorting`, at a cost that tracks the comparisons actually needed -- the
+    shape a steady-state solver wants when it adds one point to a sorted population.
+    """
+    values = np.asarray(values, dtype=float)
+    if values.ndim != 2 or values.shape[1] < 1:
+        refuse(f'an objective matrix must be 2-D with one column per objective, got shape {values.shape}')
+    require_finite(values, 'an objective matrix to sort')
+    fronts: list[list[int]] = []
+    for index in np.lexsort(values.T[::-1]):
+        point = values[index]
+        for front in fronts:
+            if not np.any(dominates(values[front], point)):
+                front.append(int(index))
+                break
+        else:
+            fronts.append([int(index)])
+    return [np.array(sorted(front), dtype=np.intp) for front in fronts]
 
 
 def non_dominated_sorting(values: np.ndarray, only_first_front: bool = True) -> np.ndarray | list[np.ndarray]:

@@ -259,8 +259,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'blanker, the delegation reader, the `Density` class and `measure_density` are DELETED from '
         'here -- what is left of the machinery is five BINDERS supplying the arguments the kit refuses '
         'to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-09 after the per-machine-config row: own=544 '
-        'project=44 -> 8.27%, up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale rows, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on 2026-10-04, itself up from own=517 project=44 -> 8.51% after a2f50b9, itself down from own=518 project=44 -> 8.49% after 9ce57c3 the day before, up from own=505 project=44 -> 8.71% earlier that day, up from own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
+        'family half in it to split off. RE-MEASURED 2026-10-17 after the P8 layering row: own=548 '
+        'project=44 -> 8.58%, up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale rows, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on 2026-10-04, itself up from own=517 project=44 -> 8.51% after a2f50b9, itself down from own=518 project=44 -> 8.49% after 9ce57c3 the day before, up from own=505 project=44 -> 8.71% earlier that day, up from own=502 project=44 -> 8.76% on 2026-10-01, itself up from own=499 project=44 -> 8.82% earlier '
         'that day, up from own=480 project=42 -> 8.75% on 2026-09-21, up from own=477 '
         'project=42 -> 8.81% at the 2026-09-19 re-take, itself up from own=402 project=30 -> 7.46% at the '
         '2026-09-18 adoption. THIS RE-TAKE IS THE TABLE MEASURING ITSELF, which is why it is worth the '
@@ -353,7 +353,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'September 2026 deleted public `optimi_lab` names outright, with no compat shim and no '
         'deprecation alias, and recorded which ones only in their commit messages. The scan that '
         'refuses a resurrection is small; the LIST of what was retired is the file, and it means '
-        'nothing anywhere else. RE-MEASURED 2026-10-03: own=83 repo=8 -> 9.64%, up from own=78 '
+        'nothing anywhere else. RE-MEASURED 2026-10-18: own=111 repo=28 -> 25.23%, after the P12 retirements, up from own=108 repo=25 -> 23.15% after the P8 retirements on 2026-10-17, up from own=83 repo=8 -> 9.64% on 2026-10-03, up from own=78 '
         'repo=8 -> 10.26% on 2026-09-19, itself down from own=80 repo=8 -> 10.00% on 2026-09-17. THE '
         'FIVE LINES ARE THE `SECOND_CHECKOUTS` EXCLUSION and the paragraph giving its reason: the '
         'scan read 3926 files against a floor of 50 because `.claude/worktrees/` holds one full '
@@ -636,8 +636,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "than supporting one: MEASURED 2026-09-17, this file and wdg-lab's same-named module are 462 "
         'lines together with 410 differing -- 89% DIFFERENT, so the shared name is not shared code. '
         "Its three properties are stated in this package's terms and its size band is this "
-        "package's datum (320, measured against a largest module of 261). RE-MEASURED 2026-09-19: "
-        'own=161 repo=1 -> 0.62%, down from own=153 repo=1 -> 0.65% on 2026-09-17, a '
+        "package's datum (320, measured against a largest module of 261). RE-MEASURED 2026-10-17: "
+        'own=162 repo=1 -> 0.62% (re-measured 2026-10-17), up from own=161 on 2026-09-19, up from own=153 repo=1 -> 0.65% on 2026-09-17, a '
         '`BELOW_THE_BAR` row.',
     ),
     'tests/architecture/test_the_rules_pages_are_a_ratchet.py': Placement(
@@ -695,6 +695,13 @@ PLACEMENT: Final[dict[str, Placement]] = {
         're-reads is the other, and no mechanism here catches it. That gap is named in the row for '
         '`test_a_pin_is_a_named_set.py`, not closed by this one.',
     ),
+    'tests/architecture/test_the_layers_point_one_way.py': Placement(
+        STAYS,
+        "THE LAYER TABLE IS THIS PACKAGE'S ARCHITECTURE (plan II.7, D28): which of `optimi_lab`'s own "
+        'subpackages -- problem, oracle, archive, metric, operator, model, solver, policy, run -- may '
+        'import which. No other repo has these layers, so the table and the walk over `optimi_lab` '
+        'stay here; the floor helpers it calls are already the kit.',
+    ),
     'tests/architecture/test_the_runtime_stays_pure.py': Placement(
         STAYS,
         "THE CLAIM IT CHECKS IS THIS PACKAGE'S OWN SENTENCE: `src/optimi_lab/__init__.py` states the "
@@ -702,8 +709,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until '
         'this file both were PROSE, and a `structlog` import added to one function would have left '
         'every word of the claim reading exactly as it does now. Which three distributions are '
-        "permitted is this library's decision and nobody else's. RE-MEASURED 2026-09-19: own=84 "
-        'repo=2 -> 2.38%, down from own=86 repo=2 -> 2.33% on 2026-09-17, a `BELOW_THE_BAR` row: '
+        "permitted is this library's decision and nobody else's. RE-MEASURED 2026-10-18: own=109 "
+        'repo=1 -> 0.92%, after P12 added the R1 scipy guard, down from own=90 repo=1 -> 1.11% after P8 admitted lab_commons.outcomes on 2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on 2026-09-17, a `BELOW_THE_BAR` row: '
         'the facts are three distribution NAMES, which are strings.',
     ),
     'tests/architecture/test_the_verdict_run_takes_the_box.py': Placement(
@@ -881,7 +888,7 @@ MINIMUM_REFUSES: Final = 0.65
 #:
 #: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. ONE reads 0.00% -- re-measured 2026-09-19,
 #: down from four as the adopting rows left -- which is the same reading a
-#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (2.38%),
+#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (1.11%),
 #: `test_the_public_surface_is_declared.py` (0.62%) and `_famconfig.py` (1.23%) sit under the bar
 #: with hits, and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
@@ -942,7 +949,7 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'is left is the residue. It sits under a bar written for a different shape.'
     ),
     'tests/architecture/test_the_public_surface_is_declared.py': (
-        'RE-MEASURED 2026-09-19: own=161 repo=1 -> 0.62%, down from own=153 repo=1 -> 0.65% on '
+        'RE-MEASURED 2026-10-17: own=162 repo=1 -> 0.62%, up from own=161 on 2026-09-19, up from own=153 repo=1 -> 0.65% on '
         '2026-09-17 -- far under the bar and far over the ceiling. '
         'THE READING IS HONEST AND THE ROW SAYS WHAT IT MISSES: this file scans `src/optimi_lab` '
         'and reports module names, so its repo facts are a PATH and the strings it prints. THE '
@@ -951,7 +958,7 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'density", not "this row is wrong".'
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': (
-        'RE-MEASURED 2026-09-19: own=84 repo=2 -> 2.38%, down from own=86 repo=2 -> 2.33% on '
+        'RE-MEASURED 2026-10-18: own=109 repo=1 -> 0.92%, down from own=90 repo=1 -> 1.11% on 2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, from own=86 repo=2 -> 2.33% on '
         '2026-09-17, under the 3.0% bar and over the ceiling. The '
         'reading is honest: the fact this file enforces is WHICH THREE DISTRIBUTIONS are permitted, '
         "and `numpy`, `scipy` and `scikit-learn` are other people's names, so a scan for this "

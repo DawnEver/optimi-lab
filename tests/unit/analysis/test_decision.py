@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from optimi_lab import Refusal
 from optimi_lab.analysis import PowerLaw, effective_dimension, knee_index, monotone_links, power_law_fit, topsis
+from optimi_lab.core import Refusal
 
 
 def _box(n=60, seed=1):
@@ -16,7 +16,7 @@ def test_monotone_links_pair_a_column_with_its_monotone_transforms_either_way():
     values = np.column_stack([x[:, 0], np.exp(x[:, 0] / 10), -(x[:, 0] ** 3), x[:, 1]])
     links = monotone_links(('a', 'b', 'c', 'd'), values)
     assert {(p, q) for p, q, _ in links} == {('a', 'b'), ('a', 'c'), ('b', 'c')}
-    assert dict(((p, q), rho) for p, q, rho in links)[('a', 'c')] == pytest.approx(-1.0)
+    assert {(p, q): rho for p, q, rho in links}[('a', 'c')] == pytest.approx(-1.0)
 
 
 def test_monotone_links_refuse_a_name_count_that_is_not_the_column_count():

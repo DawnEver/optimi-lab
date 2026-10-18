@@ -1,4 +1,9 @@
-"""The RUNTIME of `optimi_lab` is numpy, scipy and scikit-learn -- checked, not claimed.
+"""The RUNTIME of `optimi_lab` is numpy, scipy, scikit-learn and `lab_commons.outcomes` -- checked, not claimed.
+
+PLAN II.1 (2026-10-17) moved lab-commons into the base install for ONE module: `lab_commons.outcomes`,
+the standard-library-only task-outcome vocabulary every engine shares. Any other lab-commons module
+(structlog, pint and pydantic behind `log`, `units`, `config`) is still refused here, by the same
+guard, which now matches an allowed import by its dotted PREFIX rather than its root.
 
 `src/optimi_lab/__init__.py` states "Dependencies are numpy, scipy and scikit-learn. No plotting,
 no logging framework, no path resolution, no configuration file" and `pyproject.toml` repeats it in
@@ -11,10 +16,10 @@ THE GUARD IS ONE FUNCTION, CALLED TWICE. `foreign_roots` is what the real check 
 planted control runs: a control that re-implemented the comparison would agree with itself and
 prove nothing about the guard that ships.
 
-`lab-commons` IS THE REASON THIS IS SHARP RATHER THAN THEORETICAL. It is adopted here, it pulls in
-structlog, pint and pydantic, and it belongs to the `dev` extra for exactly that reason. The one
-edit that breaks this library for its callers is moving that line up into `[project.dependencies]`,
-and `test_lab_commons_is_dev_only_and_floats` is the line that refuses it.
+`lab-commons` IS THE REASON THIS IS SHARP RATHER THAN THEORETICAL. Its other modules pull in
+structlog, pint and pydantic; `foreign_roots` admits `lab_commons.outcomes` and names any other
+`lab_commons.*` import, and `test_lab_commons_floats_and_the_dev_kit_stays_in_dev` keeps the dev kit
+(`lab-commons[dev]`) in the dev extra.
 """
 
 from __future__ import annotations
@@ -32,16 +37,17 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
 
 #: The whole runtime dependency set. A fourth entry is a decision taken in this file, by name.
-RUNTIME: Final = frozenset({'numpy', 'scipy', 'scikit-learn'})
+RUNTIME: Final = frozenset({'numpy', 'scipy', 'scikit-learn', 'lab-commons'})
 
 #: The import roots those distributions provide, plus the package itself. `sklearn` is
 #: `scikit-learn`'s import name and the two spellings are not derivable from one another.
-RUNTIME_IMPORT_ROOTS: Final = frozenset({'numpy', 'scipy', 'sklearn', 'optimi_lab'})
+RUNTIME_IMPORT_ROOTS: Final = frozenset({'numpy', 'scipy', 'sklearn', 'optimi_lab', 'lab_commons.outcomes'})
 
 #: A floor on the scan. Finding no foreign import across three files is not a pure package, it is a
 #: walk that stopped reaching one.
-#: RE-MEASURED 2026-09-18: 22 shipped modules.
-SOURCE_FILE_FLOOR: Final = 15
+#: RE-TAKEN 2026-10-17 AT 37: the P8 base (problem, oracle, archive, run, solver) read 48 shipped modules.
+#: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
+SOURCE_FILE_FLOOR: Final = 57
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12
@@ -52,18 +58,26 @@ _CEILINGS: Final = ('<', '==', '~=')
 
 
 def foreign_roots(module: ast.Module, allowed: frozenset[str]) -> frozenset[str]:
-    """The top-level import roots in *module* that are neither stdlib nor in *allowed*.
+    """The imports in *module* that are neither stdlib nor under an *allowed* dotted prefix.
 
-    THE GUARD. Relative imports carry no root and are skipped; `from a.b import c` and `import a.b`
-    both reduce to `a`, because a distribution is what a fresh install pulls and `a.b` never is.
+    THE GUARD. Relative imports carry no root and are skipped. An import is named by its root (`a` for
+    `a.b`), except under a root that is only PARTLY allowed (`lab_commons`, of which only `outcomes`
+    is runtime), where the full module is named so the message says which part arrived.
     """
     roots: set[str] = set()
+    names: list[str] = []
     for node in ast.walk(module):
         if isinstance(node, ast.Import):
-            roots.update(alias.name.split('.')[0] for alias in node.names)
+            names.extend(alias.name for alias in node.names)
         elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-            roots.add(node.module.split('.')[0])
-    return frozenset(roots - allowed - set(sys.stdlib_module_names))
+            names.append(node.module)
+    partial = {prefix.split('.')[0] for prefix in allowed if '.' in prefix}
+    for name in names:
+        root = name.split('.')[0]
+        if root in sys.stdlib_module_names or any(name == a or name.startswith(a + '.') for a in allowed):
+            continue
+        roots.add(name if root in partial else root)
+    return frozenset(roots)
 
 
 def _requirements() -> tuple[list[str], dict[str, list[str]]]:
@@ -98,21 +112,21 @@ def test_the_runtime_dependency_set_is_exactly_the_declared_one() -> None:
     )
 
 
-def test_lab_commons_is_dev_only_and_floats() -> None:
-    """The shared dev kit is adopted at the DEV layer: in an extra, by bare URL, never pinned."""
+def test_lab_commons_floats_and_the_dev_kit_stays_in_dev() -> None:
+    """Runtime: bare `lab-commons` (for `outcomes`), by URL, never pinned; the `[dev]` kit only in an extra."""
     runtime, extras = _requirements()
-    assert not any(_distribution(line) == 'lab-commons' for line in runtime), (
-        'lab-commons is in [project.dependencies]. It brings structlog, pint and pydantic, which is '
-        'the whole runtime this library refuses to impose on a caller. It belongs in the dev extra.'
+    runtime_lines = [line for line in runtime if _distribution(line) == 'lab-commons']
+    assert runtime_lines and all('[' not in line.split('@')[0] for line in runtime_lines), (
+        f'{runtime_lines} -- the runtime takes lab-commons WITHOUT extras (plan II.1): its dev kit brings '
+        f'what this library refuses to impose on a caller.'
     )
     lines = [line for entries in extras.values() for line in entries if _distribution(line) == 'lab-commons']
-    assert lines, 'no extra declares lab-commons, so the adoption test beside this one runs for nobody.'
-    for line in lines:
+    assert lines, 'no extra declares lab-commons[dev], so the adoption test beside this one runs for nobody.'
+    for line in [*runtime_lines, *lines]:
         assert 'git+https' in line, f'{line!r} does not resolve lab-commons from its repository.'
         tail = line.split('git+https', 1)[1]
         assert '@' not in tail, (
-            f'{line!r} pins lab-commons to a ref. A pin is a ceiling nobody re-argued: the dev kit moves '
-            f'forward with the fleet, and a repo held at a sha stops being told when a rule changed.'
+            f'{line!r} pins lab-commons to a ref. A pin is a ceiling nobody re-argued: libraries float (R8).'
         )
 
 
@@ -145,7 +159,7 @@ def test_no_shipped_module_imports_outside_the_runtime_set() -> None:
     )
 
 
-@pytest.mark.parametrize('planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'lab_commons'])
+@pytest.mark.parametrize('planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'lab_commons', 'lab_commons.log'])
 def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
     """THE CONTROL. Plant the import in a module and call the REAL guard, not a copy of it.
 
@@ -157,3 +171,35 @@ def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
         f'the guard did not name a planted {planted!r} import. A scan that cannot fail on a planted '
         f'violation is not evidence about the tree it reports green.'
     )
+
+
+#: R1 (plan PLAN-engines-and-one-outcome-vocabulary, 2026-10-17): the runtime takes from scipy only
+#: these submodules; every optimisation, sampling and statistics ALGORITHM is self-implemented, and
+#: scipy.optimize / scipy.stats appear only in tests, as reference oracles.
+R1_SCIPY: Final = frozenset({'scipy.linalg', 'scipy.sparse', 'scipy.sparse.linalg', 'scipy.special'})
+
+
+def scipy_beyond_r1(module: ast.Module) -> frozenset[str]:
+    """THE GUARD: every scipy module *module* imports that is not one of the R1 submodules."""
+    names: list[str] = []
+    for node in ast.walk(module):
+        if isinstance(node, ast.Import):
+            names.extend(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            names.append(node.module)
+    return frozenset(n for n in names if n.split('.')[0] == 'scipy' and n not in R1_SCIPY)
+
+
+def test_the_runtime_takes_only_the_r1_scipy_submodules() -> None:
+    files = _source_files()
+    floors.assert_floor(len(files), floor=SOURCE_FILE_FLOOR, what='R1 scipy scan (shipped modules)')
+    found = {
+        p.relative_to(_ROOT).as_posix(): sorted(scipy_beyond_r1(ast.parse(p.read_text(encoding='utf-8'))))
+        for p in files
+    }
+    assert not {k: v for k, v in found.items() if v}
+
+
+def test_the_r1_guard_names_a_planted_scipy_algorithm() -> None:
+    planted = ast.parse('from scipy.stats import qmc\nimport scipy.optimize\nfrom scipy.special import ndtr\n')
+    assert scipy_beyond_r1(planted) == {'scipy.stats', 'scipy.optimize'}

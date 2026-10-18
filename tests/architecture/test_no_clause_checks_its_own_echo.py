@@ -43,7 +43,7 @@ EXEMPT: Final = ()
 
 #: THE FLOOR ON THE READING, RE-MEASURED 2026-09-19 (second reading of the same day): the two trees
 #: above now hold 274 function bodies, up from the 240 this line was first written against, because
-#: `tests/unit/optimizer/test_benchmarks.py` and `test_pareto.py` landed between the two readings.
+#: the retired benchmark tests and `test_pareto.py` landed between the two readings.
 #: The rule is unchanged and is what was re-applied: the floor sits a fifth below the reading, so a
 #: walk that lost a whole tree cannot report clean. 274 x 0.8 = 219.
 #:
@@ -55,7 +55,9 @@ EXEMPT: Final = ()
 #: RE-TAKEN 2026-10-16 AT 346, from 280: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 378; the floor sits half a headroom below it.
 #: RE-TAKEN 2026-10-16 AT 383, from 346: the analysis branch read 415; half a headroom below it.
-FUNCTION_FLOOR: Final = 383
+#: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
+#: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 562.
+FUNCTION_FLOOR: Final = 530
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65

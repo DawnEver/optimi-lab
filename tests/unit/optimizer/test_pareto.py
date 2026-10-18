@@ -1,6 +1,6 @@
 """Dominance, the fronts it sorts into, and the reference-grid size -- on hand-built cases.
 
-THE SECOND DISPLACEMENT, and it is the same one `test_benchmarks.py` names. `dominates`,
+THE SECOND DISPLACEMENT, and it is the same one the retired benchmark tests named. `dominates`,
 `non_dominated_sorting` and `partition_count` are on the package's TOP-LEVEL `__all__` and
 `non_dominated_sorting` is what `Record.pareto()` is built on, so it decides the front of every
 run this library performs. Measured 2026-09-19 on trunk: `grep -rw` over `tests/` returned ZERO
@@ -22,8 +22,8 @@ from math import comb
 import numpy as np
 import pytest
 
-from optimi_lab import Refusal, dominates, non_dominated_sorting, partition_count
-from optimi_lab.intelligent_algorithm import crowding_distance
+from optimi_lab.core import Refusal, dominates, non_dominated_sorting, partition_count
+from optimi_lab.operator import crowding_distance
 
 #: Four points chosen so that every front has a different size: `(0, 0)` dominates everything,
 #: `(1, 1)` dominates the two trade-off points, and those two dominate nothing and each other.

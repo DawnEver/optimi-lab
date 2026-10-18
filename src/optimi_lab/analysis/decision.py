@@ -1,9 +1,9 @@
 """Decision support over a finished front: redundancy, a knee, a TOPSIS ranking and a power law.
 
 Every objective matrix here is in the MINIMIZATION frame of :mod:`optimi_lab.core.pareto` -- the
-caller negates a maximised column once, through :meth:`~optimi_lab.core.space.ObjectiveSet.
-to_minimization` -- so no function takes a direction and none reads a name. Feasibility is
-:meth:`~optimi_lab.core.constraints.ConstraintSet.feasible_mask` and non-domination is
+caller signs and normalises each column once, through :meth:`~optimi_lab.problem.Objective.minimized`
+-- so no function takes a direction and none reads a name. Feasibility is
+:meth:`~optimi_lab.oracle.Result.violation` and non-domination is
 :func:`~optimi_lab.core.pareto.non_dominated_sorting`; this module reuses both rather than holding
 a copy. The caller declares thresholds and weights; this module only applies them.
 """
@@ -12,10 +12,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.stats import rankdata, spearmanr
 
 from optimi_lab.core.errors import refuse, require_finite
 from optimi_lab.core.pareto import non_dominated_sorting
+from optimi_lab.metric import rank, spearman
 
 __all__ = ['PowerLaw', 'effective_dimension', 'knee_index', 'monotone_links', 'power_law_fit', 'topsis']
 
@@ -38,7 +38,7 @@ def monotone_links(
     if len(names) != values.shape[1]:
         refuse(f'one name per column: got {len(names)} name(s) for {values.shape[1]} column(s)')
     with np.errstate(invalid='ignore', divide='ignore'):
-        rho = np.atleast_2d(spearmanr(values).statistic)
+        rho = np.atleast_2d(spearman(values))
     return [
         (names[i], names[j], float(rho[i, j]))
         for i in range(len(names))
@@ -53,7 +53,7 @@ def effective_dimension(values: np.ndarray, *, share: float = 0.95) -> int:
     Ranks make the count blind to monotone transforms, so ``x`` and ``log x`` are one direction. A
     matrix whose every column is constant has no direction at all and reads 0.
     """
-    ranks = rankdata(_matrix(values, 'a matrix to reduce'), axis=0)
+    ranks = rank(_matrix(values, 'a matrix to reduce'), axis=0)
     ranks -= ranks.mean(axis=0)
     spread = ranks.std(axis=0)
     ranks = ranks[:, spread > 0] / spread[spread > 0]

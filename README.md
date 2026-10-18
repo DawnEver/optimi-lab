@@ -10,16 +10,14 @@ scipy and scikit-learn only, so it can sit inside another program without reconf
 
 ## Key Features
 
-- Multi-objective algorithms behind one ask/tell loop: NSGA-II, NSGA-III, MODE, MOEA/D, MOPSO
-- Constraints as declarations (`Constraint(name, '<=' | '>=', bound)`), ranked by Deb's rule in
-  every algorithm; the Pareto front holds feasible points only
-- Design matrices: full-factorial grid, Latin hypercube, Poisson disk or an imported matrix, with
-  an optional nominal anchor point as row 0
-- A per-cell outcome on every evaluation, so a point that did not compute is never a number
+- Layered (plan II.7): `problem` -> `oracle` -> `archive` -> `metric` -> `solver` -> `run`
+- Variables: `Real` (linear or log), `Integer`, `Categorical` (metric only when embedded), `Field`,
+  with conditional `active_if`; objectives with a fixed normalisation; five constraint kinds
+- Every result is a `lab_commons.outcomes.Cell`: a status (DECIDED or RETRYABLE), values only when
+  it computed, a reason otherwise -- a licence miss is never an infeasible design
+- One append-only record per run; an interrupted run resumes by replaying it
+- Population solvers NSGA-II, NSGA-III, MODE, MOEA/D, MOPSO; IGD and exact hypervolume
 - Surrogate regressors and a weighted mixture of them
-- Benchmarks with known answers (ZDT1, ZDT2, the constrained BNH) and the IGD and 2-D
-  hypervolume metrics
-
 
 ## Installation
 
@@ -63,37 +61,44 @@ tests with that remedy.
 ## Usage
 
 ```python
-import numpy as np
+from pathlib import Path
+
+from lab_commons.outcomes import Record
 
 from optimi_lab import (
-    Constraint, ConstraintSet, Evaluation, Objective, ObjectiveSet, SampleSpec, Variable, VariableSet, optimize,
+    BlackBox,
+    Budget,
+    Capability,
+    Objective,
+    Problem,
+    Real,
+    SampleSpec,
+    Sense,
+    Space,
+    from_function,
+    run,
 )
-from optimi_lab.intelligent_algorithm import nsga2
+from optimi_lab.solver import nsga2
 
-space = VariableSet([Variable('x', 0.0, 1.0), Variable('y', 0.0, 1.0)])
-objectives = ObjectiveSet([Objective('cost'), Objective('gain', 'maximize')])
-constraints = ConstraintSet([Constraint('x_cap', '<=', 0.8)])
-
-
-def evaluate(points: np.ndarray) -> Evaluation:
-    values = np.column_stack([points.sum(axis=1), points[:, 0] * points[:, 1]])
-    return Evaluation(points, values, constraints=points[:, :1])
-
-
-record = optimize(
-    space=space,
-    objectives=objectives,
-    constraints=constraints,
-    evaluate=evaluate,
-    build_proposer=nsga2(space, seed=0),
-    spec=SampleSpec(n_samples=20, seed=0),
-    n_batches=10,
+problem = Problem(
+    Space((Real('x', 0.0, 1.0), Real('y', 0.0, 1.0))),
+    (Objective('cost'), Objective('gain', Sense.MAXIMIZE)),
+    constraints=(BlackBox('x_out', '<=', 0.8),),
 )
-front = record.pareto()  # feasible, non-dominated points, in your own frame
+
+
+def evaluate(action):
+    x, y = action.design['x'], action.design['y']
+    return {'cost': x + y, 'gain': x * y, 'x_out': x}
+
+
+oracle = from_function(evaluate, Capability(outputs=('cost', 'gain', 'x_out')))
+solver = nsga2(problem, oracle.capability, spec=SampleSpec(n_samples=20, seed=0))
+outcome = run(problem, oracle, solver, Record(Path('run.jsonl')), Budget(evaluations=200))
+front = outcome.archive.front()  # feasible, non-dominated, observed results
 ```
 
-A design of experiments is the same call with `n_batches=1` and the sample you want, e.g.
-`SampleSpec(kind='grid', levels=(5, 5), anchor=(0.5, 0.5))`.
+Run the same call again over the same `run.jsonl` with a larger budget and it resumes by replay.
 
 
 ## Contributing
