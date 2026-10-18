@@ -128,6 +128,7 @@ _SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
 _SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
 _PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
 _SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
+_LINEAR: Final = Requires(MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.LINEAR}))
 
 #: Every solver this package ships, by name. Population and local solvers rank by Deb's rule (or a
 #: barrier on the total violation), so they take black-box constraints natively; MOEA/D decomposes
@@ -135,7 +136,8 @@ _SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozen
 #: need Fidelity levels. The model-based solvers (P11) model each BlackBox constraint by its own GP;
 #: ParEGO scalarises by a fresh weight per pick (WEIGHTED), EHVI/NEHVI keep the front (NATIVE_PARETO);
 #: multi-fidelity BO and TuRBO model no constraint (penalise first); the prescreened EA ranks by
-#: Deb's rule on predicted rows and model management is an extreme barrier, like BOBYQA. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
+#: Deb's rule on predicted rows and model management is an extreme barrier, like BOBYQA. The
+#: structured solvers (P14) read algebra, not samples: each needs its outputs DECLARED in that form. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
 #: the box methods take no other constraint, the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
     **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
@@ -163,4 +165,5 @@ SOLVERS: Final[dict[str, Requires]] = {
     'turbo': Requires(MultiObjective.SINGLE, metric=True),
     'prescreened': _PARETO,
     'model_trust_region': _SINGLE,
+    'lp': _LINEAR,
 }

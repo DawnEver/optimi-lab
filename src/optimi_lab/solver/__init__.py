@@ -20,6 +20,8 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   fantasies (:mod:`optimi_lab.solver.model_based`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
   :func:`turbo` (TuRBO-1), :func:`prescreened` (surrogate-prescreened NSGA-II/GA),
   :func:`model_trust_region` (trust-region model management);
+* structured (P14) -- :func:`lp` (revised simplex, Mehrotra interior point) over a
+  :class:`LinearProgram`, reporting a :class:`StructuredSolution`;
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -47,6 +49,8 @@ from optimi_lab.solver.evolutionary import (
 from optimi_lab.solver.fidelity import ASHA, SuccessiveHalving, asha, hyperband
 from optimi_lab.solver.fidelity_bo import MultiFidelityBO, mfbo
 from optimi_lab.solver.gradient import METHODS, GradientSolver
+from optimi_lab.solver.linear import LP_METHODS, lp
+from optimi_lab.solver.linear_program import LinearProgram, StructuredSolution
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, map_elites
 from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
@@ -81,6 +85,7 @@ __all__ = [
     'ASHA',
     'ATOL',
     'CMAES',
+    'LP_METHODS',
     'MADS',
     'METHODS',
     'RTOL',
@@ -96,6 +101,7 @@ __all__ = [
     'Halt',
     'HypervolumeImprovement',
     'Ineligible',
+    'LinearProgram',
     'MapElites',
     'Match',
     'ModelBased',
@@ -115,6 +121,7 @@ __all__ = [
     'SmoothView',
     'Solution',
     'Solver',
+    'StructuredSolution',
     'SuccessiveHalving',
     'SwarmSolver',
     'TrustRegion',
@@ -134,6 +141,7 @@ __all__ = [
     'ipop_cmaes',
     'kkt_bar',
     'lbfgsb',
+    'lp',
     'mads',
     'map_elites',
     'match',
