@@ -22,10 +22,10 @@ from dataclasses import dataclass
 
 import numpy as np
 from numerics_lab.line_search import backtracking
+from numerics_lab.linear import LinearSolveError
 from numerics_lab.linear.cholesky import jittered_cholesky
 from numerics_lab.linear.kkt import solve_kkt
 from numerics_lab.linear.krylov import conjugate_gradient
-from scipy.linalg import LinAlgError
 
 from optimi_lab.core.errors import refuse
 
@@ -68,7 +68,7 @@ def _working_set(
         gradient = h @ x + g
         try:
             step = solve_kkt(h, rows, -gradient, np.zeros(rows.shape[0]))
-        except LinAlgError:
+        except LinearSolveError:
             refuse('the QP Hessian is not positive definite on the null space of the active constraints')
         p, multipliers = step.x, step.multipliers
         if float(np.max(np.abs(p), initial=0.0)) <= tolerance * scale:
@@ -151,7 +151,7 @@ def bound_qp(
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     try:
         jittered_cholesky(h, max_tries=0)
-    except LinAlgError:
+    except LinearSolveError:
         refuse('bound_qp needs a positive definite H; this one is not')
     x = np.clip(0.5 * (lo + hi) if x0 is None else np.asarray(x0, dtype=float), lo, hi)
 

@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from typing import Final
 
 import numpy as np
-from scipy.linalg import solve_triangular
+from numerics_lab.linear.dense import solve_triangular
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.model.likelihood import Box, factor, gaussian_log_likelihood, maximise_likelihood

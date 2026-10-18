@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.linalg import lstsq
+from numerics_lab.linear.dense import least_squares
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.model.polynomial import monomial_exponents
@@ -63,7 +63,7 @@ class ChaosExpansion:
         if len(indices) > len(x):
             refuse(f'a degree-{self.degree} chaos in {d} inputs has {len(indices)} terms, more than {len(x)} points')
         table, _ = legendre_table(x, self.degree)
-        return FittedChaos(self.degree, indices, lstsq(_basis(table, indices), y)[0])
+        return FittedChaos(self.degree, indices, least_squares(_basis(table, indices), y))
 
 
 @dataclass(frozen=True, slots=True, eq=False)

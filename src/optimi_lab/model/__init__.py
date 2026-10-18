@@ -1,4 +1,4 @@
-"""L6 model: surrogates, every one self-implemented on numpy, ``scipy.linalg`` / ``scipy.special`` and numerics-lab.
+"""L6 model: surrogates, every one self-implemented on numpy, ``scipy.special`` and numerics-lab.
 
 A surrogate is a frozen declaration of its settings; ``fit`` returns a fitted model whose
 ``predict(x, variance=, gradient=)`` returns a :class:`Prediction` -- the mean ``(n, k)``, and the

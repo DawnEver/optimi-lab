@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from itertools import combinations_with_replacement
 
 import numpy as np
-from scipy.linalg import lstsq
+from numerics_lab.linear.dense import least_squares
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.model.protocol import Give, Prediction, query_points, require_gives, training_data
@@ -110,11 +110,11 @@ class Polynomial:
             w = np.column_stack([_lasso(a, b[:, c], self.penalty) for c in range(y.shape[1])])
         elif isinstance(self.penalty, Ridge):
             p = a.shape[1]
-            w = lstsq(
+            w = least_squares(
                 np.vstack([a, np.sqrt(self.penalty.alpha) * np.eye(p)]), np.vstack([b, np.zeros((p, b.shape[1]))])
-            )[0]
+            )
         else:
-            w = lstsq(a, b)[0]
+            w = least_squares(a, b)
         return FittedPolynomial(exponents, w, level - centre @ w)
 
 

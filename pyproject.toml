@@ -47,7 +47,6 @@ dev = [
 
     'pdoc',
     'commitizen',
-    "pre-commit",
     "ruff",
 
     # The shared DEVELOPMENT kit: `lab_commons.dev.rules` authors each development rule's universal

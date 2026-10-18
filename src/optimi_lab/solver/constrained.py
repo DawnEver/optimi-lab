@@ -21,9 +21,9 @@ from __future__ import annotations
 import numpy as np
 import scipy.sparse as sp
 from numerics_lab.line_search import armijo
+from numerics_lab.linear import LinearSolveError
 from numerics_lab.linear.kkt import solve_kkt
 from numerics_lab.quasi_newton import bfgs_update
-from scipy.linalg import LinAlgError
 
 from optimi_lab.operator import (
     Linearization,
@@ -162,7 +162,7 @@ def interior_point(
         dh = sp.csr_matrix(point.dh) if sparse else point.dh
         try:
             step = solve_kkt(condensed, dh, rhs, -point.h)
-        except LinAlgError as singular:
+        except LinearSolveError as singular:
             box, pair = (lo, hi), (y, z[: point.c.size])
             return _solution(point, box, pair, iteration, Halt.STALLED, reason=f'the barrier KKT system: {singular}')
         dx, dy = step.x, step.multipliers

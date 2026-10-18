@@ -16,9 +16,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 import numpy as np
+from numerics_lab.linear import LinearSolveError
 from numerics_lab.linear.cholesky import JitteredCholesky, jittered_cholesky
 from numerics_lab.minimize import minimize_lbfgs
-from scipy.linalg import LinAlgError
 from scipy.special import expit
 
 __all__ = ['Box', 'factor', 'gaussian_log_likelihood', 'maximise_likelihood']
@@ -32,7 +32,7 @@ def factor(covariance: np.ndarray) -> JitteredCholesky | None:
     """numerics-lab's jittered Cholesky of *covariance*, or ``None`` when no rung factors it."""
     try:
         return jittered_cholesky(covariance)
-    except LinAlgError:
+    except LinearSolveError:
         return None
 
 

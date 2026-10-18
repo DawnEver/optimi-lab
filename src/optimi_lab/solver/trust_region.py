@@ -4,7 +4,7 @@ Not Powell's code, the same idea: an interpolation quadratic built from evaluate
 inside the trust box ``|s|_inf <= radius`` intersected with the unit cube, and a radius driven by
 the ratio of actual to predicted decrease.
 
-* MODEL -- the minimum-norm least-squares quadratic (``numpy.linalg.lstsq`` over the monomials
+* MODEL -- the minimum-norm least-squares quadratic (``numerics_lab.linear.dense.least_squares`` over the monomials
   ``1, s_i, s_i s_j / 2``) through the evaluated points nearest the incumbent; with fewer points
   than coefficients it is the minimum-norm interpolant, which is how BOBYQA's minimum-Frobenius
   model starts from ``2n + 1`` points.
@@ -18,6 +18,7 @@ extreme barrier: an infeasible point scores NaN and never enters the model.
 """
 
 import numpy as np
+from numerics_lab.linear.dense import least_squares
 
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
@@ -39,7 +40,7 @@ def _features(steps: np.ndarray) -> np.ndarray:
 
 def _model(steps: np.ndarray, values: np.ndarray, n: int) -> tuple[np.ndarray, np.ndarray]:
     """Gradient and Hessian at the incumbent of the min-norm quadratic through *steps* -> *values*."""
-    coefficients = np.linalg.lstsq(_features(steps), values, rcond=None)[0]
+    coefficients = least_squares(_features(steps), values)
     gradient = coefficients[1 : n + 1]
     hessian = np.zeros((n, n))
     hessian[np.triu_indices(n)] = coefficients[n + 1 :]
