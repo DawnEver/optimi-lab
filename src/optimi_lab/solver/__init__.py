@@ -15,6 +15,11 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :class:`GradientSolver`: :func:`projected_gradient`, :func:`lbfgsb`, :func:`newton_cg`, :func:`sqp`,
   :func:`interior_point`, :func:`augmented_lagrangian`, :func:`mma`, :func:`mgda`,
   :func:`pareto_continuation`;
+* model-based (P11) -- :func:`bo` (log-EI/EI/PI/UCB/KG, constrained EI), :func:`parego`,
+  :func:`ehvi`, :func:`nehvi`, each batching and running asynchronously through Kriging-believer
+  fantasies (:mod:`optimi_lab.solver.model_based`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
+  :func:`turbo` (TuRBO-1), :func:`prescreened` (surrogate-prescreened NSGA-II/GA),
+  :func:`model_trust_region` (trust-region model management);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -22,6 +27,7 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 Operators live one layer down, in :mod:`optimi_lab.operator`.
 """
 
+from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
@@ -39,13 +45,18 @@ from optimi_lab.solver.evolutionary import (
     unsga3,
 )
 from optimi_lab.solver.fidelity import ASHA, SuccessiveHalving, asha, hyperband
+from optimi_lab.solver.fidelity_bo import MultiFidelityBO, mfbo
 from optimi_lab.solver.gradient import METHODS, GradientSolver
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, map_elites
 from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
+from optimi_lab.solver.model_based import ModelBased, maximise
+from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_region
 from optimi_lab.solver.moving_asymptotes import gcmma, mma
 from optimi_lab.solver.multiobjective import mgda, pareto_continuation
+from optimi_lab.solver.pareto_bo import HypervolumeImprovement, ParEGO, ehvi, nehvi, parego
 from optimi_lab.solver.population import EvolutionarySolver, PopulationSolver, Scalarise
+from optimi_lab.solver.prescreened import Prescreened, prescreened
 from optimi_lab.solver.protocol import Solver
 from optimi_lab.solver.requires import (
     SOLVERS,
@@ -63,8 +74,10 @@ from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Sol
 from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
 from optimi_lab.solver.swarm import SwarmSolver, mopso
 from optimi_lab.solver.trust_region import TrustRegion, bobyqa
+from optimi_lab.solver.turbo import TuRBO, turbo
 
 __all__ = [
+    'ACQUISITIONS',
     'ASHA',
     'ATOL',
     'CMAES',
@@ -72,6 +85,7 @@ __all__ = [
     'METHODS',
     'RTOL',
     'SOLVERS',
+    'BayesianOptimisation',
     'Chain',
     'DecompositionSolver',
     'Descriptor',
@@ -80,13 +94,19 @@ __all__ = [
     'EvolutionarySolver',
     'GradientSolver',
     'Halt',
+    'HypervolumeImprovement',
     'Ineligible',
     'MapElites',
     'Match',
+    'ModelBased',
+    'ModelTrustRegion',
+    'MultiFidelityBO',
     'MultiObjective',
     'NeedsTransform',
     'NelderMead',
+    'ParEGO',
     'PopulationSolver',
+    'Prescreened',
     'ReferenceVectorSolver',
     'Requires',
     'SampleAverage',
@@ -98,12 +118,15 @@ __all__ = [
     'SuccessiveHalving',
     'SwarmSolver',
     'TrustRegion',
+    'TuRBO',
     'Unevaluable',
     'asha',
     'augmented_lagrangian',
+    'bo',
     'bobyqa',
     'cmaes',
     'differential',
+    'ehvi',
     'ga',
     'gcmma',
     'hyperband',
@@ -114,17 +137,23 @@ __all__ = [
     'mads',
     'map_elites',
     'match',
+    'maximise',
+    'mfbo',
     'mgda',
     'mma',
     'mode',
+    'model_trust_region',
     'moead',
     'mopso',
     'multistart',
+    'nehvi',
     'nelder_mead',
     'newton_cg',
     'nsga2',
     'nsga3',
+    'parego',
     'pareto_continuation',
+    'prescreened',
     'projected_gradient',
     'restarts',
     'rnsga3',
@@ -136,6 +165,7 @@ __all__ = [
     'sms_emoa',
     'spea2',
     'sqp',
+    'turbo',
     'unsga3',
     'warm_start',
 ]

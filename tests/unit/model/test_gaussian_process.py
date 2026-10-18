@@ -145,3 +145,59 @@ def test_the_fit_beats_a_planted_wrong_hyperparameter_and_loo_flags_a_planted_ou
     loo = GaussianProcess('squared_exponential').fit(x, corrupted).leave_one_out()
     z = np.abs(loo.mean[:, 0] - corrupted[:, 0]) / np.sqrt(loo.variance[:, 0])
     assert int(np.argmax(z)) == 7
+
+
+# P11 -- the joint posterior, draws and fantasies a model-based solver reads.
+
+#: Absolute, squared target units: one posterior algebra computed two ways.
+JOINT = 1e-9
+
+
+def _fitted(data):
+    x, y, _ = data
+    return GaussianProcess(restarts=0).fit(x, y)
+
+
+def test_the_joint_posterior_diagonal_is_the_predicted_variance(data):
+    fitted = _fitted(data)
+    q = data[2]
+    mean, cov = fitted.posterior(q)
+    p = fitted.predict(q, variance=True)
+    assert np.allclose(mean, p.mean, atol=JOINT) and np.allclose(np.diag(cov[0]), p.variance[:, 0], atol=JOINT)
+    assert np.allclose(cov[0], cov[0].T, atol=JOINT)
+
+
+def test_conditioning_is_the_gaussian_update_at_fixed_hyperparameters(data):
+    fitted = _fitted(data)
+    q, extra = data[2][:6], data[2][6:]
+    y_extra = np.array([[0.4], [-0.2], [1.1], [0.0]])
+    joint = fitted.posterior_covariance(np.vstack([q, extra]), np.vstack([q, extra]))[0]
+    kqq, kqp, kpp = joint[:6, :6], joint[:6, 6:], joint[6:, 6:] + fitted.noise[0] * np.eye(4)
+    gain = kqp @ np.linalg.inv(kpp)
+    expected_mean = fitted.predict(q).mean[:, 0] + gain @ (y_extra[:, 0] - fitted.predict(extra).mean[:, 0])
+    expected_var = np.diag(kqq - gain @ kqp.T)
+    after = fitted.condition(extra, y_extra).predict(q, variance=True)
+    assert np.allclose(after.mean[:, 0], expected_mean, atol=1e-7)
+    assert np.allclose(after.variance[:, 0], expected_var, atol=1e-7)
+    assert fitted.condition(extra, y_extra).hyperparameters[0].tolist() == fitted.hyperparameters[0].tolist()
+
+
+def test_planted_a_refit_is_not_a_fantasy(data):
+    """The control: refitting on the joined data moves the hyperparameters a fantasy keeps."""
+    x, y, q = data
+    fitted = _fitted(data)
+    y_extra = np.full((len(q), 1), 3.0)
+    refit = GaussianProcess(restarts=0).fit(np.vstack([x, q]), np.vstack([y, y_extra]))
+    assert not np.allclose(refit.hyperparameters[0], fitted.condition(q, y_extra).hyperparameters[0])
+
+
+def test_draws_are_the_mean_at_zero_base_and_carry_the_covariance(data):
+    fitted = _fitted(data)
+    q = data[2][:3]
+    mean, cov = fitted.posterior(q)
+    assert np.allclose(fitted.draw(q, np.zeros((1, 3, 1)))[0], mean, atol=JOINT)
+    draws = fitted.draw(q, np.random.default_rng(0).standard_normal((200_000, 3, 1)))[:, :, 0]
+    spread = np.sqrt(np.outer(np.diag(cov[0]), np.diag(cov[0])))
+    assert np.all(np.abs(np.cov(draws.T) - cov[0]) <= 0.02 * spread)
+    with pytest.raises(Refusal, match='base normals'):
+        fitted.draw(q, np.zeros((1, 2, 1)))

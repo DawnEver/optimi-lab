@@ -50,7 +50,19 @@ from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
 from optimi_lab.solver.population import LOOP_ARGUMENTS, EvolutionarySolver, require_one_score
 
-__all__ = ['differential', 'ga', 'mode', 'nsga2', 'nsga3', 'rnsga3', 'sbx_polynomial', 'sms_emoa', 'spea2', 'unsga3']
+__all__ = [
+    'differential',
+    'evolutionary',
+    'ga',
+    'mode',
+    'nsga2',
+    'nsga3',
+    'rnsga3',
+    'sbx_polynomial',
+    'sms_emoa',
+    'spea2',
+    'unsga3',
+]
 
 #: Settings that belong to the base solver rather than to a variation.
 _BASE = frozenset({'spec', 'initial', 'scalarise', 'seed', 'discrete_mutation_rate'})
@@ -112,7 +124,7 @@ def _spea2_mating(
     return np.where(fitness[pairs[:, 0]] <= fitness[pairs[:, 1]], pairs[:, 0], pairs[:, 1])
 
 
-def _evolutionary(
+def evolutionary(
     problem: Problem,
     capability: Capability,
     what: str,
@@ -122,12 +134,15 @@ def _evolutionary(
     parent_selection: Callable[..., np.ndarray] | None,
     settings: dict[str, object],
     n_offspring: int | None = None,
+    owner: type[EvolutionarySolver] = EvolutionarySolver,
+    own: frozenset[str] = frozenset(),
 ) -> EvolutionarySolver:
+    """*owner* over *variation*/*selection*; a setting is a variation rate, a base setting or one of *own*."""
     rates = set(inspect.signature(variation).parameters) - LOOP_ARGUMENTS
-    unknown = sorted(set(settings) - rates - _BASE)
+    unknown = sorted(set(settings) - rates - _BASE - own)
     if unknown:
-        refuse(f'{unknown} are not settings of {what}; the valid settings are {sorted(rates | _BASE)}')
-    return EvolutionarySolver(
+        refuse(f'{unknown} are not settings of {what}; the valid settings are {sorted(rates | _BASE | own)}')
+    return owner(
         problem,
         capability,
         variation=variation,
@@ -135,14 +150,14 @@ def _evolutionary(
         selection=selection,
         parent_selection=parent_selection,
         n_offspring=n_offspring,
-        **{k: v for k, v in settings.items() if k in _BASE},
+        **{k: v for k, v in settings.items() if k in _BASE | own},
     )
 
 
 def ga(problem: Problem, capability: Capability, **settings: object) -> EvolutionarySolver:
     """A real-coded elitist genetic algorithm on ONE score (Deb's constrained ranking)."""
     require_one_score(problem, settings.get('scalarise'), 'ga')
-    return _evolutionary(
+    return evolutionary(
         problem,
         capability,
         'ga',
@@ -162,7 +177,7 @@ def nsga2(
     **settings: object,
 ) -> EvolutionarySolver:
     """NSGA-II (Deb et al., 2002): fronts and crowding distance, SBX and polynomial mutation."""
-    return _evolutionary(
+    return evolutionary(
         problem,
         capability,
         'nsga2',
@@ -221,7 +236,7 @@ def rnsga3(
 
 def spea2(problem: Problem, capability: Capability, **settings: object) -> EvolutionarySolver:
     """SPEA2 (Zitzler, Laumanns and Thiele, 2001): the population IS the archive, truncated by density."""
-    return _evolutionary(
+    return evolutionary(
         problem,
         capability,
         'spea2',
@@ -240,7 +255,7 @@ def sms_emoa(
     ``reference`` is the hypervolume reference point in the minimised normalised frame (None: the
     overflowing front's nadir plus one).
     """
-    return _evolutionary(
+    return evolutionary(
         problem,
         capability,
         'sms_emoa',
@@ -260,7 +275,7 @@ def mode(
     **settings: object,
 ) -> EvolutionarySolver:
     """Multi-objective differential evolution (Xue et al., 2005), any :class:`DEStrategy`, no mating pool."""
-    return _evolutionary(
+    return evolutionary(
         problem,
         capability,
         'mode',

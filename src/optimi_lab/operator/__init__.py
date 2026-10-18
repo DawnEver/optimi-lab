@@ -6,12 +6,28 @@
 * stochastic -- risk measures, estimators with standard errors, MC/QMC robust evaluation,
   reliability (crude MC, importance sampling, subset simulation, FORM/SORM, surrogate), multilevel
   Monte Carlo and OCBA replicate allocation;
+* model-based -- acquisitions (log-EI, PI, UCB, KG, constrained EI, exact EHVI, NEHVI, ParEGO's
+  scalarisation) over a Gaussian prediction or joint draws;
 * gradient -- the generalised Cauchy point, QPs, KKT assembly and merit functions. Every linear solve, line search, trust-region
   step and quasi-Newton update is numerics-lab's; this layer assembles what they are applied to.
 
 Solvers (L7, :mod:`optimi_lab.solver`) bind them.
 """
 
+from optimi_lab.operator.acquisition import (
+    expected_hypervolume_improvement,
+    expected_improvement,
+    hypervolume_improvement,
+    knowledge_gradient,
+    log_expected_improvement,
+    log_h,
+    log_probability_of_feasibility,
+    log_probability_of_improvement,
+    noisy_expected_hypervolume_improvement,
+    parego_scores,
+    probability_of_improvement,
+    upper_confidence_bound,
+)
 from optimi_lab.operator.allocation import ocba
 from optimi_lab.operator.cauchy import cauchy_point
 from optimi_lab.operator.discrete import (
@@ -136,32 +152,43 @@ __all__ = [
     'draw',
     'epsilon_constraint',
     'expectation',
+    'expected_hypervolume_improvement',
+    'expected_improvement',
     'exponential_crossover',
     'form',
     'fronts_then_fill',
+    'hypervolume_improvement',
     'hypervolume_select',
     'importance_sampling',
     'in_standard_space',
     'inversion_mutation',
     'joint_probability',
     'kkt_residual',
+    'knowledge_gradient',
     'l1_merit',
     'l1_penalty',
     'l1_slope',
     'lagrangian_gradient',
     'lattice',
+    'log_expected_improvement',
+    'log_h',
+    'log_probability_of_feasibility',
+    'log_probability_of_improvement',
     'mean_estimate',
     'mean_plus_std',
     'mlmc',
     'nbi',
     'nearest_neighbors',
     'niching_tournament',
+    'noisy_expected_hypervolume_improvement',
     'normalise',
     'ocba',
     'order_crossover',
+    'parego_scores',
     'pbi',
     'polynomial_mutation',
     'probability',
+    'probability_of_improvement',
     'pso_position',
     'pso_velocity',
     'random_select',
@@ -183,6 +210,7 @@ __all__ = [
     'swap_mutation',
     'tchebycheff',
     'tournament_select',
+    'upper_confidence_bound',
     'value_at_risk',
     'violation_of',
     'weighted_sum',

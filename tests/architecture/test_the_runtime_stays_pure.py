@@ -60,7 +60,8 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
 #: RE-TAKEN 2026-10-18 AT 66: the P9 + P12 merge read 72.
 #: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, optimi_lab.model) read 84.
 #: RE-TAKEN 2026-10-18 AT 65 after merging P9 (operator, gradient solvers) onto P12.
-SOURCE_FILE_FLOOR: Final = 80
+#: RE-TAKEN 2026-10-18 AT 95: P11 (model-based solvers, D59-D68) read 101; already red at c028663, which read 93.
+SOURCE_FILE_FLOOR: Final = 95
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12

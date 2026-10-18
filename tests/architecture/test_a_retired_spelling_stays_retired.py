@@ -136,7 +136,8 @@ REGISTRY_HEADROOM: Final = 5
 #: RE-TAKEN 2026-10-18 AT 150: the P9 + P12 merge read 164.
 #: RE-TAKEN 2026-10-18 AT 172: P10 (surrogates, optimi_lab.model) read 184.
 #: RE-TAKEN 2026-10-18 AT 150: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 168.
-SCANNED_FILE_FLOOR: Final = 179
+#: RE-TAKEN 2026-10-18 AT 208: P11 (model-based solvers, D59-D68) read 221; already red at c028663, which read 206.
+SCANNED_FILE_FLOOR: Final = 208
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
 SCANNED_FILE_HEADROOM: Final = 25

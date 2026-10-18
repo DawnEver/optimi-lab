@@ -49,7 +49,8 @@ _TESTS: Final = _ROOT / 'tests'
 #: RE-TAKEN 2026-10-18 AT 66: the P9 + P12 merge read 72.
 #: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, optimi_lab.model) read 84.
 #: RE-TAKEN 2026-10-18 AT 65: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 73.
-SOURCE_FILE_FLOOR: Final = 80
+#: RE-TAKEN 2026-10-18 AT 95: P11 (model-based solvers, D59-D68) read 101; already red at c028663, which read 93.
+SOURCE_FILE_FLOOR: Final = 95
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``, which nothing here ever guarded: how far past its floor
 #: the population may grow before the number stops separating a clean scan from a walk that did not
@@ -71,7 +72,8 @@ SOURCE_FILE_HEADROOM: Final = 12
 #: RE-TAKEN 2026-10-18 AT 69: the P9 + P12 merge read 74.
 #: RE-TAKEN 2026-10-18 AT 76: P10 (surrogates, optimi_lab.model) read 81.
 #: RE-TAKEN 2026-10-18 AT 70: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 77.
-TEST_FILE_FLOOR: Final = 80
+#: RE-TAKEN 2026-10-18 AT 90: P11 (model-based solvers, D59-D68) read 96; already red at c028663, which read 91.
+TEST_FILE_FLOOR: Final = 90
 
 #: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 32 - 25 = 7.
 TEST_FILE_HEADROOM: Final = 10

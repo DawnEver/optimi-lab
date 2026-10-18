@@ -42,7 +42,8 @@ EXEMPT: Final = frozenset({'__init__', '__version__'})
 #: Shipped modules the walk must reach; re-measured 2026-10-17 at 43 with headroom 12.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
 #: RE-TAKEN 2026-10-18 AT 75: P10 (surrogates, optimi_lab.model) read 84.
-MODULE_FLOOR: Final = 80
+#: RE-TAKEN 2026-10-18 AT 92: P11 (model-based solvers, D59-D68) read 101.
+MODULE_FLOOR: Final = 92
 MODULE_HEADROOM: Final = 20
 
 
