@@ -1,6 +1,6 @@
 """D130 a small finite-domain constraint solver: backtracking search with forward checking, and branch and bound.
 
-Variables have finite *domains*; a :class:`Rule` is a predicate over a named *scope*. The search
+Variables have finite *domains*; a :class:`Predicate` is a predicate over a named *scope*. The search
 assigns the variable with the smallest remaining domain first (MRV), and after each assignment
 FORWARD-CHECKS every rule left with one unassigned variable, deleting the values it forbids; an
 emptied domain backtracks at once. :func:`all_different` is the pairwise decomposition.
@@ -25,20 +25,20 @@ import numpy as np
 from optimi_lab.core.errors import refuse, require_declared_names
 from optimi_lab.solver.smooth import Halt
 
-__all__ = ['CPSolution', 'Rule', 'all_different', 'cp']
+__all__ = ['CPSolution', 'Predicate', 'all_different', 'cp']
 
 
 @dataclass(frozen=True, slots=True)
-class Rule:
+class Predicate:
     """``predicate(*values)`` over the variables named in *scope*, in that order."""
 
     scope: tuple[str, ...]
     predicate: Callable[..., bool]
 
 
-def all_different(*names: str) -> tuple[Rule, ...]:
+def all_different(*names: str) -> tuple[Predicate, ...]:
     """The pairwise decomposition of all-different over *names*."""
-    return tuple(Rule((a, b), lambda u, v: u != v) for a, b in combinations(names, 2))
+    return tuple(Predicate((a, b), lambda u, v: u != v) for a, b in combinations(names, 2))
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -110,7 +110,7 @@ class _Search:
 
 def cp(
     domains: Mapping[str, Sequence],
-    rules: Sequence[Rule] = (),
+    rules: Sequence[Predicate] = (),
     *,
     objective: Callable[[dict], float] | None = None,
     bound: Callable[[dict], float] | None = None,

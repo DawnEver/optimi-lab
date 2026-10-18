@@ -61,7 +61,8 @@ DECLARED: Final[frozenset[str]] = frozenset()
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 160.
 #: RE-TAKEN 2026-10-18 AT 165: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 176.
 #: RE-TAKEN 2026-10-18 AT 220: P11 (model-based solvers, D59-D68) read 228; already red at c028663, which read 215.
-FILES_READ_FLOOR: Final = 220
+#: RE-TAKEN 2026-10-18 AT 232: P14 (structured solvers, D126-D132) read 244; 329e959 (P11) read 228.
+FILES_READ_FLOOR: Final = 232
 
 #: How far past the floor this corpus may grow before the floor stops binding and must be re-taken.
 #: 70 + 15 = 85 against today's 77. This is the side the old floor did not have, and its absence is

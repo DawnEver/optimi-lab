@@ -72,7 +72,8 @@ EXEMPT: Final[tuple[str, ...]] = ()
 #: RE-TAKEN 2026-10-18 AT 165: P10 (surrogates, optimi_lab.model) read 173.
 #: RE-TAKEN 2026-10-18 AT 145: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 158.
 #: RE-TAKEN 2026-10-18 AT 198: P11 (model-based solvers, D59-D68) read 206; already red at c028663, which read 192.
-FILE_FLOOR: Final = 198
+#: RE-TAKEN 2026-10-18 AT 212: P14 (structured solvers, D126-D132) read 222; 329e959 (P11) read 206.
+FILE_FLOOR: Final = 212
 
 #: THE OTHER SIDE, and the side no copy in this family ever wrote. This is how far past its floor the
 #: population may grow before the floor is RE-MEASURED -- never how much slack the floor may be

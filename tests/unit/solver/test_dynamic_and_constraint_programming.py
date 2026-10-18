@@ -15,7 +15,7 @@ import numpy as np
 import pytest
 
 from optimi_lab.core.errors import Refusal
-from optimi_lab.solver import Halt, Rule, all_different, cp, dynamic_programming
+from optimi_lab.solver import Halt, Predicate, all_different, cp, dynamic_programming
 
 PRICE = (3.0, 1.0, 4.0, 1.0, 5.0, 9.0)
 #: Agreement with enumeration, in currency units of PRICE.
@@ -78,11 +78,11 @@ def test_d129_planted_control_a_valuable_terminal_charge_changes_the_plan() -> N
     assert battery(20.0).plan(2)[1] != battery().plan(2)[1]
 
 
-def queens(n: int) -> tuple[dict, list[Rule]]:
+def queens(n: int) -> tuple[dict, list[Predicate]]:
     names = [f'q{i}' for i in range(n)]
     rules = list(all_different(*names))
     for i, j in itertools.combinations(range(n), 2):
-        rules.append(Rule((names[i], names[j]), lambda a, b, d=j - i: abs(a - b) != d))
+        rules.append(Predicate((names[i], names[j]), lambda a, b, d=j - i: abs(a - b) != d))
     return dict.fromkeys(names, range(n)), rules
 
 

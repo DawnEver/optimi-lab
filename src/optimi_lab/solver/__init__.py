@@ -39,7 +39,7 @@ from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.branch_and_bound import milp
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
-from optimi_lab.solver.constraint_programming import CPSolution, Rule, all_different, cp
+from optimi_lab.solver.constraint_programming import CPSolution, Predicate, all_different, cp
 from optimi_lab.solver.decomposition import DecompositionSolver, moead
 from optimi_lab.solver.dynamic_programming import DPSolution, dynamic_programming
 from optimi_lab.solver.evolutionary import (
@@ -123,11 +123,11 @@ __all__ = [
     'NelderMead',
     'ParEGO',
     'PopulationSolver',
+    'Predicate',
     'Prescreened',
     'Prox',
     'ReferenceVectorSolver',
     'Requires',
-    'Rule',
     'SampleAverage',
     'Scalarise',
     'SequentialSolver',
