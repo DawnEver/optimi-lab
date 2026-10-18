@@ -6,8 +6,9 @@ reader could violate in one commit, and each names the mechanism that refuses it
 - **The RUNTIME is numpy, scipy, scikit-learn, numerics-lab and `lab_commons.outcomes`, nothing else**
   (`test_the_runtime_stays_pure.py`); no logging/unit/plotting/config library -- motronics inherits
   ours. Equation solving is numerics-lab's (R4): no line search, trust region, quasi-Newton, Krylov,
-  factorisation or KKT solve of our own; scipy only `linalg`/`sparse`/`special` + the named stats
-  debt, `scipy.optimize` in tests only (`test_equation_solving_is_numerics_labs.py`).
+  factorisation or KKT solve of our own (`test_equation_solving_is_numerics_labs.py`); scipy only
+  `linalg`/`sparse`/`sparse.linalg`/`special`, `scipy.optimize`/`scipy.stats` in tests only (R1,
+  `test_the_runtime_takes_only_the_r1_scipy_submodules`).
 - **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one
   task-outcome vocabulary for every engine). The base install takes it without extras; the dev kit
   (`lab-commons[dev]`) stays in the `dev` extra. Both are bare `git+https` URLs, never pinned (R8):

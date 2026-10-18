@@ -18,8 +18,11 @@ from optimi_lab.core.pareto import (
     constrained_dominates,
     constrained_non_dominated_sorting,
     dominates,
+    epsilon_dominates,
+    incremental_sort,
     non_dominated_sorting,
     partition_count,
+    tolerance_dominates,
     total_violation,
 )
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec, sample
@@ -33,6 +36,8 @@ __all__ = [
     'constrained_dominates',
     'constrained_non_dominated_sorting',
     'dominates',
+    'epsilon_dominates',
+    'incremental_sort',
     'non_dominated_sorting',
     'partition_count',
     'refuse',
@@ -40,5 +45,6 @@ __all__ = [
     'require_finite',
     'require_positive',
     'sample',
+    'tolerance_dominates',
     'total_violation',
 ]

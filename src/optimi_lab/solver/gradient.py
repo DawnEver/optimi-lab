@@ -30,7 +30,7 @@ from optimi_lab.oracle import Action, Capability, Information, Result
 from optimi_lab.problem import Problem
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
-from optimi_lab.solver.moving_asymptotes import mma
+from optimi_lab.solver.moving_asymptotes import gcmma, mma
 from optimi_lab.solver.multiobjective import mgda, pareto_continuation
 from optimi_lab.solver.requires import Eligible, Requires, match
 from optimi_lab.solver.smooth import Halt, SmoothView, Solution, Unevaluable
@@ -46,7 +46,7 @@ METHODS: Final[dict[str, Callable[..., Solution]]] = {
     'interior_point': interior_point,
     'augmented_lagrangian': augmented_lagrangian,
     'mma': mma,
-    'gcmma': partial(mma, conservative=True),
+    'gcmma': gcmma,
     'mgda': mgda,
     'pareto_continuation': pareto_continuation,
 }

@@ -20,9 +20,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.stats import qmc
 
 from optimi_lab.core.errors import refuse, require_finite, require_positive
+from optimi_lab.core.qmc import sobol
 from optimi_lab.problem import Real, Space
 
 __all__ = ['SobolIndices', 'main_effect', 'sobol_indices']
@@ -73,7 +73,7 @@ def sobol_indices(
     if strangers:
         refuse(f'Sobol indices here need unconditional Real variables; {strangers} are not')
     n_var = space.width
-    unit = qmc.Sobol(d=2 * n_var, seed=seed).random_base2(int(n_base).bit_length() - 1)
+    unit = sobol(n_base, 2 * n_var, rng=np.random.default_rng(seed))
     unit_a, unit_b = unit[:, :n_var], unit[:, n_var:]
     unit_ab = np.repeat(unit_a[None], n_var, axis=0)
     unit_ab[np.arange(n_var), :, np.arange(n_var)] = unit_b.T

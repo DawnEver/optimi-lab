@@ -5,6 +5,7 @@ output's variance among the declared variables; :mod:`~optimi_lab.analysis.decis
 in the minimization frame of :mod:`optimi_lab.core.pareto`.
 """
 
+from optimi_lab.analysis.conflict import conflict_matrix, essential_objectives
 from optimi_lab.analysis.decision import (
     PowerLaw,
     effective_dimension,
@@ -13,15 +14,20 @@ from optimi_lab.analysis.decision import (
     power_law_fit,
     topsis,
 )
+from optimi_lab.analysis.morris import MorrisEffects, morris
 from optimi_lab.analysis.sensitivity import SobolIndices, main_effect, sobol_indices
 
 __all__ = [
+    'MorrisEffects',
     'PowerLaw',
     'SobolIndices',
+    'conflict_matrix',
     'effective_dimension',
+    'essential_objectives',
     'knee_index',
     'main_effect',
     'monotone_links',
+    'morris',
     'power_law_fit',
     'sobol_indices',
     'topsis',

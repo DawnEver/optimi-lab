@@ -107,8 +107,9 @@ NOT_CITATIONS: Final[tuple[str, ...]] = ()
 #: RE-TAKEN 2026-10-04 AT 65, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 73.
 #: RE-TAKEN 2026-10-16 AT 77, from 65: the analysis branch (sensitivity, decision) read 87.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
-#: RE-TAKEN 2026-10-18 AT 115: the P9 gradient methods (operator, solver, tests) read 129.
-SCANNED_FILE_FLOOR: Final = 115
+#: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 141.
+#: RE-TAKEN 2026-10-18 AT 147: the P9 + P12 merge read 157.
+SCANNED_FILE_FLOOR: Final = 147
 SCANNED_FILE_HEADROOM: Final = 20
 
 #: MEASURED 2026-09-18: 182 `def test_*` under `tests/`. THIS IS A DIFFERENT POPULATION FROM THE ONE
@@ -125,8 +126,9 @@ SCANNED_FILE_HEADROOM: Final = 20
 #: RE-TAKEN 2026-10-16 AT 283, from 225: the constraints-and-design-matrix branch (five unit test modules
 #: and core/constraints.py) read 305; the floor sits half a headroom below it.
 #: RE-TAKEN 2026-10-16 AT 312, from 283: the analysis branch read 334; half a headroom below it.
-#: RE-TAKEN 2026-10-18 AT 380: the P9 gradient methods (operator, solver, tests) read 404.
-DEFINED_TEST_FLOOR: Final = 380
+#: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 447.
+#: RE-TAKEN 2026-10-18 AT 470: the P9 + P12 merge read 494.
+DEFINED_TEST_FLOOR: Final = 470
 DEFINED_TEST_HEADROOM: Final = 45
 
 #: MEASURED 2026-09-18: 21 citations sitting on DOCSTRING lines. THE THIRD POPULATION, and the one a

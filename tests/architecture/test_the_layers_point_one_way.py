@@ -3,10 +3,10 @@
     core -> problem (L1) -> oracle (L2) -> archive (L3) -> metric (L4) -> operator (L5)
          -> model (L6) -> solver (L7) -> policy (L8) -> run (L9)
 
-``core`` (refusals, dominance) sits under everything. The packages kept from 0.3 sit at the layer
-they belong to until P10-P12 rebuild them: ``analysis`` is a metric (L4), ``surrogate_model`` a
-model (L6), ``intelligent_algorithm`` operators plus solvers (L7). The package ``__init__`` is the
-facade over all of them and is the one module exempt.
+``core`` (refusals, dominance, point sets) sits under everything. ``analysis`` (sensitivity,
+decision, conflict) reads finished samples and is a metric (L4); ``surrogate_model`` is a model (L6)
+until P10 rebuilds it. The package ``__init__`` is the facade over all of them and is the one module
+exempt.
 
 THE GUARD IS ONE FUNCTION, CALLED TWICE: :func:`against_the_arrow` runs on the real import graph and
 on a planted upward edge, so a green here is a reading, not an echo. A subpackage the table does not
@@ -36,14 +36,14 @@ LAYERS: Final[dict[str, int]] = {
     'model': 6,
     'surrogate_model': 6,
     'solver': 7,
-    'intelligent_algorithm': 7,
     'policy': 8,
     'run': 9,
 }
 EXEMPT: Final = frozenset({'__init__', '__version__'})
 
 #: Shipped modules the walk must reach; re-measured 2026-10-17 at 43 with headroom 12.
-MODULE_FLOOR: Final = 35
+#: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
+MODULE_FLOOR: Final = 55
 MODULE_HEADROOM: Final = 20
 
 
