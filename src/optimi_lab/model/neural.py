@@ -2,7 +2,7 @@
 
 The loss is the mean squared error over every point and output, halved, plus the l2 penalty
 ``alpha / (2 n) sum |W|^2`` on the weights (not the biases). The weights start Glorot-uniform from
-``seed`` and are trained by :func:`~optimi_lab.model.likelihood.minimise` on the exact
+``seed`` and are trained by numerics-lab's ``minimize_lbfgs`` on the exact
 back-propagated gradient. The mean's gradient in the inputs is exact (forward-mode through the layers).
 """
 
@@ -13,9 +13,9 @@ from dataclasses import dataclass
 from typing import Final
 
 import numpy as np
+from numerics_lab.minimize import minimize_lbfgs
 
 from optimi_lab.core.errors import refuse
-from optimi_lab.model.likelihood import minimise
 from optimi_lab.model.protocol import Give, Prediction, query_points, require_gives, training_data
 
 __all__ = ['ACTIVATIONS', 'MultilayerPerceptron', 'Network']
@@ -148,11 +148,11 @@ class MultilayerPerceptron:
     def fit(self, x, y) -> Network:
         x, y = training_data(x, y)
         start = self.initial(x.shape[1], y.shape[1])
-        trained = minimise(
+        trained = minimize_lbfgs(
             lambda flat: start.with_flat(flat).loss(x, y, alpha=self.alpha),
             start.flat,
-            gradient_tolerance=1e-10,
-            value_tolerance=1e-15,
-            max_iterations=self.max_iterations,
+            rtol=0.0,
+            atol=1e-10,
+            max_iter=self.max_iterations,
         )
         return start.with_flat(trained.x)

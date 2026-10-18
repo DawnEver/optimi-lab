@@ -25,8 +25,8 @@ Base: `rebuild/p9-gradients` f86c4d3, with optimi-lab main (P12, 5b65a67) merged
   numerics-lab `solve_kkt`.
 - D45-D48 `kernel` + `gaussian_process` + `likelihood`: SE / Matern 1/2, 3/2, 5/2 with ARD;
   `theta = log[amplitude, lengths, noise]` (sklearn's order), one GP per output column on normalised
-  values; the likelihood factor is numerics-lab `jittered_cholesky`; `minimise` is L-BFGS from
-  numerics-lab `two_loop` + `strong_wolfe`, unconstrained in `u` with `theta = lo + (hi - lo)
+  values; the likelihood factor is numerics-lab `jittered_cholesky`; the fit is numerics-lab `minimize_lbfgs`,
+  unconstrained in `u` with `theta = lo + (hi - lo)
   expit(u)` (`Box`); Dubrule's closed-form LOO.
 - D49 `gradient_enhanced` (SE only, analytic likelihood gradient, nugget 1e-8 amplitude), D50
   `multi_output` (ICM, `B = W W^T + diag(kappa)`, one noise per output), D51 `co_kriging` (AR1,
@@ -42,8 +42,9 @@ Base: `rebuild/p9-gradients` f86c4d3, with optimi-lab main (P12, 5b65a67) merged
 
 ## Decisions taken here
 
-- The hyperparameter fit cannot call P9's `lbfgsb` (L7, above L6), so L6 owns a small unconstrained
-  L-BFGS built from numerics-lab primitives; bounds by the sigmoid map rather than projection.
+- The hyperparameter and MLP fits call numerics-lab `minimize_lbfgs` (numerics-lab branch
+  `feat/minimize-lbfgs` 23d2160, R4: one minimiser, in the engine); an earlier L6 copy was deleted.
+  Bounds stay a sigmoid REPARAMETRISATION (`Box`), not a solver.
 - GP outputs are fitted independently (own hyperparameters per column), unlike sklearn's shared
   kernel; correlated outputs are the ICM's job.
 - Trees take `max_features` as a FRACTION only (no count reading); `max_leaf_nodes` is not offered.
@@ -69,10 +70,10 @@ Base: `rebuild/p9-gradients` f86c4d3, with optimi-lab main (P12, 5b65a67) merged
 
 ## Not verified / open
 
-- Locked against the numerics-lab gitea remote (main 9f16d44) via `lab_commons.dev.dep --lock-upgrade
-  --upgrade-package numerics-lab`; the venv-only `.pth` to the local checkout is gone. The same lock
-  records scikit-learn as a dev-only requirement. `minimise` still catches `ZeroDivisionError` beside
-  `WolfeSearchFailed` (the collapsed-bracket defect P9 found), harmless where numerics-lab fixed it.
+- `uv.lock` pins numerics-lab at gitea main 9f16d44, which lacks `minimize_lbfgs`: development runs
+  through a venv-only `.pth` (inserted first on sys.path) to the numerics-lab `feat/minimize-lbfgs`
+  worktree. RE-LOCK (`dep --lock-upgrade . --upgrade-package numerics-lab`) after the integrator merges
+  that branch; until then a clean install of this branch cannot import `numerics_lab.minimize`.
 - The ensemble of sklearn-matching randomised forests is a statistical band, not equality.
 - No benchmark of fit time against sklearn; the GP/ICM likelihood forms the full inverse per
   evaluation (fine at tens to low hundreds of points, quadratic memory beyond).
