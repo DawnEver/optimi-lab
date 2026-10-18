@@ -60,7 +60,8 @@ EXEMPT: Final = ()
 #: RE-TAKEN 2026-10-18 AT 620: the P9 + P12 merge read 651.
 #: RE-TAKEN 2026-10-18 AT 680: P10 (surrogates, optimi_lab.model) read 710.
 #: RE-TAKEN 2026-10-18 AT 620: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 674.
-FUNCTION_FLOOR: Final = 697
+#: RE-TAKEN 2026-10-18 AT 825: P11 (model-based solvers, D59-D68) read 858; already red at c028663, which read 791.
+FUNCTION_FLOOR: Final = 825
 
 #: THE OTHER SIDE. 219 + 65 = 284 against today's 274; re-measure the FLOOR when it fires.
 FUNCTION_HEADROOM: Final = 65

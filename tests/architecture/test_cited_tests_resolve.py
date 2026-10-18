@@ -111,7 +111,8 @@ NOT_CITATIONS: Final[tuple[str, ...]] = ()
 #: RE-TAKEN 2026-10-18 AT 147: the P9 + P12 merge read 157.
 #: RE-TAKEN 2026-10-18 AT 165: P10 (surrogates, optimi_lab.model) read 176.
 #: RE-TAKEN 2026-10-18 AT 145: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 161.
-SCANNED_FILE_FLOOR: Final = 171
+#: RE-TAKEN 2026-10-18 AT 199: P11 (model-based solvers, D59-D68) read 209; already red at c028663, which read 195.
+SCANNED_FILE_FLOOR: Final = 199
 SCANNED_FILE_HEADROOM: Final = 20
 
 #: MEASURED 2026-09-18: 182 `def test_*` under `tests/`. THIS IS A DIFFERENT POPULATION FROM THE ONE
@@ -132,7 +133,8 @@ SCANNED_FILE_HEADROOM: Final = 20
 #: RE-TAKEN 2026-10-18 AT 470: the P9 + P12 merge read 494.
 #: RE-TAKEN 2026-10-18 AT 515: P10 (surrogates, optimi_lab.model) read 540.
 #: RE-TAKEN 2026-10-18 AT 470: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 508.
-DEFINED_TEST_FLOOR: Final = 526
+#: RE-TAKEN 2026-10-18 AT 615: P11 (model-based solvers, D59-D68) read 636; already red at c028663, which read 590.
+DEFINED_TEST_FLOOR: Final = 615
 DEFINED_TEST_HEADROOM: Final = 45
 
 #: MEASURED 2026-09-18: 21 citations sitting on DOCSTRING lines. THE THIRD POPULATION, and the one a

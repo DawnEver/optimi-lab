@@ -74,7 +74,7 @@ def test_log_ei_is_the_log_of_ei_where_ei_is_representable():
 
 @pytest.mark.parametrize('z', [-40.0, -300.0, -5e3, -1e6])
 def test_log_h_follows_the_asymptotic_series_where_ei_underflows(z):
-    assert log_h(np.array([z]))[0] == pytest.approx(_series_log_h(z), rel=LOG_REL)
+    assert log_h(np.array([z]))[0] == pytest.approx(_series_log_h(z), rel=LOG_REL, abs=0.0)
 
 
 def test_planted_naive_log_of_ei_underflows_where_log_ei_does_not():
@@ -101,7 +101,7 @@ def test_log_pi_and_ucb_closed_forms():
 
 
 def test_knowledge_gradient_of_two_mirrored_lines_is_e_abs_z():
-    assert knowledge_gradient([0.0, 0.0], [-1.0, 1.0]) == pytest.approx(np.sqrt(2.0 / np.pi), rel=1e-14)
+    assert knowledge_gradient([0.0, 0.0], [-1.0, 1.0]) == pytest.approx(np.sqrt(2.0 / np.pi), rel=1e-14, abs=0.0)
 
 
 def test_knowledge_gradient_matches_monte_carlo_over_a_random_set():
@@ -119,7 +119,9 @@ def test_planted_equal_slopes_carry_no_knowledge():
 
 def test_probability_of_feasibility_is_the_product_of_margins():
     mean, std = np.array([[-1.0, 0.5]]), np.array([[1.0, 2.0]])
-    assert np.exp(log_probability_of_feasibility(mean, std))[0] == pytest.approx(ndtr(1.0) * ndtr(-0.25), rel=1e-14)
+    assert np.exp(log_probability_of_feasibility(mean, std))[0] == pytest.approx(
+        ndtr(1.0) * ndtr(-0.25), rel=1e-14, abs=0.0
+    )
 
 
 FRONT2 = np.array([[0.1, 0.9], [0.4, 0.5], [0.8, 0.2]])

@@ -67,7 +67,8 @@ BAR: Final = 'ratio'
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 137.
 #: RE-TAKEN 2026-10-18 AT 135: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 153.
 #: RE-TAKEN 2026-10-18 AT 165: P9 merged onto P10 (surrogates, optimi_lab.model) read 178.
-PYTHON_FILE_FLOOR: Final = 165
+#: RE-TAKEN 2026-10-18 AT 192: P11 (model-based solvers, D59-D68) read 205; already red at c028663, which read 192.
+PYTHON_FILE_FLOOR: Final = 192
 
 #: THE OTHER SIDE OF `PYTHON_FILE_FLOOR`. Today's slack is 57 - 40 = 17, inside this band.
 PYTHON_FILE_HEADROOM: Final = 25
@@ -80,7 +81,8 @@ PYTHON_FILE_HEADROOM: Final = 25
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 59.
 #: RE-TAKEN 2026-10-18 AT 59: P10 (surrogates, optimi_lab.model) read 62.
 #: RE-TAKEN 2026-10-18 AT 60: the P9 ruling tests read 63 approx call sites.
-APPROX_CALL_FLOOR: Final = 60
+#: RE-TAKEN 2026-10-18 AT 64: P11 (model-based solvers, D59-D68) read 67 approx call sites.
+APPROX_CALL_FLOOR: Final = 64
 
 #: THE OTHER SIDE OF `APPROX_CALL_FLOOR`. The floor sits ON the population, so any growth at all is
 #: worth re-reading; 19 + 5 = 24 is the point at which this constant must be re-measured.
