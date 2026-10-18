@@ -46,7 +46,8 @@ _TESTS: Final = _ROOT / 'tests'
 #: RE-MEASURED 2026-09-18: 22 shipped modules and 26 test modules.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
-SOURCE_FILE_FLOOR: Final = 57
+#: RE-TAKEN 2026-10-18 AT 65: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 73.
+SOURCE_FILE_FLOOR: Final = 65
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``, which nothing here ever guarded: how far past its floor
 #: the population may grow before the number stops separating a clean scan from a walk that did not
@@ -65,7 +66,8 @@ SOURCE_FILE_HEADROOM: Final = 12
 #: and core/constraints.py) read 47; the floor sits half a headroom below it.
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 67 test modules.
-TEST_FILE_FLOOR: Final = 62
+#: RE-TAKEN 2026-10-18 AT 70: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 77.
+TEST_FILE_FLOOR: Final = 70
 
 #: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 32 - 25 = 7.
 TEST_FILE_HEADROOM: Final = 10

@@ -1,41 +1,46 @@
 """Single-objective gradient methods on a box: projected gradient, L-BFGS-B, Newton-CG trust region.
 
 Each minimises ``f`` over ``lo <= x <= hi`` and halts CONVERGED when the projected gradient
-``|P(x - grad f) - x|`` falls to *tolerance*. Constraints other than the box are refused here (the
-capability match names the penalty transform, or a constrained method).
+``|P(x - grad f) - x|`` falls to :func:`~optimi_lab.solver.smooth.kkt_bar` (``rtol`` against the
+starting gradient, floored by ``atol``). Constraints other than the box are refused here.
 
 * :func:`projected_gradient` -- the spectral projected gradient: a Barzilai-Borwein trial length
   along ``-grad f``, searched along the projected arc by Armijo backtracking.
-* :func:`lbfgsb` -- the limited-memory BFGS model on a box: the model ``theta I`` updated by the last
-  *memory* secant pairs, minimised EXACTLY over the box by :func:`~optimi_lab.operator.bound_qp`
-  (where Byrd-Lu-Nocedal approximate that subproblem by a Cauchy point and a subspace step), then a
-  strong-Wolfe search capped at the box. A Wolfe failure falls back to Armijo backtracking.
-* :func:`newton_cg` -- a trust-region Newton method: Steihaug-CG on the Hessian of the free variables,
-  each Hessian-vector product a forward difference of gradients (one evaluation per CG iteration),
-  the trial point projected onto the box and judged by the agreement ratio.
+* :func:`lbfgsb` -- L-BFGS-B (Byrd, Lu, Nocedal and Zhu 1995): the limited-memory BFGS model, the
+  generalised Cauchy point along the projected path (:func:`~optimi_lab.operator.cauchy_point`),
+  subspace minimisation over the variables it leaves free (conjugate gradients, truncated to the
+  box -- the direct primal method), then a strong-Wolfe search capped at the box with Armijo as the
+  fallback. numerics-lab publishes no compact L-BFGS matrix, so the model is ``theta I`` carried
+  through the stored pairs by its dense ``bfgs_update`` -- the same matrix, assembled densely.
+* :func:`newton_cg` -- a trust-region Newton method: Steihaug-CG on the free variables' Hessian.
+  The Hessian-vector product is the caller's ``hvp(x, v)`` -- an oracle's declared product -- or,
+  ONLY when asked for by name, ``hvp="finite_difference"``: a forward difference of gradients, one
+  evaluation per product. The choice is recorded in the solution's evidence; there is no default.
 
 Every line search, trust-region update, secant pair and Krylov solve is numerics-lab's.
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import numpy as np
 from numerics_lab.line_search import WolfeSearchFailed, armijo, backtracking, strong_wolfe
-from numerics_lab.linear.krylov import steihaug_cg
+from numerics_lab.linear.krylov import conjugate_gradient, steihaug_cg
 from numerics_lab.quasi_newton import bfgs_update, secant_pair
 from numerics_lab.trust_region import agreement, update_radius
 
 from optimi_lab.core.errors import refuse
-from optimi_lab.operator import Linearization, bound_qp
-from optimi_lab.solver.smooth import Evaluate, Halt, Solution, trial
+from optimi_lab.operator import Linearization, cauchy_point
+from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, Solution, kkt_bar, trial
 
-__all__ = ['lbfgsb', 'newton_cg', 'projected_gradient']
+__all__ = ['FINITE_DIFFERENCE', 'lbfgsb', 'newton_cg', 'projected_gradient']
 
 _ARMIJO = 1e-4
 #: The trust region's acceptance threshold on the agreement ratio.
 _ACCEPT = 1e-4
-#: A predicted decrease below this, relative to |f|, is rounding: the model has nothing left to offer.
-_ROUNDING = 1e-14
+#: The one name that selects gradient differencing for Newton-CG's Hessian-vector products.
+FINITE_DIFFERENCE = 'finite_difference'
 
 
 def _gap(point: Linearization, lo: np.ndarray, hi: np.ndarray) -> float:
@@ -49,8 +54,8 @@ def _start(evaluate: Evaluate, x0: np.ndarray, lo: np.ndarray, hi: np.ndarray) -
     return point
 
 
-def _halt(point: Linearization, box: tuple, iterations: int, halt: Halt, reason: str = '') -> Solution:
-    return Solution(halt, point.x, point, iterations, _gap(point, *box), reason=reason)
+def _halt(point: Linearization, box: tuple, iterations: int, halt: Halt, reason: str = '', **extra) -> Solution:
+    return Solution(halt, point.x, point, iterations, _gap(point, *box), reason=reason, **extra)
 
 
 def _projected_search(evaluate: Evaluate, point: Linearization, d: np.ndarray, lo, hi):
@@ -67,14 +72,15 @@ def _projected_search(evaluate: Evaluate, point: Linearization, d: np.ndarray, l
 
 
 def projected_gradient(
-    evaluate: Evaluate, x0, lo, hi, *, tolerance: float = 1e-8, max_iterations: int = 2000
+    evaluate: Evaluate, x0, lo, hi, *, rtol: float = RTOL, atol: float = ATOL, max_iterations: int = 2000
 ) -> Solution:
     """The spectral projected gradient method; see the module docstring."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     point = _start(evaluate, x0, lo, hi)
+    bar = kkt_bar(point.gradient, rtol=rtol, atol=atol)
     length = 1.0
     for iteration in range(max_iterations):
-        if _gap(point, lo, hi) <= tolerance:
+        if _gap(point, lo, hi) <= bar:
             return _halt(point, (lo, hi), iteration, Halt.CONVERGED)
         accepted = _projected_search(evaluate, point, -length * point.gradient, lo, hi)
         if accepted is None:
@@ -86,22 +92,49 @@ def projected_gradient(
     return _halt(point, (lo, hi), max_iterations, Halt.ITERATION_LIMIT)
 
 
+def _subspace_step(point: Linearization, model: np.ndarray, z: np.ndarray, lo, hi) -> np.ndarray:
+    """From the Cauchy point ``x + z``: minimise the model over its free variables, truncated to the box."""
+    x_c = point.x + z
+    free = (x_c > lo) & (x_c < hi)
+    if not free.any():
+        return z
+    reduced = (point.gradient + model @ z)[free]
+    step = conjugate_gradient(model[np.ix_(free, free)], -reduced, rtol=1e-12).x
+    upper, lower = hi[free] - x_c[free], lo[free] - x_c[free]
+    with np.errstate(divide='ignore', invalid='ignore'):
+        room = np.where(step > 0, upper / step, np.where(step < 0, lower / step, np.inf))
+    alpha = min(1.0, float(np.min(room, initial=np.inf)))
+    z = z.copy()
+    z[free] += alpha * step
+    return z
+
+
 def lbfgsb(
-    evaluate: Evaluate, x0, lo, hi, *, memory: int = 10, tolerance: float = 1e-8, max_iterations: int = 500
+    evaluate: Evaluate,
+    x0,
+    lo,
+    hi,
+    *,
+    memory: int = 10,
+    rtol: float = RTOL,
+    atol: float = ATOL,
+    max_iterations: int = 500,
 ) -> Solution:
-    """Limited-memory BFGS on a box; see the module docstring."""
+    """L-BFGS-B; see the module docstring."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     point = _start(evaluate, x0, lo, hi)
+    bar = kkt_bar(point.gradient, rtol=rtol, atol=atol)
     pairs: list = []
     n = point.x.size
     for iteration in range(max_iterations):
-        if _gap(point, lo, hi) <= tolerance:
+        if _gap(point, lo, hi) <= bar:
             return _halt(point, (lo, hi), iteration, Halt.CONVERGED)
         theta = float(pairs[-1].y @ pairs[-1].y) * pairs[-1].rho if pairs else 1.0
         model = theta * np.eye(n)
         for pair in pairs:
             model = bfgs_update(model, pair.s, pair.y)
-        d = bound_qp(model, point.gradient, lo - point.x, hi - point.x, x0=np.zeros(n)).x
+        z = cauchy_point(point.x, point.gradient, model, lo, hi)
+        d = _subspace_step(point, model, z, lo, hi)
         slope = float(point.gradient @ d)
         if not slope < 0.0:
             return _halt(point, (lo, hi), iteration, Halt.STALLED, 'the model step is not a descent direction')
@@ -132,51 +165,68 @@ def lbfgsb(
     return _halt(point, (lo, hi), max_iterations, Halt.ITERATION_LIMIT)
 
 
+def _differenced(evaluate: Evaluate, lo, hi) -> Callable[[np.ndarray, np.ndarray], np.ndarray]:
+    """``hvp(x, v)`` by a forward difference of gradients, kept inside the box."""
+
+    def hvp(x: np.ndarray, v: np.ndarray) -> np.ndarray:
+        size = 1.5e-8 * (1.0 + float(np.linalg.norm(x))) / max(float(np.linalg.norm(v)), 1e-300)
+        for sign in (1.0, -1.0):
+            shifted = x + sign * size * v
+            if np.all(shifted >= lo) and np.all(shifted <= hi):
+                return sign * (evaluate(shifted).gradient - evaluate(x).gradient) / size
+        refuse('a Hessian-vector product would leave the box on both sides; the box is narrower than the step')
+        return None
+
+    return hvp
+
+
 def newton_cg(
     evaluate: Evaluate,
     x0,
     lo,
     hi,
     *,
+    hvp: Callable[[np.ndarray, np.ndarray], np.ndarray] | str | None = None,
     radius: float = 0.25,
     max_radius: float = 1.0,
-    tolerance: float = 1e-8,
+    rtol: float = RTOL,
+    atol: float = ATOL,
     max_iterations: int = 200,
 ) -> Solution:
-    """A trust-region Newton-CG method with finite-difference Hessian-vector products; see the module docstring."""
+    """Trust-region Newton-CG; *hvp* is a declared ``hvp(x, v)`` or the named ``"finite_difference"``."""
+    if hvp is None:
+        refuse(
+            f'newton_cg needs Hessian-vector products: pass hvp(x, v), or hvp={FINITE_DIFFERENCE!r} to difference '
+            f'gradients (one evaluation per product)'
+        )
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
+    if isinstance(hvp, str):
+        if hvp != FINITE_DIFFERENCE:
+            refuse(f'hvp names {hvp!r}; the one named product is {FINITE_DIFFERENCE!r}')
+        product, evidence = _differenced(evaluate, lo, hi), (f'hvp:{FINITE_DIFFERENCE}',)
+    else:
+        product, evidence = hvp, ('hvp:declared',)
     point = _start(evaluate, x0, lo, hi)
+    bar = kkt_bar(point.gradient, rtol=rtol, atol=atol)
     for iteration in range(max_iterations):
         gap = _gap(point, lo, hi)
-        if gap <= tolerance:
-            return _halt(point, (lo, hi), iteration, Halt.CONVERGED)
+        if gap <= bar:
+            return _halt(point, (lo, hi), iteration, Halt.CONVERGED, evidence=evidence)
         g = point.gradient
-        cauchy, band = (
-            np.clip(point.x - g, lo, hi),
-            2.0 * min(1e-3, gap),
-        )  # Bertsekas: held near a bound it is pushed onto
+        cauchy, band = np.clip(point.x - g, lo, hi), 2.0 * min(1e-3, gap)  # Bertsekas: held near a bound
         free = ~(((point.x <= lo + band) & (g > 0)) | ((point.x >= hi - band) & (g < 0)))
 
-        def hvp(v: np.ndarray, free: np.ndarray = free, g: np.ndarray = g, x: np.ndarray = point.x) -> np.ndarray:
+        def reduced(v: np.ndarray, free: np.ndarray = free, x: np.ndarray = point.x) -> np.ndarray:
             full = np.zeros_like(x)
             full[free] = v
-            size = 1.5e-8 * (1.0 + float(np.linalg.norm(x))) / max(float(np.linalg.norm(full)), 1e-300)
-            for sign in (1.0, -1.0):
-                shifted = x + sign * size * full
-                if np.all(shifted >= lo) and np.all(shifted <= hi):
-                    return (sign * (evaluate(shifted).gradient - g) / size)[free]
-            refuse('a Hessian-vector product would leave the box on both sides; the box is narrower than the step')
-            return None
+            return np.asarray(product(x, full), dtype=float)[free]
 
         step = np.zeros_like(point.x)
-        step[free] = steihaug_cg(hvp, g[free], radius, rtol=min(0.5, float(np.sqrt(gap)))).step
+        step[free] = steihaug_cg(reduced, g[free], radius, rtol=min(0.5, float(np.sqrt(gap)))).step
         step[~free] = np.clip(cauchy[~free] - point.x[~free], -radius, radius)
         candidate_x = np.clip(point.x + step, lo, hi)
         taken = candidate_x - point.x
-        predicted = -(float(g @ taken) + 0.5 * float(taken[free] @ hvp(taken[free]))) if np.any(taken) else 0.0
-        if gap <= np.sqrt(tolerance) and predicted <= _ROUNDING * (1.0 + abs(point.objective)):
-            reason = 'the model predicts no decrease above rounding'
-            return _halt(point, (lo, hi), iteration, Halt.CONVERGED, reason)
+        predicted = -(float(g @ taken) + 0.5 * float(taken[free] @ reduced(taken[free]))) if np.any(taken) else 0.0
         candidate = trial(evaluate, candidate_x)
         actual = -np.inf if candidate is None else point.objective - candidate.objective
         rho = agreement(actual, predicted)
@@ -184,5 +234,5 @@ def newton_cg(
         if rho > _ACCEPT and candidate is not None:
             point = candidate
         elif radius < 1e-14:
-            return _halt(point, (lo, hi), iteration, Halt.STALLED, 'the trust region collapsed')
-    return _halt(point, (lo, hi), max_iterations, Halt.ITERATION_LIMIT)
+            return _halt(point, (lo, hi), iteration, Halt.STALLED, 'the trust region collapsed', evidence=evidence)
+    return _halt(point, (lo, hi), max_iterations, Halt.ITERATION_LIMIT, evidence=evidence)

@@ -6,6 +6,7 @@ objective rows, one total violation per row) and of an explicit generator; none 
 or knows which solver calls it. Solvers (L7, :mod:`optimi_lab.solver`) bind them.
 """
 
+from optimi_lab.operator.cauchy import cauchy_point
 from optimi_lab.operator.discrete import (
     Block,
     Lattice,
@@ -86,6 +87,7 @@ __all__ = [
     'augmented_lagrangian_merit',
     'binomial_crossover',
     'bound_qp',
+    'cauchy_point',
     'crowding_distance',
     'crowding_select',
     'damped_secant',

@@ -60,9 +60,10 @@ class _Needed(BaseException):
     A ``BaseException`` so that no ``except Exception`` on the way can swallow it.
     """
 
-    def __init__(self, x: np.ndarray) -> None:
+    def __init__(self, x: np.ndarray, direction: np.ndarray | None = None) -> None:
         super().__init__()
         self.x = x
+        self.direction = direction
 
 
 class GradientSolver:
@@ -84,6 +85,8 @@ class GradientSolver:
             refuse(f'{method} cannot run as declared: {verdict}; apply what it names to the problem or oracle first')
         self._view = SmoothView(problem)
         self._problem, self._capability = problem, capability
+        if method == 'newton_cg' and 'hvp' not in settings and Information.HVP in capability.provides:
+            settings = {**settings, 'hvp': self._hvp}  # the oracle's declared product
         self._method = partial(METHODS[method], **settings)
         width = problem.space.width
         if start is None:
@@ -94,7 +97,7 @@ class GradientSolver:
             self._x0 = np.array([problem.space.encode(design) for design in start])
         self._lo, self._hi = np.zeros(width), np.ones(width)
         self._told: dict[bytes, Result] = {}
-        self._asked: dict[str, np.ndarray] = {}
+        self._asked: dict[str, bytes] = {}
         self._next: Action | None = None
         self._solution: Solution | None = None
         self._advance()
@@ -106,14 +109,27 @@ class GradientSolver:
             raise _Needed(x)
         return self._view.linearize(x, result)
 
+    def _hvp(self, x: np.ndarray, v: np.ndarray) -> np.ndarray:
+        x, v = np.asarray(x, dtype=float), np.asarray(v, dtype=float)
+        result = self._told.get(x.tobytes() + v.tobytes())
+        if result is None:
+            raise _Needed(x, v)
+        return self._view.objective_hvp(result)
+
     def _advance(self) -> None:
         try:
             self._solution = self._method(self._evaluate, self._x0, self._lo, self._hi)
             self._next = None
         except _Needed as needed:
             design = self._problem.space.decode(needed.x)
-            self._next = Action.of(self._problem, self._capability, design, want=_WANT)
-            self._asked[self._next.identity.key] = needed.x
+            if needed.direction is None:
+                self._next = Action.of(self._problem, self._capability, design, want=_WANT)
+                key = needed.x.tobytes()
+            else:
+                want, direction = _WANT | {Information.HVP}, tuple(needed.direction)
+                self._next = Action.of(self._problem, self._capability, design, want=want, direction=direction)
+                key = needed.x.tobytes() + needed.direction.tobytes()
+            self._asked[self._next.identity.key] = key
         except Unevaluable as failure:
             x = self._x0 if self._x0.ndim == 1 else self._x0[0]
             self._solution = Solution(Halt.UNEVALUABLE, x, None, 0, float('nan'), reason=str(failure))
@@ -126,11 +142,11 @@ class GradientSolver:
     def tell(self, results: Sequence[Result]) -> None:
         """Results of asked points; a RETRYABLE one is dropped, so its point is asked again."""
         for result in results:
-            x = self._asked.get(result.action.identity.key)
-            if x is None:
+            key = self._asked.get(result.action.identity.key)
+            if key is None:
                 refuse('a result was told that this solver did not ask for; tell each result to its own solver')
             if result.cell.status.decided:
-                self._told[x.tobytes()] = result
+                self._told[key] = result
         self._advance()
 
     @property

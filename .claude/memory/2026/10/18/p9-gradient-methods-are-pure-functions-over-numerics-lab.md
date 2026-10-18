@@ -35,19 +35,29 @@ Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-v
 - Registry: ten names in `SOLVERS` / `METHODS`; a values-only oracle is refused naming
   `finite_differences` (apply `with_finite_differences` first).
 
-## Decisions taken here
+## Decisions taken here, and the three rulings that replaced some of them (coordinator, 2026-10-18)
 
-- L-BFGS-B solves the box-constrained model EXACTLY with `bound_qp` instead of the Cauchy point +
-  subspace step (stated in the module docstring). Hessian = `theta I` + numerics-lab `bfgs_update`
-  over the last `memory` pairs.
-- Newton-CG Hessian-vector products are forward differences of gradients (one evaluation each): the
-  P8 `Result.hvp` has no direction, so an oracle HVP is not consumable yet.
-- MMA's dual is maximised by our own `lbfgsb` on `[0, inf)`; dual tolerance 1e-8 because below
-  ~1e-9 the dual gradient is rounding and the search stagnates (measured: 500 iterations, 9.6 s vs
-  0.02 s).
-- requires-python raised to 3.13 (numerics-lab's floor).
-- `solver/mma.py` would have been shadowed by the exported function `mma`; the module is
-  `moving_asymptotes`.
+- (a) L-BFGS-B is the real algorithm: generalised Cauchy point along the projected path
+  (`operator.cauchy_point`), subspace minimisation over the free variables (CG, truncated to the
+  box), strong-Wolfe capped at the box. The first version solved the box model exactly with
+  `bound_qp` -- not L-BFGS-B, so the name lied; that step is gone. `bound_qp` itself stays as the D31
+  operator under its true name. numerics-lab publishes no COMPACT L-BFGS matrix, so the model is
+  `theta I` carried through the pairs by its dense `bfgs_update` (same matrix, dense) -- a compact
+  representation belongs in numerics-lab.
+- (b) A Hessian-vector product is asked WITH its direction: `Action.direction` (unit cube, part of the
+  identity, required iff `Information.HVP` is wanted); `Result.hvp` is refused for an action without
+  one. Newton-CG takes `hvp(x, v)` -- the oracle's when it declares HVP -- or the NAMED fallback
+  `hvp="finite_difference"`; no default; the choice is in `Solution.evidence`
+  (`hvp:declared` / `hvp:finite_difference`). No field was renamed, so nothing is registered retired.
+  `jvp` has the same direction-less shape and is NOT fixed here.
+- (c) Stopping: residual <= `rtol * |grad f(x0)|_max` OR <= `atol` (`kkt_bar`; `atol` > 0 in
+  normalised objective units per unit-cube width, both settings declared; defaults `RTOL`, `ATOL`).
+  Planted control: a start whose gradient is ~4e-18 stops on `atol` for every single-objective method.
+  The `tolerance` setting is gone (a generic word, not registrable).
+- MMA's dual is maximised by our own `lbfgsb` on `[0, inf)` with `atol=1e-8`: below ~1e-9 the dual
+  gradient is rounding and the search stagnates (measured: 500 iterations, 9.6 s vs 0.02 s).
+- requires-python raised to 3.13 (numerics-lab's floor). `solver/mma.py` would have been shadowed by
+  the exported function; the module is `moving_asymptotes`, and `gcmma` is its own function.
 
 ## Findings for numerics-lab (not fixed there; local-only repo)
 

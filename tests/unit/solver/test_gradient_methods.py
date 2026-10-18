@@ -9,6 +9,7 @@ also passes is no evidence that the right one is used.
 from __future__ import annotations
 
 from collections.abc import Callable
+from functools import partial
 
 import numpy as np
 import pytest
@@ -73,7 +74,12 @@ def _box_reference(lo: np.ndarray, hi: np.ndarray) -> np.ndarray:
     return found.x
 
 
-BOX_METHODS = {'lbfgsb': lbfgsb, 'projected_gradient': projected_gradient, 'newton_cg': newton_cg}
+#: Newton-CG takes scipy's exact Rosenbrock Hessian-vector product, declared -- not the named fallback.
+BOX_METHODS = {
+    'lbfgsb': lbfgsb,
+    'projected_gradient': partial(projected_gradient, rtol=1e-11),  # linear rate: a 1e-5 point needs this bar
+    'newton_cg': partial(newton_cg, hvp=rosen_hess_prod),
+}
 
 
 @pytest.mark.parametrize('box', sorted(BOXES))
@@ -90,7 +96,7 @@ def test_d35_newton_cg_agrees_with_scipy_trust_ncg_on_the_interior_optimum() -> 
         rosen, ROSEN_X0, jac=rosen_der, hessp=rosen_hess_prod, method='trust-ncg', options={'gtol': 1e-10}
     )
     assert reference.success
-    assert agrees(newton_cg(rosenbrock, ROSEN_X0, *BOXES['interior']).x, reference.x)
+    assert agrees(BOX_METHODS['newton_cg'](rosenbrock, ROSEN_X0, *BOXES['interior']).x, reference.x)
 
 
 @pytest.mark.parametrize('name', sorted(BOX_METHODS))

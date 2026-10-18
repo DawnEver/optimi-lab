@@ -127,7 +127,8 @@ REGISTRY_HEADROOM: Final = 5
 #: wider headroom.
 #: RE-TAKEN 2026-10-04 AT 70, from 50: lab-commons ec5e8c5 and the consumer-facts merge read 77.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan reached 145 files.
-SCANNED_FILE_FLOOR: Final = 130
+#: RE-TAKEN 2026-10-18 AT 150: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 168.
+SCANNED_FILE_FLOOR: Final = 150
 
 #: THE OTHER SIDE OF ``SCANNED_FILE_FLOOR``. Today's reading is 63 - 50 = 13.
 SCANNED_FILE_HEADROOM: Final = 25
