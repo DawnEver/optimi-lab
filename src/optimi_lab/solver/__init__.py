@@ -20,6 +20,11 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   fantasies (:mod:`optimi_lab.solver.model_based`); :func:`mfbo` (augmented EI on AR1 co-Kriging),
   :func:`turbo` (TuRBO-1), :func:`prescreened` (surrogate-prescreened NSGA-II/GA),
   :func:`model_trust_region` (trust-region model management);
+* structured (P14) -- :func:`lp` (revised simplex, Mehrotra interior point), :func:`qp` (a route
+  onto P9's QPs), :func:`milp` (branch and bound with Gomory cuts) over a :class:`LinearProgram`,
+  each reporting a :class:`StructuredSolution`; :func:`dynamic_programming` (backward induction)
+  and :func:`cp` (finite-domain search with forward checking); :func:`benders` (two-stage
+  decomposition) and :func:`admm` (consensus ADMM over proximal operators);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -27,11 +32,16 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
 Operators live one layer down, in :mod:`optimi_lab.operator`.
 """
 
+from optimi_lab.solver.admm import Prox, admm, box_prox, l1_prox, quadratic_prox
 from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
+from optimi_lab.solver.benders import benders
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
+from optimi_lab.solver.branch_and_bound import milp
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
+from optimi_lab.solver.constraint_programming import CPSolution, Predicate, all_different, cp
 from optimi_lab.solver.decomposition import DecompositionSolver, moead
+from optimi_lab.solver.dynamic_programming import DPSolution, dynamic_programming
 from optimi_lab.solver.evolutionary import (
     differential,
     ga,
@@ -47,6 +57,8 @@ from optimi_lab.solver.evolutionary import (
 from optimi_lab.solver.fidelity import ASHA, SuccessiveHalving, asha, hyperband
 from optimi_lab.solver.fidelity_bo import MultiFidelityBO, mfbo
 from optimi_lab.solver.gradient import METHODS, GradientSolver
+from optimi_lab.solver.linear import LP_METHODS, lp
+from optimi_lab.solver.linear_program import LinearProgram, StructuredSolution
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, map_elites
 from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
@@ -58,6 +70,7 @@ from optimi_lab.solver.pareto_bo import HypervolumeImprovement, ParEGO, ehvi, ne
 from optimi_lab.solver.population import EvolutionarySolver, PopulationSolver, Scalarise
 from optimi_lab.solver.prescreened import Prescreened, prescreened
 from optimi_lab.solver.protocol import Solver
+from optimi_lab.solver.quadratic import qp
 from optimi_lab.solver.requires import (
     SOLVERS,
     Eligible,
@@ -81,12 +94,15 @@ __all__ = [
     'ASHA',
     'ATOL',
     'CMAES',
+    'LP_METHODS',
     'MADS',
     'METHODS',
     'RTOL',
     'SOLVERS',
     'BayesianOptimisation',
+    'CPSolution',
     'Chain',
+    'DPSolution',
     'DecompositionSolver',
     'Descriptor',
     'Eligible',
@@ -96,6 +112,7 @@ __all__ = [
     'Halt',
     'HypervolumeImprovement',
     'Ineligible',
+    'LinearProgram',
     'MapElites',
     'Match',
     'ModelBased',
@@ -106,7 +123,9 @@ __all__ = [
     'NelderMead',
     'ParEGO',
     'PopulationSolver',
+    'Predicate',
     'Prescreened',
+    'Prox',
     'ReferenceVectorSolver',
     'Requires',
     'SampleAverage',
@@ -115,17 +134,24 @@ __all__ = [
     'SmoothView',
     'Solution',
     'Solver',
+    'StructuredSolution',
     'SuccessiveHalving',
     'SwarmSolver',
     'TrustRegion',
     'TuRBO',
     'Unevaluable',
+    'admm',
+    'all_different',
     'asha',
     'augmented_lagrangian',
+    'benders',
     'bo',
     'bobyqa',
+    'box_prox',
     'cmaes',
+    'cp',
     'differential',
+    'dynamic_programming',
     'ehvi',
     'ga',
     'gcmma',
@@ -133,13 +159,16 @@ __all__ = [
     'interior_point',
     'ipop_cmaes',
     'kkt_bar',
+    'l1_prox',
     'lbfgsb',
+    'lp',
     'mads',
     'map_elites',
     'match',
     'maximise',
     'mfbo',
     'mgda',
+    'milp',
     'mma',
     'mode',
     'model_trust_region',
@@ -155,6 +184,8 @@ __all__ = [
     'pareto_continuation',
     'prescreened',
     'projected_gradient',
+    'qp',
+    'quadratic_prox',
     'restarts',
     'rnsga3',
     'rvea',

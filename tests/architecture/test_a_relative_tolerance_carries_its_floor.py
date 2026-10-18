@@ -68,7 +68,8 @@ BAR: Final = 'ratio'
 #: RE-TAKEN 2026-10-18 AT 135: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 153.
 #: RE-TAKEN 2026-10-18 AT 165: P9 merged onto P10 (surrogates, optimi_lab.model) read 178.
 #: RE-TAKEN 2026-10-18 AT 192: P11 (model-based solvers, D59-D68) read 205; already red at c028663, which read 192.
-PYTHON_FILE_FLOOR: Final = 192
+#: RE-TAKEN 2026-10-18 AT 210: P14 (structured solvers, D126-D132) read 221; 329e959 (P11) read 205.
+PYTHON_FILE_FLOOR: Final = 210
 
 #: THE OTHER SIDE OF `PYTHON_FILE_FLOOR`. Today's slack is 57 - 40 = 17, inside this band.
 PYTHON_FILE_HEADROOM: Final = 25
