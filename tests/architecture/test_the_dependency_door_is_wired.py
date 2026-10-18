@@ -1,4 +1,4 @@
-"""ENV-MUTATION-THROUGH-THE-DOOR in optimi-lab: both adapters supplied, and the gap rendered if either goes.
+"""ENV-MUTATION-THROUGH-THE-DOOR in optimi-lab: its verdict anchors supplied, and the gap rendered if they go.
 
 THE OLD REASON, AND WHY IT DID NOT SURVIVE BEING MEASURED. optimi-lab declared the rule absent
 because it "has no shared box and no shared environment -- its `.venv` is its own, and nothing here
@@ -7,41 +7,34 @@ false: `python -m lab_commons.dev.verify` is the ONLY verdict command optimi-lab
 citable log carrying an `env=` key, and that key is computed when the run ENDS. So the invariant the
 door exists for -- no verdict may cite an environment it did not run in -- has a subject here.
 
-THE ASSERTIONS ARE THE FAMILY'S AS OF 2026-09-19, AND THE SEAM WAS ONE NOUN WIDE.
-`lab_commons.dev.dep` published the MECHANISM the day it landed -- `Port`, `mutate`, the two gap
-sentences, the refusal, the retirement -- and this file already imported it. What stayed forked was
-the eight-arm test DRIVING it, measured by two independent audit lanes at 91.5% identical to
-wdg-lab's twin, with a byte diff showing the 8.5% to be a docstring, a repo NAME four times, and a
-`tempfile` prefix. `lab_commons.dev.famtests.depdoor` owns the arms now, planted control included.
+WHAT WAS ACTUALLY MISSING was not a door but optimi-lab's answer to it. H1 -- a mutation DURING a
+verdict run -- is the kit's alone since the CPU seat and the environment seat were split: `verify`
+holds this environment's `EnvironmentSeat` and `dep.mutate` refuses while it is held. Without the
+anchors `lab_commons.dev.dep` renders `NO_ANCHORS_DECLARED` (H2 detected and not remediable);
+`scripts/dep.py` supplies `.verify/verify-*.log`.
 
-WHAT OPTIMI-LAB SUPPLIES, each a keyword with NO DEFAULT upstream, so a repo that forgets one gets a
-`TypeError` rather than a silent wrong answer:
+THE ASSERTIONS ARE NOW THE FAMILY'S, ADOPTED 2026-09-19 from `lab_commons.dev.famtests.depdoor`.
+Two independent audit lanes measured this file against wdg-lab's twin at 91.5% identical, and the
+8.5% was a docstring, the repo's name four times, a `tempfile` prefix and two invented timestamps --
+not one assertion and not one message. What is LOCAL and arrives below as a keyword with NO DEFAULT
+is exactly that: the name `optimi-lab`, `scripts/dep.py`'s anchor adapter and its port factory, and the
+repo-relative shape `.verify/verify-*.log` that optimi-lab's own `verify` writes. A repo that forgets
+one gets a `TypeError` rather than a silent wrong answer.
 
-* `REPO_NAME` -- what `scripts/dep.py`'s `Port` calls this checkout, and what the report PRINTS. A
-  report naming the wrong repo is read by whoever is deciding whether to stop their own run.
-* `port`, `live_holders`, `verdict_anchors` -- optimi-lab's own three adapters, so the floor arms
-  judge THIS repo's readers rather than the kit's.
-* `ANCHOR_SHAPE` -- `.verify/verify-*.log`, the repo-relative name shape `run_verify` writes. Only
-  optimi-lab knows it, and every retirement arm is worthless if it retires a shape nothing produces.
+ONE ARM STAYS LOCAL because the kit has no place for it: the JOIN between the two halves -- that the
+directory the anchors are looked for in is the directory the verdict entry point writes to. That is
+a fact about this checkout and about `lab_commons.dev.verify.LOG_DIRECTORY` together, and each of
+the kit's arms answers for one half only.
 
-WHAT IS LOCAL AND STAYS BELOW THE KIT CALLS: the JOIN between the two halves --
-`scripts/dep.py` looks for anchors in the directory `lab_commons.dev.verify` actually writes to, and
-answers for THIS checkout rather than the caller's working directory. The kit cannot ask that; it is
-a fact about one repo's two files agreeing.
-
-THE BROKER AND THE TREE ARE ISOLATED AND THAT IS THE DOOR WORKING, not a way around it: this suite
-runs inside a `verify` run holding the real box seat, so the real port would REFUSE here --
-correctly, and before it could report anything. The adapters are optimi-lab's either way; only the
-records directory they read is the case's. NOTHING BELOW INSTALLS ANYTHING.
-
-THE MUTATE-DRIVING ARMS ALSO NEED A PRIVATE SEAT RECORDS ROOT, since lab-commons bb9968e (measured
-2026-10-07 as four reds here, the same four wdg-lab measured and fixed in e713d728).
-`lab_commons.dev.boxlock.BoxLock.held` takes `EnvLock(sys.prefix)` for the WHOLE of a verdict run,
-and `lab_commons.dev.dep._change` takes the same seat for a mutation -- so a dry run inside a verdict
-is refused before it can report, and the port's broker no longer reaches that shared seat. Pointing
-`LAB_COMMONS_RESOURCE_DIR` -- the relocation `lab_commons.resources` documents FOR TESTS -- at a
-per-test directory puts the arms' own locks in a private namespace while the enclosing verdict keeps
-the real one. What each arm measures is unchanged.
+THE MUTATE-DRIVING ARMS NEED A PRIVATE SEAT RECORDS ROOT, and the kit's own suite is where this
+file learned it. `lab_commons.dev.boxwait.hold_run_seats` takes `EnvironmentSeat(sys.prefix)` for
+the WHOLE of a verdict run, and `lab_commons.dev.dep._change` takes the same seat for a mutation --
+so a dry run inside a verdict is refused before it can report, which is what MEASURED 2026-10-07 as
+four reds in this file. Pointing
+`lab_commons.box.BOX_ENV` -- the one box ledger file, relocated FOR TESTS, and the
+one the kit's own dependency-door tests apply with this same autouse shape -- at a per-test
+directory puts the arms' own seats in a private namespace while the enclosing verdict keeps the
+real one. A REAL mutation is still excluded, by the verdict holding this environment's seat.
 """
 
 from __future__ import annotations
@@ -51,60 +44,71 @@ from pathlib import Path
 from typing import Final
 
 import pytest
+from lab_commons.box import BOX_ENV
 from lab_commons.dev.famtests import depdoor
 from lab_commons.dev.verify import LOG_DIRECTORY
-from lab_commons.resources import RESOURCE_DIR_ENV, Broker
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from scripts.dep import ANCHOR_GLOB, live_holders, port, repo_root, verdict_anchors  # noqa: E402
+from scripts.dep import ANCHOR_GLOB, port, repo_root, verdict_anchors  # noqa: E402
 
-#: What optimi-lab's port calls this checkout. The report prints it, and a reader deciding whether to
-#: stop their own verdict run has only that text to decide on.
+#: What the report must call this checkout. It is what a reader deciding whether to stop their own
+#: run has to go on, so naming the wrong repo is not cosmetic.
 REPO_NAME: Final = 'optimi-lab'
 
-#: The repo-relative shape a verdict log takes here, composed from the two names that own its halves
-#: rather than spelled again: `lab_commons.dev.verify` owns the directory, `scripts/dep.py` the glob.
+#: The repo-relative NAME SHAPE a optimi-lab verdict log takes, joined here rather than upstream
+#: because only this repo knows both halves: `lab_commons.dev.verify` owns the directory and
+#: `scripts/dep.py` owns the glob. The floor arm is worth exactly this string's accuracy.
 ANCHOR_SHAPE: Final = f'{LOG_DIRECTORY}/{ANCHOR_GLOB}'
+
+#: The timestamp the planted verdict logs carry. A constant, because a reading off the clock would
+#: make the arms below a fact about the day they ran.
+_A_TIMESTAMP: Final = '20260919T000000Z'
 
 
 @pytest.fixture(autouse=True)
 def _private_seat_records(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """The door's own locks contend in a private root -- see this module's docstring for the why."""
-    monkeypatch.setenv(RESOURCE_DIR_ENV, str(tmp_path / 'seat-records'))
+    monkeypatch.setenv(BOX_ENV, str(tmp_path / 'box' / 'box.sqlite'))
 
 
-def test_this_repo_supplies_both_halves_of_the_door(tmp_path: Path) -> None:
-    """THE PROPERTY. Neither gap sentence may appear in a report optimi-lab's own port produced."""
-    depdoor.assert_this_repo_supplies_both_halves_of_the_door(
-        port=port,
+def _plant(tmp_path: Path) -> Path:
+    """Write one verdict log into *tmp_path*, in the shape this repo really produces."""
+    anchor = tmp_path / ANCHOR_SHAPE.replace('*', _A_TIMESTAMP)
+    anchor.parent.mkdir(parents=True, exist_ok=True)
+    anchor.write_text('VERDICT result=PASS env=planted\n', encoding='utf-8')
+    return anchor
+
+
+def test_this_repo_declares_its_verdict_anchors() -> None:
+    """THE PROPERTY: no gap sentence may appear in a report optimi-lab's own port produced."""
+    depdoor.assert_this_repo_declares_its_verdict_anchors(port=port, repo_name=REPO_NAME)
+
+
+def test_a_port_declaring_no_anchors_renders_the_gap() -> None:
+    """THE CONTROL, and it is the state optimi-lab was in until 2026-09-17."""
+    depdoor.assert_a_port_declaring_no_anchors_renders_the_gap()
+
+
+def test_a_verdict_in_another_environment_does_not_refuse(tmp_path: Path) -> None:
+    """THE OTHER SIDE OF H1: a verdict holding an unrelated environment never refuses this one."""
+    depdoor.assert_a_verdict_in_another_environment_does_not_refuse(
         repo_name=REPO_NAME,
-        broker=Broker(resource_dir=tmp_path),
-    )
-
-
-def test_a_port_supplying_neither_half_renders_both_gaps() -> None:
-    """THE PLANTED CONTROL, and it is the state optimi-lab was in until 2026-09-17."""
-    depdoor.assert_a_port_declaring_neither_renders_both_gaps()
-
-
-def test_the_holders_adapter_names_a_real_planted_holder(tmp_path: Path) -> None:
-    """PLANTED ON THE MACHINE. An adapter that always answers "nobody" guards nothing forever."""
-    depdoor.assert_the_holders_adapter_names_a_planted_holder(
-        live_holders=live_holders,
-        broker=Broker(resource_dir=tmp_path),
+        verdict_anchors=verdict_anchors,
+        elsewhere=tmp_path / 'another-environment',
     )
 
 
 def test_the_door_refuses_while_a_verdict_is_in_flight() -> None:
     """H1, PREVENTED -- and the refusal names the holder, because "busy" cannot be acted on.
 
-    THE KIT RECORDS THIS ARM'S OWN WEAKNESS AND SO DOES THIS LINE: the holder it plants is built out
-    of `repo_name`, so the string it searches the refusal for is by construction the string it
-    planted. Every value of the argument is green and the red is not plantable HERE; what the arm
-    really convicts is a door that refuses without naming anybody at all.
+    EVERY VALUE OF `repo_name` IS GREEN HERE and the kit records it: the planted holder is BUILT
+    from `repo_name`, so the string searched for in the refusal is by construction the string
+    planted. This arm measures that the door refuses at all and that it names its holder and its
+    env_key; it cannot measure that the name is optimi-lab's. The arm above, which reads the RENDERED
+    report of this repo's real port, is where a wrong name is plantable.
     """
     depdoor.assert_the_door_refuses_while_a_verdict_is_in_flight(
         repo_name=REPO_NAME,
@@ -113,10 +117,8 @@ def test_the_door_refuses_while_a_verdict_is_in_flight() -> None:
 
 
 def test_a_moved_key_retires_this_repos_verdict_anchors(tmp_path: Path) -> None:
-    """H2, REMEDIED. The planted anchor is the shape optimi-lab really writes -- see the floor below."""
-    anchor = tmp_path / ANCHOR_SHAPE.replace('*', '20260916T000000Z')
-    anchor.parent.mkdir(parents=True)
-    anchor.write_text('VERDICT result=PASS env=before\n', encoding='utf-8')
+    """H2, REMEDIED. The planted anchor is the shape this repo really writes -- see the floor arm."""
+    anchor = _plant(tmp_path)
     depdoor.assert_a_moved_key_retires_a_planted_anchor(
         repo_name=REPO_NAME,
         verdict_anchors=lambda: verdict_anchors(tmp_path),
@@ -125,10 +127,8 @@ def test_a_moved_key_retires_this_repos_verdict_anchors(tmp_path: Path) -> None:
 
 
 def test_an_unmoved_key_retires_nothing(tmp_path: Path) -> None:
-    """THE OTHER SIDE OF THE RATCHET. A retirement that always fires deletes evidence nobody voided."""
-    anchor = tmp_path / ANCHOR_SHAPE.replace('*', '20260916T000001Z')
-    anchor.parent.mkdir(parents=True)
-    anchor.write_text('VERDICT result=PASS env=same\n', encoding='utf-8')
+    """THE OTHER SIDE. A retirement that always fires deletes evidence nobody invalidated."""
+    anchor = _plant(tmp_path)
     depdoor.assert_an_unmoved_key_retires_nothing(
         repo_name=REPO_NAME,
         verdict_anchors=lambda: verdict_anchors(tmp_path),
@@ -137,7 +137,7 @@ def test_an_unmoved_key_retires_nothing(tmp_path: Path) -> None:
 
 
 def test_the_anchor_adapter_reads_the_shape_this_repo_writes(tmp_path: Path) -> None:
-    """FLOOR AND CEILING ON THE ANCHOR SCAN: it finds optimi-lab's real log, and it invents none."""
+    """FLOOR AND CEILING ON THE ANCHOR SCAN: it finds a real log, and it invents none."""
     depdoor.assert_the_anchor_reader_has_a_floor_and_a_ceiling(
         verdict_anchors=verdict_anchors,
         anchor_glob=ANCHOR_SHAPE,
@@ -146,13 +146,15 @@ def test_the_anchor_adapter_reads_the_shape_this_repo_writes(tmp_path: Path) -> 
 
 
 def test_the_anchor_directory_is_the_one_verify_writes_to() -> None:
-    """LOCAL, AND THE KIT CANNOT ASK IT: optimi-lab's two halves must agree on one directory.
+    """THE JOIN, and the one arm the kit has no place for: each of its arms answers for one half.
 
-    `scripts/dep.py` names the anchor directory by importing it from the verdict entry point rather
-    than by copying the string, and answers for THIS checkout rather than the caller's cwd. Both are
-    facts about two files in one repo agreeing, which no vendor-neutral body can state.
+    The anchor shape is BUILT from `lab_commons.dev.verify.LOG_DIRECTORY` rather than spelled, so a
+    `verify` that moved its logs reds here instead of leaving every retirement arm above green over
+    a directory nothing writes to.
     """
-    assert (repo_root() / LOG_DIRECTORY).name == LOG_DIRECTORY, (
-        'the anchors are looked for somewhere other than the directory the verdict entry point writes to'
+    assert ANCHOR_SHAPE.startswith(f'{LOG_DIRECTORY}/'), (
+        f'the anchors are looked for in {ANCHOR_SHAPE!r}, not under the {LOG_DIRECTORY!r} the '
+        f'verdict entry point writes to'
     )
+    assert (repo_root() / LOG_DIRECTORY).name == LOG_DIRECTORY
     assert repo_root() == _ROOT, 'the script answers for a different checkout than the one this suite is in'

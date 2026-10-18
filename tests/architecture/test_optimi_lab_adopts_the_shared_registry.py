@@ -208,9 +208,10 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # CLOSED 2026-09-17. The old reason said nothing here issues a verdict another party cites;
     # `.verify/verify-*.log` carries an `env=` key computed when the run ENDS, which is exactly the
     # invariant the door exists for, and `lab_commons.dev.dep`'s own docstring named this repo as
-    # the one supplying neither adapter. `scripts/dep.py` supplies both -- the box seat as the
-    # exclusion, the verdict logs as the anchors -- so the report renders NEITHER gap, against a
-    # control port that supplies neither and must render BOTH.
+    # the one supplying neither adapter. Since lab-commons 96a90c8 the exclusion is the kit's own
+    # (the environment seat `verify` holds), and `scripts/dep.py` supplies the one repo answer left --
+    # the verdict logs as the anchors -- so the report renders no gap, against a control port that
+    # declares none and must render it.
     'ENV-MUTATION-THROUGH-THE-DOOR': (_DOOR, _DOOR_PORT),
     # ADOPTED 2026-09-17, and this repo is the one that needed NO repair -- which is a measurement
     # rather than a skip. All 22 installer commands in its declared door files are `uv pip install` /
