@@ -9,7 +9,9 @@ capability match names the penalty transform, or a constrained method).
 * :func:`lbfgsb` -- the limited-memory BFGS model on a box: the model ``theta I`` updated by the last
   *memory* secant pairs, minimised EXACTLY over the box by :func:`~optimi_lab.operator.bound_qp`
   (where Byrd-Lu-Nocedal approximate that subproblem by a Cauchy point and a subspace step), then a
-  strong-Wolfe search capped at the box. A Wolfe failure falls back to Armijo backtracking.
+  strong-Wolfe search capped at the box (a step still falling at the cap is taken). A failed
+  search discards the memory and retries from the steepest-descent model, as Byrd-Lu-Nocedal do;
+  a failure with no memory is the halt (STALLED, the search's reason quoted).
 * :func:`newton_cg` -- a trust-region Newton method: Steihaug-CG on the Hessian of the free variables,
   each Hessian-vector product a forward difference of gradients (one evaluation per CG iteration),
   the trial point projected onto the box and judged by the agreement ratio.
@@ -20,7 +22,7 @@ Every line search, trust-region update, secant pair and Krylov solve is numerics
 from __future__ import annotations
 
 import numpy as np
-from numerics_lab.line_search import WolfeSearchFailed, armijo, backtracking, strong_wolfe
+from numerics_lab.line_search import WolfeSearchFailed, backtracking, strong_wolfe
 from numerics_lab.linear.krylov import steihaug_cg
 from numerics_lab.quasi_newton import bfgs_update, secant_pair
 from numerics_lab.trust_region import agreement, update_radius
@@ -118,13 +120,11 @@ def lbfgsb(
 
         try:
             accepted = along(strong_wolfe(phi_and_slope, point.objective, slope, step=1.0, max_step=1.0).step)
-        except (WolfeSearchFailed, ZeroDivisionError):  # numerics-lab zoom divides by a collapsed bracket
-            search = armijo(
-                lambda t: None if along(t) is None else along(t).objective, point.objective, slope, c1=_ARMIJO
-            )
-            accepted = along(search.step) if search.accepted else None
-        if accepted is None:
-            return _halt(point, (lo, hi), iteration, Halt.STALLED, 'no step along the model direction decreased f')
+        except WolfeSearchFailed as failure:
+            if not pairs:
+                return _halt(point, (lo, hi), iteration, Halt.STALLED, f'the Wolfe search failed: {failure}')
+            pairs = []
+            continue
         pair = secant_pair(accepted.x - point.x, accepted.gradient - point.gradient)
         if pair is not None and pair.rho > 0:
             pairs = [*pairs, pair][-memory:]

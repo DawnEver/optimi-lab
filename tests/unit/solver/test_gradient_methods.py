@@ -85,6 +85,16 @@ def test_d33_d34_d35_box_methods_agree_with_scipy(name: str, box: str) -> None:
     assert agrees(found.x, _box_reference(lo, hi))
 
 
+def test_d34_lbfgsb_halts_naming_a_failed_wolfe_search() -> None:
+    """A jump at x = 0.5 holds no Wolfe point; the search's failure is the halt, not an Armijo detour."""
+
+    def jump(x: np.ndarray) -> Linearization:
+        return Linearization(x=x, f=[-x[0] if x[0] < 0.5 else 1.0], df=[[-1.0]])
+
+    found = lbfgsb(jump, np.zeros(1), np.zeros(1), np.ones(1))
+    assert found.halt is Halt.STALLED and found.reason.startswith('the Wolfe search failed')
+
+
 def test_d35_newton_cg_agrees_with_scipy_trust_ncg_on_the_interior_optimum() -> None:
     reference = minimize(
         rosen, ROSEN_X0, jac=rosen_der, hessp=rosen_hess_prod, method='trust-ncg', options={'gtol': 1e-10}
