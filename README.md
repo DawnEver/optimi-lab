@@ -65,7 +65,19 @@ from pathlib import Path
 
 from lab_commons.outcomes import Record
 
-from optimi_lab import BlackBox, Budget, Capability, Objective, Problem, Real, SampleSpec, Sense, Space, from_function, run
+from optimi_lab import (
+    BlackBox,
+    Budget,
+    Capability,
+    Objective,
+    Problem,
+    Real,
+    SampleSpec,
+    Sense,
+    Space,
+    from_function,
+    run,
+)
 from optimi_lab.intelligent_algorithm import nsga2
 
 problem = Problem(
