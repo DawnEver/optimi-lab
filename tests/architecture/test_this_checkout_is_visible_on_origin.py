@@ -48,6 +48,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
+import pytest
 from lab_commons.dev.branchset import declared_branchset
 from lab_commons.dev.famtests import branchset, visibility
 
@@ -69,11 +70,13 @@ TRUNK: Final = 'main'
 LOCAL_ONLY_BRANCHES: Final[frozenset[str]] = frozenset()
 
 
+@pytest.mark.dev_checkout
 def test_this_checkout_is_readable_at_all() -> None:
     """THE FLOOR. An unreadable repository must never render as a clean one."""
     visibility.assert_readable(root=_ROOT, trunk=TRUNK)
 
 
+@pytest.mark.dev_checkout
 def test_nothing_of_value_exists_only_on_this_box() -> None:
     """Pinned BY NAME and two-sided: an arrival reds, and a pin outliving its branch reds too."""
     visibility.assert_local_only_branches(root=_ROOT, declared=LOCAL_ONLY_BRANCHES)
@@ -84,6 +87,7 @@ def test_origin_carries_only_the_declared_branches() -> None:
     branchset.assert_origin_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))
 
 
+@pytest.mark.dev_checkout
 def test_this_box_carries_only_the_declared_branches() -> None:
     """An undeclared local branch origin already holds reds; one holding unpushed work is reported."""
     branchset.assert_local_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))

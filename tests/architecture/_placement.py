@@ -255,8 +255,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-18 after the architecture-reds re-reading: '
-        'own=505 hits=45 -> 8.91%, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
+        'family half in it to split off. RE-MEASURED 2026-10-19 after the box-marker rows: '
+        'own=506 hits=45 -> 8.89%, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
         'on 2026-10-17 (P8), up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale '
         'rows, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on '
@@ -548,8 +548,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'fooled by registry order on two real rules that both match `git push --force`. THAT IS A STRICTENING '
         'AND NO CALLER DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against '
         "the real registry when the arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine "
-        'command-plus-rule rows and the six sanctioned exits. RE-MEASURED 2026-10-18 after SUBAGENT-NO-PUSH '
-        'and REPORTS-LIVE-IN-MEMORY: own=58 hits=0, up from own=57 on 2026-10-09, up from own=55 on '
+        'command-plus-rule rows and the six sanctioned exits. RE-MEASURED 2026-10-19 after the three `node` box '
+        'markers: own=61 hits=0, up from own=58 on 2026-10-18 after SUBAGENT-NO-PUSH and REPORTS-LIVE-IN-MEMORY, up from own=57 on 2026-10-09, up from own=55 on '
         '2026-10-05, up from own=52 on 2026-10-03 after the progressive injected-text control was adopted, '
         'itself up from own=50 on 2026-10-01 by the two names lab-commons 9ce57c3 shipped (BARE-INTERPRETER, '
         'WORKTREES-STAY-INSIDE) and recorded in `BELOW_THE_BAR`; own=50 was itself up from own=43 on '
@@ -581,7 +581,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER over `lab_commons.dev.hook_install` (the MEASUREMENT) and '
         '`lab_commons.dev.famtests.hookinstall` (the TEST); this file holds no arm of its own. LOCAL: the '
         'optimi-lab tree under test and the named set of stages `[tool.lab_commons.hooks]` declares, and '
-        'nothing else -- the definition of a binder. RE-MEASURED 2026-10-18: own=10 hits=0, down from own=11 '
+        'nothing else -- the definition of a binder. RE-MEASURED 2026-10-19: own=13 hits=0 after the two `dev_checkout` box markers, up from own=10 on 2026-10-18, down from own=11 '
         'on 2026-09-19 when the declaration was a YAML file and the remedy arm still took its name; forty '
         'lines under the binder ceiling.',
     ),
@@ -695,8 +695,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'path resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until this '
         'file both were PROSE, and a `structlog` import added to one function would have left every word of '
         "the claim reading exactly as it does now. Which three distributions are permitted is this library's "
-        "decision and nobody else's. RE-MEASURED 2026-10-18 after P11: own=126 hits=2 -> 1.59%, up from "
-        'own=125 repo=2 -> 1.6% after P9 admitted numerics-lab, up from own=109 repo=1 -> 0.92% after P12 '
+        "decision and nobody else's. RE-MEASURED 2026-10-19 after P14: own=132 hits=2 -> 1.52%, down from "
+        'own=126 hits=2 -> 1.59% after P11, up from own=125 repo=2 -> 1.6% after P9 admitted numerics-lab, up from own=109 repo=1 -> 0.92% after P12 '
         'added the R1 scipy guard, down from own=90 repo=1 -> 1.11% after P8 admitted lab_commons.outcomes on '
         '2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on '
         '2026-09-17, a `BELOW_THE_BAR` row: the facts are three distribution NAMES, which are strings.',
@@ -722,8 +722,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`assert_one_pushable_branch`, `assert_local_only_branches` and `assert_the_planted_debris_is_named`. LOCAL, '
         "each a keyword with NO DEFAULT upstream: optimi-lab's trunk NAME (the `LAB_CZ_BASE_REF` shape -- a repo judged "
         'against a guessed `main` resolves to nothing, finds no commits and REPORTS ITSELF CLEAN), and the two '
-        'two-sided branch pins, one of which still names `fix/p0-integration-blockers`. MEASURED 2026-09-19: own=13 '
-        'hits=0, down from own=74, admitted by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE '
+        'two-sided branch pins, one of which still names `fix/p0-integration-blockers`. MEASURED 2026-10-19: own=17 '
+        'hits=0 after the three `dev_checkout` box markers, up from own=13 on 2026-09-19, down from own=74, admitted by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE '
         'WORD IS THE POINT. Property 2 refuses a STAYS with no repo noun anywhere in it, and this file had none -- it '
         'said "this repo" throughout and never said WHICH. That is the evidence the label is paid for, so the pronoun '
         'is now the name; no sentence was added to make a scan fire.',
@@ -868,7 +868,7 @@ MINIMUM_REFUSES: Final = 0.65
 #:
 #: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. ONE reads 0.00% -- re-measured 2026-09-19,
 #: down from four as the adopting rows left -- which is the same reading a
-#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (1.59%),
+#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (1.52%),
 #: `test_the_public_surface_is_declared.py` (0.62%) and the registry adoption (2.27%) sit under the
 #: bar with hits (re-read 2026-10-18, when `_famconfig.py` left the set under the binder ceiling), and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
@@ -893,7 +893,8 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'hand-typed dict, leaving only the repo facts here.'
     ),
     'tests/architecture/test_the_agent_guard_is_live.py': (
-        'RE-MEASURED 2026-10-18: own=58 hits=0 -> 0.00%, eight lines over the binder ceiling, up from own=52 '
+        'RE-MEASURED 2026-10-19: own=61 hits=0 -> 0.00%, eleven lines over the binder ceiling after the three `node` '
+        'box markers, up from own=58 on 2026-10-18, up from own=52 '
         'on 2026-10-03. The lines are rule names the kit shipped unconditionally (BARE-INTERPRETER, '
         'WORKTREES-STAY-INSIDE, RECURSIVE-GREP, REPORTS-LIVE-IN-MEMORY and the rest) added to the shipped-set '
         'pin -- rule IDs, which no noun scan sees. THE SEAM IT OWES is upstream: the shipped set is derivable '
