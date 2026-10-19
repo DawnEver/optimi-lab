@@ -116,6 +116,7 @@ def test_the_allow_block_and_the_codex_rules_are_rendered_from_the_door_table() 
     assert promises_raw(rules) == ()
 
 
+@pytest.mark.node
 def test_no_allow_entry_names_a_command_the_engine_refuses() -> None:
     """THE PROPERTY, and its floors. A red names the row, what it promised, and the refusal it gets.
 
@@ -126,6 +127,7 @@ def test_no_allow_entry_names_a_command_the_engine_refuses() -> None:
     allowguard.assert_no_allow_contradicts(root=_ROOT, sanctioned=_SANCTIONED)
 
 
+@pytest.mark.node
 def test_the_scan_catches_a_planted_contradiction(tmp_path: Path) -> None:
     """THE PLANT, both directions, against THIS repo's own rendered rules.
 

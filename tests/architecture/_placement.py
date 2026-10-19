@@ -255,8 +255,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-19 after the box-marker rows: '
-        'own=506 hits=45 -> 8.89%, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
+        'family half in it to split off. RE-MEASURED 2026-10-19 after the box-body binder row: own=511 hits=46 -> 9.00%, up from '
+        'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
         'on 2026-10-17 (P8), up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale '
         'rows, up from own=537 project=44 -> 8.19% on 2026-10-05, up from own=535 project=44 -> 8.22% on '
@@ -368,6 +368,14 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'under the 50-line binder ceiling and over the 3.0% density bar -- so its side does not rest '
         'on the binder exemption most rows in this table lean on.',
     ),
+    'tests/architecture/test_box_bodies_are_marked.py': Placement(
+        STAYS,
+        'ADOPTED 2026-10-19 AS A BINDER. The body is `lab_commons.dev.famtests.boxneeds` -- the NEEDS table and '
+        "`assert_box_bodies_are_marked` -- and the need of each body is the kit's fact, declared there once. "
+        "LOCAL: that optimi-lab's test tree is the one scanned, its `pyproject.toml` the resource vocabulary, "
+        'and the floor of box-body calls its scan must see. MEASURED 2026-10-19: own=7 hits=0, forty-three lines '
+        'under the 50-line binder ceiling, so it is admitted by the BINDER arm alone.',
+    ),
     'tests/architecture/test_cited_tests_resolve.py': Placement(
         STAYS,
         'A BINDER over `lab_commons.dev.famtests.citedtests`: the walk, the prose reader, the two '
@@ -444,7 +452,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`.claude/settings.json` declares no `permissions` block at all, so this guard has been green over ZERO probed '
         'rows for its whole life, and the property arm is a strict xfail carrying that measurement until a human adds '
         "the first allow row. THAT XFAIL IS NOT THIS ROW'S TO CLOSE: an agent edit adding the block was refused as "
-        "Self-Modification, so the remedy is a human's. MEASURED 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS: own=33 hits=0, up from own=12 on 2026-09-19, down from own=77, admitted "
+        "Self-Modification, so the remedy is a human's. RE-MEASURED 2026-10-19 after the two `node` box markers: own=35 hits=0, up from own=33 on 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS, up from own=12 on 2026-09-19, down from own=77, admitted "
         'by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 '
         'refuses a STAYS with no repo noun anywhere in it, and this file had none -- it said "this repo" throughout and '
         'never said WHICH. That is the evidence the label is paid for, so the pronoun is now the name; no sentence was '
