@@ -16,6 +16,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
+import pytest
 from _famconfig import DELTAS, REPO
 from lab_commons.dev.famconfig import SectionDelta
 from lab_commons.dev.famtests import configrender, devdocs, famfiles, worktreeplace
@@ -53,6 +54,7 @@ SECTION_DELTAS: Final[dict[str, SectionDelta]] = {
 OWNED_HERE: Final[dict[str, str]] = {}
 
 
+@pytest.mark.dev_checkout
 def test_every_worktree_stays_inside() -> None:
     """WORKTREES-STAY-INSIDE: every linked worktree lives under `<main>/.claude/worktrees/`."""
     worktreeplace.assert_every_worktree_stays_inside(root=_ROOT)

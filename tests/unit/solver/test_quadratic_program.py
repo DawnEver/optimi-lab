@@ -11,6 +11,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from optimi_lab.core import Refusal
 from optimi_lab.solver import Halt, LinearProgram, qp
 
 #: Agreement with the closed form / KKT residual, in the variables' (dimensionless) units.
@@ -38,6 +39,13 @@ def test_d127_bounds_only_route_to_the_projected_newton_method() -> None:
     found = qp(LinearProgram(-v, lo=-np.ones(3), hi=np.ones(3)), np.eye(3))
     assert found.evidence == ('qp:bound_qp',)
     assert np.allclose(found.x, np.clip(v, -1, 1), atol=TOLERANCE)
+
+
+def test_d127_a_singular_hessian_is_refused_by_name_not_leaked_as_an_engine_error() -> None:
+    # diag(1, 0) is only positive SEMIdefinite: the bound route's gate must answer False (it used to catch
+    # scipy's LinAlgError while the engine raises its own LinearSolveError), and the active set names it.
+    with pytest.raises(Refusal, match='not positive definite'):
+        qp(LinearProgram(np.array([-0.4, 1.0]), lo=-np.ones(2), hi=np.ones(2)), np.diag([1.0, 0.0]))
 
 
 @pytest.mark.parametrize('seed', range(6))

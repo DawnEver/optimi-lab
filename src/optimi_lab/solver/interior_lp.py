@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import numpy as np
 from numerics_lab.linear.cholesky import jittered_cholesky
-from scipy.linalg import cho_solve
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.solver.linear_program import StandardForm
@@ -38,8 +37,8 @@ def _step_to_boundary(v: np.ndarray, dv: np.ndarray) -> float:
 
 def _start(a, b, c, factor) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Mehrotra's starting point: least-norm ``z``, least-squares ``y``, both shifted positive."""
-    z = a.T @ cho_solve(factor, b)
-    y = cho_solve(factor, a @ c)
+    z = a.T @ factor.solve(b)
+    y = factor.solve(a @ c)
     s = c - a.T @ y
     z = z + max(-1.5 * float(np.min(z, initial=0.0)), 0.0)
     s = s + max(-1.5 * float(np.min(s, initial=0.0)), 0.0)
@@ -56,7 +55,7 @@ def mehrotra(form: StandardForm, *, tolerance: float = 1e-9, max_iterations: int
     if m and np.linalg.matrix_rank(a) < m:
         refuse(f'the {m} standard rows have rank {np.linalg.matrix_rank(a)}; drop the dependent equality rows')
     rows = np.arange(m)
-    z, y, s = _start(a, b, c, (jittered_cholesky(a @ a.T).lower, True))
+    z, y, s = _start(a, b, c, jittered_cholesky(a @ a.T))
     for iteration in range(1, max_iterations + 1):
         r_p, r_d = b - a @ z, c - a.T @ y - s
         mu = float(z @ s) / n
@@ -70,11 +69,11 @@ def mehrotra(form: StandardForm, *, tolerance: float = 1e-9, max_iterations: int
         if max(np.max(np.abs(z)), np.max(np.abs(y), initial=0.0)) > _DIVERGED:
             break
         d = z / s
-        factor = (jittered_cholesky(a @ (d[:, None] * a.T)).lower, True)
+        factor = jittered_cholesky(a @ (d[:, None] * a.T))
 
         def direction(r_zs: np.ndarray, *, rhs=(z, s, d, factor, r_p, r_d)) -> tuple[np.ndarray, ...]:
             z, s, d, factor, r_p, r_d = rhs
-            dy = cho_solve(factor, r_p - a @ (r_zs / s - d * r_d))
+            dy = factor.solve(r_p - a @ (r_zs / s - d * r_d))
             ds = r_d - a.T @ dy
             return (r_zs - z * ds) / s, dy, ds
 

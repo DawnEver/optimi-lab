@@ -22,6 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
+import pytest
 from lab_commons.dev.famtests import hookinstall
 
 #: THE TREE UNDER TEST, not the working directory: a scan rooted at the CWD answers, plausibly,
@@ -39,11 +40,13 @@ def test_this_repository_declares_hooks_at_all() -> None:
     hookinstall.assert_stages_are_declared(root=_ROOT, declared_stages=DECLARED_STAGES)
 
 
+@pytest.mark.dev_checkout
 def test_every_hook_this_repository_declares_is_installed() -> None:
     """THE PROPERTY. Green means the commits and pushes through this checkout are guarded for real."""
     hookinstall.assert_declared_hooks_are_installed(root=_ROOT)
 
 
+@pytest.mark.dev_checkout
 def test_the_hooks_directory_is_the_one_git_will_consult() -> None:
     """A guard that string-built `.git/hooks` answers about a directory git may not be using."""
     hookinstall.assert_hooks_dir_is_the_one_git_consults(root=_ROOT)

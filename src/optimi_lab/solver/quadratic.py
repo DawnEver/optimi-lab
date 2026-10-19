@@ -15,8 +15,8 @@ program is ``INFEASIBLE`` with the least-violating point, never presented as a s
 from __future__ import annotations
 
 import numpy as np
+from numerics_lab.linear import LinearSolveError
 from numerics_lab.linear.cholesky import jittered_cholesky
-from scipy.linalg import LinAlgError
 
 from optimi_lab.operator import active_set_qp, bound_qp
 from optimi_lab.solver.linear_program import LinearProgram, StructuredSolution
@@ -28,7 +28,7 @@ __all__ = ['qp']
 def _positive_definite(h: np.ndarray) -> bool:
     try:
         jittered_cholesky(h, max_tries=0)
-    except LinAlgError:
+    except LinearSolveError:
         return False
     return True
 

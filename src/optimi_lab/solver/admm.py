@@ -21,8 +21,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import numpy as np
-from numerics_lab.linear.cholesky import jittered_cholesky
-from scipy.linalg import cho_solve
+from numerics_lab.linear.cholesky import JitteredCholesky, jittered_cholesky
 
 from optimi_lab.solver.linear_program import StructuredSolution
 from optimi_lab.solver.smooth import Halt
@@ -36,12 +35,12 @@ Prox = Callable[[np.ndarray, float], np.ndarray]
 def quadratic_prox(h, g) -> Prox:
     """The prox of ``1/2 x.H x + g.x``: ``(H + rho I) x = rho v - g``, ``H`` positive semidefinite."""
     h, g = np.asarray(h, dtype=float), np.asarray(g, dtype=float)
-    factors: dict[float, tuple[np.ndarray, bool]] = {}
+    factors: dict[float, JitteredCholesky] = {}
 
     def prox(v: np.ndarray, rho: float) -> np.ndarray:
         if rho not in factors:
-            factors[rho] = (jittered_cholesky(h + rho * np.eye(g.size)).lower, True)
-        return cho_solve(factors[rho], rho * v - g)
+            factors[rho] = jittered_cholesky(h + rho * np.eye(g.size))
+        return factors[rho].solve(rho * v - g)
 
     return prox
 

@@ -203,6 +203,10 @@ filterwarnings = [
     "ignore::UserWarning",
 ]
 minversion = "6.0"
+markers = [
+    "dev_checkout: asserts a developer-checkout invariant (hooks installed, branches on origin, worktree placement)",
+    "node: drives the agent-guard engine through a real node, which the cluster's compute nodes do not carry",
+]
 addopts = """
 -v -q
 -ra
@@ -246,6 +250,7 @@ output = "output/logs"
 
 [tool.lab_commons.tests]
 produce = ["-m", "lab_commons.dev.verify", "--part", "{part}"]
+resources = ["dev_checkout", "node"]
 
 # The family branch flow: integrate/main coordinates; main moves only by `integrate promote` (fast-forward)
 # on a full forge PASS. Adopted 2026-10-18 after P9/P10/P13 reached main with no trunk gate (no pre-push
