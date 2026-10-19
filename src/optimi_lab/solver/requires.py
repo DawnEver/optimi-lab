@@ -20,7 +20,7 @@ from enum import StrEnum
 from typing import Final
 
 from optimi_lab.core.errors import refuse
-from optimi_lab.oracle import Capability, Information
+from optimi_lab.oracle import COEFFICIENTS_FOR, Capability, Information
 from optimi_lab.problem import BlackBox, Categorical, Chance, Explicit, Field, Form, Linear, Path, Problem, Real
 
 __all__ = ['SOLVERS', 'Eligible', 'Ineligible', 'Match', 'MultiObjective', 'NeedsTransform', 'Requires', 'match']
@@ -96,6 +96,12 @@ def _refusals(requires: Requires, problem: Problem, capability: Capability) -> I
         lacking = [o for o in problem.outputs if problem.structure is None or not problem.structure.has(o, form)]
         if lacking:
             yield f'the solver needs {form.name} outputs; {lacking} are not declared {form.name} in Structure'
+        supplies = COEFFICIENTS_FOR.get(form)
+        if supplies is not None and supplies not in capability.provides:
+            yield (
+                f'the solver needs {form.name} coefficients and the oracle does not provide {supplies.name}; '
+                f'declare it in Capability(provides=...) or the {form.name} form cannot be solved'
+            )
     missing = requires.information - capability.provides
     if missing - _GRADIENTS:
         yield f'the solver needs {sorted(missing - _GRADIENTS)}, which no transform supplies from values'
@@ -129,6 +135,7 @@ _SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
 _PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
 _SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
 _LINEAR: Final = Requires(MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.LINEAR}))
+_ROWS: Final = frozenset({Linear, BlackBox})
 
 #: Every solver this package ships, by name. Population and local solvers rank by Deb's rule (or a
 #: barrier on the total violation), so they take black-box constraints natively; MOEA/D decomposes
@@ -137,7 +144,9 @@ _LINEAR: Final = Requires(MultiObjective.SINGLE, constraints=frozenset({Linear})
 #: ParEGO scalarises by a fresh weight per pick (WEIGHTED), EHVI/NEHVI keep the front (NATIVE_PARETO);
 #: multi-fidelity BO and TuRBO model no constraint (penalise first); the prescreened EA ranks by
 #: Deb's rule on predicted rows and model management is an extreme barrier, like BOBYQA. The
-#: structured solvers (P14) read algebra, not samples: each needs its outputs DECLARED in that form. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
+#: structured solvers (P14) read algebra, not samples: each needs its outputs DECLARED in that form and the
+#: oracle's coefficients for it (``COEFFICIENTS_FOR``); lp and qp, driven by ``StructuredSolver``, read a
+#: BlackBox constraint as a row because its output's coefficients are the oracle's. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
 #: the box methods take no other constraint, the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
     **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
@@ -165,13 +174,11 @@ SOLVERS: Final[dict[str, Requires]] = {
     'turbo': Requires(MultiObjective.SINGLE, metric=True),
     'prescreened': _PARETO,
     'model_trust_region': _SINGLE,
-    'lp': _LINEAR,
+    'lp': Requires(MultiObjective.SINGLE, constraints=_ROWS, forms=frozenset({Form.LINEAR})),
     'milp': _LINEAR,
     'dynamic_programming': Requires(MultiObjective.SINGLE, forms=frozenset({Form.SEPARABLE})),
     'cp': Requires(MultiObjective.SINGLE, constraints=frozenset({Explicit, Linear})),
     'benders': _LINEAR,
     'admm': Requires(MultiObjective.SINGLE, forms=frozenset({Form.CONVEX, Form.SEPARABLE})),
-    'qp': Requires(
-        MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.QUADRATIC, Form.CONVEX})
-    ),
+    'qp': Requires(MultiObjective.SINGLE, constraints=_ROWS, forms=frozenset({Form.QUADRATIC, Form.CONVEX})),
 }

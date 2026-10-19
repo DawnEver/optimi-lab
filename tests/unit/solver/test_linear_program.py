@@ -13,7 +13,7 @@ import pytest
 from scipy.optimize import linprog
 
 from optimi_lab.core.errors import Refusal
-from optimi_lab.problem import Form, Linear
+from optimi_lab.problem import BlackBox, Form, Linear
 from optimi_lab.solver import Halt, LinearProgram, Requires, lp
 
 #: Agreement of the optimal value and the point with the closed form / HiGHS, in the problem's own
@@ -109,4 +109,4 @@ def test_d126_shape_disagreement_and_an_unknown_method_are_refused() -> None:
 def test_d126_lp_is_registered_for_declared_linear_outputs_and_rows() -> None:
     needs = Requires.of('lp')
     assert needs.forms == {Form.LINEAR}
-    assert needs.constraints == {Linear}
+    assert needs.constraints == {Linear, BlackBox}  # a BlackBox output's row comes from its coefficients

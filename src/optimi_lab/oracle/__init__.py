@@ -1,7 +1,8 @@
 """L2 oracle: what an evaluator can tell, what it is asked, what it answers, and how it is called."""
 
 from optimi_lab.oracle.action import Action
-from optimi_lab.oracle.capability import Capability, Information
+from optimi_lab.oracle.capability import COEFFICIENTS_FOR, Capability, Information
+from optimi_lab.oracle.coefficients import analytic
 from optimi_lab.oracle.oracle import Infeasible, Invalid, NotConverged, Oracle, Unavailable, from_function
 from optimi_lab.oracle.result import Result
 from optimi_lab.oracle.transforms import (
@@ -14,6 +15,7 @@ from optimi_lab.oracle.transforms import (
 )
 
 __all__ = [
+    'COEFFICIENTS_FOR',
     'Action',
     'Capability',
     'Infeasible',
@@ -25,6 +27,7 @@ __all__ = [
     'Result',
     'Scheme',
     'Unavailable',
+    'analytic',
     'check_gradient',
     'embed',
     'finite_difference',

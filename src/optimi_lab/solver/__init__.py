@@ -25,6 +25,8 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   each reporting a :class:`StructuredSolution`; :func:`dynamic_programming` (backward induction)
   and :func:`cp` (finite-domain search with forward checking); :func:`benders` (two-stage
   decomposition) and :func:`admm` (consensus ADMM over proximal operators);
+  :class:`StructuredSolver` drives :func:`lp` and :func:`qp` through the run loop, reading the
+  coefficients from the oracle's declared capability (``COEFFICIENTS_FOR``);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
   :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
@@ -85,6 +87,7 @@ from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
 from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Solution, Unevaluable, kkt_bar
 from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
+from optimi_lab.solver.structured import STRUCTURED, StructuredSolver
 from optimi_lab.solver.swarm import SwarmSolver, mopso
 from optimi_lab.solver.trust_region import TrustRegion, bobyqa
 from optimi_lab.solver.turbo import TuRBO, turbo
@@ -99,6 +102,7 @@ __all__ = [
     'METHODS',
     'RTOL',
     'SOLVERS',
+    'STRUCTURED',
     'BayesianOptimisation',
     'CPSolution',
     'Chain',
@@ -135,6 +139,7 @@ __all__ = [
     'Solution',
     'Solver',
     'StructuredSolution',
+    'StructuredSolver',
     'SuccessiveHalving',
     'SwarmSolver',
     'TrustRegion',

@@ -43,7 +43,8 @@ EXEMPT: Final = frozenset({'__init__', '__version__'})
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
 #: RE-TAKEN 2026-10-18 AT 75: P10 (surrogates, optimi_lab.model) read 84.
 #: RE-TAKEN 2026-10-18 AT 92: P11 (model-based solvers, D59-D68) read 101.
-MODULE_FLOOR: Final = 92
+#: RE-TAKEN 2026-10-19 AT 105: P14 driver (oracle.coefficients, solver.structured) read 114.
+MODULE_FLOOR: Final = 105
 MODULE_HEADROOM: Final = 20
 
 

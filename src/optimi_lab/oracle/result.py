@@ -2,7 +2,8 @@
 
 The cell carries the status, the scalar output values, the reason, the evidence and the cost --
 the II.3 vocabulary, never a local copy of it. Around it: derivatives (``gradient``, ``jvp``,
-``hvp`` -- the product with the action's ``direction``), per-output ``uncertainty`` (a standard deviation in the output's unit), ``quality``
+``hvp`` -- the product with the action's ``direction``), the ``linear_coefficients`` and
+``quadratic_coefficients`` an action wanting them is answered with (natural coordinates), per-output ``uncertainty`` (a standard deviation in the output's unit), ``quality``
 indicators (residuals, mesh error), ``provenance`` (versions, hosts, seeds) and ``series`` -- the
 trajectories a :class:`~optimi_lab.problem.Path` constraint is judged on.
 
@@ -30,7 +31,17 @@ __all__ = ['EXTRAS', 'Result']
 _CARRIERS = frozenset({Status.OK, Status.PARTIAL})
 
 #: The parts of a result beside its cell, as :meth:`Result.extras` files them.
-EXTRAS = ('gradient', 'jvp', 'hvp', 'uncertainty', 'quality', 'provenance', 'series')
+EXTRAS = (
+    'gradient',
+    'jvp',
+    'hvp',
+    'linear_coefficients',
+    'quadratic_coefficients',
+    'uncertainty',
+    'quality',
+    'provenance',
+    'series',
+)
 
 
 def _frozen(mapping: Mapping[str, Any] | None, convert: Callable[[Any], Any]) -> Mapping[str, Any]:
@@ -54,6 +65,8 @@ class _ResultFields:
     gradient: Mapping[str, np.ndarray]
     jvp: Mapping[str, float]
     hvp: Mapping[str, np.ndarray]
+    linear_coefficients: Mapping[str, np.ndarray]
+    quadratic_coefficients: Mapping[str, np.ndarray]
     uncertainty: Mapping[str, float]
     quality: Mapping[str, float]
     provenance: Mapping[str, str]
@@ -72,6 +85,8 @@ class Result(_ResultFields):
         gradient: Mapping[str, object] | None = None,
         jvp: Mapping[str, float] | None = None,
         hvp: Mapping[str, object] | None = None,
+        linear_coefficients: Mapping[str, object] | None = None,
+        quadratic_coefficients: Mapping[str, object] | None = None,
         uncertainty: Mapping[str, float] | None = None,
         quality: Mapping[str, float] | None = None,
         provenance: Mapping[str, str] | None = None,
@@ -81,6 +96,8 @@ class Result(_ResultFields):
             'gradient': _frozen(gradient, _vector),
             'jvp': _frozen(jvp, float),
             'hvp': _frozen(hvp, _vector),
+            'linear_coefficients': _frozen(linear_coefficients, _vector),
+            'quadratic_coefficients': _frozen(quadratic_coefficients, _vector),
             'uncertainty': _frozen(uncertainty, float),
             'series': _frozen(series, _series),
         }
@@ -99,6 +116,8 @@ class Result(_ResultFields):
             parts['gradient'],
             parts['jvp'],
             parts['hvp'],
+            parts['linear_coefficients'],
+            parts['quadratic_coefficients'],
             parts['uncertainty'],
             _frozen(quality, float),
             _frozen(provenance, str),
@@ -112,7 +131,8 @@ class Result(_ResultFields):
             missing = sorted(set(problem.outputs) - set(self.cell.values) - paths) + sorted(paths - set(self.series))
             if missing:
                 refuse(f'an OK result must report every output of the problem; missing {missing}')
-        unknown = sorted((set(self.cell.values) | set(self.gradient) | set(self.series)) - set(problem.outputs))
+        named = set(self.cell.values) | set(self.gradient) | set(self.series) | set(self.linear_coefficients)
+        unknown = sorted((named | set(self.quadratic_coefficients)) - set(problem.outputs))
         if unknown:
             refuse(
                 f'the result reports {unknown}, which the problem does not declare; outputs are {list(problem.outputs)}'
@@ -145,6 +165,8 @@ class Result(_ResultFields):
             'gradient': {k: v.tolist() for k, v in self.gradient.items()},
             'jvp': dict(self.jvp),
             'hvp': {k: v.tolist() for k, v in self.hvp.items()},
+            'linear_coefficients': {k: v.tolist() for k, v in self.linear_coefficients.items()},
+            'quadratic_coefficients': {k: v.tolist() for k, v in self.quadratic_coefficients.items()},
             'uncertainty': dict(self.uncertainty),
             'quality': dict(self.quality),
             'provenance': dict(self.provenance),
