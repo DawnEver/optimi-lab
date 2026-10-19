@@ -696,8 +696,8 @@ wheels = [
 
 [[package]]
 name = "lab-commons"
-version = "0.3.1.dev702+ga3b03b42e"
-source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git#a3b03b42e1e964be497b82b834ef7c1a958bfc8d" }
+version = "0.3.1.dev714+gc0a1a946e"
+source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git#c0a1a946e2ba63066e1f62ad8cec7a4cfbc00a9f" }
 
 [package.optional-dependencies]
 dev = [
@@ -907,7 +907,7 @@ wheels = [
 [[package]]
 name = "numerics-lab"
 version = "0.1.0"
-source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git#39243906c92b9e936ae3228dab17bac8f88b0f8c" }
+source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git#f52debf7c1934828fa3cca18f51880e5d759a354" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
