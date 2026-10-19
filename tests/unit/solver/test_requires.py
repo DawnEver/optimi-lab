@@ -79,7 +79,11 @@ def test_d27_chance_structure_and_uncertainty_are_refused_with_the_reason() -> N
     plain = Problem(REAL, (Objective('f'),))
     assert 'QUADRATIC' in match(quadratic, plain, VALUES).reason.upper()
     declared = Problem(REAL, (Objective('f'),), structure=Structure({'f': frozenset({Form.QUADRATIC})}))
-    assert match(quadratic, declared, VALUES) == Eligible()
+    assert 'QUADRATIC_COEFFICIENTS' in match(quadratic, declared, VALUES).reason  # a form alone is not solvable
+    coefficients = Capability(
+        outputs=('f',), provides=frozenset({Information.VALUES, Information.QUADRATIC_COEFFICIENTS})
+    )
+    assert match(quadratic, declared, coefficients) == Eligible()
 
 
 def test_d27_planted_control_an_unregistered_solver_name_is_refused_naming_the_registry() -> None:

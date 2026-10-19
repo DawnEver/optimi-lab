@@ -2,17 +2,24 @@
 
 The information an evaluator offers decides what an algorithm may be used for (plan I.2.3), so it
 is declared here once and matched against a solver's ``Requires`` by the capability registry.
+
+A declared :class:`~optimi_lab.problem.Form` says an output IS linear (quadratic); only the oracle can
+say WHAT its coefficients are (P14 ruling 2026-10-19). :data:`COEFFICIENTS_FOR` is the one table from
+a form to the information class that supplies them; an action wanting one is answered with each
+output's coefficients over the natural design vector (:class:`~optimi_lab.oracle.Result`).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from types import MappingProxyType
+from typing import Final
 
 from optimi_lab.core.errors import refuse
-from optimi_lab.problem import Problem
+from optimi_lab.problem import Form, Problem
 
-__all__ = ['Capability', 'Information']
+__all__ = ['COEFFICIENTS_FOR', 'Capability', 'Information']
 
 
 class Information(StrEnum):
@@ -24,6 +31,17 @@ class Information(StrEnum):
     HVP = 'hvp'
     STRUCTURE = 'structure'
     STOCHASTIC = 'stochastic'
+    #: Each output's ``a`` in ``value = a.x + k`` over the natural design vector.
+    LINEAR_COEFFICIENTS = 'linear_coefficients'
+    #: Each output's ``a`` and ``Q`` in ``value = 1/2 x.Q x + a.x + k``.
+    QUADRATIC_COEFFICIENTS = 'quadratic_coefficients'
+
+
+#: The information that supplies the coefficients of a declared form -- the one table.
+COEFFICIENTS_FOR: Final = MappingProxyType({
+    Form.LINEAR: Information.LINEAR_COEFFICIENTS,
+    Form.QUADRATIC: Information.QUADRATIC_COEFFICIENTS,
+})
 
 
 @dataclass(frozen=True, slots=True)
