@@ -93,7 +93,11 @@ def test_the_mean_gradient_is_the_derivative_of_the_mean(data, family) -> None:
     x, y, q = data
     fitted = GaussianProcess(family).fit(x, y)
     analytic = fitted.predict(q, gradient=True).gradient
-    h = 1e-6
+    # The step balances the central difference's two errors: truncation h^2 |f'''| / 6 and roundoff
+    # eps * sum|k_i alpha_i| / h, where the fitted nugget (~e^-9) makes alpha large. Measured on this
+    # data: at h = 1e-6 roundoff dominates (it grows 10x per decade of h) and is BLAS-order dependent,
+    # 6e-7 on Windows and 1.3e-6 on Linux; at h = 1e-5 it is 3e-8 to 6e-8 on both.
+    h = 1e-5
     for j in range(2):
         step = np.zeros(2)
         step[j] = h

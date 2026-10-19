@@ -145,7 +145,10 @@ def _hs071_reference() -> np.ndarray:
             {'type': 'ineq', 'fun': lambda x: np.prod(x) - 25, 'jac': lambda x: -25 * hs071(x).dc[0]},
             {'type': 'eq', 'fun': lambda x: x @ x - 40, 'jac': lambda x: 2 * x},
         ],
-        options={'ftol': 1e-12, 'maxiter': 500},
+        # ftol 1e-12 on an O(17) objective asks SLSQP's line search for a decrease it cannot resolve once
+        # at the optimum: with one BLAS thread (the forge's Linux node) it stops at the optimum with status 8
+        # 'Positive directional derivative'. At 1e-10 it converges to the same x on every platform measured.
+        options={'ftol': 1e-10, 'maxiter': 500},
     )
     assert found.success, found.message
     trust = minimize(
