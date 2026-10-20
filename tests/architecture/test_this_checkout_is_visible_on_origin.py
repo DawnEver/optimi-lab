@@ -50,6 +50,7 @@ from typing import Final
 
 import pytest
 from lab_commons.dev.branchset import declared_branchset
+from lab_commons.dev.lanepolicy import load_policy
 from lab_commons.dev.famtests import branchset, visibility
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
@@ -116,3 +117,13 @@ def test_this_guard_names_a_planted_second_pushable_branch_and_a_planted_orphan(
     guard from one that refuses everything.
     """
     visibility.assert_the_planted_debris_is_named(tmp_path, trunk=TRUNK)
+
+
+def test_this_repo_declares_the_one_pr_flow() -> None:
+    """A change returns as a `pr/*` PR; integration moves only by the forge's merge of one.
+
+    The two declarations ARE the rule: `ephemeral = ['pr/*']` admits a PR head with no declared session
+    row, and `pr_merges_since` refuses a client push that adds a commit to integration.
+    """
+    assert load_policy(_ROOT).pr_merges_since, 'declare [tool.lab_commons.integrator] pr_merges_since'
+    assert declared_branchset(_ROOT).is_ephemeral('pr/x'), "declare [tool.lab_commons.branchset] ephemeral = ['pr/*']"
