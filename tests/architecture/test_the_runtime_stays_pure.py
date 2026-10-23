@@ -19,7 +19,7 @@ prove nothing about the guard that ships.
 `lab-commons` IS THE REASON THIS IS SHARP RATHER THAN THEORETICAL. Its other modules pull in
 structlog, pint and pydantic; `foreign_roots` admits `lab_commons.outcomes` and names any other
 `lab_commons.*` import, and `test_lab_commons_floats_and_the_dev_kit_stays_in_dev` keeps the dev kit
-(`lab-commons[dev]`) in the dev extra.
+(`dev-lab`) in the development dependency group, not the runtime.
 
 NUMERICS-LAB IS THE FIFTH ENTRY, by decision (plan R4, P9): equation solving is one engine and this
 library keeps no numeric kernel of its own (`test_equation_solving_is_numerics_labs.py`). It floats
@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev import floors
+from dev_lab.dev import floors
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
@@ -96,10 +96,10 @@ def foreign_roots(module: ast.Module, allowed: frozenset[str]) -> frozenset[str]
 
 
 def _requirements() -> tuple[list[str], dict[str, list[str]]]:
-    """`(runtime requirements, extras)` exactly as `pyproject.toml` declares them."""
+    """`(runtime requirements, development groups)` from the manifest."""
     table = tomllib.loads((_ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
     project = table['project']
-    return project.get('dependencies', []), project.get('optional-dependencies', {})
+    return project.get('dependencies', []), table.get('dependency-groups', {})
 
 
 def _source_files() -> list[Path]:
@@ -128,15 +128,17 @@ def test_the_runtime_dependency_set_is_exactly_the_declared_one() -> None:
 
 
 def test_lab_commons_floats_and_the_dev_kit_stays_in_dev() -> None:
-    """Runtime: bare `lab-commons` (for `outcomes`), by URL, never pinned; the `[dev]` kit only in an extra."""
-    runtime, extras = _requirements()
+    """Runtime outcomes and the development kit are separate distributions and install scopes."""
+    runtime, groups = _requirements()
     runtime_lines = [line for line in runtime if _distribution(line) == 'lab-commons']
     assert runtime_lines and all('[' not in line.split('@')[0] for line in runtime_lines), (
         f'{runtime_lines} -- the runtime takes lab-commons WITHOUT extras (plan II.1): its dev kit brings '
         f'what this library refuses to impose on a caller.'
     )
-    lines = [line for entries in extras.values() for line in entries if _distribution(line) == 'lab-commons']
-    assert lines, 'no extra declares lab-commons[dev], so the adoption test beside this one runs for nobody.'
+    assert all(_distribution(line) != 'dev-lab' for line in runtime)
+    lines = [line for line in groups['dev'] if _distribution(line) == 'dev-lab']
+    assert len(lines) == 1, 'the development group must install the independent development kit'
+    assert not any('lab-commons[' in line for entries in groups.values() for line in entries)
     for line in [*runtime_lines, *lines]:
         assert 'git+https' in line, f'{line!r} does not resolve lab-commons from its repository.'
         tail = line.split('git+https', 1)[1]
@@ -190,7 +192,7 @@ def test_no_shipped_module_imports_outside_the_runtime_set() -> None:
 
 
 @pytest.mark.parametrize(
-    'planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'sklearn', 'lab_commons', 'lab_commons.log']
+    'planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'sklearn', 'lab_commons', 'lab_commons.log', 'dev_lab']
 )
 def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
     """THE CONTROL. Plant the import in a module and call the REAL guard, not a copy of it.

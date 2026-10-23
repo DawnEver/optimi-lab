@@ -1,8 +1,8 @@
 """`INJECTED-DOC-WIDTH-CEILING` -- optimi-lab's corpus and declared sites, driven by the kit's arms.
 
 The ceiling, the injected-doc corpus definition and the two-sided ratchet live in
-`lab_commons.dev.docwidth`; the VERDICTS over them, the escape hatch's ceiling and the planted
-control live in `lab_commons.dev.famtests.injectedwidth`. This module supplies only what a shared
+`dev_lab.dev.docwidth`; the VERDICTS over them, the escape hatch's ceiling and the planted
+control live in `dev_lab.dev.famtests.injectedwidth`. This module supplies only what a shared
 body cannot hold: THIS tree's corpus, its DECLARED set, that set's ceiling, and the floor with its
 headroom.
 
@@ -48,9 +48,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.docwidth import WIDTH_CEILING, injected_docs, is_injected_doc
-from lab_commons.dev.famtests import injectedwidth
-from lab_commons.dev.rules import tracked_files
+from dev_lab.dev.docwidth import WIDTH_CEILING, injected_docs, is_injected_doc
+from dev_lab.dev.famtests import injectedwidth
+from dev_lab.dev.rules import tracked_files
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -99,7 +99,7 @@ def test_the_scan_reads_every_doc_handed_to_it() -> None:
     The floor above counts what was READ; this compares that against what was HANDED IN, which is
     the only arm that can see a file the scanner silently failed to decode.
 
-    The body is `lab_commons.dev.famtests.injectedwidth.assert_every_document_handed_in_was_read`,
+    The body is `dev_lab.dev.famtests.injectedwidth.assert_every_document_handed_in_was_read`,
     which also refuses `undecodable` -- the field this file's own comparison never read. The corpus
     and the paths handed to it are this repo's two answers; the comparison is the family's.
     """

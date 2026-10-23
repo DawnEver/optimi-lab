@@ -1,9 +1,9 @@
 """ONE REPO'S HALF of the shared agent deny registry: the exits optimi-lab offers, and the gaps.
 
 WHY A FILE HERE AT ALL. The STATEMENT of every denied shape is authored once, in
-`lab_commons.dev.hooks` -- that half is universal and this repo has no business restating it. What
+`dev_lab.dev.hooks` -- that half is universal and this repo has no business restating it. What
 is NOT universal is the REMEDY: a refusal is only legitimate if the agent it refuses can be told
-what to type instead, and the command to type is a fact about one tree. `lab_commons.dev.verify`
+what to type instead, and the command to type is a fact about one tree. `dev_lab.dev.verify`
 resolves here; `scripts/hooks/with-retry.sh` does not. So the two halves have different owners, and
 this module is the local one.
 
@@ -11,14 +11,14 @@ THE RULE THAT DECIDES THE CONTENT, and it is the whole reason this file is hand-
 a default set installed by the engine's installer: A RULE WHOSE EXIT DOES NOT EXIST HERE IS NOT
 SHIPPED HERE. An agent refused by a rule whose remedy names a file this checkout does not have is
 left with disobey or stop, and the first is what actually happens -- so the refusal has bought
-nothing and cost the guard its authority. `lab_commons.dev.hook_adoption.deny_rules` DROPS such a
+nothing and cost the guard its authority. `dev_lab.dev.hook_adoption.deny_rules` DROPS such a
 rule rather than softening its reason, and `assert_shippable` refuses a remedy whose file the tree
 does not track.
 
 WHAT THIS REPO SHIPS, and why each one is honest here:
 
 * BARE-TEST-INVOCATION and PUSH-NO-VERIFY both need a VERDICT ENTRY POINT, and this repo has
-  exactly one -- `python -m lab_commons.dev.verify`, the command that holds the box seat across
+  exactly one -- `python -m dev_lab.dev.verify`, the command that holds the box seat across
   ruff and pytest and writes the `.verify/verify-*.log` a later `env=` comparison cites. It is a
   module in a declared dev dependency rather than a file in this tree, so the remedy carries NO
   `path`: there is nothing for `remedy_gaps` to resolve, and claiming a path that does not exist
@@ -30,10 +30,10 @@ WHAT THIS REPO SHIPS, and why each one is honest here:
 
 WHAT THIS REPO DECLARES ABSENT, on record rather than silently, each measured today:
 
-* GIT-NETWORK-VERB needs a RETRY WRAPPER. There is none in this tree and none in `lab_commons.dev`
+* GIT-NETWORK-VERB needs a RETRY WRAPPER. There is none in this tree and none in `dev_lab.dev`
   -- the same measurement that keeps NETWORK-RETRY-THEN-REPORT in the adoption file's `_ABSENT`.
   A rule pointing at a wrapper that cannot be run is the exact defect this registry removes.
-* RAW-PROCESS-KILL needs a PROCESS-TREE KILLER an agent can TYPE. `lab_commons.dev.bounded` has the
+* RAW-PROCESS-KILL needs a PROCESS-TREE KILLER an agent can TYPE. `dev_lab.dev.bounded` has the
   capability -- `reap_tree` and `kill_process_tree`, both already driven by
   `tests/architecture/test_a_bounded_wait_names_its_remedy.py` -- but it exposes NO command-line
   entry point, so there is no line to put in a refusal. The gap is a CLI, not a capability, and
@@ -56,19 +56,19 @@ import json
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.allow_adoption import AllowAdoption, permissions_block
-from lab_commons.dev.autodoors import script_doors
-from lab_commons.dev.hook_adoption import HookAdoption, render
-from lab_commons.dev.hooks import Remedy
+from dev_lab.dev.allow_adoption import AllowAdoption, permissions_block
+from dev_lab.dev.autodoors import script_doors
+from dev_lab.dev.hook_adoption import HookAdoption, render
+from dev_lab.dev.hooks import Remedy
 from lab_commons.log import emit
 
 __all__ = ['ADOPTION', 'RULES_FILE', 'SETTINGS_FILE', 'VERIFY', 'allow', 'main', 'repo_root']
 
 #: The one verdict command this repo has. No `path`: it is a module in a declared dev dependency,
 #: not a file in this tree, and a remedy may only claim a path it can actually resolve.
-VERIFY: Final = Remedy('verdict-entry-point', './.venv/Scripts/python.exe -m lab_commons.dev.verify')
+VERIFY: Final = Remedy('verdict-entry-point', './.venv/Scripts/python.exe -m dev_lab.dev.verify')
 
-#: Where the engine reads its rules from, as `lab_commons.dev.agent_guard` spells it.
+#: Where the engine reads its rules from, as `dev_lab.dev.agent_guard` spells it.
 RULES_FILE: Final = Path('.claude') / 'hooks' / 'deny-rules.json'
 
 #: The agent client's settings; this module owns its `permissions` block, the guard owns `hooks`.

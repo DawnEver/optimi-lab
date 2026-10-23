@@ -1,7 +1,7 @@
 """A PIN in this repo is a NAMED SET; a number may only be a THRESHOLD, and it must say so.
 
 WHAT IS LEFT HERE AFTER THE SPLIT, and it is the whole file: THE VOCABULARY. The walk, the grader,
-the floor order, the waiver arm and the planted control ship as `lab_commons.dev.famtests.countpins`
+the floor order, the waiver arm and the planted control ship as `dev_lab.dev.famtests.countpins`
 -- carved from this file, because `NAMED-SETS-NOT-COUNTS` is a family rule and the sibling wdg-lab
 cites it at six modules while holding no guard at all. What no library may decide is WHICH NAMES
 EXCUSE A NUMBER: the suffix set IS the exemption mechanism, so a default shipped by a package
@@ -27,7 +27,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import countpins
+from dev_lab.dev.famtests import countpins
 
 #: The trees this guard answers for, repo-relative. NO DEFAULT UPSTREAM, on purpose: a guessed
 #: directory that resolves to nothing REPORTS THE TREE CLEAN. optimi-lab keeps its architecture
@@ -38,7 +38,7 @@ ROOTS: Final = ('tests/architecture',)
 #: set of rows a number could have failed to name. Everything else numeric is a count pin.
 #:
 #: `_HEADROOM` JOINED 2026-09-18 WITH THE FAMILY FLOOR. A headroom is the largest slack a floor may
-#: carry before it must be re-measured -- `lab_commons.dev.floors.assert_floor_still_binds`' second
+#: carry before it must be re-measured -- `dev_lab.dev.floors.assert_floor_still_binds`' second
 #: argument -- so its content IS a magnitude and there is no set of rows it could have named instead.
 #: It is the most magnitude-shaped constant in this tree: it exists precisely to stop a number from
 #: silently ceasing to mean anything.

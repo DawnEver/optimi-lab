@@ -1,6 +1,6 @@
 """PYPROJECT-SECTIONS-ARE-OWNED, for optimi_lab: the kit's section base plus this repo's delta.
 
-`lab_commons.dev.famconfig` owns two `pyproject.toml` tables as a SECTION base -- ``[project]``'s
+`dev_lab.dev.famconfig` owns two `pyproject.toml` tables as a SECTION base -- ``[project]``'s
 ``readme``/``dynamic`` and ``[tool.pytest.ini_options]``'s ``testpaths`` -- and `inspect_section` reads
 the real file against the live base and a repo's declared delta. The delta is
 `_famconfig.PYPROJECT_SECTION_DELTAS`; this file is the verdict half.
@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Final
 
 from _famconfig import PYPROJECT_SECTION_DELTAS, REPO
-from lab_commons.dev.famconfig import OWNED, PYPROJECT_SECTIONS, inspect_section, section_base, section_problems
+from dev_lab.dev.famconfig import OWNED, PYPROJECT_SECTIONS, inspect_section, section_base, section_problems
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

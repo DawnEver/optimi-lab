@@ -31,7 +31,7 @@ def test_generate_docs(modules, open_webpage: bool, mocker) -> None:
     not affect the reference `scripts.pdoc` already holds.
     """
     # `optimi_lab.__all__` is a flat list of names, so pdoc renders ONE page per documented
-    # module and no `docs/optimi_lab/` directory: asserting that directory would assert a
+    # module and no nested package directory: asserting that directory would assert a
     # nested public surface the package does not have.
     output_dir = Path('./docs')
     if Path.exists(output_dir):

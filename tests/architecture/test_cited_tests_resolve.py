@@ -15,9 +15,9 @@ cosmetic: it is the difference between a reader finding the control and concludi
 It also puts the token out of this scan's reach by construction, since a citation preceded by a
 slash is not a repo-relative one.
 
-THE WHOLE READING IS THE FAMILY'S. `lab_commons.dev.famtests.citedtests` holds the walk, the prose
+THE WHOLE READING IS THE FAMILY'S. `dev_lab.dev.famtests.citedtests` holds the walk, the prose
 reader, the two citation patterns, the resolution rule, the three arms, the exemption arm and the
-planted control; `lab_commons.dev.floors` holds both sides of each floor. What is left here is the
+planted control; `dev_lab.dev.floors` holds both sides of each floor. What is left here is the
 half the kit refuses to guess -- every repo-shaped fact arrives as a keyword argument with NO
 DEFAULT -- and this file is where optimi-lab's eight answers are written down.
 
@@ -49,7 +49,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import citedtests
+from dev_lab.dev.famtests import citedtests
 
 #: This checkout: `tests/architecture/<this file>` sits two directories below it.
 ROOT: Final = Path(__file__).resolve().parents[2]

@@ -12,7 +12,7 @@ than a convention. It kills only the DIRECT child, and then -- on Windows -- rea
 `communicate()`. Any grandchild inherits the stdout write handle, so the pipe stays open while one
 of them lives: a hang detector that hangs, where raising the wall makes it strictly worse.
 
-THE BODIES ARE THE FAMILY'S, and this file is the repo's ANSWERS. `lab_commons.dev.famtests.
+THE BODIES ARE THE FAMILY'S, and this file is the repo's ANSWERS. `dev_lab.dev.famtests.
 boundedremedy` holds every assertion below. Measured before adoption, this file and wdg-lab's
 near-twin carried an identical wall, an identical reap ceiling, a byte-identical planted-parent
 snippet and five assertion bodies written twice; a shared body under two names is the fork that
@@ -43,12 +43,12 @@ THE THREE THINGS PROVED HERE, each with its violation PLANTED rather than descri
 
 from __future__ import annotations
 
-from lab_commons.dev.bounded import (
+from dev_lab.dev.bounded import (
     NARROWED_FLOOR,
     blas_threads,
     logical_cores,
 )
-from lab_commons.dev.famtests.boundedremedy import (
+from dev_lab.dev.famtests.boundedremedy import (
     assert_a_run_inside_the_wall_is_left_alone,
     assert_each_state_names_its_own_remedy,
     assert_the_pool_vars_are_the_named_set,

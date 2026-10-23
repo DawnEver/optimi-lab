@@ -3,17 +3,17 @@
 THE OLD REASON, AND WHY IT DID NOT SURVIVE BEING MEASURED. optimi-lab declared the rule absent
 because it "has no shared box and no shared environment -- its `.venv` is its own, and nothing here
 issues a verdict another party cites". The second clause is the one that decides it, and it is
-false: `python -m lab_commons.dev.verify` is the ONLY verdict command optimi-lab has, it writes a
+false: `python -m dev_lab.dev.verify` is the ONLY verdict command optimi-lab has, it writes a
 citable log carrying an `env=` key, and that key is computed when the run ENDS. So the invariant the
 door exists for -- no verdict may cite an environment it did not run in -- has a subject here.
 
 WHAT WAS ACTUALLY MISSING was not a door but optimi-lab's answer to it. H1 -- a mutation DURING a
 verdict run -- is the kit's alone since the CPU seat and the environment seat were split: `verify`
 holds this environment's `EnvironmentSeat` and `dep.mutate` refuses while it is held. Without the
-anchors `lab_commons.dev.dep` renders `NO_ANCHORS_DECLARED` (H2 detected and not remediable);
+anchors `dev_lab.dev.dep` renders `NO_ANCHORS_DECLARED` (H2 detected and not remediable);
 `scripts/dep.py` supplies `.verify/verify-*.log`.
 
-THE ASSERTIONS ARE NOW THE FAMILY'S, ADOPTED 2026-09-19 from `lab_commons.dev.famtests.depdoor`.
+THE ASSERTIONS ARE NOW THE FAMILY'S, ADOPTED 2026-09-19 from `dev_lab.dev.famtests.depdoor`.
 Two independent audit lanes measured this file against wdg-lab's twin at 91.5% identical, and the
 8.5% was a docstring, the repo's name four times, a `tempfile` prefix and two invented timestamps --
 not one assertion and not one message. What is LOCAL and arrives below as a keyword with NO DEFAULT
@@ -23,12 +23,12 @@ one gets a `TypeError` rather than a silent wrong answer.
 
 ONE ARM STAYS LOCAL because the kit has no place for it: the JOIN between the two halves -- that the
 directory the anchors are looked for in is the directory the verdict entry point writes to. That is
-a fact about this checkout and about `lab_commons.dev.verify.LOG_DIRECTORY` together, and each of
+a fact about this checkout and about `dev_lab.dev.verify.LOG_DIRECTORY` together, and each of
 the kit's arms answers for one half only.
 
 THE MUTATE-DRIVING ARMS NEED A PRIVATE SEAT RECORDS ROOT, and the kit's own suite is where this
 file learned it. A verdict run takes `EnvironmentSeat(sys.prefix)` on the box ledger for
-the WHOLE of its run, and `lab_commons.dev.dep._change` takes the same seat for a mutation --
+the WHOLE of its run, and `dev_lab.dev.dep._change` takes the same seat for a mutation --
 so a dry run inside a verdict is refused before it can report, which is what MEASURED 2026-10-07 as
 four reds in this file. Pointing
 `lab_commons.box.BOX_ENV` -- the one box ledger file, relocated FOR TESTS, and the
@@ -44,9 +44,9 @@ from pathlib import Path
 from typing import Final
 
 import pytest
+from dev_lab.dev.famtests import depdoor
+from dev_lab.dev.verify import LOG_DIRECTORY
 from lab_commons.box import BOX_ENV
-from lab_commons.dev.famtests import depdoor
-from lab_commons.dev.verify import LOG_DIRECTORY
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
@@ -59,7 +59,7 @@ from scripts.dep import ANCHOR_GLOB, port, repo_root, verdict_anchors  # noqa: E
 REPO_NAME: Final = 'optimi-lab'
 
 #: The repo-relative NAME SHAPE a optimi-lab verdict log takes, joined here rather than upstream
-#: because only this repo knows both halves: `lab_commons.dev.verify` owns the directory and
+#: because only this repo knows both halves: `dev_lab.dev.verify` owns the directory and
 #: `scripts/dep.py` owns the glob. The floor arm is worth exactly this string's accuracy.
 ANCHOR_SHAPE: Final = f'{LOG_DIRECTORY}/{ANCHOR_GLOB}'
 
@@ -148,7 +148,7 @@ def test_the_anchor_adapter_reads_the_shape_this_repo_writes(tmp_path: Path) -> 
 def test_the_anchor_directory_is_the_one_verify_writes_to() -> None:
     """THE JOIN, and the one arm the kit has no place for: each of its arms answers for one half.
 
-    The anchor shape is BUILT from `lab_commons.dev.verify.LOG_DIRECTORY` rather than spelled, so a
+    The anchor shape is BUILT from `dev_lab.dev.verify.LOG_DIRECTORY` rather than spelled, so a
     `verify` that moved its logs reds here instead of leaving every retirement arm above green over
     a directory nothing writes to.
     """

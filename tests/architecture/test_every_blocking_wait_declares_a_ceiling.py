@@ -8,9 +8,9 @@ ELEVEN such sites at once, four of them added the same day the three INCONCLUSIV
 which is what makes this a scan rather than a code-review habit -- an exception firing on the first
 offender would have reported one of them eleven times.
 
-THE WHOLE READING IS THE FAMILY'S. `lab_commons.dev.famtests.untimedwaits` holds the walk, the AST
+THE WHOLE READING IS THE FAMILY'S. `dev_lab.dev.famtests.untimedwaits` holds the walk, the AST
 reader, the two named sets of calls it convicts, the arm and the planted control, and
-`lab_commons.dev.floors` holds BOTH sides of the file floor. What is left here is the half the kit
+`dev_lab.dev.floors` holds BOTH sides of the file floor. What is left here is the half the kit
 refuses to guess -- every repo-shaped fact arrives as a keyword argument with NO DEFAULT -- and this
 file is where optimi-lab's three answers are written down: which trees are walked, what a file in
 each is called, and the two numbers that bound the population.
@@ -30,7 +30,7 @@ BEFORE it looks at an offender, on both sides.
 
 WHAT THIS DOES NOT PROVE, stated so the row cannot overclaim. A `timeout=` keyword does not prove the
 ceiling is SIZED: a call bounded at 86400 clears every arm here. Sizing is
-`lab_commons.dev.bounded.wall_reason`'s subject, driven by
+`dev_lab.dev.bounded.wall_reason`'s subject, driven by
 `tests/architecture/test_a_bounded_wait_names_its_remedy.py` beside this file. `shell=True` is also
 out of scope -- ruff's `S602` owns it, and one defect with two mechanisms has two messages and no
 owner.
@@ -41,7 +41,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import untimedwaits
+from dev_lab.dev.famtests import untimedwaits
 
 #: This checkout: `tests/architecture/<this file>` sits two directories below it.
 ROOT: Final = Path(__file__).resolve().parents[2]
@@ -90,7 +90,7 @@ def scan() -> untimedwaits.UntimedScan:
 def test_every_exemption_names_a_file_that_is_here() -> None:
     """A waiver nothing uses is as wrong as a capability that disappeared -- so assert it, empty or not.
 
-    The body is `lab_commons.dev.famtests.untimedwaits.assert_every_exemption_is_real`, which shipped
+    The body is `dev_lab.dev.famtests.untimedwaits.assert_every_exemption_is_real`, which shipped
     the `citedtests` half first and left this one hand-written in BOTH labs. `ROOT` and `EXEMPT` are
     this repo's two answers; the walk over them is the family's.
     """
