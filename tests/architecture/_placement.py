@@ -255,7 +255,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-19 after the box-body binder row: own=511 hits=46 -> 9.00%, up from '
+        'family half in it to split off. RE-MEASURED 2026-10-19 after the box-body binder row: own=515 hits=47 -> 9.13% on 2026-10-23 after the dev-lab move, up from own=511 hits=46 -> 9.00%, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
         'on 2026-10-17 (P8), up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale '
@@ -342,7 +342,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'deleted public `optimi_lab` names outright, with no compat shim and no deprecation alias, and '
         'recorded which ones only in their commit messages. The scan that refuses a resurrection is small; '
         'the LIST of what was retired is the file, and it means nothing anywhere else. RE-MEASURED 2026-10-18 '
-        'after the P11 retirements: own=121 hits=36 -> 29.75%, up from own=111 repo=28 -> 25.23% after the '
+        'after the P11 retirements: own=123 hits=36 -> 29.27% on 2026-10-23 after the dev-lab move, down from own=121 hits=36 -> 29.75%, up from own=111 repo=28 -> 25.23% after the '
         'P12 retirements the same day, up from own=108 repo=25 -> 23.15% after the P8 retirements on '
         '2026-10-17, up from own=83 repo=8 -> 9.64% on 2026-10-03, up from own=78 repo=8 -> 10.26% on '
         '2026-09-19, itself down from own=80 repo=8 -> 10.00% on 2026-09-17. THE FIVE LINES ARE THE '
@@ -529,7 +529,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after '
         'AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 '
         'after lab-commons 2cca293, and 2026-10-18 after the branch-flow adoption under lab-commons 96a90c8: '
-        'own=132 hits=3 -> 2.27%, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
+        'own=146 hits=3 -> 2.05% on 2026-10-23 after the dev-lab rules, up from own=132 hits=3 -> 2.27%, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
         '2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 '
         'repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from '
         'own=102 repo=3 -> 2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up '
@@ -557,7 +557,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'AND NO CALLER DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against '
         "the real registry when the arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine "
         'command-plus-rule rows and the six sanctioned exits. RE-MEASURED 2026-10-19 after the three `node` box '
-        'markers: own=61 hits=0, up from own=58 on 2026-10-18 after SUBAGENT-NO-PUSH and REPORTS-LIVE-IN-MEMORY, up from own=57 on 2026-10-09, up from own=55 on '
+        'markers: own=63 hits=0 on 2026-10-23 after GIT-RESET and GIT-STAGE-EVERYTHING, up from own=61 hits=0, up from own=58 on 2026-10-18 after SUBAGENT-NO-PUSH and REPORTS-LIVE-IN-MEMORY, up from own=57 on 2026-10-09, up from own=55 on '
         '2026-10-05, up from own=52 on 2026-10-03 after the progressive injected-text control was adopted, '
         'itself up from own=50 on 2026-10-01 by the two names lab-commons 9ce57c3 shipped (BARE-INTERPRETER, '
         'WORKTREES-STAY-INSIDE) and recorded in `BELOW_THE_BAR`; own=50 was itself up from own=43 on '
@@ -703,7 +703,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'path resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until this '
         'file both were PROSE, and a `structlog` import added to one function would have left every word of '
         "the claim reading exactly as it does now. Which three distributions are permitted is this library's "
-        "decision and nobody else's. RE-MEASURED 2026-10-19 after P14: own=132 hits=2 -> 1.52%, down from "
+        "decision and nobody else's. RE-MEASURED 2026-10-19 after P14: own=135 hits=2 -> 1.48% on 2026-10-23 after the dev-lab kit, up from own=132 hits=2 -> 1.52%, down from "
         'own=126 hits=2 -> 1.59% after P11, up from own=125 repo=2 -> 1.6% after P9 admitted numerics-lab, up from own=109 repo=1 -> 0.92% after P12 '
         'added the R1 scipy guard, down from own=90 repo=1 -> 1.11% after P8 admitted lab_commons.outcomes on '
         '2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on '
@@ -716,7 +716,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "on. LOCAL, and it is the whole file: the reading that THIS repo's cited entry point, "
         '`dev_lab.dev.verify`, still routes its run through `verifybox.boxed` -- by AST over the '
         'installed source, with a planted source that names the call without making it. RE-MEASURED '
-        "2026-10-18: own=24 hits=0, up from own=17 on 2026-09-19 when the arms were a famtest's; the shape is "
+        "2026-10-18: own=21 hits=0 on 2026-10-23 after the dev-lab import sort, down from own=24 hits=0, up from own=17 on 2026-09-19 when the arms were a famtest's; the shape is "
         "wdg-lab's, under the binder ceiling.",
     ),
     'tests/architecture/test_this_checkout_is_visible_on_origin.py': Placement(
@@ -730,7 +730,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`assert_one_pushable_branch`, `assert_local_only_branches` and `assert_the_planted_debris_is_named`. LOCAL, '
         "each a keyword with NO DEFAULT upstream: optimi-lab's trunk NAME (the `LAB_CZ_BASE_REF` shape -- a repo judged "
         'against a guessed `main` resolves to nothing, finds no commits and REPORTS ITSELF CLEAN), and the two '
-        'two-sided branch pins, one of which still names `fix/p0-integration-blockers`. MEASURED 2026-10-19: own=17 '
+        'two-sided branch pins, one of which still names `fix/p0-integration-blockers`. MEASURED 2026-10-23: own=18 after the lanepolicy import, up from own=17 on 2026-10-19 '
         'hits=0 after the three `dev_checkout` box markers, up from own=13 on 2026-09-19, down from own=74, admitted by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE '
         'WORD IS THE POINT. Property 2 refuses a STAYS with no repo noun anywhere in it, and this file had none -- it '
         'said "this repo" throughout and never said WHICH. That is the evidence the label is paid for, so the pronoun '

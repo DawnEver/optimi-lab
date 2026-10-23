@@ -309,6 +309,20 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # branch-set apply over `[tool.lab_commons.branchset]` (`prune_merged = true`), policed by `_ORIGIN`.
     **dict.fromkeys(('DOWNSTREAM-SYNCS-INTEGRATION', 'PRS-TARGET-INTEGRATION'), (_PYPROJECT,)),
     'MERGE-OR-DELETE': (_PYPROJECT, _ORIGIN),
+    # ADOPTED 2026-10-23 with `pr_merges_since` in `[tool.lab_commons.integrator]` and `pr/*` declared
+    # ephemeral in the branch set: the forge alone merges a PR into integration (`forgemerge`), its review
+    # advises (`forgereview`), admission refuses a second or stacked PR (`pradmit`) and a docs-only head
+    # carries its parts (`forgecarry`) -- all server-side steps over this declared table, policed by `_ORIGIN`.
+    **dict.fromkeys(
+        (
+            'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
+            'PR-REVIEW-IS-ADVISORY',
+            'ONE-SESSION-ONE-PR',
+            'NO-STACKED-PRS',
+            'DOCS-ONLY-CARRIES',
+        ),
+        (_PYPROJECT, _ORIGIN),
+    ),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -351,15 +365,10 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'FORMATS-UPGRADE-ON-READ',
     'NETWORK-RETRY-THEN-REPORT',
-    # ARRIVED 2026-10-23 with the dev-lab cut-over, NOT YET MEASURED against this tree: the PR flow
-    # (`[tool.lab_commons.integrator]` declares no `pr_merges_since`), the scratch rule that replaced
-    # the archive-or-promote one (no declared `scratch/` README anchor here), the stray-file census,
-    # the concept-split naming rule and the ephemeral-citation scan.
-    'DOCS-ONLY-CARRIES',
-    'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
-    'NO-STACKED-PRS',
-    'ONE-SESSION-ONE-PR',
-    'PR-REVIEW-IS-ADVISORY',
+    # ARRIVED 2026-10-23 with the dev-lab cut-over, NOT YET MEASURED against this tree: the scratch
+    # rule that replaced the archive-or-promote one (no declared `scratch/` README anchor here), the
+    # stray-file census, the concept-split naming rule and the ephemeral-citation scan (its pre-commit
+    # row runs; no forge-side test binds it here yet).
     'SCRATCH-IS-NEVER-COMMITTED',
     'SPLIT-BY-CONCEPT',
     'STRAY-FILE-REFUSED',
@@ -416,10 +425,11 @@ _ABSENT: Final = frozenset({
 #: VERDICTS-FROM-THE-FORGE) left for mechanisms: each reason named the missing push wiring, and the
 #: hook table installs it. FORMATS-UPGRADE-ON-READ arrived and was measured absent with its reason.
 #:
-#: AND 7 -> 16 on 2026-10-23, A RISE: moving the kit from lab-commons to dev-lab brought nine rules
-#: this repo had never carried (SCRATCH-IS-NEVER-COMMITTED replacing an ID cited above). Each is in
-#: `_ABSENT` by name rather than in neither set; closing one lowers this number.
-_ABSENT_CEILING: Final = 16
+#: AND 7 -> 11 on 2026-10-23, A RISE: moving the kit from lab-commons to dev-lab brought nine rules
+#: this repo had never carried (SCRATCH-IS-NEVER-COMMITTED replacing an ID cited above); the five of
+#: the PR flow were adopted with `pr_merges_since`, and the other four are in `_ABSENT` by name rather
+#: than in neither set; closing one lowers this number.
+_ABSENT_CEILING: Final = 11
 
 
 def _adoption() -> Adoption:
