@@ -711,7 +711,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'path resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until this '
         'file both were PROSE, and a `structlog` import added to one function would have left every word of '
         "the claim reading exactly as it does now. Which three distributions are permitted is this library's "
-        "decision and nobody else's. RE-MEASURED 2026-10-23 after development-group isolation: own=135 hits=2 -> 1.48%, down from "
+        "decision and nobody else's. RE-MEASURED 2026-10-23 after development-group isolation and URL-composition guards: own=150 hits=2 -> 1.33%, up from "
         'own=126 hits=2 -> 1.59% after P11, up from own=125 repo=2 -> 1.6% after P9 admitted numerics-lab, up from own=109 repo=1 -> 0.92% after P12 '
         'added the R1 scipy guard, down from own=90 repo=1 -> 1.11% after P8 admitted lab_commons.outcomes on '
         '2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on '

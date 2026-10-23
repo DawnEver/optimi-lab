@@ -62,12 +62,10 @@ dev = [
 
 [project.scripts]
 
-# Unify the kit's runtime source with this library's floating requirement.
 # The development-only candidate is the published PR 15 mechanism dependency,
 # pending integration; it is not a claim that integration already contains it.
 [tool.uv.sources]
-lab-commons = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git", branch = "integrate/main" }
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "08dd3c5311089ec7e8622e05d78805e1755af832" }
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "5fcf31b77e638735218dcfc8ca4e568217fd6d38" }
 
 # ===================
 # Build
@@ -271,7 +269,6 @@ resources = ["workstation"]
 [tool.lab_commons.integrator]
 trunk = "main"
 integration = "integrate/main"
-merges_only_since = "5bf25162d7466ec30410796ef8726a9eea31997c"  # INTEGRATION-IS-MERGES-ONLY from here on
 pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"
 
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.

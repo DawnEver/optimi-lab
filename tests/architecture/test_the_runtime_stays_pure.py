@@ -36,6 +36,7 @@ from typing import Final
 
 import pytest
 from dev_lab.dev import floors
+from dev_lab.dev.syncscope import canon
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
@@ -149,6 +150,30 @@ def test_lab_commons_floats_and_the_dev_kit_stays_in_dev() -> None:
 
 #: The engines this library depends on by repository; each floats (R8).
 ENGINES: Final = ('lab-commons', 'numerics-lab')
+
+
+def runtime_url_overrides(text: str) -> frozenset[str]:
+    """Runtime Git URLs must compose unchanged; development-only sources stay local to the kit."""
+    table = tomllib.loads(text)
+    runtime = {canon(_distribution(line)) for line in table['project'].get('dependencies', []) if 'git+' in line}
+    sources = table.get('tool', {}).get('uv', {}).get('sources', {})
+    return frozenset(runtime & {canon(name) for name in sources})
+
+
+def test_runtime_urls_are_not_overridden_by_project_only_sources() -> None:
+    assert runtime_url_overrides((_ROOT / 'pyproject.toml').read_text(encoding='utf-8')) == frozenset()
+
+
+def test_the_composition_guard_refuses_a_runtime_branch_but_allows_a_dev_candidate() -> None:
+    manifest = """[project]
+dependencies = ["lab-commons @ git+https://example.org/lab-commons.git"]
+[tool.uv.sources]
+dev-lab = { git = "https://example.org/dev-lab.git", rev = "candidate" }
+"""
+    assert runtime_url_overrides(manifest) == frozenset()
+    planted = manifest + 'lab-commons = { git = "https://example.org/lab-commons.git", branch = "integrate/main" }\n'
+    assert runtime_url_overrides(planted) == frozenset({'lab-commons'})
+    assert runtime_url_overrides(planted.replace('lab-commons = {', 'Lab_Commons = {')) == frozenset({'lab-commons'})
 
 
 @pytest.mark.parametrize('engine', ENGINES)
