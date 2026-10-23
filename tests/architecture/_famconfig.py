@@ -1,7 +1,7 @@
 r"""optimi-lab's DELTA against each family config base -- data, computed by nothing.
 
-The bases live in :mod:`lab_commons.dev._famconfig_rows` and the renderer that turns base plus delta
-into a file is :mod:`lab_commons.dev.famconfig`. What belongs HERE is only the part of each artefact
+The bases live in :mod:`dev_lab.dev._famconfig_rows` and the renderer that turns base plus delta
+into a file is :mod:`dev_lab.dev.famconfig`. What belongs HERE is only the part of each artefact
 that is a fact about optimi-lab: a `usr/local/` tree, a viztracer `result.json`, a coredumpy
 `dumps/`. Everything else is the family's and arrives from the kit, so a fix upstream lands here by
 upgrading the dependency rather than by remembering to copy it.
@@ -48,7 +48,7 @@ from __future__ import annotations
 
 from typing import Final
 
-from lab_commons.dev.famconfig import Delta, SectionDelta
+from dev_lab.dev.famconfig import Delta, SectionDelta
 
 __all__ = [
     'DELTAS',
@@ -66,7 +66,7 @@ REPO: Final = 'optimi-lab'
 #: What optimi-lab ignores BEYOND the family base, and nothing the base already holds. As of
 #: lab-commons 9ce57c3 the base carries `**/__version__.py`, `htmlcov/`, `.verify/`, `output/`,
 #: `**/ignore/`, `**/.DS_Store`, `/build/`, `/dist/`, `/dumps/`, `/report/` and the whole `.claude/`
-#: section (which ignores `.claude/.rem-state.json`), so those lines left this delta in the same
+#: section (including generated bookkeeping), so those lines left this delta in the same
 #: upgrade: a restatement is refused at render time. What remains is a fact about this tree only.
 GITIGNORE_DELTA: Final = Delta(
     repo=REPO,

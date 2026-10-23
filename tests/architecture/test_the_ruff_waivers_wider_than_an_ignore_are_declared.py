@@ -2,7 +2,7 @@
 
 ``exclude`` drops every selector over a subtree and names no code; ``per-file-ignores`` drops a named
 code over a glob. Every arm stated over the global ignore list is blind to both.
-`lab_commons.dev.ruffwaivers` reads them across EVERY spelling ruff honours, from the config ruff
+`dev_lab.dev.ruffwaivers` reads them across EVERY spelling ruff honours, from the config ruff
 RESOLVES, and refuses both sides of the ratchet. These rows used to live in lab-commons under a
 neutral name; a fact about this tree belongs in this tree.
 """
@@ -12,7 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.ruffwaivers import MACHINE_EXCLUDES, assert_waivers_declared
+from dev_lab.dev.ruffwaivers import MACHINE_EXCLUDES, assert_waivers_declared
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

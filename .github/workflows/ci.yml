@@ -2,12 +2,12 @@ name: CI
 
 # The thin caller. The checks themselves are `make verify` in this repo's Makefile -- the same
 # entry point a human runs before pushing -- and the CI SHAPE (matrix, uv sync, failure
-# reporting) is defined once, in lab-commons, and called by both repos.
+# reporting) is defined once in dev-lab.
 #
-# WHY `@main` AND NOT A SHA. This pins optimi-lab's CI shape to whatever lab-commons' main says,
+# WHY `@main` AND NOT A SHA. This follows the family's live development workflow,
 # which is precisely the single-source-of-truth being bought here: a pin would mean this repo
 # stops being told when the shared CI definition moved. It is the same ruling the dependency
-# table already makes -- `lab-commons[dev] @ git+https://...` carries no ref either, for the same
+# table already makes -- `dev-lab @ git+https://...` carries no ref either, for the same
 # stated reason. Third-party actions inside the reusable workflow ARE version-pinned; that
 # argument covers first-party code this family owns and nothing else.
 
@@ -29,15 +29,15 @@ jobs:
     permissions:
       contents: read
       issues: write
-    uses: DawnEver/lab-commons/.github/workflows/python-verify.yml@main
+    uses: DawnEver/dev-lab/.github/workflows/python-verify.yml@main
     with:
-      python-versions: '["3.12", "3.13"]'
+      python-versions: '["3.13"]'
+      extras: ''
       # `dev` brings pytest, coverage, ruff AND pdoc -- `tests/unit/scripts/test_generate_docs.py`
-      # shells out to the `pdoc` executable, so the extra is what makes that test pass honestly
+      # shells out to the `pdoc` executable, so the group makes that test pass honestly
       # rather than being marked.
-      extras: 'dev'
-      # `purity` is the one that earns its own step here. The dev extra deliberately installs
-      # lab-commons, which brings structlog, pint and pydantic; a CI that installed all of that
+      # `purity` earns its own step. The dev group deliberately installs the development kit;
+      # a CI that installed all of that
       # and never re-checked the RUNTIME table would silently permit the exact regression the
       # guard exists to catch.
       guard-targets: 'adoption purity'

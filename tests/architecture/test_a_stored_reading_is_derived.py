@@ -17,7 +17,7 @@ derivation.
 
 WHAT IS THE KIT'S AND WHAT IS OPTIMI-LAB'S. The reader, the live/historical separation, the four
 ways a claim is classified (`live`, `marker`, `superseded`, `arrow`) and both assertions are
-`lab_commons.dev.famtests.storedreadings`. What cannot be guessed and is written here: WHICH
+`dev_lab.dev.famtests.storedreadings`. What cannot be guessed and is written here: WHICH
 SPELLINGS this repo's rows quote a reading in, HOW a reading is DERIVED for a path in this checkout,
 and the three floors. `derive` in particular is this repo's whole density convention -- `measure`
 with optimi-lab's noun signal and delegation home, and the percentage rounded exactly as the prose
@@ -43,7 +43,7 @@ from typing import Final
 import _placement
 import pytest
 from _placement import PLACEMENT, measure, repo_root
-from lab_commons.dev.famtests import storedreadings
+from dev_lab.dev.famtests import storedreadings
 
 #: How a density reading is spelled in this repo's rows: `own=27`, `hits=0`, `-> 0.00%`. `project=`
 #: appears too and is deliberately NOT here -- it is `_placement.py`'s own row quoting a count of

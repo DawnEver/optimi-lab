@@ -64,9 +64,9 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev.allow_adoption import assert_allow_is_adoptable, settings_problems
-from lab_commons.dev.autodoors import CODEX_RULES_REL, codex_rules, promises_raw, script_doors
-from lab_commons.dev.famtests import allowguard
+from dev_lab.dev.allow_adoption import assert_allow_is_adoptable, settings_problems
+from dev_lab.dev.autodoors import CODEX_RULES_REL, codex_rules, promises_raw, script_doors
+from dev_lab.dev.famtests import allowguard
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
@@ -75,7 +75,7 @@ if str(_ROOT) not in sys.path:
 from scripts.deny_rules import SETTINGS_FILE, allow  # noqa: E402
 
 #: The sanctioned exit a red is pointed at, and the one this repo actually ships.
-_SANCTIONED: Final = './.venv/Scripts/python.exe -m lab_commons.dev.verify'
+_SANCTIONED: Final = './.venv/Scripts/python.exe -m dev_lab.dev.verify'
 
 #: THE PLANTED PAIR, and both are this repo's answers rather than the family's: `deny_rules.py`
 #: DROPS a rule whose remedy this repo lacks, so a row denied in one tree is permitted in another.
@@ -112,11 +112,11 @@ def test_the_allow_block_and_the_codex_rules_are_rendered_from_the_door_table() 
     assert settings_problems(settings, adoption) == (), f'stale: run `{sys.executable} scripts/deny_rules.py`'
     assert_allow_is_adoptable(adoption, _tracked(), floor=_ALLOW_FLOOR, headroom=_ALLOW_HEADROOM)
     rules = codex_rules(script_doors(_ROOT, shell_doors=()))
-    assert (_ROOT / CODEX_RULES_REL).read_text(encoding='utf-8') == rules, 'run `-m lab_commons.dev.autodoors --write`'
+    assert (_ROOT / CODEX_RULES_REL).read_text(encoding='utf-8') == rules, 'run `-m dev_lab.dev.autodoors --write`'
     assert promises_raw(rules) == ()
 
 
-@pytest.mark.node
+@pytest.mark.workstation
 def test_no_allow_entry_names_a_command_the_engine_refuses() -> None:
     """THE PROPERTY, and its floors. A red names the row, what it promised, and the refusal it gets.
 
@@ -127,7 +127,7 @@ def test_no_allow_entry_names_a_command_the_engine_refuses() -> None:
     allowguard.assert_no_allow_contradicts(root=_ROOT, sanctioned=_SANCTIONED)
 
 
-@pytest.mark.node
+@pytest.mark.workstation
 def test_the_scan_catches_a_planted_contradiction(tmp_path: Path) -> None:
     """THE PLANT, both directions, against THIS repo's own rendered rules.
 

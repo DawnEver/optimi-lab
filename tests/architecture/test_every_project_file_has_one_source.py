@@ -1,6 +1,6 @@
 """WORKTREES-STAY-INSIDE and PROJECT-FILES-HAVE-ONE-SOURCE, adopted from lab-commons 9ce57c3.
 
-The mechanisms are the family's (`lab_commons.dev.famtests`); what is this repo's is the tree they
+The mechanisms are the family's (`dev_lab.dev.famtests`); what is this repo's is the tree they
 run over (the optimi_lab checkout), the deltas they judge it against, and the files it owns. Each test judges THIS checkout,
 which is the point of moving these bodies out of the kit's suite: a test judges the repo it lives in.
 
@@ -18,8 +18,8 @@ from typing import Final
 
 import pytest
 from _famconfig import DELTAS, REPO
-from lab_commons.dev.famconfig import SectionDelta
-from lab_commons.dev.famtests import configrender, devdocs, famfiles, worktreeplace
+from dev_lab.dev.famconfig import SectionDelta
+from dev_lab.dev.famtests import configrender, devdocs, famfiles, worktreeplace
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -28,9 +28,9 @@ _ALIAS: Final = 'consumer-c'
 
 #: Where the family's dev pages live relative to `docs-src/dev/` when lab-commons is checked out
 #: beside this repo -- the base the committed pointer table is rendered against.
-_DEVDOCS_BASE: Final = '../../../lab-commons/docs-src/dev'
+_DEVDOCS_BASE: Final = '../../../dev-lab/docs-src/dev'
 
-_RERENDER: Final = 'python -m lab_commons.dev.famfiles --deltas tests/architecture/_famconfig.py'
+_RERENDER: Final = 'python -m dev_lab.dev.famfiles --deltas tests/architecture/_famconfig.py'
 
 #: The 52 ruff codes all three consumers ignore beyond the family's 10 (lab-commons 9ce57c3,
 #: `CONSUMER_IGNORE_TAIL`). This repo's waiver set is exactly this tail.
@@ -54,7 +54,7 @@ SECTION_DELTAS: Final[dict[str, SectionDelta]] = {
 OWNED_HERE: Final[dict[str, str]] = {}
 
 
-@pytest.mark.dev_checkout
+@pytest.mark.workstation
 def test_every_worktree_stays_inside() -> None:
     """WORKTREES-STAY-INSIDE: every linked worktree lives under `<main>/.claude/worktrees/`."""
     worktreeplace.assert_every_worktree_stays_inside(root=_ROOT)

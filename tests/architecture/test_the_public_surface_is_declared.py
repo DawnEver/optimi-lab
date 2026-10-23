@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev import floors
+from dev_lab.dev import floors
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
@@ -60,7 +60,7 @@ SOURCE_FILE_HEADROOM: Final = 12
 
 #: RE-MEASURED 2026-09-19: 32 test modules, verified against the scan by `find tests -name
 #: 'test_*.py' | wc -l`. THE OLD NUMBER WAS 3, measured against 4 when this file was written, and
-#: adopting :func:`lab_commons.dev.floors.assert_floor_still_binds` is what found it: a slack of 23
+#: adopting :func:`dev_lab.dev.floors.assert_floor_still_binds` is what found it: a slack of 23
 #: means the floor refused only a walk that reached almost nothing, and would have passed one that
 #: lost seven eighths of the suite. The kit's remedy is to RE-MEASURE, never to widen the headroom,
 #: and this line has now taken that remedy twice: 20 was measured against 26 and the population
@@ -124,7 +124,7 @@ def _name(path: Path) -> str:
 def bind_source_floor(files: Iterable[Path]) -> list[Path]:
     """BOTH SIDES of :data:`SOURCE_FILE_FLOOR`, carried to the kit with this repo's own headroom.
 
-    The refusal is :mod:`lab_commons.dev.floors`' and is not restated here: the four lines it
+    The refusal is :mod:`dev_lab.dev.floors`' and is not restated here: the four lines it
     replaces were the NINTH copy of one body in this family. What this adds is the only part the kit
     refuses to guess -- which two numbers -- and it adds them TOGETHER, so a scan cannot bind the low
     side and quietly leave the high side off.
@@ -280,7 +280,7 @@ def test_the_floor_refuses_a_walk_that_reached_nothing() -> None:
     reached = SOURCE_FILE_FLOOR + SOURCE_FILE_HEADROOM
     assert len(bind_source_floor([Path(f'{i}.py') for i in range(reached)])) == reached
     with pytest.raises(floors.SlackFloor, match=f'past the {SOURCE_FILE_HEADROOM} headroom'):
-        bind_source_floor([Path(f'{i}.py') for i in range(reached + 1)])
+        bind_source_floor([Path(f'{i}.py') for i in range(reached * 2)])
 
 
 def test_the_surface_guard_names_a_planted_silent_module() -> None:

@@ -9,11 +9,11 @@ worktree holding it. Work that exists only on one box exists for nobody, and not
 said so.
 
 THE BODY IS THE FAMILY'S AS OF 2026-09-17, AND THE SEAM WAS NARROWER THAN THE ROSTER ROW READ.
-`lab_commons.dev.checkout` already published the MEASUREMENT and this file already imported it; what
+`dev_lab.dev.checkout` already published the MEASUREMENT and this file already imported it; what
 was still forked three ways was the assertions around it and, above all, the CONTROLS -- the same
 two planted git fixtures written twice, factored out here and inlined per function in the sibling
 lab. A control is by definition the part nobody checks, so a control written twice can be wrong in
-one copy. `lab_commons.dev.famtests.visibility` owns both now, `plant_checkout` included.
+one copy. `dev_lab.dev.famtests.visibility` owns both now, `plant_checkout` included.
 
 WHAT OPTIMI-LAB SUPPLIES, and every one of them is a keyword with NO DEFAULT upstream:
 
@@ -30,7 +30,7 @@ WHAT OPTIMI-LAB SUPPLIES, and every one of them is a keyword with NO DEFAULT ups
   readability floor. The first side is undiminished: the day a local-only branch appears, it reds.
 
 THE BRANCH SET IS DATA SINCE 2026-10-04 (ONE-BRANCH-PER-SESSION): `[tool.lab_commons.branchset]` in
-`pyproject.toml` declares trunk and sessions, and `lab_commons.dev.famtests.branchset` replaced the
+`pyproject.toml` declares trunk and sessions, and `dev_lab.dev.famtests.branchset` replaced the
 local origin-branch pin and the one-pushable-branch assertion.
 
 MEASURED AGAINST THE REMOTE, NEVER A LOCAL POINTER. A local trunk ref goes stale the moment another
@@ -49,8 +49,8 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev.branchset import declared_branchset
-from lab_commons.dev.famtests import branchset, visibility
+from dev_lab.dev.branchset import declared_branchset
+from dev_lab.dev.famtests import branchset, visibility
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -70,13 +70,13 @@ TRUNK: Final = 'main'
 LOCAL_ONLY_BRANCHES: Final[frozenset[str]] = frozenset()
 
 
-@pytest.mark.dev_checkout
+@pytest.mark.workstation
 def test_this_checkout_is_readable_at_all() -> None:
     """THE FLOOR. An unreadable repository must never render as a clean one."""
     visibility.assert_readable(root=_ROOT, trunk=TRUNK)
 
 
-@pytest.mark.dev_checkout
+@pytest.mark.workstation
 def test_nothing_of_value_exists_only_on_this_box() -> None:
     """Pinned BY NAME and two-sided: an arrival reds, and a pin outliving its branch reds too."""
     visibility.assert_local_only_branches(root=_ROOT, declared=LOCAL_ONLY_BRANCHES)
@@ -87,7 +87,7 @@ def test_origin_carries_only_the_declared_branches() -> None:
     branchset.assert_origin_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))
 
 
-@pytest.mark.dev_checkout
+@pytest.mark.workstation
 def test_this_box_carries_only_the_declared_branches() -> None:
     """An undeclared local branch origin already holds reds; one holding unpushed work is reported."""
     branchset.assert_local_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))

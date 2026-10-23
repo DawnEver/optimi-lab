@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Engine shipped by lab-commons: lab_commons.dev.agenthooks (deny-commands). INSTALLED BY
-// `python -m lab_commons.dev.agent_guard --install`, never hand-copied -- `agent_guard` reads the
+// Engine shipped by lab-commons: dev_lab.dev.agenthooks (deny-commands). INSTALLED BY
+// `python -m dev_lab.dev.agent_guard --install`, never hand-copied -- `agent_guard` reads the
 // line above to tell an installed engine from a stale one from a hand-written file in the same
 // slot. Editing this copy in a consumer repo makes it STALE, and the next verify says so.
 /**
