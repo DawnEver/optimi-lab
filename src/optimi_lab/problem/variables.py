@@ -108,14 +108,29 @@ class Real(_RealFields):
         return (math.log(self.lo), math.log(self.hi)) if self.scale is Scale.LOG else (self.lo, self.hi)
 
     def encode(self, value: float) -> np.ndarray:
+        if value == self.lo:
+            return np.array([0.0])
+        if value == self.hi:
+            return np.array([1.0])
         lo, hi = self._ends()
         x = math.log(value) if self.scale is Scale.LOG else float(value)
-        return np.array([(x - lo) / (hi - lo)])
+        width = hi - lo
+        unit = (x - lo) / width if math.isfinite(width) else (x / 2.0 - lo / 2.0) / (hi / 2.0 - lo / 2.0)
+        return np.array([unit])
 
     def decode(self, unit: np.ndarray) -> float:
+        weight = float(np.clip(unit[0], 0.0, 1.0))
+        # The declared endpoints are exact; recomputing lo + (hi - lo) can exceed hi by an ULP.
+        if weight == 0.0:
+            return self.lo
+        if weight == 1.0:
+            return self.hi
         lo, hi = self._ends()
-        x = lo + float(np.clip(unit[0], 0.0, 1.0)) * (hi - lo)
-        return float(min(max(math.exp(x), self.lo), self.hi)) if self.scale is Scale.LOG else x
+        width = hi - lo
+        # Finite endpoints can have an overflowing difference, e.g. [-1e308, 1e308].
+        x = lo + weight * width if math.isfinite(width) else (1.0 - weight) * lo + weight * hi
+        value = math.exp(x) if self.scale is Scale.LOG else x
+        return float(min(max(value, self.lo), self.hi))
 
 
 @dataclass(frozen=True, slots=True)
