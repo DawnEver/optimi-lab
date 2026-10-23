@@ -1,9 +1,9 @@
 r"""FAMILY-CONFIG-IS-RENDERED, for THIS checkout -- a hand edit to a shared artefact REDS.
 
 THE DEFECT THIS CLOSES. `.gitignore`, `.gitattributes`, `.rgignore` and `Makefile` are hand-maintained
-once per repo across the family, so a fix in one is a fix in one. `lab_commons.dev.famconfig` owns
+once per repo across the family, so a fix in one is a fix in one. `dev_lab.dev.famconfig` owns
 each BASE as data plus a renderer; `_famconfig` here declares only what is a fact about optimi-lab;
-the assertions are `lab_commons.dev.famtests.configrender`, which re-renders from the LIVE base and
+the assertions are `dev_lab.dev.famtests.configrender`, which re-renders from the LIVE base and
 delta and compares against disk. Nothing is cached and no digest is stored, so a base edited
 upstream moves this verdict on the next run rather than on the next time somebody remembers to
 re-sync.
@@ -31,7 +31,7 @@ maintenance cost with no evidence value, and the consumer half of all four is `a
 this file still runs on every declared artefact.
 
 THE GIT-HOOK ARTEFACT LEFT THE FAMILY ON 2026-10-11 (lab-commons 900c5bf): hooks are declared in
-`[tool.lab_commons.hooks]` and run by `lab_commons.dev.githooks`, so the kit publishes no YAML base and
+`[tool.lab_commons.hooks]` and run by `dev_lab.dev.githooks`, so the kit publishes no YAML base and
 the arms that read the pre-commit engine's stage resolution went with it. What the hook table holds is
 `test_the_declared_hooks_are_installed.py`'s subject now.
 """
@@ -43,8 +43,8 @@ from typing import Final
 
 import pytest
 from _famconfig import DELTAS, REPO
-from lab_commons.dev.famconfig import RENDERED, REQUIRED, artefact_base
-from lab_commons.dev.famtests import configrender
+from dev_lab.dev.famconfig import RENDERED, REQUIRED, artefact_base
+from dev_lab.dev.famtests import configrender
 
 #: THE TREE UNDER TEST, not the working directory: a scan rooted at the CWD answers, plausibly,
 #: about somebody else's checkout.
@@ -121,7 +121,7 @@ def test_this_guard_can_go_both_ways(tmp_path: Path) -> None:
         deltas=DELTAS,
         repo=REPO,
         scratch=tmp_path,
-        edit=('scratch/', 'scratchpad/'),
+        edit=('output/', 'outputs/'),
     )
 
 

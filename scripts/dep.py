@@ -1,8 +1,8 @@
 """THE DOOR onto this repo's environment. The mechanism is the family's; the one answer is ours.
 
-WHY THIS FILE IS A FEW FUNCTIONS AND NOT A DOOR. `lab_commons.dev.dep` measures the interpreter's
+WHY THIS FILE IS A FEW FUNCTIONS AND NOT A DOOR. `dev_lab.dev.dep` measures the interpreter's
 own prefix, computes the env_key, refuses a mutation while a verdict holds THIS environment's seat
-(`lab_commons.dev.envseat.EnvironmentSeat`, which `python -m lab_commons.dev.verify` takes for the
+(`dev_lab.dev.envseat.EnvironmentSeat`, which `python -m dev_lab.dev.verify` takes for the
 whole of ruff plus pytest) and retires the anchors a moved key invalidated -- identically in every
 repo, because none of that is repo-shaped. Who may block a change is therefore not a repo answer.
 Exactly one question is not answerable from there, and it is the whole content of this file:
@@ -30,8 +30,8 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
-from lab_commons.dev.dep import Port, mutate
-from lab_commons.dev.verify import LOG_DIRECTORY
+from dev_lab.dev.dep import Port, mutate
+from dev_lab.dev.verify import LOG_DIRECTORY
 from lab_commons.log import emit
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
 __all__ = ['ANCHOR_GLOB', 'main', 'port', 'repo_root', 'verdict_anchors']
 
-#: How a verdict log is spelled by `lab_commons.dev.verify`. Kept as a name rather than inlined
+#: How a verdict log is spelled by `dev_lab.dev.verify`. Kept as a name rather than inlined
 #: twice, because the anchor half of the door is worth exactly as much as this pattern's accuracy.
 ANCHOR_GLOB: Final = 'verify-*.log'
 

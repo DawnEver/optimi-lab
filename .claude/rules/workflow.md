@@ -1,6 +1,6 @@
 # Workflow — how work gets done in optimi-lab
 
-- **The shared rules live in `lab_commons.dev.rules`; this repo supplies the MECHANISM.**
+- **The shared rules live in `dev_lab.dev.rules`; this repo supplies the MECHANISM.**
   `tests/architecture/test_optimi_lab_adopts_the_shared_registry.py` names, as a NAMED SET, every
   rule this repo enforces and every rule it does not. A rule added upstream reds that test until
   someone here decides about it — it never arrives adopted by default, and it never arrives

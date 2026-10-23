@@ -53,9 +53,9 @@ from _placement import (
     repo_root,
     stays_rows,
 )
-from lab_commons.dev import floors
-from lab_commons.dev.famtests import density, placement
-from lab_commons.dev.famtests.placement import MOVES, SPLITS, STAYS, Placement
+from dev_lab.dev import floors
+from dev_lab.dev.famtests import density, placement
+from dev_lab.dev.famtests.placement import MOVES, SPLITS, STAYS, Placement
 
 _ROOT = repo_root()
 _FILES = tuple(placed_files(_ROOT))
@@ -281,7 +281,7 @@ def test_a_file_that_STAYS_or_SPLITS_is_MOSTLY_this_repo(rel: str) -> None:
         f'{rel} claims {PLACEMENT[rel].side.upper()} on {reading.hits} of {reading.own} own code '
         f"lines ({reading.percent:.2f}%). That is neither dense enough to be this repo's "
         f'(>= {MIN_REPO_DENSITY_PCT}%) nor small enough to be a binder '
-        f'(<= {OWN_MECHANISM_CEILING} own lines). Thin it against `lab_commons.dev` until only the '
+        f'(<= {OWN_MECHANISM_CEILING} own lines). Thin it against `dev_lab.dev` until only the '
         f'repo fact is left, or record it in BELOW_THE_BAR with its measurement and the seam it '
         f'owes. Relabelling it SPLITS does NOT exempt it: SPLITS answers to this same bar.'
     )
@@ -362,7 +362,7 @@ _A_MECHANISM_WITH_A_NOUN_WELDED_IN = (
 
 _A_BINDER = (
     '"""Binds one fact."""\n'
-    'from lab_commons.dev.dep import Port\n\n'
+    'from dev_lab.dev.dep import Port\n\n'
     'NAMESPACE = "optimi_lab"\n\n\n'
     'def take():\n    return Port(name=NAMESPACE)\n'
 )

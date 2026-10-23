@@ -33,7 +33,7 @@ import re
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev import floors
+from dev_lab.dev import floors
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

@@ -1,6 +1,6 @@
 """optimi-lab ADOPTS the shared rules registry -- 51 of 58, with the other 7 named as gaps.
 
-WHY THIS FILE EXISTS. `lab_commons.dev.rules` holds one canonical copy of the development rules
+WHY THIS FILE EXISTS. `dev_lab.dev.rules` holds one canonical copy of the development rules
 that are not about any repo's subject. Before this file, optimi-lab had no `.claude/` at all: its
 rules were whatever the last reader remembered, so there was no statement to violate and nothing
 that could red. The registry's `assert_adopted` is what turns "we follow the house rules" into a
@@ -25,7 +25,7 @@ than re-read: three of them did not survive it and became mechanisms.
 
 TWO RULES ARRIVED UPSTREAM AND WERE ADOPTED ON THE SAME DAY, 2026-09-16:
 `NO-CJK-IN-TRACKED-SOURCE` and `INJECTED-DOC-WIDTH-CEILING`, each driving the SHARED scanner in
-`lab_commons.dev.cjk` / `lab_commons.dev.docwidth` over this tree's own corpus. Both measured CLEAN
+`dev_lab.dev.cjk` / `dev_lab.dev.docwidth` over this tree's own corpus. Both measured CLEAN
 here (53 files scanned, zero CJK; two injected docs, zero lines past 120 columns), so both declared
 sets are EMPTY and each carries a FLOOR pinned at its measurement -- an empty declaration over an
 unread corpus is the one way those guards could be vacuous. Two more arrived the same day with no
@@ -38,7 +38,7 @@ were alleged and each was checked against the code rather than taken on trust:
 
 * **Three rules rest on a module that cannot be collected** -- REFUTED. The module is this one and
   the three are `NAMED-SETS-NOT-COUNTS`, `ESCAPE-HATCH-CEILING`, `RATCHET-TWO-SIDES`. It imports
-  `lab_commons.dev`, which is genuinely missing from one shared venv's STALE installed
+  `dev_lab.dev`, which is genuinely missing from one shared venv's STALE installed
   `lab_commons` -- but that is a fact about an install, not about the file, the dev extra declares
   the dependency, and a missing import here is a COLLECTION ERROR, which is the loudest failure
   pytest has. A mechanism that reds when its dependency is absent is behaving.
@@ -68,8 +68,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.profile import RepoProfile
-from lab_commons.dev.rules import RULES, Adoption, TestPath, assert_adopted, unadopted, waived
+from dev_lab.dev.profile import RepoProfile
+from dev_lab.dev.rules import RULES, Adoption, TestPath, assert_adopted, unadopted, waived
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -179,7 +179,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # CLOSED 2026-09-16, and it was VIOLATED here rather than merely unenforced: the reason on
     # record said this repo has no hooks directory, while the hook declaration named 19
     # hooks and ZERO were installed in the directory git consults. The mechanism is the family's
-    # (`lab_commons.dev.hook_install`, which ASKS GIT for that directory instead of string-building
+    # (`dev_lab.dev.hook_install`, which ASKS GIT for that directory instead of string-building
     # it); what is this repo's is the tree asked about, the one-stage named pin, and controls that
     # plant absent / installed / foreign in a real repository.
     'HOOKS-ARE-WIRED': (_HOOKS,),
@@ -198,7 +198,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'SHARED-CHECKOUT': (_ORIGIN,),
     # CLOSED 2026-09-17, and the reason on record was refuted by this repo's own entry point: it
     # said there is "no runner to queue on a box lock", which answers about a RUNNER while
-    # `lab_commons.dev.verify` -- the only verdict command this repo has -- already took the box
+    # `dev_lab.dev.verify` -- the only verdict command this repo has -- already took the box
     # across its run. So this repo was already a party to the rendezvous and had nothing that could
     # notice the box being dropped. The mechanism is the family's (`lab_commons.box`, since 96a90c8);
     # what is local is the assertion, read off the installed source with a planted control, that
@@ -206,7 +206,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'ONE-BOX-ONE-LOCK': (_BOX,),
     # CLOSED 2026-09-17. The old reason said nothing here issues a verdict another party cites;
     # `.verify/verify-*.log` carries an `env=` key computed when the run ENDS, which is exactly the
-    # invariant the door exists for, and `lab_commons.dev.dep`'s own docstring named this repo as
+    # invariant the door exists for, and `dev_lab.dev.dep`'s own docstring named this repo as
     # the one supplying neither adapter. Since lab-commons 96a90c8 the exclusion is the kit's own
     # (the environment seat `verify` holds), and `scripts/dep.py` supplies the one repo answer left --
     # the verdict logs as the anchors -- so the report renders no gap, against a control port that
@@ -229,7 +229,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # It said the shared deny registry existed but "its ENGINE does not: the engine the registry's
     # own recipe points at is a `.js` file in another repo", and named the missing piece as "an
     # engine in the family rather than a file here". That engine landed as
-    # `lab_commons.dev.agenthooks`, installed and verified by `lab_commons.dev.agent_guard`, so the
+    # `dev_lab.dev.agenthooks`, installed and verified by `dev_lab.dev.agent_guard`, so the
     # blocker is gone. Measured here before the change: NOTHING DECLARED, exit 2 -- no settings, no
     # matcher, no engine. The mechanism is the family's; what is this repo's is WHICH rules it may
     # honestly ship, which is `scripts/deny_rules.py`: five shipped, two (GIT-NETWORK-VERB,
@@ -240,14 +240,14 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     #
     # FORGE-THROUGH-THE-DOOR rests on the SAME two files: its three FORGE-WRITE-* deny rows ship
     # through this guard, so a `gh`/`tea`/raw-API write is refused live and the exit they name is
-    # `python -m lab_commons.dev.forge`, the client that stamps which machine and agent wrote.
+    # `python -m dev_lab.dev.forge`, the client that stamps which machine and agent wrote.
     **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR', 'INJECTED-TEXT-IS-PROGRESSIVE'), (_GUARD, _GUARD_RULES)),
-    # ADOPTED 2026-10-01 with `lab_commons.dev.codeplace`: the filesystem walk over this tree's
-    # declared code roots, and the `scratch/` lifecycle that is the exit from it. The mechanism is
-    # the family's; the roots, the pruned generated trees and the age bound are this repo's.
-    **dict.fromkeys(('CODE-IN-CODE-ROOTS', 'SCRATCH-ARCHIVED-OR-PROMOTED'), (_CODEPLACE,)),
+    # ADOPTED 2026-10-01 with `dev_lab.dev.codeplace`: the filesystem walk over this tree's
+    # declared code roots. The mechanism is the family's; the roots and the pruned generated trees
+    # are this repo's.
+    'CODE-IN-CODE-ROOTS': (_CODEPLACE,),
     # ADOPTED 2026-10-01 with the forge's status and issue doors. This repo's ONE verdict command is
-    # the `verify:` recipe, `python -m lab_commons.dev.verify`, which posts `lab/gate` on a clean HEAD
+    # the `verify:` recipe, `python -m dev_lab.dev.verify`, which posts `lab/gate` on a clean HEAD
     # and nothing for INCONCLUSIVE; the Makefile base requires that exact line, so a recipe that grew
     # `--no-status` (or stopped calling verify) reds in `_FAMCONFIG`.
     'VERDICT-AS-STATUS': ('Makefile', _FAMCONFIG),
@@ -281,7 +281,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     **dict.fromkeys(('MAIN-SESSION-PUBLISHES', 'SUBAGENT-NO-PUSH', 'REPORTS-LIVE-IN-MEMORY'), (_GUARD, _GUARD_RULES)),
     # ADOPTED 2026-10-18 with `[tool.lab_commons.hooks]` (the family base as is). The commit-msg
     # `merge-audit` row refuses committing a merge that loses or rewrites a test unnamed; the pre-push
-    # `session-branch` row (`lab_commons.dev.sessionbranch`) refuses publishing a session branch from
+    # `session-branch` row (`dev_lab.dev.sessionbranch`) refuses publishing a session branch from
     # another ref, a non-fast-forward, and a non-merge first-parent commit of `integrate/main` past
     # `[tool.lab_commons.integrator] merges_only_since`. `_HOOKS` pins the stages and their shims.
     # ONE-WRITER-PER-SESSION-BRANCH is git's own compare-and-swap plus that same fast-forward row.
@@ -296,7 +296,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
         (_PYPROJECT, _HOOKS),
     ),
     # ADOPTED 2026-10-18 with `[tool.lab_commons.parts]`, `[tests]` and `[integrator]`: a verdict is a
-    # `tests/<part>` the forge produces from the pushed sha (`produce` runs `lab_commons.dev.verify
+    # `tests/<part>` the forge produces from the pushed sha (`produce` runs `dev_lab.dev.verify
     # --part`), `main` moves only by `integrate promote` on every part a full PASS, and the admission
     # table is the kit's with no local copy (`_ADMISSION`). VERDICT-BAR-IS-THE-INCREMENT was on record
     # as absent because no increment existed for a bar to be; the trunk gate is that increment.
@@ -338,7 +338,7 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   asserted: NETWORK-RETRY-THEN-REPORT (this repo issues NO network verb of its own: re-measured
 #:   2026-10-18, every `git clone/fetch/pull/push/ls-remote` spelling under `scripts/`, `src/` and
 #:   `tests/` is a STRING FIXTURE inside `test_the_agent_guard_is_live.py`, fed to the deny engine
-#:   rather than executed, so there is no verb here for `lab_commons.dev.netverb` to wrap).
+#:   rather than executed, so there is no verb here for `dev_lab.dev.netverb` to wrap).
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
 #: were deleted here in the same edit that lowered the ceiling, which is the only way this number
@@ -351,6 +351,19 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'FORMATS-UPGRADE-ON-READ',
     'NETWORK-RETRY-THEN-REPORT',
+    # ARRIVED 2026-10-23 with the dev-lab cut-over, NOT YET MEASURED against this tree: the PR flow
+    # (`[tool.lab_commons.integrator]` declares no `pr_merges_since`), the scratch rule that replaced
+    # the archive-or-promote one (no declared `scratch/` README anchor here), the stray-file census,
+    # the concept-split naming rule and the ephemeral-citation scan.
+    'DOCS-ONLY-CARRIES',
+    'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
+    'NO-STACKED-PRS',
+    'ONE-SESSION-ONE-PR',
+    'PR-REVIEW-IS-ADVISORY',
+    'SCRATCH-IS-NEVER-COMMITTED',
+    'SPLIT-BY-CONCEPT',
+    'STRAY-FILE-REFUSED',
+    'TRACKED-CITES-NO-EPHEMERAL',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -367,7 +380,7 @@ _ABSENT: Final = frozenset({
 #: nothing else -- every gap this repo could close is still on record, and none was reopened.
 #:
 #: AND DOWN AGAIN, 14 -> 11 later the same day, when three of the six workflow rules stopped being
-#: machinery this repo does not have. Their MECHANISMS moved into `lab_commons.dev`
+#: machinery this repo does not have. Their MECHANISMS moved into `dev_lab.dev`
 #: (`hook_install`, `bounded`, `checkout`) and this repo wired each one to its own tree.
 #: HOOKS-ARE-WIRED was the sharpest: the reason on record claimed there was no subject here, and
 #: there were 19 declared hooks with none installed.
@@ -402,7 +415,11 @@ _ABSENT: Final = frozenset({
 #: MERGE-DEVIATIONS-NAMED, VERDICT-BAR-IS-THE-INCREMENT and the retired verdict row (now
 #: VERDICTS-FROM-THE-FORGE) left for mechanisms: each reason named the missing push wiring, and the
 #: hook table installs it. FORMATS-UPGRADE-ON-READ arrived and was measured absent with its reason.
-_ABSENT_CEILING: Final = 7
+#:
+#: AND 7 -> 16 on 2026-10-23, A RISE: moving the kit from lab-commons to dev-lab brought nine rules
+#: this repo had never carried (SCRATCH-IS-NEVER-COMMITTED replacing an ID cited above). Each is in
+#: `_ABSENT` by name rather than in neither set; closing one lowers this number.
+_ABSENT_CEILING: Final = 16
 
 
 def _adoption() -> Adoption:

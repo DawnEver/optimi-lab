@@ -1,8 +1,8 @@
 """`NO-CJK-IN-TRACKED-SOURCE` -- this repo's corpus and declared set, driven by the kit's arms.
 
 The scan, the five CJK ranges, the exemption list and the two-sided ratchet live in
-`lab_commons.dev.cjk`; the VERDICTS over them, and the planted control, live in
-`lab_commons.dev.famtests.trackedcjk`. This module supplies only what a shared body cannot hold:
+`dev_lab.dev.cjk`; the VERDICTS over them, and the planted control, live in
+`dev_lab.dev.famtests.trackedcjk`. This module supplies only what a shared body cannot hold:
 THIS tree's corpus, its DECLARED set, and its floor with that floor's headroom.
 
 ADOPTED 2026-09-18. Until then this file held its own copies of the kit's arms, and the moment the
@@ -40,9 +40,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.cjk import EXEMPT_PREFIXES, Scan, scan_files
-from lab_commons.dev.famtests import trackedcjk
-from lab_commons.dev.rules import tracked_files
+from dev_lab.dev.cjk import EXEMPT_PREFIXES, Scan, scan_files
+from dev_lab.dev.famtests import trackedcjk
+from dev_lab.dev.rules import tracked_files
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

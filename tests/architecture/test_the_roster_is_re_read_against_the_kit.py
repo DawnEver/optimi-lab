@@ -7,9 +7,9 @@ its side after its subject lands upstream, and the only thing that would have ca
 re-reading every row. Across three tranches of the family's largest roster the error ran ONE WAY
 every time -- 17 rows declared MOVES, 7 were real, 5 were splits and 5 were already in the kit.
 
-THE WHOLE ASSERTION BODY IS THE FAMILY'S. `lab_commons.dev.supersede` holds the two detectors (a kit
+THE WHOLE ASSERTION BODY IS THE FAMILY'S. `dev_lab.dev.supersede` holds the two detectors (a kit
 module NAMING a consumer path, and the consumer IMPORTING that module), the seven grades, the ruler
-and both floors; `lab_commons.dev.famtests.rostercensus` holds the arms that sit on top of it. Those
+and both floors; `dev_lab.dev.famtests.rostercensus` holds the arms that sit on top of it. Those
 arms were hand-written TWICE on the same day -- here at 198 lines and in wdg-lab at 190 -- and,
 diffed with each repo's own name blanked, the two files were IDENTICAL IN CODE: every line that
 differed was a docstring. What is left here is the half the kit refuses to guess -- EVERY REPO-SHAPED
@@ -24,7 +24,7 @@ lesson. Until 2026-09-18 this file
 carried `SUBPACKAGE_ADOPTED`, a NAMED SET of six rows that graded `NAMED_ONLY` -- the kit named the
 file and nothing corroborated it -- while all six were FULLY ADOPTED, importing the exact module that
 named them. The cause was inside the instrument: `imported_kit_modules` resolved
-`from lab_commons.dev.famtests import allowguard` to the segment `famtests`, one level above the name
+`from dev_lab.dev.famtests import allowguard` to the segment `famtests`, one level above the name
 `kit_modules` publishes, so the IMPORT detector could not fire on ANY sub-package adoption. That was
 routed back rather than absorbed and is fixed upstream in `1aa2738`. RE-MEASURED against
 `0.2.2.dev83+g3c70b5835`: all six now grade `PARTIAL`, the `NAMED_ONLY` population is EMPTY, and the
@@ -46,18 +46,18 @@ from pathlib import Path
 from typing import Final
 
 from _placement import PLACEMENT
-from lab_commons.dev import supersede
-from lab_commons.dev.famtests import rostercensus
-from lab_commons.dev.famtests.placement import MOVES
+from dev_lab.dev import supersede
+from dev_lab.dev.famtests import rostercensus
+from dev_lab.dev.famtests.placement import MOVES
 
 #: This checkout: `tests/architecture/<this file>` sits two directories below it.
 ROOT: Final = Path(__file__).resolve().parents[2]
 
 #: THE KIT DIRECTORY'S OWN DOTTED PATH, and the depth it implies is the whole reason it is spelled
-#: in full. One level short resolves every `lab_commons.dev.x` import to the token `dev`, which
+#: in full. One level short resolves every `dev_lab.dev.x` import to the token `dev`, which
 #: matches no kit module, so the IMPORT detector silently never fires and every row reads UNTOUCHED
 #: -- which is what a fully forked tree reports. `take_census` refuses that rather than returning it.
-KIT_PACKAGE: Final = 'lab_commons.dev'
+KIT_PACKAGE: Final = 'dev_lab.dev'
 
 #: THE KIT FLOOR, RE-MEASURED 2026-09-19 against `0.2.2.dev166+g7b7661ba9`: `kit_modules` reads 74
 #: modules -- 46 when this floor was first set, then 51, 57, 61, 67, and 74 now. The floor must sit
@@ -79,7 +79,7 @@ KIT_PACKAGE: Final = 'lab_commons.dev'
 #: THE 78 IS A FRESH READING, TAKEN 2026-09-21 WHEN THIS ENV WAS RE-SYNCED to
 #: `0.2.2.dev175+g803505c7f`, and this re-take is the arm's THIRD consecutive firing. That sync is
 #: also what made this file RUNNABLE again rather than newly red: before it the environment held
-#: `0.1.0 @ c8c6a5e8`, which carries no `lab_commons.dev` at all, so the entry point this test lives
+#: `0.1.0 @ c8c6a5e8`, which carries no `dev_lab.dev` at all, so the entry point this test lives
 #: behind answered `ModuleNotFoundError` and measured nothing. A floor validated against a kit nobody
 #: could import is not a floor anybody measured.
 #:
@@ -146,7 +146,7 @@ def test_no_row_whose_subject_the_kit_already_holds_is_still_declared_moves() ->
 #: EXAMPLE of the calibration comment it deliberately does NOT read (`ADMIT scripts/dep.py own= 22
 #: repo=1`). So the PROVENANCE detector fires on a sentence whose whole content is that the module
 #: has nothing to do with that file, and the IMPORT detector correctly does not: `scripts/dep.py`
-#: imports `lab_commons.dev.dep` and `verify` (and, in 2026-09, the box lock), and importing `storedreadings` there would
+#: imports `dev_lab.dev.dep` and `verify` (and, in 2026-09, the box lock), and importing `storedreadings` there would
 #: be wrong. This is a FALSE POSITIVE INSIDE THE INSTRUMENT, the same class as the six of 2026-09-18
 #: and a different cause, and the remedy is upstream: this family's own integration page already
 #: rules that naming the SHAPE of a thing beats naming an EXAMPLE of it, because an example is a

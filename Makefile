@@ -8,7 +8,7 @@ install:
 install-dev:
 	uv pip install -U pip wheel
 	uv pip install -e ".[dev]"
-	python -m lab_commons.dev.hook_install --install
+	python -m dev_lab.dev.hook_install --install
 
 # THE SINGLE VERIFY ENTRY POINT is `verify`, at the bottom of this section. CI calls it and
 # nothing else; a human calls it before pushing. A new check belongs in a target HERE, never
@@ -46,7 +46,7 @@ test-open: test
 adoption:
 	python -m pytest tests/architecture/test_optimi_lab_adopts_the_shared_registry.py -v
 
-# The runtime of this library must stay numpy/scipy/numerics-lab/lab_commons.outcomes. `lab-commons[dev]` brings
+# The runtime of this library must stay numpy/scipy/numerics-lab/lab_commons.outcomes. `dev-lab` brings
 # structlog, pint and pydantic and is a DEV extra: CI installs it to run the tests, so the one
 # thing CI must not do is install everything and then never check that the RUNTIME table stayed
 # pure. This target is that check. It is static (pyproject + the import graph), so installing
@@ -56,7 +56,7 @@ purity:
 	python -m pytest tests/architecture/test_the_runtime_stays_pure.py -v
 
 # THE SINGLE VERIFY ENTRY POINT, and it is the FAMILY'S rather than this repo's: it calls
-# `lab_commons.dev.verify`, the same module motronics, wdg-lab and lab-commons call. That module
+# `dev_lab.dev.verify`, the same module motronics, wdg-lab and lab-commons call. That module
 # builds a real Verdict -- INCONCLUSIVE by default, PROMOTED only on proof that the run covered
 # what it selected -- where `lint fmt-check test` handed back nothing but three exit codes, which
 # cannot say whether the suite covered anything or merely collected nothing and left happy.
@@ -77,7 +77,7 @@ purity:
 # test ever lands here.
 .PHONY: verify
 verify:
-	python -m lab_commons.dev.verify
+	python -m dev_lab.dev.verify
 
 # NO `open` BELOW, and that is the whole point of the split. A target that launches a browser on
 # every run is an interruption rather than feedback: it steals focus on every GREEN run, and it

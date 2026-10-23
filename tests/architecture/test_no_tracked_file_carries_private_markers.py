@@ -1,7 +1,7 @@
 """A PUBLISHED repo: no tracked file may name a machine, a person, a home path or a chat id.
 
 This repo is PUBLIC on its forge (checked 2026-10-02), so everything `git ls-files` lists is what a
-push publishes. The scan is the kit's `lab_commons.dev.privatemarkers`: generic patterns committed
+push publishes. The scan is the kit's `dev_lab.dev.privatemarkers`: generic patterns committed
 there, plus the machine-local denylist at ``~/.claude/private-markers``, reported by KIND only so the
 check cannot leak what it guards. The kit's own suite holds the planted positives and negatives; this
 file holds the facts that are this repo's -- that its tree is clean, and which names it publishes on
@@ -13,7 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.privatemarkers import load_markers, scan_text, scan_tree, tracked_files
+from dev_lab.dev.privatemarkers import load_markers, scan_text, scan_tree, tracked_files
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

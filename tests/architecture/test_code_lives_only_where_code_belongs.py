@@ -1,6 +1,6 @@
-"""optimi-lab holds itself to ``CODE-IN-CODE-ROOTS`` and ``SCRATCH-ARCHIVED-OR-PROMOTED``.
+"""optimi-lab holds itself to ``CODE-IN-CODE-ROOTS``, and bounds how long a one-off waits in ``scratch/``.
 
-ARRIVED 2026-10-01 with the two registry rules: `lab_commons.dev.codeplace` publishes the walk and
+ARRIVED 2026-10-01 with the two registry rules: `dev_lab.dev.codeplace` publishes the walk and
 the scratch lifecycle, and what is left here is this tree's answer -- which directories may hold code,
 which generated trees are not walked, and how long a one-off may wait in ``scratch/``.
 
@@ -13,7 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.codeplace import misplaced_code, overdue_scratch
+from dev_lab.dev.codeplace import misplaced_code
+from dev_lab.dev.scratch import overdue_scratch
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

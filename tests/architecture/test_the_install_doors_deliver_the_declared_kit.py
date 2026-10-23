@@ -10,7 +10,7 @@ the files below are `uv pip install` / `pip install` / `python -m`, and with uv 
 `uv pip install` re-resolves a bare git URL every time -- measured directly, transitively, and over
 an already-installed older build. Not one command here consults the lock, so not one can serve it.
 `scripts/dep.py` contributes no line to this scan because it builds its argv in Python through
-`lab_commons.dev.dep`, which spells `sys.executable -m pip install`: correct by construction, and
+`dev_lab.dev.dep`, which spells `sys.executable -m pip install`: correct by construction, and
 correct for a second reason (pip re-clones a direct URL rather than treating it as satisfied).
 
 SO THIS FILE EXISTS TO KEEP THAT TRUE RATHER THAN TO REPAIR ANYTHING, and the difference matters
@@ -22,7 +22,7 @@ the deciding fact. Which files in a tree can move an environment is not portable
 through a `.github/workflows/ci.yml` the sibling lab does not have, and the sibling installs through
 a `generate-changelog` git hook and an update script that optimi-lab does not have. The MECHANISM
 around the set -- `scan_doors`, `floating_requirements`, `unlocked`, `assert_doors_deliver` -- is
-entirely `lab_commons.dev.installdoor`, so what is genuinely this package's is the four paths in
+entirely `dev_lab.dev.installdoor`, so what is genuinely this package's is the four paths in
 `_DOORS` and the floor under them, and that is the whole of it.
 """
 
@@ -32,15 +32,15 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev.doorcensus import DoorRow, assert_census, door_text
-from lab_commons.dev.installdoor import (
+from dev_lab.dev.doorcensus import DoorRow, assert_census, door_text
+from dev_lab.dev.installdoor import (
     Delivery,
     UnlockedDoorsError,
     assert_doors_deliver,
     floating_requirements,
     unlocked,
 )
-from lab_commons.dev.synccensus import pruning_sites
+from dev_lab.dev.synccensus import pruning_sites
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -95,7 +95,7 @@ DOOR_ROWS: Final[tuple[DoorRow, ...]] = (
         commands=0,
         deliveries=frozenset(),
         why=(
-            'Zero because this script composes its argv in Python through `lab_commons.dev.dep`, '
+            'Zero because this script composes its argv in Python through `dev_lab.dev.dep`, '
             'which spells `sys.executable -m pip install` -- correct by construction, and correct '
             'for a second reason, since pip re-clones a direct URL rather than treating it as '
             'satisfied. Declared as a door with a zero reading rather than left off the list.'
@@ -114,7 +114,7 @@ _DOOR_FLOOR: Final = 15
 
 def test_this_repo_declares_the_kit_as_a_floating_requirement() -> None:
     """The rule's subject, asserted rather than assumed: with no floating requirement it is vacuous."""
-    assert floating_requirements(_ROOT / 'pyproject.toml') == ('lab-commons', 'numerics-lab')
+    assert floating_requirements(_ROOT / 'pyproject.toml') == ('dev-lab', 'lab-commons', 'numerics-lab')
 
 
 def test_every_install_door_already_delivers_the_declared_kit() -> None:

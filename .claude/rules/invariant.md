@@ -10,8 +10,8 @@ reader could violate in one commit, and each names the mechanism that refuses it
   `linalg`/`sparse`/`sparse.linalg`/`special`, `scipy.optimize`/`scipy.stats` in tests only (R1,
   `test_the_runtime_takes_only_the_r1_scipy_submodules`).
 - **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one
-  task-outcome vocabulary for every engine). The base install takes it without extras; the dev kit
-  (`lab-commons[dev]`) stays in the `dev` extra. Both are bare `git+https` URLs, never pinned (R8):
+  task-outcome vocabulary for every engine). The base install takes it without extras; the dev system
+  (`dev-lab`) stays in the `dev` extra. Both are bare `git+https` URLs, never pinned (R8):
   a pin is a ceiling nobody re-argued. Any other `lab_commons.*` import is refused by that guard.
 - **Importing the package does nothing.** No file is read, no directory is created, no global
   (numpy print options, matplotlib backend, warnings filters, random seed) is mutated at import.

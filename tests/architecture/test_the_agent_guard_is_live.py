@@ -1,11 +1,11 @@
 r"""AGENT-GUARD, for THIS checkout -- and the reason on record was true when written and is not now.
 
 MEASURED 2026-09-17, both halves. Before today this repo had NO `.claude/settings.json`, no
-`PreToolUse` matcher and no engine: `lab_commons.dev.agent_guard --repo .` answered NOTHING
+`PreToolUse` matcher and no engine: `dev_lab.dev.agent_guard --repo .` answered NOTHING
 DECLARED, exit 2. The adoption file's reason for the gap named the missing piece exactly -- "the
 shared deny REGISTRY exists but its ENGINE does not: the engine the registry's own recipe points at
 is a `.js` file in another repo" -- and that is what changed underneath it. The engine is now
-family code (`lab_commons.dev.agenthooks`, installed by `lab_commons.dev.agent_guard`), so the last
+family code (`dev_lab.dev.agenthooks`, installed by `dev_lab.dev.agent_guard`), so the last
 thing keeping this row open is gone and the row closes.
 
 WHY THIS FILE IS THE POINT OF THE EXERCISE rather than a formality on top of it. An installed guard
@@ -17,7 +17,7 @@ pre-commit hooks with zero installed, which
 same shape one layer up, over the hook that governs an AGENT's commands rather than a human's.
 
 THE BODY IS THE FAMILY'S AS OF 2026-09-17, AND THE SIBLING LAB'S STRUCTURE IS THE ONE IT TOOK. The
-seven arms below are `lab_commons.dev.famtests.agentguard`; what stayed here is the answers no other
+seven arms below are `dev_lab.dev.famtests.agentguard`; what stayed here is the answers no other
 checkout can give -- which declaration file optimi-lab renders from, which rules it may honestly
 ship, which commands it refuses, and which exit it must leave open.
 
@@ -65,8 +65,8 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev.famtests import agentguard, injectedtext
-from lab_commons.dev.hooks import DENY_RULES
+from dev_lab.dev.famtests import agentguard, injectedtext
+from dev_lab.dev.hooks import DENY_RULES
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -74,7 +74,7 @@ sys.path.insert(0, str(_ROOT / 'scripts'))
 from deny_rules import ADOPTION  # noqa: E402
 
 #: The rules this repo ships, BY NAME. Two carry `./.venv/Scripts/python.exe -m
-#: lab_commons.dev.verify` as their exit; the other four need nothing from a repo and ship
+#: dev_lab.dev.verify` as their exit; the other four need nothing from a repo and ship
 #: everywhere. `GIT-NETWORK-VERB` and `RAW-PROCESS-KILL` are absent ON RECORD -- see
 #: `scripts/deny_rules.py` for the measurement behind each.
 #:
@@ -99,6 +99,9 @@ from deny_rules import ADOPTION  # noqa: E402
 #:
 #: `REPORTS-LIVE-IN-MEMORY` ARRIVED WITH THE KIT AT 96a90c8 (2026-10-18), the same way: its exit is a
 #: dated `.claude/memory/` entry, which needs nothing from this repo.
+#:
+#: `GIT-RESET` and `GIT-STAGE-EVERYTHING` ARRIVED WITH THE MOVE TO dev-lab (2026-10-23), the same way:
+#: their exits (stage explicit paths; never reset a shared checkout) need nothing from this repo.
 _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
     'BARE-TEST-INVOCATION',
@@ -106,6 +109,8 @@ _SHIPPED: Final = frozenset({
     'FORGE-WRITE-VIA-GH-API',
     'FORGE-WRITE-VIA-HTTP',
     'GIT-COMMIT-AMEND',
+    'GIT-RESET',
+    'GIT-STAGE-EVERYTHING',
     'GIT-STASH',
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
@@ -122,7 +127,7 @@ _SHIPPED: Final = frozenset({
 _PROSE_ABOUT_A_DENIED_SHAPE: Final = "cat > notes.md <<'MD'\npytest is denied here; use the verdict entry point.\nMD"
 
 
-@pytest.mark.node
+@pytest.mark.workstation
 def test_node_is_on_path() -> None:
     """NOT A SKIP, AND THAT IS THE POINT. No node means no guard, on this box, for every repo.
 
@@ -165,7 +170,7 @@ def test_the_shipped_set_is_pinned_by_name() -> None:
     agentguard.assert_the_shipped_set_is_pinned(root=_ROOT, declared=_SHIPPED)
 
 
-@pytest.mark.node
+@pytest.mark.workstation
 @pytest.mark.parametrize(
     ('command', 'rule'),
     [
@@ -191,20 +196,20 @@ def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rul
     agentguard.assert_refused_by(root=_ROOT, command=command, rule=rule)
 
 
-@pytest.mark.node
+@pytest.mark.workstation
 @pytest.mark.parametrize(
     'command',
     [
         # THIS REPO'S OWN VERDICT COMMAND, and the row that matters most: it is the exit
         # BARE-TEST-INVOCATION and PUSH-NO-VERIFY both name. A guard that refused it would have
         # sealed the only road out of itself.
-        './.venv/Scripts/python.exe -m lab_commons.dev.verify',
+        './.venv/Scripts/python.exe -m dev_lab.dev.verify',
         'git push origin main',
         # Inside the repository, as WORKTREES-STAY-INSIDE demands since 9ce57c3 -- the old `../scratch`
         # spelling is now refused by that row.
         'git worktree add --detach .claude/worktrees/scratch 1a2b3c4',
         # The exit every FORGE-WRITE-* row names, and the reads those rows leave open.
-        './.venv/Scripts/python.exe -m lab_commons.dev.forge issue create --title x --body y',
+        './.venv/Scripts/python.exe -m dev_lab.dev.forge issue create --title x --body y',
         'gh issue list --state open',
         _PROSE_ABOUT_A_DENIED_SHAPE,
     ],

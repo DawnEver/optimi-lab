@@ -1,6 +1,6 @@
 """NO-REFLECTION: no tracked Python calls getattr/hasattr/setattr/delattr or defines ``__getattr__``.
 
-THE BODY IS THE FAMILY'S (`lab_commons.dev.famtests.noreflection`), over every tracked ``*.py``.
+THE BODY IS THE FAMILY'S (`dev_lab.dev.famtests.noreflection`), over every tracked ``*.py``.
 This file holds only the repo's answers: the allow-set, EMPTY because optimi_lab measured zero
 reflection sites when the rule was adopted (lab-commons a2f50b9), and the read floor.
 """
@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import noreflection
+from dev_lab.dev.famtests import noreflection
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _ALLOWED: Final[dict[str, str]] = {}

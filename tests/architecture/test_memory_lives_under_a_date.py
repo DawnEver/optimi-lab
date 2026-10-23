@@ -8,8 +8,8 @@ word. It survived for days because the layout was an instruction, and an instruc
 control.
 
 THE READERS AND THE ARMS ARE THE FAMILY'S, and this file no longer holds a line of either:
-`lab_commons.dev.famtests.datedmemory` ships the walk, the four readings, the four assertions and
-the planted control, and `lab_commons.dev.floors` ships BOTH sides of the entry floor. What is left
+`dev_lab.dev.famtests.datedmemory` ships the walk, the four readings, the four assertions and
+the planted control, and `dev_lab.dev.floors` ships BOTH sides of the entry floor. What is left
 here is the half the kit refuses to guess -- every repo fact arrives as a keyword argument with no
 default, and this file is where optimi-lab's five answers are written down: which trees, what is not
 an entry, what is never walked, and the two numbers that bound the population.
@@ -17,8 +17,8 @@ an entry, what is never walked, and the two numbers that bound the population.
 THE SILENT ENTRY IS NOW ITS OWN POPULATION, AND THAT IS A BEHAVIOUR CHANGE RATHER THAN A SWAP. This
 file used to fold "no `created:` field" into `date_disagreements` as the reason string ``no
 `created:` field``, so one assertion carried two populations and a pin over it could not have said
-which half moved. The kit splits them -- :func:`~lab_commons.dev.famtests.datedmemory.silent` and
-:func:`~lab_commons.dev.famtests.datedmemory.date_disagreements` -- and the split is what shipped, so
+which half moved. The kit splits them -- :func:`~dev_lab.dev.famtests.datedmemory.silent` and
+:func:`~dev_lab.dev.famtests.datedmemory.date_disagreements` -- and the split is what shipped, so
 adopting it means this repo now answers the two questions separately. It also means a MISSING field
 is no longer named twice: the kit asks only DATED markdown, because an undated file is already named
 by the shape reading and one fix should not red two arms.
@@ -34,7 +34,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import datedmemory
+from dev_lab.dev.famtests import datedmemory
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

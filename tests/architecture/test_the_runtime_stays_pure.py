@@ -19,7 +19,7 @@ prove nothing about the guard that ships.
 `lab-commons` IS THE REASON THIS IS SHARP RATHER THAN THEORETICAL. Its other modules pull in
 structlog, pint and pydantic; `foreign_roots` admits `lab_commons.outcomes` and names any other
 `lab_commons.*` import, and `test_lab_commons_floats_and_the_dev_kit_stays_in_dev` keeps the dev kit
-(`lab-commons[dev]`) in the dev extra.
+(`dev-lab`) in the dev extra.
 
 NUMERICS-LAB IS THE FIFTH ENTRY, by decision (plan R4, P9): equation solving is one engine and this
 library keeps no numeric kernel of its own (`test_equation_solving_is_numerics_labs.py`). It floats
@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from lab_commons.dev import floors
+from dev_lab.dev import floors
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
@@ -128,20 +128,21 @@ def test_the_runtime_dependency_set_is_exactly_the_declared_one() -> None:
 
 
 def test_lab_commons_floats_and_the_dev_kit_stays_in_dev() -> None:
-    """Runtime: bare `lab-commons` (for `outcomes`), by URL, never pinned; the `[dev]` kit only in an extra."""
+    """Runtime: bare `lab-commons` (for `outcomes`), by URL, never pinned; the `dev-lab` kit only in an extra."""
     runtime, extras = _requirements()
     runtime_lines = [line for line in runtime if _distribution(line) == 'lab-commons']
     assert runtime_lines and all('[' not in line.split('@')[0] for line in runtime_lines), (
-        f'{runtime_lines} -- the runtime takes lab-commons WITHOUT extras (plan II.1): its dev kit brings '
+        f'{runtime_lines} -- the runtime takes lab-commons WITHOUT extras (plan II.1): the dev kit brings '
         f'what this library refuses to impose on a caller.'
     )
-    lines = [line for entries in extras.values() for line in entries if _distribution(line) == 'lab-commons']
-    assert lines, 'no extra declares lab-commons[dev], so the adoption test beside this one runs for nobody.'
+    assert not [line for line in runtime if _distribution(line) == 'dev-lab'], 'dev-lab is a runtime dependency.'
+    lines = [line for entries in extras.values() for line in entries if _distribution(line) == 'dev-lab']
+    assert lines, 'no extra declares dev-lab, so the adoption test beside this one runs for nobody.'
     for line in [*runtime_lines, *lines]:
-        assert 'git+https' in line, f'{line!r} does not resolve lab-commons from its repository.'
+        assert 'git+https' in line, f'{line!r} does not resolve its package from its repository.'
         tail = line.split('git+https', 1)[1]
         assert '@' not in tail, (
-            f'{line!r} pins lab-commons to a ref. A pin is a ceiling nobody re-argued: libraries float (R8).'
+            f'{line!r} pins its package to a ref. A pin is a ceiling nobody re-argued: libraries float (R8).'
         )
 
 

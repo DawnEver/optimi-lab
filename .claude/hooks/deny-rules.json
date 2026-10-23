@@ -1,35 +1,35 @@
 [
   {
     "name": "SUBAGENT-NO-PUSH",
-    "pattern": "(?:git(?:\\.exe)?(?:\\s+-C\\s+\\S+)*\\s+push\\b|(?:sh\\s+)?\\S*with-retry\\.sh\\s+push\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+-m\\s+lab_commons\\.dev\\.netverb\\b[^\\n]*\\spush\\b|git(?:\\.exe)?\\b[^\\n]*\\s--no-verify\\b|SKIP=|\\$env:SKIP\\s*=)",
+    "pattern": "(?:git(?:\\.exe)?(?:\\s+-C\\s+\\S+)*\\s+push\\b|(?:sh\\s+)?\\S*with-retry\\.sh\\s+push\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+-m\\s+dev_lab.dev\\.netverb\\b[^\\n]*\\spush\\b|git(?:\\.exe)?\\b[^\\n]*\\s--no-verify\\b|SKIP=|\\$env:SKIP\\s*=)",
     "matches": "command",
-    "reason": "SUBAGENT-NO-PUSH: publishing is the main session`s, and a skipped hook publishes what nobody checked.\nCommit on your lane and hand the commit SHA back to the main session; it merges and pushes, and the forge produces the verdict. A targeted measure of the tests you touched is yours.\ndetails: docs-src/dev/refusals.md#subagent-no-push (lab-commons)",
+    "reason": "SUBAGENT-NO-PUSH: publishing is the main session`s, and a skipped hook publishes what nobody checked.\nCommit on your lane and hand the commit SHA back to the main session, which merges and pushes; a targeted measure of the tests you touched is yours.\ndetails: docs-src/dev/refusals.md#subagent-no-push (lab-commons)",
     "scope": "subagent"
   },
   {
     "name": "BARE-TEST-INVOCATION",
     "pattern": "(?:\\S*python[\\w.]*\\s+-m\\s+pytest\\b|pytest\\b)",
     "matches": "command",
-    "reason": "BARE-TEST-INVOCATION: a hand-written test line has no verdict: its exit code cannot tell a covered run from a dead or truncated one.\nRe-issue through the entry point that produces a verdict: ./.venv/Scripts/python.exe -m lab_commons.dev.verify\ndetails: docs-src/dev/refusals.md#bare-test-invocation (lab-commons)"
+    "reason": "BARE-TEST-INVOCATION: a hand-written test line has no verdict: its exit code cannot tell a covered run from a dead or truncated one.\nRe-issue through the entry point that produces a verdict: ./.venv/Scripts/python.exe -m dev_lab.dev.verify\ndetails: docs-src/dev/refusals.md#bare-test-invocation (lab-commons)"
   },
   {
     "name": "FORGE-WRITE-VIA-CLI",
     "pattern": "(?:\\bgh\\s+(?:issue|pr)\\s+(?:create|comment|close|reopen|edit|review|merge|delete|lock|unlock|transfer|pin|unpin|ready|develop)\\b|\\btea\\s+(?:(?:issues?|i|pulls?|pr)\\s+(?:create|c|new|edit|e|close|reopen|open|merge|m|approve|reject|review|comment|delete)\\b|comment\\b|c\\s))",
     "matches": "command",
-    "reason": "FORGE-WRITE-VIA-CLI: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-cli (lab-commons)"
+    "reason": "FORGE-WRITE-VIA-CLI: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m dev_lab.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-cli (lab-commons)"
   },
   {
     "name": "FORGE-WRITE-VIA-GH-API",
     "pattern": "\\bgh\\s+api\\b(?=[^\\n]*\\b(?:issues|pulls)\\b)(?=[^\\n]*(?:\\s(?:-X|--method)[\\s=]*(?:POST|PATCH|PUT|DELETE|Post|Patch|Put|Delete|post|patch|put|delete)\\b|\\s(?:-[fF]|--field|--raw-field|--input)\\b))",
     "matches": "command",
-    "reason": "FORGE-WRITE-VIA-GH-API: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-gh-api (lab-commons)",
+    "reason": "FORGE-WRITE-VIA-GH-API: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m dev_lab.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-gh-api (lab-commons)",
     "allow": "\\bgh\\s+api\\b[^\\n]*\\s(?:-X|--method)[\\s=]*(?:GET|get)\\b"
   },
   {
     "name": "FORGE-WRITE-VIA-HTTP",
     "pattern": "(?=[^\\n]*(?:/api/v1/repos/|api\\.github\\.com/repos/)[^\\s/\\'\"]+/[^\\s/\\'\"]+/(?:issues|pulls)\\b)(?:\\bcurl\\b(?=[^\\n]*(?:\\s(?:-X|--request)[\\s=]*[\\'\"]?(?:POST|PATCH|PUT|DELETE|Post|Patch|Put|Delete|post|patch|put|delete)\\b|\\s(?:-d|--data(?:-raw|-binary|-urlencode)?|--json|-F|--form)\\b))|\\b(?:Invoke-RestMethod|Invoke-WebRequest|irm|iwr)\\b(?=[^\\n]*\\s-Method\\s+[\\'\"]?(?:POST|PATCH|PUT|DELETE|Post|Patch|Put|Delete|post|patch|put|delete)\\b))",
     "matches": "argument",
-    "reason": "FORGE-WRITE-VIA-HTTP: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m lab_commons.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-http (lab-commons)"
+    "reason": "FORGE-WRITE-VIA-HTTP: a forge write through any client but the family door does not record which machine or agent wrote it.\nWrite through the family door: .venv/Scripts/python.exe or .venv/bin/python -m dev_lab.dev.forge issue create|comment|close, pr create; a verb it lacks is the integrator`s.\ndetails: docs-src/dev/refusals.md#forge-write-via-http (lab-commons)"
   },
   {
     "name": "GIT-COMMIT-AMEND",
@@ -44,6 +44,18 @@
     "reason": "GIT-STASH: `refs/stash` is repo-wide, so a stash is popped by whoever pops next -- possibly another agent.\nCommit it on your own lane branch, or take a throwaway checkout: git worktree add --detach .claude/worktrees/<name> <sha>\ndetails: docs-src/dev/refusals.md#git-stash (lab-commons)"
   },
   {
+    "name": "GIT-RESET",
+    "pattern": "\\bgit(?:\\s+-C\\s+\\S+)*\\s+reset(?:\\s|$)",
+    "matches": "command",
+    "reason": "GIT-RESET: `git reset` moves HEAD or the index of a checkout another agent may be committing in.\nUnstage one path with git restore --staged <path>; undo a commit FORWARD with git revert <sha>; start over in a throwaway checkout: git worktree add --detach .claude/worktrees/<name> <sha>\ndetails: docs-src/dev/refusals.md#git-reset (lab-commons)"
+  },
+  {
+    "name": "GIT-STAGE-EVERYTHING",
+    "pattern": "\\bgit(?:\\s+-C\\s+\\S+)*\\s+(?:commit\\b[^\\n\"\\x27]*?\\s(?:-[A-Za-z]*a[A-Za-z]*|--all)(?=\\s|$)|add\\b[^\\n\"\\x27]*?\\s(?:-A|--all|-u|--update|\\.|\\S*/)(?=\\s|$))",
+    "matches": "command",
+    "reason": "GIT-STAGE-EVERYTHING: staging everything in a shared checkout commits whatever another agent left unstaged.\nStage the paths you mean, then check: git add <path> <path>; git diff --cached --stat\ndetails: docs-src/dev/refusals.md#git-stage-everything (lab-commons)"
+  },
+  {
     "name": "PUSH-FORCE",
     "pattern": "\\bpush\\b[^\\n]*\\s(?:--force\\b|--force-with-lease\\b|-f\\b|\\+\\S)",
     "matches": "argument",
@@ -53,13 +65,13 @@
     "name": "PUSH-REMOTE-DELETE",
     "pattern": "\\bpush\\b[^\\n]*\\s(?:--delete\\b|-d\\b|--prune\\b|--mirror\\b|:\\S)",
     "matches": "argument",
-    "reason": "PUSH-REMOTE-DELETE: deleting a ref on origin is unrecoverable from the agent`s side; a main session may push (MAIN-SESSION-PUBLISHES) but remote deletions stay with a human.\nLeave the remote branch and name it to the user; local cleanup is `python -m lab_commons.dev.branchset --apply`, which deletes merged LOCAL branches only.\ndetails: docs-src/dev/refusals.md#push-remote-delete (lab-commons)"
+    "reason": "PUSH-REMOTE-DELETE: a raw remote delete can lose commits held nowhere else.\n`python -m dev_lab.dev.branchprune delete <branch>` (LOSSLESS-DELETE).\ndetails: docs-src/dev/refusals.md#push-remote-delete (lab-commons)"
   },
   {
     "name": "PUSH-NO-VERIFY",
     "pattern": "\\bpush\\b[^\\n]*--no-verify\\b",
     "matches": "argument",
-    "reason": "PUSH-NO-VERIFY: `--no-verify` skips the pre-push hooks (admission, the trunk proof), so the push publishes what no hook checked.\nPush without the flag: no hook runs a test, and the forge produces the part after the push. To check a change first, measure what you touched: ./.venv/Scripts/python.exe -m lab_commons.dev.verify\ndetails: docs-src/dev/refusals.md#push-no-verify (lab-commons)"
+    "reason": "PUSH-NO-VERIFY: `--no-verify` skips the pre-push hooks (admission, the trunk proof), so the push publishes what no hook checked.\nPush without the flag (no hook runs a test; the forge produces the part after the push), and to check a change first measure what you touched: ./.venv/Scripts/python.exe -m dev_lab.dev.verify\ndetails: docs-src/dev/refusals.md#push-no-verify (lab-commons)"
   },
   {
     "name": "WORKTREE-BASE-IS-EXPLICIT",
@@ -79,7 +91,7 @@
     "name": "BARE-INTERPRETER",
     "pattern": "(?:uv(?:\\.exe)?\\s+run\\b|uvx(?:\\.exe)?\\b|(?:python(?:3(?:\\.\\d+)?)?|py)(?:\\.exe)?(?![\\w./\\\\-])(?!\\s+-m\\s+pytest\\b))",
     "matches": "command",
-    "reason": "BARE-INTERPRETER: a bare python/py, `uv run` or `uvx` runs an interpreter somebody else chose, and `uv run` may mutate the checkout environment outside the checked dependency door.\nUse .venv/Scripts/python.exe (.venv/bin/python POSIX). Each worktree owns .venv; main's is main-only. Missing? Existing checkout interpreter: -m lab_commons.dev.dep --bootstrap <worktree>. Checked dependency doors are agent-allowed, not arbitrary installers. Allowed: Bash(.venv/*/python* *).\ndetails: docs-src/dev/refusals.md#bare-interpreter (lab-commons)"
+    "reason": "BARE-INTERPRETER: a bare python/py, `uv run` or `uvx` runs an interpreter somebody else chose, and `uv run` may mutate the checkout environment outside the checked dependency door.\nUse .venv/Scripts/python.exe (.venv/bin/python POSIX), each worktree's own (main's is main-only); bootstrap a missing one with <an existing checkout interpreter> -m dev_lab.dev.dep --bootstrap <worktree> (checked doors are agent-allowed, not arbitrary installers; allowed: Bash(.venv/*/python* *)).\ndetails: docs-src/dev/refusals.md#bare-interpreter (lab-commons)"
   },
   {
     "name": "RECURSIVE-GREP",

@@ -1,7 +1,7 @@
 r"""optimi-lab's DELTA against each family config base -- data, computed by nothing.
 
-The bases live in :mod:`lab_commons.dev._famconfig_rows` and the renderer that turns base plus delta
-into a file is :mod:`lab_commons.dev.famconfig`. What belongs HERE is only the part of each artefact
+The bases live in :mod:`dev_lab.dev._famconfig_rows` and the renderer that turns base plus delta
+into a file is :mod:`dev_lab.dev.famconfig`. What belongs HERE is only the part of each artefact
 that is a fact about optimi-lab: a `usr/local/` tree, a viztracer `result.json`, a coredumpy
 `dumps/`. Everything else is the family's and arrives from the kit, so a fix upstream lands here by
 upgrading the dependency rather than by remembering to copy it.
@@ -48,7 +48,7 @@ from __future__ import annotations
 
 from typing import Final
 
-from lab_commons.dev.famconfig import Delta, SectionDelta
+from dev_lab.dev.famconfig import Delta, SectionDelta
 
 __all__ = [
     'DELTAS',

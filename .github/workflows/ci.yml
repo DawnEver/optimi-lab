@@ -7,7 +7,7 @@ name: CI
 # WHY `@main` AND NOT A SHA. This pins optimi-lab's CI shape to whatever lab-commons' main says,
 # which is precisely the single-source-of-truth being bought here: a pin would mean this repo
 # stops being told when the shared CI definition moved. It is the same ruling the dependency
-# table already makes -- `lab-commons[dev] @ git+https://...` carries no ref either, for the same
+# table already makes -- `dev-lab @ git+https://...` carries no ref either, for the same
 # stated reason. Third-party actions inside the reusable workflow ARE version-pinned; that
 # argument covers first-party code this family owns and nothing else.
 

@@ -2,8 +2,8 @@
 
 WHY optimi-lab NEEDS THIS AND WHY IT WAS THE LAST CAPABILITY LEFT UNCLAIMED. The whole architecture
 tree here is a consumer of SHARED assertion bodies: nearly every module under this directory hands
-`lab_commons.dev` a repo-shaped word with no default -- a BAR, a NOUN, a tier, a remedy -- and then
-reads a verdict built from that word. That is the exact precondition `lab_commons.dev.famtests.
+`dev_lab.dev` a repo-shaped word with no default -- a BAR, a NOUN, a tier, a remedy -- and then
+reads a verdict built from that word. That is the exact precondition `dev_lab.dev.famtests.
 echoedtoken` was written for: the moment the producer INTERPOLATES the token the asserter searches
 for, the clause holds for any string whatever, and it still reads as a check. The kit convicted the
 shape inside its OWN `boundedremedy` arm, driven green on `'ZZZ_NO_SUCH_TIER_ANYWHERE'`.
@@ -26,7 +26,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import echoedtoken
+from dev_lab.dev.famtests import echoedtoken
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 

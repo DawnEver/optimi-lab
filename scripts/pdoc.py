@@ -8,8 +8,8 @@ of one question -- and the ``check=False`` was OURS ALONE: a pdoc that errored p
 file was also asking pdoc for ``-o`` (write files and exit) AND ``-h``/``-p`` (serve) in one call,
 which are mutually exclusive modes -- an error ``check=False`` then made invisible.
 
-So the mechanism is now :mod:`lab_commons.dev.docsite`, which this repo already depends on through
-``lab-commons[dev]``, and what remains here is DATA: which package, which edit URL, which footer.
+So the mechanism is now :mod:`dev_lab.dev.docsite`, which this repo already depends on through
+``dev-lab``, and what remains here is DATA: which package, which edit URL, which footer.
 There is no copy of the driver in this tree to drift, and the fix that lands there lands here.
 
 WHAT DID NOT MOVE, and deliberately: ``sys.executable -m pdoc`` (it moved INTO the driver, where all
@@ -22,7 +22,7 @@ Usage: ``python scripts/pdoc.py``.
 import webbrowser
 from pathlib import Path
 
-from lab_commons.dev.docsite import pdoc_site
+from dev_lab.dev.docsite import pdoc_site
 
 script_path = Path(__file__).resolve()
 parts = script_path.parts

@@ -5,7 +5,7 @@ request. Nothing measured that cost in this repo until 2026-09-15, which was the
 DOCS-SPLIT gap: the two pages existed and could grow without limit, and mechanism could migrate
 into them from the module docstrings that own it.
 
-THE MECHANISM IS NO LONGER HERE. `lab_commons.dev.famtests.rulespages` owns the reading, the
+THE MECHANISM IS NO LONGER HERE. `dev_lab.dev.famtests.rulespages` owns the reading, the
 four-movement comparison, the total budget and the vacuity floor; this file declares the four facts
 that are about optimi-lab and nothing else -- WHICH FILES ARE PAGES, what each is pinned at, what
 their sum may be, and how small a scan may get before it is refused. The kit takes every one of
@@ -35,7 +35,7 @@ raise a number:
 4. **COSTLY IF WRONG.** Without the line the DEFAULT behaviour is wrong, not merely suboptimal.
 
 WIDTH IS SOMEBODY ELSE'S JOB, and deliberately so: `test_injected_doc_width_ceiling.py` scans this
-exact corpus through `lab_commons.dev.docwidth`, with its own ceiling, named set and floor. A count
+exact corpus through `dev_lab.dev.docwidth`, with its own ceiling, named set and floor. A count
 pin is one unit per line however long the line is, so the two pins measure different dimensions --
 but measuring width twice would be two statements of one rule.
 """
@@ -45,7 +45,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import rulespages
+from dev_lab.dev.famtests import rulespages
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _RULES: Final = _ROOT / '.claude' / 'rules'

@@ -1,7 +1,7 @@
 """`RELATIVE-TOLERANCE` -- optimi-lab's corpus, its bar and its two floors, driven by the kit's arms.
 
 The scan, the two bars, the positional-tolerance reading and the planted control live in
-`lab_commons.dev.famtests.approxfloors`; this module supplies only what a shared body cannot hold:
+`dev_lab.dev.famtests.approxfloors`; this module supplies only what a shared body cannot hold:
 THIS tree's corpus, the BAR it is judged under, and the two floors with their headrooms.
 
 THE OLD REASON, RE-MEASURED AND STILL TRUE. This repo declared `UNITS-GO-THROUGH-PINT` absent among
@@ -51,8 +51,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from lab_commons.dev.famtests import approxfloors
-from lab_commons.dev.rules import tracked_files
+from dev_lab.dev.famtests import approxfloors
+from dev_lab.dev.rules import tracked_files
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
