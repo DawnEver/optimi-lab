@@ -50,8 +50,8 @@ from typing import Final
 
 import pytest
 from lab_commons.dev.branchset import declared_branchset
-from lab_commons.dev.lanepolicy import load_policy
 from lab_commons.dev.famtests import branchset, visibility
+from lab_commons.dev.lanepolicy import load_policy
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
