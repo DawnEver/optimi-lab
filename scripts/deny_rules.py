@@ -30,7 +30,7 @@ WHAT THIS REPO SHIPS, and why each one is honest here:
 
 WHAT THIS REPO DECLARES ABSENT, on record rather than silently, each measured today:
 
-* GIT-NETWORK-VERB needs a RETRY WRAPPER. There is none in this tree and none in `dev_lab.dev`
+* NETWORK-VERB needs a RETRY WRAPPER. There is none in this tree and none in `dev_lab.dev`
   -- the same measurement that keeps NETWORK-RETRY-THEN-REPORT in the adoption file's `_ABSENT`.
   A rule pointing at a wrapper that cannot be run is the exact defect this registry removes.
 * RAW-PROCESS-KILL needs a PROCESS-TREE KILLER an agent can TYPE. `dev_lab.dev.bounded` has the
@@ -77,7 +77,7 @@ SETTINGS_FILE: Final = Path('.claude') / 'settings.json'
 ADOPTION: Final = HookAdoption(
     app_name='optimi_lab',
     remedies={'BARE-TEST-INVOCATION': VERIFY, 'PUSH-NO-VERIFY': VERIFY},
-    declared_absent=frozenset({'GIT-NETWORK-VERB', 'RAW-PROCESS-KILL'}),
+    declared_absent=frozenset({'NETWORK-VERB', 'RAW-PROCESS-KILL'}),
 )
 
 

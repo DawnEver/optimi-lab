@@ -59,7 +59,7 @@ retired upstream on 2026-10-13 -- this tree imports `agent_guard`, `agenthooks`,
   question to answer. The sibling wdg-lab has the subject and hand-rolled it.
 * `netverb` -- NO SUBJECT IN THE SCANNED TREES. Measured 2026-09-17, no file under `scripts/` or
   `tests/architecture/` issues a network verb; the only git this tree runs is `git ls-files` and
-  `git cherry`, which are local and reach no forge. `GIT-NETWORK-VERB` is declared absent in
+  `git cherry`, which are local and reach no forge. `NETWORK-VERB` is declared absent in
   `scripts/deny_rules.py` for a DIFFERENT reason (no retry wrapper to name as a remedy), and the two
   readings agree.
 * `ab_bench` -- SUBJECT PRESENT IN THE PACKAGE, ABSENT FROM THIS TABLE'S TREES. A library of
@@ -211,7 +211,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER, and the file says so itself: the STATEMENT of every denied shape already moved to '
         '`dev_lab.dev.hooks`, and what is left is the REMEDY half, which is a fact about one '
         "tree -- `app_name='optimi_lab'`, the two rules this repo can offer an exit for, and the two "
-        'it declares ABSENT (GIT-NETWORK-VERB, RAW-PROCESS-KILL). Measured 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS: own=24 lines, up from own=17 on 2026-09-17, '
+        'it declares ABSENT (NETWORK-VERB, RAW-PROCESS-KILL). Measured 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS: own=24 lines, up from own=17 on 2026-09-17, '
         'well under the 50-line binder ceiling. ITS wdg-lab TWIN IS NEAR-IDENTICAL and that is not '
         'move evidence but the opposite: the differences are exactly the three things that ought to '
         'differ -- the app name, the prose, and one call -- so both files are already the thin local '
@@ -246,8 +246,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'now `dev_lab.dev.docsite`. What is left is DATA -- the `optimi_lab` package, the edit '
         'URL, the version footer -- plus the browser branch that stays local so this '
         "repo's own test can patch the name in this repo's own namespace. Measured 2026-09-17: "
-        'RE-MEASURED 2026-10-04 after the private-marker scrub: own=22 project=4 -> 18.18%, down from '
-        'own=25 project=3 -> 12.00% on 2026-09-17, the densest file under `scripts/`, and under the ceiling too.',
+        'RE-MEASURED 2026-10-24 (version footer from installed metadata): own=23 project=4 -> 17.39%, up from own=22 '
+        'project=4 -> 18.18% on 2026-10-04, from own=25 project=3 -> 12.00% on 2026-09-17; densest under `scripts/`.',
     ),
     # ------------------------------------------------------------ tests/architecture/
     'tests/architecture/_placement.py': Placement(
@@ -262,7 +262,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-23 after dev-lab delegation and new binders: own=519 hits=47 -> 9.06%, up from '
+        'family half in it to split off. RE-MEASURED 2026-10-24 after the dev-lab 997e21a rows: own=523 hits=47 -> 8.99%, up from '
+        'own=519 hits=47 -> 9.06% after dev-lab delegation and new binders on 2026-10-23, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
         'on 2026-10-17 (P8), up from own=539 project=44 -> 8.16% on 2026-10-07 after updating the two stale '
@@ -432,6 +433,12 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'is the evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan '
         'fire.',
     ),
+    'tests/architecture/test_every_month_carries_its_plans.py': Placement(
+        STAYS,
+        'ADOPTED 2026-10-24 with dev-lab 1d74f38, and a binder from its first line: '
+        '`dev_lab.dev.famtests.monthsummary` publishes the reader, the verdict and the planted control; '
+        'what is local is the ONE memory tree this repo keeps and the first month it holds to the rule.',
+    ),
     'tests/architecture/test_memory_lives_under_a_date.py': Placement(
         STAYS,
         'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
@@ -536,7 +543,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after '
         'AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 '
         'after lab-commons 2cca293, and 2026-10-23 after current dev-lab rule adoption: '
-        'own=140 hits=3 -> 2.14%, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
+        'own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
         '2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 '
         'repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from '
         'own=102 repo=3 -> 2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up '
@@ -564,7 +571,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'AND NO CALLER DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against '
         "the real registry when the arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine "
         'command-plus-rule rows and the six sanctioned exits. RE-MEASURED 2026-10-23 after adopting the two '
-        'new reset/stage guards and their controls: own=67 hits=1, up from own=61 hits=0 on 2026-10-19, '
+        'new reset/stage guards and their controls: own=68 hits=1 on 2026-10-24 (TREE-HAS-A-LIVE-RUN pinned), up from own=67 hits=1 on 2026-10-23, up from own=61 hits=0 on 2026-10-19, '
         'up from own=58 on 2026-10-18 after SUBAGENT-NO-PUSH and REPORTS-LIVE-IN-MEMORY, up from own=57 on 2026-10-09, up from own=55 on '
         '2026-10-05, up from own=52 on 2026-10-03 after the progressive injected-text control was adopted, '
         'itself up from own=50 on 2026-10-01 by the two names lab-commons 9ce57c3 shipped (BARE-INTERPRETER, '
@@ -909,7 +916,7 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'hand-typed dict, leaving only the repo facts here.'
     ),
     'tests/architecture/test_the_agent_guard_is_live.py': (
-        'RE-MEASURED 2026-10-23: own=67 hits=1 -> 1.49%, seventeen lines over the binder ceiling after the '
+        'RE-MEASURED 2026-10-24: own=68 hits=1 -> 1.47% with TREE-HAS-A-LIVE-RUN pinned, up from own=67 hits=1 -> 1.49% on 2026-10-23, eighteen lines over the binder ceiling after the '
         'new reset/stage controls and workstation marker, up from own=61 hits=0 on 2026-10-19, '
         'up from own=58 on 2026-10-18, up from own=52 '
         'on 2026-10-03. The lines are rule names the kit shipped unconditionally (BARE-INTERPRETER, '

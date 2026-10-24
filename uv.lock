@@ -492,8 +492,8 @@ wheels = [
 
 [[package]]
 name = "dev-lab"
-version = "0.0.1.dev1214+g5fcf31b77"
-source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git?rev=5fcf31b77e638735218dcfc8ca4e568217fd6d38#5fcf31b77e638735218dcfc8ca4e568217fd6d38" }
+version = "0.0.1.dev1274+g997e21ad3"
+source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git?rev=997e21ad3fbfa290c5e289f35059ca62e64a7525#997e21ad3fbfa290c5e289f35059ca62e64a7525" }
 dependencies = [
     { name = "commitizen" },
     { name = "lab-commons", extra = ["io", "paths", "structured", "units"] },
@@ -934,7 +934,7 @@ wheels = [
 [[package]]
 name = "numerics-lab"
 version = "0.1.0"
-source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git#3d13ad7d0ef50c8d0536edc1c762514119f5c849" }
+source = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git#4354de776ab907f63595a699a96a782b13a31054" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
@@ -1039,7 +1039,7 @@ requires-dist = [
 dev = [
     { name = "commitizen" },
     { name = "coverage", extras = ["toml"] },
-    { name = "dev-lab", git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git?rev=5fcf31b77e638735218dcfc8ca4e568217fd6d38" },
+    { name = "dev-lab", git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git?rev=997e21ad3fbfa290c5e289f35059ca62e64a7525" },
     { name = "pdoc" },
     { name = "pymoo" },
     { name = "pytest" },
