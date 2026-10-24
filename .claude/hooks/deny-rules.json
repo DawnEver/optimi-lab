@@ -1,5 +1,12 @@
 [
   {
+    "name": "TREE-HAS-A-LIVE-RUN",
+    "pattern": "(?:git(?:\\s+(?:-[Cc]\\s+\\S+|--[\\w-]+(?:=\\S+)?))*\\s+(?:merge|pull|checkout|switch|reset|apply|am|cherry-pick|rebase|restore|rm|mv|clean|stash)|\\S*python[\\w.]*\\s+-m\\s+dev_lab\\.dev\\.dep\\b[^\\n]*\\s--(?:sync|bootstrap|lock-upgrade|upgrade-package)|(?:\\S*python[\\w.]*\\s+-m\\s+)?pip3?\\s+(?:install|uninstall)|uv(?:\\s+--?[\\w-]+(?:[=\\s][^\\s-]\\S*)?)*?\\s+(?:sync|add|remove|lock(?![^\\n]*--check)|run(?![^\\n]*--no-sync)|pip\\s+(?:install|uninstall|sync)))(?![\\w-])",
+    "matches": "command",
+    "reason": "TREE-HAS-A-LIVE-RUN: a run in progress executes this checkout and its .venv; changing either mid-run makes its result describe a tree that never existed.\nWork in another worktree (git worktree add --detach .claude/worktrees/<name> <sha>), wait for the run, or stop it: python -m dev_lab.dev.stoprun --pid <pid>.\ndetails: docs-src/dev/refusals.md#tree-has-a-live-run (lab-commons)",
+    "when": "live-run"
+  },
+  {
     "name": "SUBAGENT-NO-PUSH",
     "pattern": "(?:git(?:\\.exe)?(?:\\s+-C\\s+\\S+)*\\s+push\\b|(?:sh\\s+)?\\S*with-retry\\.sh\\s+push\\b|\\S*python[\\w.]*(?:\\.exe)?\\s+-m\\s+dev_lab.dev\\.netverb\\b[^\\n]*\\spush\\b|git(?:\\.exe)?\\b[^\\n]*\\s--no-verify\\b|SKIP=|\\$env:SKIP\\s*=)",
     "matches": "command",
@@ -97,7 +104,8 @@
     "name": "RECURSIVE-GREP",
     "pattern": "[ef]?grep(?:\\.exe)?(?:\\s+\\S+)*?\\s+(?:-[a-zA-Z]*[rR][a-zA-Z]*|--(?:dereference-)?recursive)(?=\\s|$)",
     "matches": "command",
-    "reason": "RECURSIVE-GREP: a recursive grep walks every git-ignored tree (.venv, output, target) and can run for minutes.\nSearch tracked files: git grep -n <pattern> [-- <paths>], or use the built-in Grep tool.\ndetails: docs-src/dev/refusals.md#recursive-grep (lab-commons)"
+    "reason": "RECURSIVE-GREP: a recursive grep walks every git-ignored tree (.venv, output, target) and can run for minutes.\nSearch tracked files: git grep -n <pattern> [-- <paths>], or use the built-in Grep tool.\ndetails: docs-src/dev/refusals.md#recursive-grep (lab-commons)",
+    "severity": "hint"
   },
   {
     "name": "REPORTS-LIVE-IN-MEMORY",

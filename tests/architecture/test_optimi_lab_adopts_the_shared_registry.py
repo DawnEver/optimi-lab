@@ -87,6 +87,7 @@ _ADOPTION: Final = 'tests/architecture/test_optimi_lab_adopts_the_shared_registr
 _PIN_SHAPE: Final = 'tests/architecture/test_a_pin_is_a_named_set.py'
 _RETIRED: Final = 'tests/architecture/test_a_retired_spelling_stays_retired.py'
 _MEMORY: Final = 'tests/architecture/test_memory_lives_under_a_date.py'
+_MONTHS: Final = 'tests/architecture/test_every_month_carries_its_plans.py'
 _RULES_RATCHET: Final = 'tests/architecture/test_the_rules_pages_are_a_ratchet.py'
 _NO_CJK: Final = 'tests/architecture/test_no_cjk_in_tracked_source.py'
 _DOC_WIDTH: Final = 'tests/architecture/test_injected_doc_width_ceiling.py'
@@ -166,6 +167,8 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'RETIRED-NAMES-REGISTERED': (_RETIRED,),
     # `.claude/memory/YYYY/MM/DD/`, plus the frontmatter date agreeing with the path it sits on.
     'MEMORY-SHAPE': (_MEMORY,),
+    # Adopted 2026-10-24 with dev-lab 1d74f38: the October summary is the first month this tree holds.
+    'MONTHLY-PLANS-CARRIED': (_MONTHS,),
     # The always-loaded rule pages are pinned per file, ratcheting down only.
     'DOCS-SPLIT': (_RULES_RATCHET,),
     # The shared scanner over this tree's whole tracked corpus, with the declared set EMPTY --
@@ -232,7 +235,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # `dev_lab.dev.agenthooks`, installed and verified by `dev_lab.dev.agent_guard`, so the
     # blocker is gone. Measured here before the change: NOTHING DECLARED, exit 2 -- no settings, no
     # matcher, no engine. The mechanism is the family's; what is this repo's is WHICH rules it may
-    # honestly ship, which is `scripts/deny_rules.py`: five shipped, two (GIT-NETWORK-VERB,
+    # honestly ship, which is `scripts/deny_rules.py`: five shipped, two (NETWORK-VERB,
     # RAW-PROCESS-KILL) declared absent because their exits -- a retry wrapper, a typeable
     # process-tree killer -- do not exist here. `_GUARD` pins the shipped set BY NAME, drives the
     # real engine under node in both directions, and its sanctioned row is this repo's own verdict

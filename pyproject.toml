@@ -65,7 +65,7 @@ dev = [
 # The development-only candidate is the published PR 15 mechanism dependency,
 # pending integration; it is not a claim that integration already contains it.
 [tool.uv.sources]
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "5fcf31b77e638735218dcfc8ca4e568217fd6d38" }
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "1d74f38b4efde3b73f644111a657410fc69e9d8c" }
 
 # ===================
 # Build
@@ -240,7 +240,6 @@ update_changelog_on_bump = true
 [tool.lab_commons.branchset]
 trunk = 'main'
 sessions = ['integrate/main']
-ephemeral = ['pr/*']
 prune_merged = true
 
 [tool.lab_commons.hpc]
