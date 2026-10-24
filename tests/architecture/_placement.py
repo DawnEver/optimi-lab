@@ -246,8 +246,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'now `dev_lab.dev.docsite`. What is left is DATA -- the `optimi_lab` package, the edit '
         'URL, the version footer -- plus the browser branch that stays local so this '
         "repo's own test can patch the name in this repo's own namespace. Measured 2026-09-17: "
-        'RE-MEASURED 2026-10-04 after the private-marker scrub: own=22 project=4 -> 18.18%, down from '
-        'own=25 project=3 -> 12.00% on 2026-09-17, the densest file under `scripts/`, and under the ceiling too.',
+        'RE-MEASURED 2026-10-24 (version footer from installed metadata): own=23 project=4 -> 17.39%, up from own=22 '
+        'project=4 -> 18.18% on 2026-10-04, from own=25 project=3 -> 12.00% on 2026-09-17; densest under `scripts/`.',
     ),
     # ------------------------------------------------------------ tests/architecture/
     'tests/architecture/_placement.py': Placement(

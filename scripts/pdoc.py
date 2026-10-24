@@ -30,7 +30,7 @@ parts = script_path.parts
 scripts_index = parts.index('scripts')
 root_path = Path(*parts[:scripts_index])
 
-#: The installed distribution's version -- never the build-generated ``optimi_lab/__version__.py``, which
+#: The installed distribution's version -- never the version module setuptools-scm writes at install, which
 #: exists only in the tree that ran the install (a cluster tree reusing a keyed env has none).
 __version__ = version('optimi-lab')
 
