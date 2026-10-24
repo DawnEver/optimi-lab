@@ -20,6 +20,7 @@ Usage: ``python scripts/pdoc.py``.
 """
 
 import webbrowser
+from importlib.metadata import version
 from pathlib import Path
 
 from dev_lab.dev.docsite import pdoc_site
@@ -29,8 +30,9 @@ parts = script_path.parts
 scripts_index = parts.index('scripts')
 root_path = Path(*parts[:scripts_index])
 
-# Ignore E402: module level import not at top of file
-from optimi_lab.__version__ import __version__  # noqa: E402
+#: The installed distribution's version -- never the build-generated ``optimi_lab/__version__.py``, which
+#: exists only in the tree that ran the install (a cluster tree reusing a keyed env has none).
+__version__ = version('optimi-lab')
 
 __all__ = ['main']
 

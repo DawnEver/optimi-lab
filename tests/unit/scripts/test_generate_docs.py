@@ -1,4 +1,5 @@
 # ruff: noqa: E402
+import importlib
 import re
 import shutil
 import sys
@@ -12,6 +13,17 @@ sys.path.append(root_path_)
 
 from scripts import pdoc as pdoc_module
 from scripts.pdoc import main as generate_docs
+
+
+def test_the_docs_script_imports_without_the_generated_version_file(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The version is the INSTALLED distribution's metadata, never `optimi_lab/__version__.py`.
+
+    That file is written by the build into whichever tree ran the install; a cluster tree that REUSES a keyed
+    env has none (optimi-lab #26, 2026-10-24: a collection error here interrupted 382 other tests of its item).
+    """
+    monkeypatch.setitem(sys.modules, 'optimi_lab.__version__', None)  # an import of it now raises
+    importlib.reload(pdoc_module)
+    assert pdoc_module.__version__
 
 
 @pytest.mark.parametrize(('modules', 'open_webpage'), [(None, False), (['optimi_lab'], True)])
