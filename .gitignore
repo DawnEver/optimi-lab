@@ -52,6 +52,7 @@ output/
 !**/attic/**
 **/.claude/**/__pycache__/
 **/.claude/**/*.py[cod]
+**/.claude/automode.json
 
 # --- optimi-lab delta, 10 of 10 allowed ---
 ## Documentation (pdoc)

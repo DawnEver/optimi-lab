@@ -26,7 +26,7 @@ only "was it refused" cannot tell a working rule from one a neighbour is coverin
 plants two real rules whose patterns both match `git push --force`, and with the wrong one first the
 weak question answers yes while the rule under test has stopped firing entirely. That is the
 count-pin failure in a different spelling, and it is measured rather than argued -- the sibling lab
-learned it the day `GIT-NETWORK-VERB` shipped and shadowed both of its push rules.
+learned it the day `NETWORK-VERB` shipped and shadowed both of its push rules.
 
 WHAT IS PROVEN, in arms that fail for different reasons, because a single "is it live" assertion
 cannot tell a missing engine from a stale rule file:
@@ -75,7 +75,7 @@ from deny_rules import ADOPTION  # noqa: E402
 
 #: The rules this repo ships, BY NAME. Two carry `./.venv/Scripts/python.exe -m
 #: dev_lab.dev.verify` as their exit; the other four need nothing from a repo and ship
-#: everywhere. `GIT-NETWORK-VERB` and `RAW-PROCESS-KILL` are absent ON RECORD -- see
+#: everywhere. `NETWORK-VERB` and `RAW-PROCESS-KILL` are absent ON RECORD -- see
 #: `scripts/deny_rules.py` for the measurement behind each.
 #:
 #: `GIT-COMMIT-AMEND` ARRIVED WITH THE KIT ON 2026-09-18 and is the case this pin was written for.
@@ -115,6 +115,7 @@ _SHIPPED: Final = frozenset({
     'RECURSIVE-GREP',
     'REPORTS-LIVE-IN-MEMORY',
     'SUBAGENT-NO-PUSH',
+    'TREE-HAS-A-LIVE-RUN',
     'WORKTREE-BASE-IS-EXPLICIT',
     'WORKTREES-STAY-INSIDE',
 })
@@ -178,7 +179,7 @@ def test_the_shipped_set_is_pinned_by_name() -> None:
         ('git reset --hard HEAD', 'GIT-RESET'),
         ('git add .', 'GIT-STAGE-EVERYTHING'),
         # THESE TWO ARE WHERE NAMING THE RULE EARNS ITS KEEP. This repo does NOT ship
-        # GIT-NETWORK-VERB, so nothing here shadows the two push rules today -- and the day it does,
+        # NETWORK-VERB, so nothing here shadows the two push rules today -- and the day it does,
         # the sibling lab's measurement says these rows would keep passing under the weaker
         # question while PUSH-FORCE and PUSH-NO-VERIFY stopped firing.
         ('git push origin main --force-with-lease', 'PUSH-FORCE'),
