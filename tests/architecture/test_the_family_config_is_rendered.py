@@ -121,7 +121,7 @@ def test_this_guard_can_go_both_ways(tmp_path: Path) -> None:
         deltas=DELTAS,
         repo=REPO,
         scratch=tmp_path,
-        edit=('output/', 'outputs/'),
+        edit=('**/__pycache__/', '**/python-cache/'),
     )
 
 

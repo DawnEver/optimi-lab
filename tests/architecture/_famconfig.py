@@ -66,7 +66,7 @@ REPO: Final = 'optimi-lab'
 #: What optimi-lab ignores BEYOND the family base, and nothing the base already holds. As of
 #: lab-commons 9ce57c3 the base carries `**/__version__.py`, `htmlcov/`, `.verify/`, `output/`,
 #: `**/ignore/`, `**/.DS_Store`, `/build/`, `/dist/`, `/dumps/`, `/report/` and the whole `.claude/`
-#: section (which ignores `.claude/.rem-state.json`), so those lines left this delta in the same
+#: section (including generated bookkeeping), so those lines left this delta in the same
 #: upgrade: a restatement is refused at render time. What remains is a fact about this tree only.
 GITIGNORE_DELTA: Final = Delta(
     repo=REPO,

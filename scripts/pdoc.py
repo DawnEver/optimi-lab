@@ -9,7 +9,7 @@ file was also asking pdoc for ``-o`` (write files and exit) AND ``-h``/``-p`` (s
 which are mutually exclusive modes -- an error ``check=False`` then made invisible.
 
 So the mechanism is now :mod:`dev_lab.dev.docsite`, which this repo already depends on through
-``dev-lab``, and what remains here is DATA: which package, which edit URL, which footer.
+``lab-commons[dev]``, and what remains here is DATA: which package, which edit URL, which footer.
 There is no copy of the driver in this tree to drift, and the fix that lands there lands here.
 
 WHAT DID NOT MOVE, and deliberately: ``sys.executable -m pdoc`` (it moved INTO the driver, where all
@@ -20,6 +20,7 @@ Usage: ``python scripts/pdoc.py``.
 """
 
 import webbrowser
+from importlib.metadata import version
 from pathlib import Path
 
 from dev_lab.dev.docsite import pdoc_site
@@ -29,8 +30,9 @@ parts = script_path.parts
 scripts_index = parts.index('scripts')
 root_path = Path(*parts[:scripts_index])
 
-# Ignore E402: module level import not at top of file
-from optimi_lab.__version__ import __version__  # noqa: E402
+#: The installed distribution's version -- never the version module setuptools-scm writes at install, which
+#: exists only in the tree that ran the install (a cluster tree reusing a keyed env has none).
+__version__ = version('optimi-lab')
 
 __all__ = ['main']
 

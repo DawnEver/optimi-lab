@@ -19,28 +19,27 @@ from dev_lab.dev.collectcensus import CollectRow, assert_reaches
 _HERE: Final = 'optimi-lab'
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
-#: The CI selection (`extras: 'dev'`) and what it leaves the tree. Three sets, each by EQUALITY.
+#: The declared dev dependency group and what it leaves the tree, compared by equality.
 ROWS: Final[tuple[CollectRow, ...]] = (
     CollectRow(
         repo=_HERE,
-        selected=('dev',),
+        selected=(),
+        groups=('dev',),
         errors=frozenset(),
         degrades=frozenset(),
         unresolved=frozenset({'sklearn'}),
         why=(
-            'Its `dev` extra is the only thing putting lab-commons in the environment at all, so this '
-            'row says the ONE selection CI makes also carries every import the test tree needs at module '
-            'scope. ONE NAME IS UNRESOLVED, by text alone: `sklearn`, the import name of `scikit-learn`, '
-            'which P10 moved from the runtime to the `dev` extra as the surrogate test oracle (plan '
-            'R1). The two spellings are not derivable from one another, so the manifest cannot settle '
-            'it; the dev extra does supply it.'
+            'The dev dependency group installs the independent development kit and test oracles. '
+            'This row checks the actual group axis, not an optional-dependency extra. sklearn is '
+            'the scikit-learn test oracle; its import spelling remains an explicit unresolved '
+            'supplier until the shared alias registry can derive it.'
         ),
     ),
 )
 
-#: The fewest test files the read must hold. MEASURED 2026-10-02 at 34; a tree that was not read
+#: The fewest test files the read must hold. MEASURED 2026-10-23 at 106; a tree that was not read
 #: reports the same empty stranded set as a tree whose every import survives.
-FILE_FLOORS: Final = {_HERE: 28}
+FILE_FLOORS: Final = {_HERE: 100}
 
 
 def test_the_recorded_selection_still_leaves_the_tree_what_the_row_records() -> None:

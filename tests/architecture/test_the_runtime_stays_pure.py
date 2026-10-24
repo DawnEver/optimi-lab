@@ -19,7 +19,7 @@ prove nothing about the guard that ships.
 `lab-commons` IS THE REASON THIS IS SHARP RATHER THAN THEORETICAL. Its other modules pull in
 structlog, pint and pydantic; `foreign_roots` admits `lab_commons.outcomes` and names any other
 `lab_commons.*` import, and `test_lab_commons_floats_and_the_dev_kit_stays_in_dev` keeps the dev kit
-(`dev-lab`) in the dev extra.
+(`dev-lab`) in the development dependency group, not the runtime.
 
 NUMERICS-LAB IS THE FIFTH ENTRY, by decision (plan R4, P9): equation solving is one engine and this
 library keeps no numeric kernel of its own (`test_equation_solving_is_numerics_labs.py`). It floats
@@ -36,6 +36,7 @@ from typing import Final
 
 import pytest
 from dev_lab.dev import floors
+from dev_lab.dev.syncscope import canon
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
@@ -96,10 +97,10 @@ def foreign_roots(module: ast.Module, allowed: frozenset[str]) -> frozenset[str]
 
 
 def _requirements() -> tuple[list[str], dict[str, list[str]]]:
-    """`(runtime requirements, extras)` exactly as `pyproject.toml` declares them."""
+    """`(runtime requirements, development groups)` from the manifest."""
     table = tomllib.loads((_ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
     project = table['project']
-    return project.get('dependencies', []), project.get('optional-dependencies', {})
+    return project.get('dependencies', []), table.get('dependency-groups', {})
 
 
 def _source_files() -> list[Path]:
@@ -128,26 +129,51 @@ def test_the_runtime_dependency_set_is_exactly_the_declared_one() -> None:
 
 
 def test_lab_commons_floats_and_the_dev_kit_stays_in_dev() -> None:
-    """Runtime: bare `lab-commons` (for `outcomes`), by URL, never pinned; the `dev-lab` kit only in an extra."""
-    runtime, extras = _requirements()
+    """Runtime outcomes and the development kit are separate distributions and install scopes."""
+    runtime, groups = _requirements()
     runtime_lines = [line for line in runtime if _distribution(line) == 'lab-commons']
     assert runtime_lines and all('[' not in line.split('@')[0] for line in runtime_lines), (
-        f'{runtime_lines} -- the runtime takes lab-commons WITHOUT extras (plan II.1): the dev kit brings '
+        f'{runtime_lines} -- the runtime takes lab-commons WITHOUT extras (plan II.1): its dev kit brings '
         f'what this library refuses to impose on a caller.'
     )
-    assert not [line for line in runtime if _distribution(line) == 'dev-lab'], 'dev-lab is a runtime dependency.'
-    lines = [line for entries in extras.values() for line in entries if _distribution(line) == 'dev-lab']
-    assert lines, 'no extra declares dev-lab, so the adoption test beside this one runs for nobody.'
+    assert all(_distribution(line) != 'dev-lab' for line in runtime)
+    lines = [line for line in groups['dev'] if _distribution(line) == 'dev-lab']
+    assert len(lines) == 1, 'the development group must install the independent development kit'
+    assert not any('lab-commons[' in line for entries in groups.values() for line in entries)
     for line in [*runtime_lines, *lines]:
-        assert 'git+https' in line, f'{line!r} does not resolve its package from its repository.'
+        assert 'git+https' in line, f'{line!r} does not resolve lab-commons from its repository.'
         tail = line.split('git+https', 1)[1]
         assert '@' not in tail, (
-            f'{line!r} pins its package to a ref. A pin is a ceiling nobody re-argued: libraries float (R8).'
+            f'{line!r} pins lab-commons to a ref. A pin is a ceiling nobody re-argued: libraries float (R8).'
         )
 
 
 #: The engines this library depends on by repository; each floats (R8).
 ENGINES: Final = ('lab-commons', 'numerics-lab')
+
+
+def runtime_url_overrides(text: str) -> frozenset[str]:
+    """Runtime Git URLs must compose unchanged; development-only sources stay local to the kit."""
+    table = tomllib.loads(text)
+    runtime = {canon(_distribution(line)) for line in table['project'].get('dependencies', []) if 'git+' in line}
+    sources = table.get('tool', {}).get('uv', {}).get('sources', {})
+    return frozenset(runtime & {canon(name) for name in sources})
+
+
+def test_runtime_urls_are_not_overridden_by_project_only_sources() -> None:
+    assert runtime_url_overrides((_ROOT / 'pyproject.toml').read_text(encoding='utf-8')) == frozenset()
+
+
+def test_the_composition_guard_refuses_a_runtime_branch_but_allows_a_dev_candidate() -> None:
+    manifest = """[project]
+dependencies = ["lab-commons @ git+https://example.org/lab-commons.git"]
+[tool.uv.sources]
+dev-lab = { git = "https://example.org/dev-lab.git", rev = "candidate" }
+"""
+    assert runtime_url_overrides(manifest) == frozenset()
+    planted = manifest + 'lab-commons = { git = "https://example.org/lab-commons.git", branch = "integrate/main" }\n'
+    assert runtime_url_overrides(planted) == frozenset({'lab-commons'})
+    assert runtime_url_overrides(planted.replace('lab-commons = {', 'Lab_Commons = {')) == frozenset({'lab-commons'})
 
 
 @pytest.mark.parametrize('engine', ENGINES)
@@ -191,7 +217,7 @@ def test_no_shipped_module_imports_outside_the_runtime_set() -> None:
 
 
 @pytest.mark.parametrize(
-    'planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'sklearn', 'lab_commons', 'lab_commons.log']
+    'planted', ['structlog', 'pint', 'pydantic', 'matplotlib', 'sklearn', 'lab_commons', 'lab_commons.log', 'dev_lab']
 )
 def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
     """THE CONTROL. Plant the import in a module and call the REAL guard, not a copy of it.

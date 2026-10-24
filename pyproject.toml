@@ -32,7 +32,7 @@ dependencies = [
     "scipy",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest",
     "pytest-cov",
@@ -49,11 +49,11 @@ dev = [
     'commitizen',
     "ruff",
 
-    # The family DEVELOPMENT system: `dev_lab.dev.rules` authors each development rule's universal
+    # The shared DEVELOPMENT kit: `dev_lab.dev.rules` authors each development rule's universal
     # statement, and `tests/architecture/test_optimi_lab_adopts_the_shared_registry.py` names which
     # of them this repo enforces and which it declares absent. DEV LAYER ONLY -- dev-lab brings
-    # structlog, pint and pydantic, and this library is imported BY other libraries, so none of
-    # those may become a runtime dependency here. The URL is bare on purpose: a pin to a sha or a
+    # development dependencies; lab-commons itself is standard-library-only. This library is imported
+    # BY other libraries, so the kit must not become a runtime dependency. The URL is bare: a sha or a
     # tag is a ceiling nobody re-argued, and a repo held at one stops being told when a rule moved.
     "dev-lab @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git",
 ]
@@ -61,6 +61,11 @@ dev = [
 # does not send mail.
 
 [project.scripts]
+
+# The development-only candidate is the published PR 15 mechanism dependency,
+# pending integration; it is not a claim that integration already contains it.
+[tool.uv.sources]
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "997e21ad3fbfa290c5e289f35059ca62e64a7525" }
 
 # ===================
 # Build
@@ -204,7 +209,7 @@ filterwarnings = [
 ]
 minversion = "6.0"
 markers = [
-    "workstation: needs a developer workstation: the live checkout (hooks installed, branches on origin, worktree placement) or a real node for the agent-guard engine, neither of which a cluster tree carries",
+    "workstation: needs a live checkout or agent tooling (hooks, origin refs, worktrees, node)",
 ]
 addopts = """
 -v -q
@@ -235,15 +240,20 @@ update_changelog_on_bump = true
 [tool.lab_commons.branchset]
 trunk = 'main'
 sessions = ['integrate/main']
-ephemeral = ['pr/*']  # a short-lived PR head, pushed with no row and deleted by the forge with its merge
 prune_merged = true
 
 [tool.lab_commons.hpc]
 # PIN + FRESHNESS (user ruling 2026-10-17): the venv is exactly the committed lock, and the lock keys it.
-install = 'uv sync --frozen --extra dev'
+install = 'uv sync --frozen --group dev'
 dependency_inputs = ['pyproject.toml', 'uv.lock']
 source_roots = ['src']
 collect = 'tests'
+
+[tool.lab_commons.placement]
+code_roots = ['examples/']
+pruned_paths = ['.claude/worktrees', 'docs', 'htmlcov']
+scratch = 'scratch/'
+max_age_days = 3.0
 
 [tool.lab_commons.parts]
 output = "output/logs"
@@ -258,15 +268,7 @@ resources = ["workstation"]
 [tool.lab_commons.integrator]
 trunk = "main"
 integration = "integrate/main"
-pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"  # INTEGRATION-TAKES-ONLY-FORGE-MERGES from here
+pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"
 
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
 [tool.lab_commons.hooks]
-
-# TRACKED-CITES-NO-EPHEMERAL escapes: each token is DATA the guard naming it walks or renders, not a citation.
-[tool.lab_commons.ephemeral_refs]
-ceiling = 2
-escapes = [
-    { file = "tests/architecture/_famconfig.py", token = ".claude/.rem-state.json", reason = "the .gitignore delta line that ignores it" },
-    { file = "tests/architecture/test_code_lives_only_where_code_belongs.py", token = ".claude/worktrees", reason = "the pruned tree the code-placement walk skips" },
-]

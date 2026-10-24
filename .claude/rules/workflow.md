@@ -5,7 +5,7 @@
   rule this repo enforces and every rule it does not. A rule added upstream reds that test until
   someone here decides about it — it never arrives adopted by default, and it never arrives
   silently unadopted.
-- **A gap is DECLARED with a ceiling, never left silent.** The 16 rules optimi-lab does not
+- **A gap is DECLARED with a ceiling, never left silent.** The seven rules optimi-lab does not
   enforce are listed by name with a ceiling that may only go DOWN. Closing one deletes its name
   and lowers the number in the same edit.
 - **This page and `invariant.md` are HARD CONSTRAINTS ONLY.** Reasoning, incident write-ups and
@@ -14,9 +14,9 @@
 - **A new public name is exported from its module's `__all__` in the same commit that defines it**,
   and one name has one definition across the package. The package `__init__` re-exports; it does
   not redefine.
-- **Tests before commit.** The suite is small and runs in seconds; there is no reason to push a
-  red. A known failure is an `xfail` carrying its reason, never a `skip` — a skip is the one
-  disposition that records nothing.
+- **Tests before commit.** Measure changed tests with `python -m dev_lab.dev.verify -- <paths>`.
+  Full-suite verdicts belong to the forge after publishing the PR, not a developer's local run.
+  A known failure is a strict `xfail` with its reason, never a `skip` that records nothing.
 - **No `_legacy` / `_compat` shim and no deprecation alias.** This package was already rewritten
   once to remove that shape (`refactor(core)!: the library becomes pure numerics`); callers and
   tests move WITH the code, in the same commit.

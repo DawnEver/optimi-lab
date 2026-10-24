@@ -7,11 +7,11 @@ install:
 .PHONY: install-dev
 install-dev:
 	uv pip install -U pip wheel
-	uv pip install -e ".[dev]"
+	uv sync --frozen --group dev
 	python -m dev_lab.dev.hook_install --install
 
 # THE SINGLE VERIFY ENTRY POINT is `verify`, at the bottom of this section. CI calls it and
-# nothing else; a human calls it before pushing. A new check belongs in a target HERE, never
+# nothing else; developers measure changed tests with `dev_lab.dev.verify -- <paths>`. New checks belong HERE, never
 # inline as a step in a workflow -- written twice, the two drift, and CI starts failing on
 # things a local run could not have caught.
 #
@@ -46,11 +46,11 @@ test-open: test
 adoption:
 	python -m pytest tests/architecture/test_optimi_lab_adopts_the_shared_registry.py -v
 
-# The runtime of this library must stay numpy/scipy/numerics-lab/lab_commons.outcomes. `dev-lab` brings
-# structlog, pint and pydantic and is a DEV extra: CI installs it to run the tests, so the one
+# The runtime stays numpy/scipy/numerics-lab/lab_commons.outcomes. The dev-lab kit belongs
+# only to the dev dependency group: CI installs it to run the tests, so the one
 # thing CI must not do is install everything and then never check that the RUNTIME table stayed
 # pure. This target is that check. It is static (pyproject + the import graph), so installing
-# the dev extra cannot make it pass by accident.
+# the dev group cannot make it pass by accident.
 .PHONY: purity
 purity:
 	python -m pytest tests/architecture/test_the_runtime_stays_pure.py -v

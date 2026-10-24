@@ -1,29 +1,8 @@
-"""INSTALL-DOOR-DELIVERS-THE-DECLARATION, and this repo's answer is that it was ALREADY CORRECT.
+"""Install doors either resolve floating requirements or reproduce the tracked lock.
 
-THE RULE'S SUBJECT IS HERE. `pyproject.toml` declares lab-commons and numerics-lab as bare git URLs
-with no ref, so each requirement says "whatever that URL holds now". On 2026-09-17 `uv.lock` was not
-tracked and pinned a build sixteen commits behind the declared one; it is committed since PIN +
-FRESHNESS (2026-10-17), so a lock-consuming door is now judged against the COMMITTED lock.
-
-MEASURED 2026-09-17, AND NOTHING WAS CHANGED AS A RESULT. All 22 installer-capable commands across
-the files below are `uv pip install` / `pip install` / `python -m`, and with uv 0.12.5 a
-`uv pip install` re-resolves a bare git URL every time -- measured directly, transitively, and over
-an already-installed older build. Not one command here consults the lock, so not one can serve it.
-`scripts/dep.py` contributes no line to this scan because it builds its argv in Python through
-`dev_lab.dev.dep`, which spells `sys.executable -m pip install`: correct by construction, and
-correct for a second reason (pip re-clones a direct URL rather than treating it as satisfied).
-
-SO THIS FILE EXISTS TO KEEP THAT TRUE RATHER THAN TO REPAIR ANYTHING, and the difference matters
-because the sibling repo that DID revert did it through a git hook nobody had listed as a door. The
-day a `uv sync` or a bare `uv run` is added to this Makefile or to a hook here, this reds.
-
-THE DOOR SET IS OPTIMI-LAB'S OWN AND THAT IS WHY THIS FILE STAYS HERE, which `_placement` records as
-the deciding fact. Which files in a tree can move an environment is not portable: this repo installs
-through a `.github/workflows/ci.yml` the sibling lab does not have, and the sibling installs through
-a `generate-changelog` git hook and an update script that optimi-lab does not have. The MECHANISM
-around the set -- `scan_doors`, `floating_requirements`, `unlocked`, `assert_doors_deliver` -- is
-entirely `dev_lab.dev.installdoor`, so what is genuinely this package's is the four paths in
-`_DOORS` and the floor under them, and that is the whole of it.
+The frozen developer installs are LOCKED, not fresh resolutions. The shared
+reader requires a tracked, parseable lock before that classification is allowed.
+The complete door census and planted untracked-lock control remain active.
 """
 
 from __future__ import annotations
@@ -56,7 +35,7 @@ DOOR_ROWS: Final[tuple[DoorRow, ...]] = (
         repo=_HERE,
         path='Makefile',
         commands=15,
-        deliveries=frozenset({'INERT', 'RESOLVES'}),
+        deliveries=frozenset({'INERT', 'RESOLVES', 'LOCKED'}),
         why=(
             '16 -> 15 ON 2026-10-18: `install-dev` lost `python -m pre-commit autoupdate`, which '
             'updated a configuration the retired pre-commit framework no longer reads; deliveries '
@@ -70,7 +49,7 @@ DOOR_ROWS: Final[tuple[DoorRow, ...]] = (
         repo=_HERE,
         path='README.md',
         commands=6,
-        deliveries=frozenset({'INERT', 'RESOLVES'}),
+        deliveries=frozenset({'INERT', 'RESOLVES', 'LOCKED'}),
         why=(
             'A DOOR WITH A PERSON IN THE MIDDLE. What a README tells a human to type moves an '
             'environment exactly as a Makefile target does, and it is the door with no CI and no '
@@ -151,9 +130,10 @@ def test_every_declared_door_still_measures_what_its_row_records() -> None:
     assert set(seen) == {_HERE}
 
 
-def test_no_declared_door_holds_a_pruning_command() -> None:
-    """THE SYNC CENSUS'S ANSWER FOR THIS REPO, and it is the empty set: no door here runs `uv sync`, so
-    none chooses a population. The day a bare ``uv sync`` lands in one of them it reds here.
-    """
+def test_the_pruning_doors_are_exactly_the_declared_frozen_group_installs() -> None:
+    """Pin every pruning door by its command; a new or weakened installation must be declared."""
     texts = {(_HERE, row.path): door_text(_ROOT, row.path, at_head=False) or '' for row in DOOR_ROWS}
-    assert pruning_sites(texts) == ()
+    assert pruning_sites(texts) == (
+        (_HERE, 'Makefile', 'uv sync --frozen --group dev'),
+        (_HERE, 'README.md', 'uv sync --frozen --group dev # for developer'),
+    )

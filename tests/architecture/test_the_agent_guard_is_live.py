@@ -26,7 +26,7 @@ only "was it refused" cannot tell a working rule from one a neighbour is coverin
 plants two real rules whose patterns both match `git push --force`, and with the wrong one first the
 weak question answers yes while the rule under test has stopped firing entirely. That is the
 count-pin failure in a different spelling, and it is measured rather than argued -- the sibling lab
-learned it the day `GIT-NETWORK-VERB` shipped and shadowed both of its push rules.
+learned it the day `NETWORK-VERB` shipped and shadowed both of its push rules.
 
 WHAT IS PROVEN, in arms that fail for different reasons, because a single "is it live" assertion
 cannot tell a missing engine from a stale rule file:
@@ -75,7 +75,7 @@ from deny_rules import ADOPTION  # noqa: E402
 
 #: The rules this repo ships, BY NAME. Two carry `./.venv/Scripts/python.exe -m
 #: dev_lab.dev.verify` as their exit; the other four need nothing from a repo and ship
-#: everywhere. `GIT-NETWORK-VERB` and `RAW-PROCESS-KILL` are absent ON RECORD -- see
+#: everywhere. `NETWORK-VERB` and `RAW-PROCESS-KILL` are absent ON RECORD -- see
 #: `scripts/deny_rules.py` for the measurement behind each.
 #:
 #: `GIT-COMMIT-AMEND` ARRIVED WITH THE KIT ON 2026-09-18 and is the case this pin was written for.
@@ -99,9 +99,6 @@ from deny_rules import ADOPTION  # noqa: E402
 #:
 #: `REPORTS-LIVE-IN-MEMORY` ARRIVED WITH THE KIT AT 96a90c8 (2026-10-18), the same way: its exit is a
 #: dated `.claude/memory/` entry, which needs nothing from this repo.
-#:
-#: `GIT-RESET` and `GIT-STAGE-EVERYTHING` ARRIVED WITH THE MOVE TO dev-lab (2026-10-23), the same way:
-#: their exits (stage explicit paths; never reset a shared checkout) need nothing from this repo.
 _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
     'BARE-TEST-INVOCATION',
@@ -118,6 +115,7 @@ _SHIPPED: Final = frozenset({
     'RECURSIVE-GREP',
     'REPORTS-LIVE-IN-MEMORY',
     'SUBAGENT-NO-PUSH',
+    'TREE-HAS-A-LIVE-RUN',
     'WORKTREE-BASE-IS-EXPLICIT',
     'WORKTREES-STAY-INSIDE',
 })
@@ -140,6 +138,7 @@ def test_node_is_on_path() -> None:
     agentguard.assert_node_is_available()
 
 
+@pytest.mark.workstation
 def test_the_guard_is_live() -> None:
     """Engine, rules and wiring are all the installed ones -- and a red names the part that is not."""
     agentguard.assert_the_guard_is_live(root=_ROOT)
@@ -177,8 +176,10 @@ def test_the_shipped_set_is_pinned_by_name() -> None:
         ('pytest tests/architecture', 'BARE-TEST-INVOCATION'),
         ('python -m pytest -q', 'BARE-TEST-INVOCATION'),
         ('git stash', 'GIT-STASH'),
+        ('git reset --hard HEAD', 'GIT-RESET'),
+        ('git add .', 'GIT-STAGE-EVERYTHING'),
         # THESE TWO ARE WHERE NAMING THE RULE EARNS ITS KEEP. This repo does NOT ship
-        # GIT-NETWORK-VERB, so nothing here shadows the two push rules today -- and the day it does,
+        # NETWORK-VERB, so nothing here shadows the two push rules today -- and the day it does,
         # the sibling lab's measurement says these rows would keep passing under the weaker
         # question while PUSH-FORCE and PUSH-NO-VERIFY stopped firing.
         ('git push origin main --force-with-lease', 'PUSH-FORCE'),
@@ -211,6 +212,7 @@ def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rul
         # The exit every FORGE-WRITE-* row names, and the reads those rows leave open.
         './.venv/Scripts/python.exe -m dev_lab.dev.forge issue create --title x --body y',
         'gh issue list --state open',
+        'git add -- src/optimi_lab/problem/variables.py',
         _PROSE_ABOUT_A_DENIED_SHAPE,
     ],
 )

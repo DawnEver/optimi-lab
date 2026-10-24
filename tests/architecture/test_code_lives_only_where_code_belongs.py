@@ -1,4 +1,4 @@
-"""optimi-lab holds itself to ``CODE-IN-CODE-ROOTS``, and bounds how long a one-off waits in ``scratch/``.
+"""optimi-lab holds itself to ``CODE-IN-CODE-ROOTS`` and ``SCRATCH-ARCHIVED-OR-PROMOTED``.
 
 ARRIVED 2026-10-01 with the two registry rules: `dev_lab.dev.codeplace` publishes the walk and
 the scratch lifecycle, and what is left here is this tree's answer -- which directories may hold code,
@@ -13,8 +13,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from dev_lab.dev.codeplace import misplaced_code
-from dev_lab.dev.scratch import overdue_scratch
+from dev_lab.dev.codeplace import declared_strays, misplaced_code
+from dev_lab.dev.scratch import assert_scratch_never_committed, overdue_scratch
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -25,7 +25,7 @@ CODE_ROOTS: Final = ('src/', 'tests/', 'scripts/', 'examples/', '.claude/hooks/'
 #: Generated trees, ignored by git and written by a tool rather than a person: the built API docs
 #: (`scripts/pdoc.py` emits `search.js`) and the coverage report.
 #:
-#: `.claude/worktrees` IS THE THIRD AND IT IS NOT GENERATED -- it holds SECOND CHECKOUTS of this repo,
+#: `.claude/worktrees/<lane>` IS THE THIRD AND IT IS NOT GENERATED -- it holds SECOND CHECKOUTS of this repo,
 #: one per open lane, each with its own `src/` and `scripts/`. THE KIT'S OWN DOCSTRING IS THE
 #: ARGUMENT: another checkout's worktrees "are judged by the run that happens inside it". Walking
 #: into them made this guard report eleven files of optimi-lab's own source as code outside the code
@@ -46,3 +46,11 @@ def test_no_code_file_lives_outside_a_code_root() -> None:
 def test_no_scratch_file_outlives_its_time() -> None:
     late = overdue_scratch(_ROOT / 'scratch', root=_ROOT, max_age_days=SCRATCH_AGE_DAYS_CEILING)
     assert not late, f'archive or promote these one-offs: {late[:10]}'
+
+
+def test_scratch_is_never_committed() -> None:
+    assert_scratch_never_committed(_ROOT)
+
+
+def test_no_unclaimed_file_lives_outside_the_declared_scratch() -> None:
+    assert declared_strays(_ROOT) == []

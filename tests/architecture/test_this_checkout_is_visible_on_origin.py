@@ -122,8 +122,8 @@ def test_this_guard_names_a_planted_second_pushable_branch_and_a_planted_orphan(
 def test_this_repo_declares_the_one_pr_flow() -> None:
     """A change returns as a `pr/*` PR; integration moves only by the forge's merge of one.
 
-    The two declarations ARE the rule: `ephemeral = ['pr/*']` admits a PR head with no declared session
-    row, and `pr_merges_since` refuses a client push that adds a commit to integration.
+    `pr_merges_since` refuses a client push that adds a commit to integration, and `pr/*` is ephemeral
+    -- a PR head with no declared session row -- by the dev-lab default this repo no longer restates.
     """
     assert load_policy(_ROOT).pr_merges_since, 'declare [tool.lab_commons.integrator] pr_merges_since'
-    assert declared_branchset(_ROOT).is_ephemeral('pr/x'), "declare [tool.lab_commons.branchset] ephemeral = ['pr/*']"
+    assert declared_branchset(_ROOT).is_ephemeral('pr/x'), 'pr/* must stay ephemeral (dev-lab default)'

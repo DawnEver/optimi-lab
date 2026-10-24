@@ -279,11 +279,8 @@ def test_the_floor_refuses_a_walk_that_reached_nothing() -> None:
         bind_source_floor([Path('a.py'), Path('b.py')])
     reached = SOURCE_FILE_FLOOR + SOURCE_FILE_HEADROOM
     assert len(bind_source_floor([Path(f'{i}.py') for i in range(reached)])) == reached
-    # The high side reds only past the headroom AND once the floor holds under `floors.BIND_RATIO` of the
-    # reading, so the plant outgrows both.
-    outgrown = max(reached, int(SOURCE_FILE_FLOOR / floors.BIND_RATIO)) + 1
     with pytest.raises(floors.SlackFloor, match=f'past the {SOURCE_FILE_HEADROOM} headroom'):
-        bind_source_floor([Path(f'{i}.py') for i in range(outgrown)])
+        bind_source_floor([Path(f'{i}.py') for i in range(reached * 2)])
 
 
 def test_the_surface_guard_names_a_planted_silent_module() -> None:

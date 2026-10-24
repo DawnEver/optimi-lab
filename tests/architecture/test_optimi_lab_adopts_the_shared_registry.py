@@ -87,6 +87,7 @@ _ADOPTION: Final = 'tests/architecture/test_optimi_lab_adopts_the_shared_registr
 _PIN_SHAPE: Final = 'tests/architecture/test_a_pin_is_a_named_set.py'
 _RETIRED: Final = 'tests/architecture/test_a_retired_spelling_stays_retired.py'
 _MEMORY: Final = 'tests/architecture/test_memory_lives_under_a_date.py'
+_MONTHS: Final = 'tests/architecture/test_every_month_carries_its_plans.py'
 _RULES_RATCHET: Final = 'tests/architecture/test_the_rules_pages_are_a_ratchet.py'
 _NO_CJK: Final = 'tests/architecture/test_no_cjk_in_tracked_source.py'
 _DOC_WIDTH: Final = 'tests/architecture/test_injected_doc_width_ceiling.py'
@@ -166,6 +167,8 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'RETIRED-NAMES-REGISTERED': (_RETIRED,),
     # `.claude/memory/YYYY/MM/DD/`, plus the frontmatter date agreeing with the path it sits on.
     'MEMORY-SHAPE': (_MEMORY,),
+    # Adopted 2026-10-24 with dev-lab 1d74f38: the October summary is the first month this tree holds.
+    'MONTHLY-PLANS-CARRIED': (_MONTHS,),
     # The always-loaded rule pages are pinned per file, ratcheting down only.
     'DOCS-SPLIT': (_RULES_RATCHET,),
     # The shared scanner over this tree's whole tracked corpus, with the declared set EMPTY --
@@ -232,7 +235,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # `dev_lab.dev.agenthooks`, installed and verified by `dev_lab.dev.agent_guard`, so the
     # blocker is gone. Measured here before the change: NOTHING DECLARED, exit 2 -- no settings, no
     # matcher, no engine. The mechanism is the family's; what is this repo's is WHICH rules it may
-    # honestly ship, which is `scripts/deny_rules.py`: five shipped, two (GIT-NETWORK-VERB,
+    # honestly ship, which is `scripts/deny_rules.py`: five shipped, two (NETWORK-VERB,
     # RAW-PROCESS-KILL) declared absent because their exits -- a retry wrapper, a typeable
     # process-tree killer -- do not exist here. `_GUARD` pins the shipped set BY NAME, drives the
     # real engine under node in both directions, and its sanctioned row is this repo's own verdict
@@ -243,9 +246,12 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # `python -m dev_lab.dev.forge`, the client that stamps which machine and agent wrote.
     **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR', 'INJECTED-TEXT-IS-PROGRESSIVE'), (_GUARD, _GUARD_RULES)),
     # ADOPTED 2026-10-01 with `dev_lab.dev.codeplace`: the filesystem walk over this tree's
-    # declared code roots. The mechanism is the family's; the roots and the pruned generated trees
-    # are this repo's.
-    'CODE-IN-CODE-ROOTS': (_CODEPLACE,),
+    # declared code roots, and the `scratch/` lifecycle that is the exit from it. The mechanism is
+    # the family's; the roots, the pruned generated trees and the age bound are this repo's.
+    **dict.fromkeys(('CODE-IN-CODE-ROOTS', 'SCRATCH-IS-NEVER-COMMITTED'), (_CODEPLACE,)),
+    'STRAY-FILE-REFUSED': (_CODEPLACE, _PYPROJECT, _HOOKS),
+    'SPLIT-BY-CONCEPT': ('tests/architecture/test_modules_are_split_by_concept.py',),
+    'TRACKED-CITES-NO-EPHEMERAL': ('tests/architecture/test_tracked_files_do_not_cite_ephemeral_paths.py',),
     # ADOPTED 2026-10-01 with the forge's status and issue doors. This repo's ONE verdict command is
     # the `verify:` recipe, `python -m dev_lab.dev.verify`, which posts `lab/gate` on a clean HEAD
     # and nothing for INCONCLUSIVE; the Makefile base requires that exact line, so a recipe that grew
@@ -291,6 +297,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
             'PUBLISH-IS-THE-LOCAL-REF',
             'SESSION-HISTORY-ONLY-GROWS',
             'INTEGRATION-IS-MERGES-ONLY',
+            'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
             'ONE-WRITER-PER-SESSION-BRANCH',
         ),
         (_PYPROJECT, _HOOKS),
@@ -308,21 +315,13 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # PR opened against `main` -- both read `[tool.lab_commons.integrator]`. MERGE-OR-DELETE is the
     # branch-set apply over `[tool.lab_commons.branchset]` (`prune_merged = true`), policed by `_ORIGIN`.
     **dict.fromkeys(('DOWNSTREAM-SYNCS-INTEGRATION', 'PRS-TARGET-INTEGRATION'), (_PYPROJECT,)),
-    'MERGE-OR-DELETE': (_PYPROJECT, _ORIGIN),
-    # ADOPTED 2026-10-23 with `pr_merges_since` in `[tool.lab_commons.integrator]` and `pr/*` declared
-    # ephemeral in the branch set: the forge alone merges a PR into integration (`forgemerge`), its review
-    # advises (`forgereview`), admission refuses a second or stacked PR (`pradmit`) and a docs-only head
-    # carries its parts (`forgecarry`) -- all server-side steps over this declared table, policed by `_ORIGIN`.
+    # These decisions belong to the shared forge, not a local replacement. The
+    # configured integration and installed admission hooks route publication there.
     **dict.fromkeys(
-        (
-            'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
-            'PR-REVIEW-IS-ADVISORY',
-            'ONE-SESSION-ONE-PR',
-            'NO-STACKED-PRS',
-            'DOCS-ONLY-CARRIES',
-        ),
-        (_PYPROJECT, _ORIGIN),
+        ('ONE-SESSION-ONE-PR', 'NO-STACKED-PRS', 'DOCS-ONLY-CARRIES', 'PR-REVIEW-IS-ADVISORY'),
+        (_PYPROJECT, _HOOKS, _ADMISSION),
     ),
+    'MERGE-OR-DELETE': (_PYPROJECT, _ORIGIN),
 }
 
 _ENFORCED: Final = frozenset(_MECHANISMS)
@@ -365,14 +364,6 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'FORMATS-UPGRADE-ON-READ',
     'NETWORK-RETRY-THEN-REPORT',
-    # ARRIVED 2026-10-23 with the dev-lab cut-over, NOT YET MEASURED against this tree: the scratch
-    # rule that replaced the archive-or-promote one (no declared `scratch/` README anchor here), the
-    # stray-file census, the concept-split naming rule and the ephemeral-citation scan (its pre-commit
-    # row runs; no forge-side test binds it here yet).
-    'SCRATCH-IS-NEVER-COMMITTED',
-    'SPLIT-BY-CONCEPT',
-    'STRAY-FILE-REFUSED',
-    'TRACKED-CITES-NO-EPHEMERAL',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -424,12 +415,7 @@ _ABSENT: Final = frozenset({
 #: MERGE-DEVIATIONS-NAMED, VERDICT-BAR-IS-THE-INCREMENT and the retired verdict row (now
 #: VERDICTS-FROM-THE-FORGE) left for mechanisms: each reason named the missing push wiring, and the
 #: hook table installs it. FORMATS-UPGRADE-ON-READ arrived and was measured absent with its reason.
-#:
-#: AND 7 -> 11 on 2026-10-23, A RISE: moving the kit from lab-commons to dev-lab brought nine rules
-#: this repo had never carried (SCRATCH-IS-NEVER-COMMITTED replacing an ID cited above); the five of
-#: the PR flow were adopted with `pr_merges_since`, and the other four are in `_ABSENT` by name rather
-#: than in neither set; closing one lowers this number.
-_ABSENT_CEILING: Final = 11
+_ABSENT_CEILING: Final = 7
 
 
 def _adoption() -> Adoption:
