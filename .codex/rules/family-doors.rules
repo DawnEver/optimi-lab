@@ -97,7 +97,7 @@ prefix_rule(
 prefix_rule(
     pattern = [[".venv/Scripts/python.exe", ".venv/bin/python", "./.venv/Scripts/python.exe", "./.venv/bin/python"], "-m", "dev_lab.dev.forge", "pr", "close-superseded"],
     decision = "allow",
-    justification = "closes open PRs salvaged into another OPEN, unmerged PR, then LOSSLESS-DELETEs their branches",
+    justification = "closes open PRs salvaged into another OPEN, unmerged PR or a commit; never deletes a branch",
 )
 
 prefix_rule(
