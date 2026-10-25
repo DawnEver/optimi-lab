@@ -96,9 +96,16 @@
   },
   {
     "name": "BARE-INTERPRETER",
-    "pattern": "(?:uv(?:\\.exe)?\\s+run\\b|uvx(?:\\.exe)?\\b|(?:python(?:3(?:\\.\\d+)?)?|py)(?:\\.exe)?(?![\\w./\\\\-])(?!\\s+-m\\s+pytest\\b))",
+    "pattern": "(?:uv(?:\\.exe)?\\s+run\\b|uvx(?:\\.exe)?\\b)",
     "matches": "command",
-    "reason": "BARE-INTERPRETER: a bare python/py, `uv run` or `uvx` runs an interpreter somebody else chose, and `uv run` may mutate the checkout environment outside the checked dependency door.\nUse .venv/Scripts/python.exe (.venv/bin/python POSIX), each worktree's own (main's is main-only); bootstrap a missing one with <an existing checkout interpreter> -m dev_lab.dev.dep --bootstrap <worktree> (checked doors are agent-allowed, not arbitrary installers; allowed: Bash(.venv/*/python* *)).\ndetails: docs-src/dev/refusals.md#bare-interpreter (lab-commons)"
+    "reason": "BARE-INTERPRETER: `uv run` or `uvx` runs an interpreter somebody else chose and may sync the checkout environment outside the checked dependency door.\nUse .venv/Scripts/python.exe (.venv/bin/python POSIX), each worktree's own (main's is main-only); bootstrap a missing one with <an existing checkout interpreter> -m dev_lab.dev.dep --bootstrap <worktree> (checked doors are agent-allowed, not arbitrary installers; allowed: Bash(.venv/*/python* *)).\ndetails: docs-src/dev/refusals.md#bare-interpreter (lab-commons)"
+  },
+  {
+    "name": "BARE-PYTHON",
+    "pattern": "(?:python(?:3(?:\\.\\d+)?)?|py)(?:\\.exe)?(?![\\w./\\\\-])(?!\\s+-m\\s+pytest\\b)",
+    "matches": "command",
+    "reason": "BARE-PYTHON: a bare python/py runs the interpreter PATH chose, not this checkout's venv.\nUse .venv/Scripts/python.exe (.venv/bin/python POSIX), each worktree's own (main's is main-only); bootstrap a missing one with <an existing checkout interpreter> -m dev_lab.dev.dep --bootstrap <worktree> (checked doors are agent-allowed, not arbitrary installers; allowed: Bash(.venv/*/python* *)).\ndetails: docs-src/dev/refusals.md#bare-python (lab-commons)",
+    "severity": "hint"
   },
   {
     "name": "RECURSIVE-GREP",

@@ -99,8 +99,12 @@ from deny_rules import ADOPTION  # noqa: E402
 #:
 #: `REPORTS-LIVE-IN-MEMORY` ARRIVED WITH THE KIT AT 96a90c8 (2026-10-18), the same way: its exit is a
 #: dated `.claude/memory/` entry, which needs nothing from this repo.
+#:
+#: `BARE-PYTHON` ARRIVED WITH THE KIT AT 840e6b7 (2026-10-25), the same way: its exit is this
+#: checkout's own `.venv` interpreter, which needs nothing from this repo.
 _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
+    'BARE-PYTHON',
     'BARE-TEST-INVOCATION',
     'FORGE-WRITE-VIA-CLI',
     'FORGE-WRITE-VIA-GH-API',

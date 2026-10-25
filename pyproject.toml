@@ -62,10 +62,10 @@ dev = [
 
 [project.scripts]
 
-# The development-only candidate is the published PR 15 mechanism dependency,
-# pending integration; it is not a claim that integration already contains it.
+# dev-lab is pinned to a pushed integrate/main commit whose lab_commons imports match
+# the lab-commons this lock resolves (the #35 relock moved lab-commons past 997e21a).
 [tool.uv.sources]
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "997e21ad3fbfa290c5e289f35059ca62e64a7525" }
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "840e6b748bcccd7acf3baf9cc99d9de359a06bad" }
 
 # ===================
 # Build
