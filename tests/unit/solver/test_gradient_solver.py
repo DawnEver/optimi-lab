@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from lab_commons.outcomes import Cell, Reason, Record, Status
-from scipy.optimize import minimize
+from scipy.optimize import Bounds, LinearConstraint, NonlinearConstraint, minimize
 
 from optimi_lab.core.errors import Refusal
 from optimi_lab.oracle import Action, Capability, Information, Result, from_function, with_finite_differences
@@ -73,16 +73,15 @@ def _oracle(planted: float = 0.0, *, flaky: bool = False):
 
 
 def _reference() -> np.ndarray:
+    # trust-constr, not SLSQP: SLSQP's finite-difference line search from START fails ("positive
+    # directional derivative") once BLAS runs single-threaded, as it does under the verify box seat.
     found = minimize(
         lambda x: _values(x)['f'],
         np.array([START[n] for n in NAMES]),
-        method='SLSQP',
-        bounds=[(1.0, 5.0)] * 4,
-        constraints=[
-            {'type': 'ineq', 'fun': lambda x: np.prod(x) - 25},
-            {'type': 'eq', 'fun': lambda x: np.sum(x) - 11},
-        ],
-        options={'ftol': 1e-12},
+        method='trust-constr',
+        bounds=Bounds(1.0, 5.0),
+        constraints=[NonlinearConstraint(np.prod, 25.0, np.inf), LinearConstraint(np.ones(len(NAMES)), 11.0, 11.0)],
+        options={'xtol': 1e-12, 'gtol': 1e-12, 'maxiter': 5000},
     )
     assert found.success
     return found.x
