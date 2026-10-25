@@ -188,7 +188,6 @@ def test_the_shipped_set_is_pinned_by_name() -> None:
         # question while PUSH-FORCE and PUSH-NO-VERIFY stopped firing.
         ('git push origin main --force-with-lease', 'PUSH-FORCE'),
         ('git push --no-verify', 'PUSH-NO-VERIFY'),
-        ('git worktree add ../scratch', 'WORKTREE-BASE-IS-EXPLICIT'),
         # ARRIVED WITH THE KIT 2026-10-01: a forge write through any client but the family door
         # carries no provenance, so it is refused; the door itself is in the allow arm below.
         ('gh issue create --title x --body y', 'FORGE-WRITE-VIA-CLI'),

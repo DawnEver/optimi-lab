@@ -63,9 +63,9 @@ dev = [
 [project.scripts]
 
 # dev-lab is pinned to a pushed integrate/main commit whose lab_commons imports match
-# the lab-commons this lock resolves (the #35 relock moved lab-commons past 997e21a).
+# the lab-commons this lock resolves (relocked 2026-10-25 onto dev-lab 65ff29a, lab-commons a93b198).
 [tool.uv.sources]
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "840e6b748bcccd7acf3baf9cc99d9de359a06bad" }
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "65ff29a16c89349ca23e153d4657e649df3bd51c" }
 
 # ===================
 # Build
