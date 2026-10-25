@@ -30,8 +30,8 @@ WHAT OPTIMI-LAB SUPPLIES, and every one of them is a keyword with NO DEFAULT ups
   readability floor. The first side is undiminished: the day a local-only branch appears, it reds.
 
 THE BRANCH SET IS DATA SINCE 2026-10-04 (ONE-BRANCH-PER-SESSION): `[tool.lab_commons.branchset]` in
-`pyproject.toml` declares trunk and sessions, and `dev_lab.dev.famtests.branchset` replaced the
-local origin-branch pin and the one-pushable-branch assertion.
+`pyproject.toml` declares trunk and sessions. The LIVE branch set is the forge's `branchset` status,
+never a test (ruling 2026-10-24).
 
 MEASURED AGAINST THE REMOTE, NEVER A LOCAL POINTER. A local trunk ref goes stale the moment another
 party pushes, and against a stale one an already-landed change reads as unmerged -- which is how an
@@ -49,8 +49,7 @@ from pathlib import Path
 from typing import Final
 
 import pytest
-from dev_lab.dev.branchset import declared_branchset
-from dev_lab.dev.famtests import branchset, visibility
+from dev_lab.dev.famtests import visibility
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -80,22 +79,6 @@ def test_this_checkout_is_readable_at_all() -> None:
 def test_nothing_of_value_exists_only_on_this_box() -> None:
     """Pinned BY NAME and two-sided: an arrival reds, and a pin outliving its branch reds too."""
     visibility.assert_local_only_branches(root=_ROOT, declared=LOCAL_ONLY_BRANCHES)
-
-
-def test_origin_carries_only_the_declared_branches() -> None:
-    """ONE-BRANCH-PER-SESSION: origin holds `[tool.lab_commons.branchset]` and nothing else."""
-    branchset.assert_origin_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))
-
-
-@pytest.mark.workstation
-def test_this_box_carries_only_the_declared_branches() -> None:
-    """An undeclared local branch origin already holds reds; one holding unpushed work is reported."""
-    branchset.assert_local_branches_declared(root=_ROOT, branchset=declared_branchset(_ROOT))
-
-
-def test_the_branchset_guard_fires(tmp_path: Path) -> None:
-    """PLANTED CONTROL, the family's: a stray branch on origin and locally, and unpushed work."""
-    branchset.assert_the_planted_branchset_is_policed(tmp_path, trunk=TRUNK)
 
 
 def test_integration_is_measured_against_the_remote(tmp_path: Path) -> None:

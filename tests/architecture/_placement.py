@@ -745,8 +745,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`assert_one_pushable_branch`, `assert_local_only_branches` and `assert_the_planted_debris_is_named`. LOCAL, '
         "each a keyword with NO DEFAULT upstream: optimi-lab's trunk NAME (the `LAB_CZ_BASE_REF` shape -- a repo judged "
         'against a guessed `main` resolves to nothing, finds no commits and REPORTS ITSELF CLEAN), and the two '
-        'two-sided branch pins, one of which still names `fix/p0-integration-blockers`. MEASURED 2026-10-19: own=17 '
-        'hits=0 after the three `dev_checkout` box markers, up from own=13 on 2026-09-19, down from own=74, admitted by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE '
+        'two-sided branch pins, one of which still names `fix/p0-integration-blockers`. MEASURED 2026-10-25: own=13 '
+        'hits=0 once the live-branch tests left for the forge `branchset` status, down from own=17 on 2026-10-19 and from own=74, admitted by the 50-line binder ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE '
         'WORD IS THE POINT. Property 2 refuses a STAYS with no repo noun anywhere in it, and this file had none -- it '
         'said "this repo" throughout and never said WHICH. That is the evidence the label is paid for, so the pronoun '
         'is now the name; no sentence was added to make a scan fire.',
