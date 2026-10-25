@@ -291,9 +291,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # another ref, a non-fast-forward, and a non-merge first-parent commit of `integrate/main` past
     # `[tool.lab_commons.integrator] merges_only_since`. `_HOOKS` pins the stages and their shims.
     # ONE-WRITER-PER-SESSION-BRANCH is git's own compare-and-swap plus that same fast-forward row.
+    # MERGE-RESOLUTION-DECLARED (dev-lab 840e6b7) is the commit-msg `merge-resolution` row beside it.
     **dict.fromkeys(
         (
             'MERGE-DEVIATIONS-NAMED',
+            'MERGE-RESOLUTION-DECLARED',
             'PUBLISH-IS-THE-LOCAL-REF',
             'SESSION-HISTORY-ONLY-GROWS',
             'INTEGRATION-IS-MERGES-ONLY',
