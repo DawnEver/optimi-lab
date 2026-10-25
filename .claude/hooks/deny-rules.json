@@ -85,7 +85,8 @@
     "pattern": "git(?:\\.exe)?(?:\\s+-[Cc]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*\\s+worktree\\s+add\\b",
     "matches": "command",
     "reason": "WORKTREE-BASE-IS-EXPLICIT: `git worktree add` with no commit-ish takes the current HEAD, which on a shared checkout is rarely the tree you meant.\nName the commit the tree starts from: git worktree add --detach .claude/worktrees/<name> <sha>\ndetails: docs-src/dev/refusals.md#worktree-base-is-explicit (lab-commons)",
-    "allow": "^(?![\\s\\S]*\\bgit(?:\\.exe)?(?:\\s+-[Cc]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*\\s+worktree\\s+add(?!(?:\\s+(?:-[bB]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--reason(?:=|\\s+)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--(?!reason\\b)[\\w-]+|-(?![bB](?:\\s|$))\\w+))*\\s+(?!-)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)(?:\\s+(?:-[bB]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--reason(?:=|\\s+)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--(?!reason\\b)[\\w-]+|-(?![bB](?:\\s|$))\\w+))*\\s+(?!-)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)(?=\\s|$|[;&|)])))"
+    "allow": "^(?![\\s\\S]*\\bgit(?:\\.exe)?(?:\\s+-[Cc]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+))*\\s+worktree\\s+add(?!(?:\\s+(?:-[bB]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--reason(?:=|\\s+)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--(?!reason\\b)[\\w-]+|-(?![bB](?:\\s|$))\\w+))*\\s+(?!-)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)(?:\\s+(?:-[bB]\\s+(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--reason(?:=|\\s+)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)|--(?!reason\\b)[\\w-]+|-(?![bB](?:\\s|$))\\w+))*\\s+(?!-)(?:\"[^\"\\n]*\"|'[^'\\n]*'|[^\\s;&|()]+)(?=\\s|$|[;&|)])))",
+    "severity": "hint"
   },
   {
     "name": "WORKTREES-STAY-INSIDE",

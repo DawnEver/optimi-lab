@@ -11,7 +11,7 @@
 |---|---|
 | [Onboarding a repo](../../../dev-lab/docs-src/dev/onboarding.md) | The one call, every declaration a new repo supplies, and the order that matters |
 | [Migrating a workstation](../../../dev-lab/docs-src/dev/migrate.md) | Start here if you used to run the gate before a push: what to stop, and the five commands that replace it |
-| [The three participants](../../../dev-lab/docs-src/dev/the-three-participants.md) | Who does what: the human, the authors, the producers, the forge and the steward |
+| [The three participants](../../../dev-lab/docs-src/dev/the-three-participants.md) | Who does what: the human, the authors, the producers, the forge and the integrator |
 | [The verdict model](../../../dev-lab/docs-src/dev/verdict-model.md) | What a verdict is, the tiers, and which destination needs which forge parts |
 | [Testing discipline](../../../dev-lab/docs-src/dev/testing-discipline.md) | The lightweight/heavy partition, xfail never skip, one test session per box |
 | [Branch layers](../../../dev-lab/docs-src/dev/branch-layers.md) | Trunk, integration and child branches: what each proves and the one verb that moves it |
