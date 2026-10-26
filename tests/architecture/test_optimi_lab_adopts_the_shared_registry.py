@@ -321,7 +321,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # These decisions belong to the shared forge, not a local replacement. The
     # configured integration and installed admission hooks route publication there.
     **dict.fromkeys(
-        ('ONE-SESSION-ONE-PR', 'NO-STACKED-PRS', 'DOCS-ONLY-CARRIES', 'PR-REVIEW-IS-ADVISORY'),
+        ('ONE-SESSION-ONE-PR', 'NO-STACKED-PRS', 'DOCS-ONLY-CARRIES', 'PR-REVIEW-BLOCKS-ON-HIGH-OR-SECURITY'),
         (_PYPROJECT, _HOOKS, _ADMISSION),
     ),
     'MERGE-OR-DELETE': (_PYPROJECT, _ORIGIN),
