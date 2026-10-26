@@ -299,6 +299,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
             'PUBLISH-IS-THE-LOCAL-REF',
             'SESSION-HISTORY-ONLY-GROWS',
             'INTEGRATION-IS-MERGES-ONLY',
+            'ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES',  # the same row, against the pushed tip's branch set (dev-lab ea264f8)
             'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
             'ONE-WRITER-PER-SESSION-BRANCH',
         ),

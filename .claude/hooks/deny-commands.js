@@ -12,7 +12,8 @@
  * when the payload carries a non-empty `agent_id`. `severity: 'hint'` never denies: the call runs and the
  * reason reaches the agent as `additionalContext` -- unless a refusing rule also fires, which wins. `pattern` (JS regex source) denies a
  * command it matches, unless `allow` (regex source) also matches -- the sanctioned spelling.
- * `reason` is the rewrite hint shown to the agent; `{root}` in it expands to the tool call's cwd.
+ * `reason` is the rewrite hint shown to the agent; `{root}` in it expands to the tool call's cwd, and `{python}`
+ * (or a door's `<venv python>`) to the target checkout's interpreter by ABSOLUTE path.
  *
  * ================================ WHAT IS MATCHED, AND WHY ================================
  *
@@ -285,11 +286,20 @@ function hostPath(word) {
   return drive ? `${drive[1]}:${bare.slice(2)}` : bare;
 }
 
-/** The directory one `git ...` / `uv ...` segment names for itself, or `null`: git's `-C X` among its global
- * options (`-c k=v` and the rest are skipped), uv's `--directory X` / `--project X` (or `=X`) anywhere. */
+/** The directory one `git ...` / `uv ...` / dependency-door segment names for itself, or `null`: git's `-C X`
+ * among its global options (`-c k=v` and the rest are skipped), uv's `--directory X` / `--project X` (or `=X`)
+ * anywhere, the dependency door's `--bootstrap X` / `--lock-upgrade X`. */
 function namedDir(words) {
   const program = (words[0] || '').replace(/\.exe$/i, '');
-  if (program === 'git') {
+  const m = words.indexOf('-m');
+  if (/python[\w.]*$/i.test(program) && m > 0 && /^(?:dev_lab|lab_commons)\.dev\.dep$/.test(words[m + 1] || '')) {
+    for (let i = m + 2; i < words.length; i += 1) {
+      const eq = /^--(?:bootstrap|lock-upgrade)=(.+)$/.exec(words[i]);
+      if (eq) return eq[1];
+      const next = words[i + 1];
+      if ((words[i] === '--bootstrap' || words[i] === '--lock-upgrade') && next && !next.startsWith('-')) return next;
+    }
+  } else if (program === 'git') {
     for (let i = 1; i < words.length; i += 1) {
       if (words[i] === '-C') return words[i + 1] || null;
       if (words[i] === '-c') i += 1;
@@ -305,9 +315,13 @@ function namedDir(words) {
   return null;
 }
 
-/** The directory the command acts in: the call's cwd, moved by `cd X` segments, or the dir a git/uv call names. */
-function targetDir(cmd, cwd) {
+/** The directory the command acts in -- the ONE answer to "which tree" every judge reads. A segment acts in the
+ * call's cwd as moved by the `cd X` segments before it, or in the dir its git/uv/dep call names. The answer is
+ * the dir of the first segment `acts` selects (the one a rule fired on), else of the first segment that is not
+ * a `cd`, else the cwd the `cd`s leave. */
+function targetDir(cmd, cwd, acts = () => true) {
   let dir = cwd;
+  let first = null;
   const word = String.raw`("[^"\n]*"|'[^'\n]*'|[^\s;&|()]+)`;
   for (const segment of segments(splitHeredocs(cmd).rest)) {
     const text = segment.replace(ENV_PREFIX, '').trim();
@@ -317,9 +331,22 @@ function targetDir(cmd, cwd) {
       continue;
     }
     const named = namedDir(text.match(new RegExp(word, 'g')) || []);
-    if (named) return path.resolve(dir, hostPath(named));
+    const here = named ? path.resolve(dir, hostPath(named)) : dir;
+    if (acts(text)) return here;
+    if (first === null && text) first = here;
   }
-  return dir;
+  return first === null ? dir : first;
+}
+
+/** The directory the segment `rule` fires on acts in (`targetDir`). */
+function ruleTarget(rule, cmd, cwd) {
+  let at;
+  try {
+    at = new RegExp(rule.matches === 'argument' ? rule.pattern : `^(?:${rule.pattern})`);
+  } catch {
+    return targetDir(cmd, cwd);
+  }
+  return targetDir(cmd, cwd, (text) => at.test(text));
 }
 
 /** The nearest directory at or above `dir` holding a `.git` (a worktree's `.git` is a file). */
@@ -357,12 +384,52 @@ function doorsOf(root) {
 
 const samePath = (a, b) => path.resolve(a).toLowerCase() === path.resolve(b).toLowerCase();
 
+/* ================================ A REMEDY NAMES AN ABSOLUTE INTERPRETER ================================
+ *
+ * 2026-10-26: a remedy spelled `.venv/Scripts/python.exe` relative, the agent's cwd was another directory, the
+ * command failed, and the agent handed the user the absolute rewrite instead of running it. So a reason carries
+ * `{python}` (or a repo door's `<venv python>`) and the engine writes the TARGET checkout's interpreter by
+ * absolute path -- the same answer as dev_lab.dev.venvpath.remedy_interpreter.
+ */
+const VENV_TAIL = process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python'];
+const posix = (p) => p.replace(/\\/g, '/');
+
+/** `root`'s own venv interpreter; else its main checkout's (a linked worktree); else its own, spelled absolute. */
+function remedyPython(root) {
+  const own = path.join(path.resolve(root), '.venv', ...VENV_TAIL);
+  if (fs.existsSync(own)) return posix(own);
+  try {
+    const named = /^gitdir:\s*(.+?)\s*$/m.exec(fs.readFileSync(path.join(root, '.git'), 'utf8'));
+    const gitdir = named ? path.resolve(root, named[1]) : '';
+    if (gitdir && path.basename(path.dirname(gitdir)) === 'worktrees') {
+      const main = path.join(path.dirname(path.dirname(path.dirname(gitdir))), '.venv', ...VENV_TAIL);
+      if (fs.existsSync(main)) return posix(main);
+    }
+  } catch {
+    // a `.git` directory, or none: the checkout's own spelling below
+  }
+  return posix(own);
+}
+
+/** `text` with `{root}` as the cwd and the interpreter tokens as `checkout`'s absolute interpreter. */
+function expand(text, checkout) {
+  const out = String(text).replaceAll('{root}', root);
+  if (!checkout || !/\{python\}|<venv python>/.test(out)) return out;
+  const python = remedyPython(checkout);
+  return out.replaceAll('{python}', python).replaceAll('<venv python>', python);
+}
+
+/** The checkout a rule's remedy is about: the one the matching segment acts in, else the session's. */
+function remedyCheckout(rule, cmd, cwd) {
+  return (cwd && repoRoot(ruleTarget(rule, cmd, cwd))) || sessionRoot || (cwd && repoRoot(cwd)) || null;
+}
+
 /** The reason to show: the session's own, unless the command targets another repo. */
 function reasonFor(rule, reason, cmd, cwd, sessionRoot) {
-  const target = cwd ? repoRoot(targetDir(cmd, cwd)) : null;
+  const target = cwd ? repoRoot(ruleTarget(rule, cmd, cwd)) : null;
   if (!target || !sessionRoot || samePath(target, sessionRoot)) return reason;
   const shown = target.replace(/\\/g, '/');
-  const door = doorsOf(target)[rule.name];
+  const door = doorsOf(target)[rule.name] && expand(doorsOf(target)[rule.name], target);
   // One header line; the full wording is docs-src/dev/refusals.md#cross-repo-refusals (lab-commons).
   const details = reason.split('\n').filter((line) => line.startsWith('details: '));
   if (door) {
@@ -407,7 +474,7 @@ function liveRunRefusal(target, sessionRoot) {
   // A Python that cannot start, or that imports the module and crashes, is not an answer.
   const why = done.error ? done.error.message : `exit ${done.status}${said ? '' : ', no answer'}`;
   return `TREE-HAS-A-LIVE-RUN: could not confirm that no run executes from ${target} (${why}); re-run when ` +
-    `python -m dev_lab.dev.liverun --tree ${target} answers.`;
+    `${remedyPython(sessionRoot)} -m dev_lab.dev.liverun --tree ${target} answers.`;
 }
 
 /* A refusal is a line of the toolchain's metrics (P0, dev_lab.dev.metrics): appended by the ONE writer, in a
@@ -467,13 +534,13 @@ for (const rule of rules) {
     // A PROBE judging which rule owns a shape sets this (run_engine(live_run=False)): its own suite is a
     // run in the checkout it probes. The tool never sends the key, so no agent command can set it.
     if (input.dev_lab_live_run_absent === true) continue;
-    liveReason = liveRunRefusal(input.cwd ? repoRoot(targetDir(cmd, input.cwd)) : null, sessionRoot);
+    liveReason = liveRunRefusal(input.cwd ? repoRoot(ruleTarget(rule, cmd, input.cwd)) : null, sessionRoot);
     hit = liveReason !== '';
   }
   if (hit && rule.severity === 'hint') {
-    hints.push(String(rule.reason || rule.name).replaceAll('{root}', root));
+    hints.push(expand(rule.reason || rule.name, remedyCheckout(rule, cmd, input.cwd)));
   } else if (hit) {
-    logRefusal(rule.name, input.cwd ? repoRoot(targetDir(cmd, input.cwd)) || input.cwd : sessionRoot);
+    logRefusal(rule.name, input.cwd ? repoRoot(ruleTarget(rule, cmd, input.cwd)) || input.cwd : sessionRoot);
     process.stdout.write(
       JSON.stringify({
         hookSpecificOutput: {
@@ -481,7 +548,7 @@ for (const rule of rules) {
           permissionDecision: 'deny',
           permissionDecisionReason:
             liveReason ||
-            reasonFor(rule, String(rule.reason || rule.name).replaceAll('{root}', root), cmd, input.cwd || '', sessionRoot),
+            reasonFor(rule, expand(rule.reason || rule.name, remedyCheckout(rule, cmd, input.cwd)), cmd, input.cwd || '', sessionRoot),
         },
       })
     );
