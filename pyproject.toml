@@ -62,10 +62,9 @@ dev = [
 
 [project.scripts]
 
-# dev-lab is pinned to a pushed integrate/main commit whose lab_commons imports match
-# the lab-commons this lock resolves (relocked 2026-10-26 onto dev-lab ea264f8, lab-commons 3151b11).
+# dev-lab floats on integrate/main like every family repo; the lock is the pin.
 [tool.uv.sources]
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "ea264f8730bca92d176ec8efc36dd4d6eb30ccc7" }
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", branch = "integrate/main" }
 
 # ===================
 # Build
