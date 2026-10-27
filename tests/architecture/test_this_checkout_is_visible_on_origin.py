@@ -29,7 +29,7 @@ WHAT OPTIMI-LAB SUPPLIES, and every one of them is a keyword with NO DEFAULT ups
   the origin pin had carried since 2026-09-16, held from meaning "nobody looked" by the same
   readability floor. The first side is undiminished: the day a local-only branch appears, it reds.
 
-THE BRANCH SET IS DATA SINCE 2026-10-04 (ONE-BRANCH-PER-SESSION): `[tool.lab_commons.branchset]` in
+THE BRANCH SET IS DATA SINCE 2026-10-04 (ONE-BRANCH-PER-SESSION): `[tool.dev_lab.branchset]` in
 `pyproject.toml` declares trunk and sessions. The LIVE branch set is the forge's `branchset` status,
 never a test (ruling 2026-10-24).
 

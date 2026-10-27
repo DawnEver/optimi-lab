@@ -40,7 +40,7 @@ subtree negation that re-includes it. The condition is BELOW EVERY RE-INCLUSION 
 particular line as the FINAL one was a sufficient approximation of it that no repo needs any more.
 
 `.pre-commit-config.yaml` IS NO LONGER AN ARTEFACT. Lab-commons 900c5bf retired the pre-commit
-framework for `[tool.lab_commons.hooks]` and the kit publishes no YAML base, so its delta, the eight
+framework for `[tool.dev_lab.hooks]` and the kit publishes no YAML base, so its delta, the eight
 extra stock-hook ids it anchored and the stage-narrowing pin left with the file (2026-10-18).
 """
 

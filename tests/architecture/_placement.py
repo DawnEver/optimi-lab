@@ -265,7 +265,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-26 after the review-command binder row: own=524 hits=47 -> 8.97%, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
+        'family half in it to split off. RE-MEASURED 2026-10-27 after the A3 [tool.dev_lab] rename: own=522 hits=46 -> 8.81%, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
         'own=519 hits=47 -> 9.06% after dev-lab delegation and new binders on 2026-10-23, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
@@ -606,7 +606,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         STAYS,
         'A BINDER over `dev_lab.dev.hook_install` (the MEASUREMENT) and '
         '`dev_lab.dev.famtests.hookinstall` (the TEST); this file holds no arm of its own. LOCAL: the '
-        'optimi-lab tree under test and the named set of stages `[tool.lab_commons.hooks]` declares, and '
+        'optimi-lab tree under test and the named set of stages `[tool.dev_lab.hooks]` declares, and '
         'nothing else -- the definition of a binder. RE-MEASURED 2026-10-19: own=13 hits=0 after the two `dev_checkout` box markers, up from own=10 on 2026-10-18, down from own=11 '
         'on 2026-09-19 when the declaration was a YAML file and the remedy arm still took its name; forty '
         'lines under the binder ceiling.',

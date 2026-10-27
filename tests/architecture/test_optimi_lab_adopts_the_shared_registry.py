@@ -107,7 +107,7 @@ _PROJECT_FILES: Final = 'tests/architecture/test_every_project_file_has_one_sour
 _NO_REFLECTION: Final = 'tests/architecture/test_no_reflection.py'
 _ALLOW: Final = 'tests/architecture/test_no_allow_entry_names_a_denied_shape.py'
 _ADMISSION: Final = 'tests/architecture/test_push_admission_is_delegated.py'
-#: The branch-flow declaration: `[tool.lab_commons.branchset]`, `[parts]`, `[tests]`, `[integrator]`, `[hooks]`.
+#: The branch-flow declaration: `[tool.dev_lab.branchset]`, `[parts]`, `[tests]`, `[integrator]`, `[hooks]`.
 _PYPROJECT: Final = 'pyproject.toml'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
@@ -259,7 +259,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'VERDICT-AS-STATUS': ('Makefile', _FAMCONFIG),
     # The issue state is derived from `Refs #N` / `Closes #N` in commit messages; this repo's half is
     # that its commits are SPELLED so the derivation can see them -- the base's `issue-ref` commit-msg
-    # row, taken as is by `[tool.lab_commons.hooks]` and installed per `_HOOKS`. No label or field in
+    # row, taken as is by `[tool.dev_lab.hooks]` and installed per `_HOOKS`. No label or field in
     # this tree keeps an issue's state.
     'ISSUE-IS-INTENT': (_PYPROJECT, _HOOKS),
     # ADOPTED with lab-commons 9ce57c3. PREVENT is the `WORKTREES-STAY-INSIDE` deny row rendered by
@@ -273,7 +273,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED with lab-commons a2f50b9 at zero sites: the family scanner over every tracked `*.py`,
     # all four banned calls plus `__getattr__`, with an empty two-sided allow-set.
     'NO-REFLECTION': (_NO_REFLECTION,),
-    # ADOPTED with lab-commons ec5e8c5: `[tool.lab_commons.branchset]` declares trunk `main` and no
+    # ADOPTED with lab-commons ec5e8c5: `[tool.dev_lab.branchset]` declares trunk `main` and no
     # session branches, and the family famtest polices origin and this box against it.
     'ONE-BRANCH-PER-SESSION': ('pyproject.toml', _ORIGIN),
     # ADOPTED with lab-commons dd33312: `scripts/deny_rules.py` renders one narrow allow row per
@@ -285,11 +285,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # push is denied, so only a main session publishes. REPORTS-LIVE-IN-MEMORY is a deny row of the
     # same guard (a shell redirect writing Markdown under `output/`), arrived with lab-commons 96a90c8.
     **dict.fromkeys(('MAIN-SESSION-PUBLISHES', 'SUBAGENT-NO-PUSH', 'REPORTS-LIVE-IN-MEMORY'), (_GUARD, _GUARD_RULES)),
-    # ADOPTED 2026-10-18 with `[tool.lab_commons.hooks]` (the family base as is). The commit-msg
+    # ADOPTED 2026-10-18 with `[tool.dev_lab.hooks]` (the family base as is). The commit-msg
     # `merge-audit` row refuses committing a merge that loses or rewrites a test unnamed; the pre-push
     # `session-branch` row (`dev_lab.dev.sessionbranch`) refuses publishing a session branch from
     # another ref, a non-fast-forward, and a non-merge first-parent commit of `integrate/main` past
-    # `[tool.lab_commons.integrator] merges_only_since`. `_HOOKS` pins the stages and their shims.
+    # `[tool.dev_lab.integrator] merges_only_since`. `_HOOKS` pins the stages and their shims.
     # ONE-WRITER-PER-SESSION-BRANCH is git's own compare-and-swap plus that same fast-forward row.
     # MERGE-RESOLUTION-DECLARED (dev-lab 840e6b7) is the commit-msg `merge-resolution` row beside it.
     **dict.fromkeys(
@@ -305,7 +305,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
         ),
         (_PYPROJECT, _HOOKS),
     ),
-    # ADOPTED 2026-10-18 with `[tool.lab_commons.parts]`, `[tests]` and `[integrator]`: a verdict is a
+    # ADOPTED 2026-10-18 with `[tool.dev_lab.parts]`, `[tests]` and `[integrator]`: a verdict is a
     # `tests/<part>` the forge produces from the pushed sha (`produce` runs `dev_lab.dev.verify
     # --part`), `main` moves only by `integrate promote` on every part a full PASS, and the admission
     # table is the kit's with no local copy (`_ADMISSION`). VERDICT-BAR-IS-THE-INCREMENT was on record
@@ -315,8 +315,8 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
         (_PYPROJECT, _ADMISSION),
     ),
     # ADOPTED 2026-10-18: `forge sync` merges `integrate/main` only, and `forge integration` retargets a
-    # PR opened against `main` -- both read `[tool.lab_commons.integrator]`. MERGE-OR-DELETE is the
-    # branch-set apply over `[tool.lab_commons.branchset]` (`prune_merged = true`), policed by `_ORIGIN`.
+    # PR opened against `main` -- both read `[tool.dev_lab.integrator]`. MERGE-OR-DELETE is the
+    # branch-set apply over `[tool.dev_lab.branchset]` (`prune_merged = true`), policed by `_ORIGIN`.
     **dict.fromkeys(('DOWNSTREAM-SYNCS-INTEGRATION', 'PRS-TARGET-INTEGRATION'), (_PYPROJECT,)),
     # These decisions belong to the shared forge, not a local replacement. The
     # configured integration and installed admission hooks route publication there.
@@ -413,7 +413,7 @@ _ABSENT: Final = frozenset({
 #: AND 8 -> 9 on 2026-10-09, the same kind of rise: lab-commons 2cca293 brought
 #: the then-current name of what is now VERDICTS-FROM-THE-FORGE, measured and admitted.
 #:
-#: AND 9 -> 7 on 2026-10-18, when optimi-lab declared the family branch flow (`[tool.lab_commons.parts]`,
+#: AND 9 -> 7 on 2026-10-18, when optimi-lab declared the family branch flow (`[tool.dev_lab.parts]`,
 #: `[tests]`, `[integrator]`, `[hooks]`) and lab-commons 96a90c8 retired two IDs this file cited.
 #: MERGE-DEVIATIONS-NAMED, VERDICT-BAR-IS-THE-INCREMENT and the retired verdict row (now
 #: VERDICTS-FROM-THE-FORGE) left for mechanisms: each reason named the missing push wiring, and the
