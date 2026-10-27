@@ -4,7 +4,7 @@ MEASURED 2026-09-16: the hook declaration here named 19 hooks at the `pre-commit
 were installed** in the directory git actually consults. Every commit through this checkout had run
 none of them while the tree read as guarded.
 
-THE DECLARATION IS `[tool.lab_commons.hooks]` IN `pyproject.toml` since 2026-10-18: the family
+THE DECLARATION IS `[tool.dev_lab.hooks]` IN `pyproject.toml` since 2026-10-18: the family
 retired the pre-commit framework for one TOML table and one runner (`dev_lab.dev.githooks`), and
 this repo takes the base as is (`dev_lab/dev/githooks/base.toml`). The body is the family's
 (`dev_lab.dev.famtests.hookinstall`); what belongs to optimi-lab is the tree being asked about and

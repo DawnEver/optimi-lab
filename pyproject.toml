@@ -62,9 +62,9 @@ dev = [
 
 [project.scripts]
 
-# dev-lab floats on integrate/main like every family repo; the lock is the pin.
+# Plan A3 switchover: the dev-lab commit that reads [tool.dev_lab]; back to `branch = "integrate/main"` once it merges.
 [tool.uv.sources]
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", branch = "integrate/main" }
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "0dd9d8f5e2fb8d566c8e9be62a50b36f6342b80a" }
 
 # ===================
 # Build
@@ -236,7 +236,7 @@ update_changelog_on_bump = true
 # ===================
 # lab-commons branchset (ONE-BRANCH-PER-SESSION)
 # ===================
-[tool.lab_commons.branchset]
+[tool.dev_lab.branchset]
 trunk = 'main'
 sessions = ['integrate/main']
 prune_merged = true
@@ -248,13 +248,13 @@ dependency_inputs = ['pyproject.toml', 'uv.lock']
 source_roots = ['src']
 collect = 'tests'
 
-[tool.lab_commons.placement]
+[tool.dev_lab.placement]
 code_roots = ['examples/']
 pruned_paths = ['.claude/worktrees', 'docs', 'htmlcov']
 scratch = 'scratch/'
 max_age_days = 3.0
 
-[tool.lab_commons.parts]
+[tool.dev_lab.parts]
 output = "output/logs"
 
 [tool.lab_commons.tests]
@@ -264,10 +264,10 @@ resources = ["workstation"]
 # The family branch flow: integrate/main coordinates; main moves only by `integrate promote` (fast-forward)
 # on a full forge PASS. Adopted 2026-10-18 after P9/P10/P13 reached main with no trunk gate (no pre-push
 # hook, no forge part): integrate/main is cut at main's tip, so every commit after it is a merge.
-[tool.lab_commons.integrator]
+[tool.dev_lab.integrator]
 trunk = "main"
 integration = "integrate/main"
 pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"
 
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
-[tool.lab_commons.hooks]
+[tool.dev_lab.hooks]

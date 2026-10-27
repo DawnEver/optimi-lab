@@ -117,7 +117,7 @@ _SHIPPED: Final = frozenset({
     'PUSH-NO-VERIFY',
     'PUSH-REMOTE-DELETE',
     'RECURSIVE-GREP',
-    'REVIEW-STATUS-VIA-DOORS',  # joined with dev-lab ea264f8: a raw tests/review-hold post is refused
+    'STATUS-VIA-DOORS',  # replaced REVIEW-STATUS-VIA-DOORS (dev-lab A3 relock): review, hold and security posts
     'REPORTS-LIVE-IN-MEMORY',
     'SUBAGENT-NO-PUSH',
     'TREE-HAS-A-LIVE-RUN',

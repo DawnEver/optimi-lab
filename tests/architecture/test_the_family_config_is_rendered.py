@@ -31,7 +31,7 @@ maintenance cost with no evidence value, and the consumer half of all four is `a
 this file still runs on every declared artefact.
 
 THE GIT-HOOK ARTEFACT LEFT THE FAMILY ON 2026-10-11 (lab-commons 900c5bf): hooks are declared in
-`[tool.lab_commons.hooks]` and run by `dev_lab.dev.githooks`, so the kit publishes no YAML base and
+`[tool.dev_lab.hooks]` and run by `dev_lab.dev.githooks`, so the kit publishes no YAML base and
 the arms that read the pre-commit engine's stage resolution went with it. What the hook table holds is
 `test_the_declared_hooks_are_installed.py`'s subject now.
 """
