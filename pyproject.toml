@@ -62,9 +62,9 @@ dev = [
 
 [project.scripts]
 
-# Plan A3 switchover: the dev-lab commit that reads [tool.dev_lab]; back to `branch = "integrate/main"` once it merges.
+# dev-lab floats on integrate/main like every family repo; the lock is the pin.
 [tool.uv.sources]
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", rev = "0dd9d8f5e2fb8d566c8e9be62a50b36f6342b80a" }
+dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", branch = "integrate/main" }
 
 # ===================
 # Build
