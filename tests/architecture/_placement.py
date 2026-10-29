@@ -249,7 +249,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'now `dev_lab.dev.docsite`. What is left is DATA -- the `optimi_lab` package, the edit '
         'URL, the version footer -- plus the browser branch that stays local so this '
         "repo's own test can patch the name in this repo's own namespace. Measured 2026-09-17: "
-        'RE-MEASURED 2026-10-24 (version footer from installed metadata): own=23 project=4 -> 17.39%, up from own=22 '
+        'RE-MEASURED 2026-10-29 (a deps-only env reads NOT_INSTALLED): own=27 project=4 -> 14.81%, up from own=23 project=4 -> 17.39% on 2026-10-24, from own=22 '
         'project=4 -> 18.18% on 2026-10-04, from own=25 project=3 -> 12.00% on 2026-09-17; densest under `scripts/`.',
     ),
     # ------------------------------------------------------------ tests/architecture/
@@ -429,7 +429,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
         "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- of 79 tracked "
         "paths exactly 2 are injected documents and neither has a line past the ceiling), that set's ceiling, and the "
-        'floor with its headroom. RE-MEASURED 2026-09-21: own=25 hits=0, down from own=29, the scan-and-compare pair '
+        'floor with its headroom. RE-MEASURED 2026-10-29: own=29 hits=0 with the principles page in its corpus, up from own=25 on 2026-09-21, the scan-and-compare pair '
         'now one call to `assert_every_document_handed_in_was_read`, admitted by the 50-line binder '
         'ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no '
         'repo noun anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That '
@@ -486,8 +486,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         STAYS,
         "ARRIVED 2026-10-04 with lab-commons ec5e8c5's `privatemarkers`: the scan is the family's; this "
         'binder holds the names this public repo publishes on purpose and the file floor. RE-MEASURED '
-        '2026-10-18 after the family forge joined the public names: own=20 hits=1, up from own=13 hits=1 on '
-        '2026-10-04.',
+        '2026-10-29 after the public-tip cleanup dropped its private-name rows: own=17 hits=1, down from '
+        'own=20 hits=1 on 2026-10-18.',
     ),
     'tests/architecture/test_push_admission_is_delegated.py': Placement(
         STAYS,
@@ -661,7 +661,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'with no evidence value. THE SWAP WAS NOT A RENAME: exactly ONE of the six public names survived the '
         'move (`ratchet_breaks`; `rule_pages` became `page_lines`, and every repo fact became a keyword with '
         'no default), so every call site was re-read against the new signatures rather than mapped. '
-        'RE-MEASURED 2026-09-19: own=25 hits=0, well under the 50-line binder ceiling and justified as a '
+        'RE-MEASURED 2026-10-29: own=26 hits=0 with the principles pin, up from own=25 on 2026-09-19, well under the 50-line binder ceiling and justified as a '
         'binder rather than by density; what is left is four numbers and two paths, the shape the noun scan '
         'cannot see. THE CENSUS MISS THIS ROW RECORDED IS CLOSED, AND THE RECORD IS KEPT BECAUSE THE MISS WAS '
         'WORTH MORE THAN THE ROW. On kit `0.2.2.dev71+gf6c46bb90` `supersede.take_census` graded this pair '

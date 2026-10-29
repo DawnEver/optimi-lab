@@ -1,5 +1,6 @@
 # ruff: noqa: E402
 import importlib
+import importlib.metadata
 import re
 import shutil
 import sys
@@ -24,6 +25,24 @@ def test_the_docs_script_imports_without_the_generated_version_file(monkeypatch:
     monkeypatch.setitem(sys.modules, 'optimi_lab.__version__', None)  # an import of it now raises
     importlib.reload(pdoc_module)
     assert pdoc_module.__version__
+
+
+def test_the_docs_script_imports_where_the_project_is_not_installed(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A deps-only env has no `optimi-lab` distribution: the import must not raise, the footer says so.
+
+    The forge's cluster hand runs a keyed env that resolves the dependencies and never installs this
+    project (its record's `resolved` list carries no `optimi-lab`), so `version('optimi-lab')` raised
+    `PackageNotFoundError` at import and the file did not collect -- on 4bdc1ed and 9995dda alike.
+    """
+
+    def _absent(name: str) -> str:
+        raise importlib.metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(importlib.metadata, 'version', _absent)
+    importlib.reload(pdoc_module)
+    assert pdoc_module.__version__ == pdoc_module.NOT_INSTALLED
+    monkeypatch.undo()
+    importlib.reload(pdoc_module)
 
 
 @pytest.mark.parametrize(('modules', 'open_webpage'), [(None, False), (['optimi_lab'], True)])
