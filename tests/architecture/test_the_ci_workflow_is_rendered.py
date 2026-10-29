@@ -1,4 +1,4 @@
-"""The GitHub Actions workflow is RENDERED from TOML (`dev_lab.dev.ciworkflows`): no drift, no hand-written file."""
+"""optimi-lab's GitHub Actions workflow is RENDERED from TOML (`dev_lab.dev.ciworkflows`): no drift, no hand-written file."""
 
 from __future__ import annotations
 

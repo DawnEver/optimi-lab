@@ -175,7 +175,6 @@ def test_the_shipped_set_is_pinned_by_name() -> None:
     agentguard.assert_the_shipped_set_is_pinned(root=_ROOT, declared=_SHIPPED)
 
 
-@pytest.mark.workstation
 @pytest.mark.parametrize(
     ('command', 'rule'),
     [
@@ -202,7 +201,6 @@ def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rul
     agentguard.assert_refused_by(root=_ROOT, command=command, rule=rule)
 
 
-@pytest.mark.workstation
 @pytest.mark.parametrize(
     'command',
     [

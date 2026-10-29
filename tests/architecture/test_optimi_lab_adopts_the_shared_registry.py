@@ -285,6 +285,12 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # push is denied, so only a main session publishes. REPORTS-LIVE-IN-MEMORY is a deny row of the
     # same guard (a shell redirect writing Markdown under `output/`), arrived with lab-commons 96a90c8.
     **dict.fromkeys(('MAIN-SESSION-PUBLISHES', 'SUBAGENT-NO-PUSH', 'REPORTS-LIVE-IN-MEMORY'), (_GUARD, _GUARD_RULES)),
+    # ADOPTED 2026-10-29: the re-rendered `scripts/deny_rules.py` ships the RECURSIVE-DELETE deny row
+    # (exit `branchset --apply`) and `_GUARD` pins it by name in the shipped set.
+    'RECURSIVE-DELETE': (_GUARD, _GUARD_RULES),
+    # ADOPTED 2026-10-29: the guard install wires the advisory `PostToolUse` `dev_lab.dev.pushwatch`
+    # line into the tracked `.claude/settings.json`, and `_GUARD`'s liveness arm reads that wiring.
+    'PUSHED-HEAD-IS-WATCHED': (_GUARD, '.claude/settings.json'),
     # ADOPTED 2026-10-18 with `[tool.dev_lab.hooks]` (the family base as is). The commit-msg
     # `merge-audit` row refuses committing a merge that loses or rewrites a test unnamed; the pre-push
     # `session-branch` row (`dev_lab.dev.sessionbranch`) refuses publishing a session branch from
@@ -367,11 +373,6 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'FORMATS-UPGRADE-ON-READ',
     'NETWORK-RETRY-THEN-REPORT',
-    # Arrived with dev-lab 0d6d0c61 (2026-10-29). Each rests on a deny/PostToolUse row this repo's
-    # `scripts/deny_rules.py` does not ship yet (`RECURSIVE-DELETE`'s exit is `branchset --apply`;
-    # `PUSHED-HEAD-IS-WATCHED`'s is `forge watch`); shipping the row is what closes each.
-    'PUSHED-HEAD-IS-WATCHED',
-    'RECURSIVE-DELETE',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -426,7 +427,10 @@ _ABSENT: Final = frozenset({
 #:
 #: AND 7 -> 9 on 2026-10-29, a rise for two rules this repo had never carried: relocking dev-lab to
 #: 0d6d0c61 brought PUSHED-HEAD-IS-WATCHED and RECURSIVE-DELETE, admitted with their reason above.
-_ABSENT_CEILING: Final = 9
+#:
+#: AND 9 -> 7 the same day, when both left for mechanisms: the re-rendered deny rules ship the
+#: RECURSIVE-DELETE row and the guard install wires the PUSHED-HEAD-IS-WATCHED `PostToolUse` line.
+_ABSENT_CEILING: Final = 7
 
 
 def _adoption() -> Adoption:
