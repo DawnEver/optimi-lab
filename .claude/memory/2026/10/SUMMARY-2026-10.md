@@ -11,7 +11,7 @@ metadata:
 
 ## Month
 
-The rebuild into a self-implemented L1-L9 decision library (p8-p14 design notes on 2026-10-18; lp/qp coefficients capability 9e0506d). The plan itself is motronics-owned. Read from origin/integrate/main dca72b7; superseded 1.
+The rebuild into a self-implemented L1-L9 decision library (p8-p14 design notes on 2026-10-18; lp/qp coefficients capability 9e0506d). The plan itself is downstream-owned. Read from origin/integrate/main dca72b7; superseded 1.
 
 ## Plans
 
@@ -19,6 +19,6 @@ The rebuild into a self-implemented L1-L9 decision library (p8-p14 design notes 
 
 - status: superseded
 - source: .claude/memory/2026/10/17/PLAN-one-native-architecture-for-every-algorithm.md
-- evidence: pointer: user ruling 2026-10-17 moved product plans to motronics; single source is motronics-studio 2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md Part II.7 / Track D
-- remaining: tracked in the motronics plan
-- decisions: see the motronics plan
+- evidence: pointer: user ruling 2026-10-17 moved product plans to the downstream repo; single source is the downstream PLAN-engines-and-one-outcome-vocabulary Part II.7 / Track D
+- remaining: tracked in the downstream plan
+- decisions: see the downstream plan

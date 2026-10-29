@@ -1,6 +1,6 @@
 ---
 name: p11-model-based-solvers-ask-from-models-and-report-observations
-description: Track D phase P11 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D59-D68 on rebuild/p11-model-based (from integrate/main c028663); acquisitions, BO/ParEGO/EHVI/NEHVI with Kriging-believer fantasies, multi-fidelity BO, TuRBO, prescreened EA, trust-region model management; what was measured, what verify could not run, what is deferred.
+description: Track D phase P11 of PLAN-engines-and-one-outcome-vocabulary (downstream plan, 2026-10-17) -- D59-D68 on rebuild/p11-model-based (from integrate/main c028663); acquisitions, BO/ParEGO/EHVI/NEHVI with Kriging-believer fantasies, multi-fidelity BO, TuRBO, prescreened EA, trust-region model management; what was measured, what verify could not run, what is deferred.
 metadata:
   type: project
 created: 2026-10-18
@@ -9,7 +9,7 @@ accessed: 2026-10-18
 
 # P11: model-based solvers ask from models and report observations
 
-Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md`, Track D, P11.
+Plan: the downstream plan `PLAN-engines-and-one-outcome-vocabulary`, Track D, P11.
 Base: `integrate/main` c028663 (P8, P9, P10, P12, P13 merged).
 
 ## Shape

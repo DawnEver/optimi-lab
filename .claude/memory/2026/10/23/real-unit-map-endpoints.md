@@ -38,6 +38,6 @@ These are actual independent compute-node tests, not local heavy execution or a 
 merge verdict. Engine tests used their own frozen dependency graph rather than borrowing the
 product's incompatible graph. Earlier setup refusals ran no tests and are not behavioral reds.
 
-The patch is prepared in a repository cloned inside the Motronics workspace. Remote branch
+The patch is prepared in a repository cloned inside the downstream workspace. Remote branch
 publication and the consuming product's dependency update require the user's explicit approval;
 neither a push nor a remotely fetchable new dependency is claimed here.

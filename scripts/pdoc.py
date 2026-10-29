@@ -2,7 +2,7 @@
 
 WHAT MOVED AND WHY. This file used to carry its own pdoc invocation, its own image-mirroring walk
 and its own ``subprocess.run(..., check=False)``. The first two were shared, near-identically, with
-``wdg-lab/scripts/docs.py`` and ``motronics-studio/scripts/repo/docs.py`` -- three implementations
+two sibling repos' docs scripts -- three implementations
 of one question -- and the ``check=False`` was OURS ALONE: a pdoc that errored produced an empty
 ``docs/`` and exit 0, which is indistinguishable from a real build at every downstream point. This
 file was also asking pdoc for ``-o`` (write files and exit) AND ``-h``/``-p`` (serve) in one call,

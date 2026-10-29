@@ -1,6 +1,6 @@
 ---
 name: p10-every-surrogate-is-self-implemented-in-one-l6-package
-description: Track D phase P10 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D42-D58 on branch rebuild/p10-surrogates (P9 + main with P12 merged); the scikit-learn-backed surrogate package is replaced by optimi_lab.model, every model self-implemented on numpy, scipy.linalg/special and numerics-lab; scikit-learn leaves the runtime and stays a test oracle; what each oracle showed and what was not verified.
+description: Track D phase P10 of PLAN-engines-and-one-outcome-vocabulary (downstream plan, 2026-10-17) -- D42-D58 on branch rebuild/p10-surrogates (P9 + main with P12 merged); the scikit-learn-backed surrogate package is replaced by optimi_lab.model, every model self-implemented on numpy, scipy.linalg/special and numerics-lab; scikit-learn leaves the runtime and stays a test oracle; what each oracle showed and what was not verified.
 metadata:
   type: project
 created: 2026-10-18
@@ -9,7 +9,7 @@ accessed: 2026-10-18
 
 # P10: every surrogate is self-implemented in one L6 package
 
-Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md`, Track D, P10.
+Plan: the downstream plan `PLAN-engines-and-one-outcome-vocabulary`, Track D, P10.
 Base: `rebuild/p9-gradients` f86c4d3, with optimi-lab main (P12, 5b65a67) merged in (fef6f45).
 
 ## Shape (`src/optimi_lab/model`, layer L6 -- the layering table's `model` row)

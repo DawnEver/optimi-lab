@@ -9,7 +9,7 @@ THE FAMILY BODY THAT ASSERTED THE SEAT WAS RETIRED UPSTREAM (lab-commons, 2026-1
 the lock and wait modules it drove: the machine-wide claim is now `lab_commons.box`, whose ledger the
 kit's own suite plants contention on, and `verify` runs its pytest step through
 `dev_lab.dev.verifybox.boxed`. What stays this repo's is the reading -- the entry point it cites
-must still route the run through the box -- the same shape wdg-lab adopted. The check is by AST over
+must still route the run through the box -- the same shape the sibling lab adopted. The check is by AST over
 the installed module source, so a docstring naming `boxed` does not satisfy it, and a planted source
 without the call must convict.
 """

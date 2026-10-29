@@ -1,6 +1,6 @@
 ---
 name: p8-the-base-is-four-layers-over-one-outcome-record
-description: Track D phase P8 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- problem / oracle / archive / run rebuilt on lab_commons.outcomes (A0 at lab-commons a3e0e2b); D1-D30 delivered on branch rebuild/p8-base, the 0.3 evaluation surface retired, the five population algorithms ported to the Solver protocol; what was not verified is listed.
+description: Track D phase P8 of PLAN-engines-and-one-outcome-vocabulary (downstream plan, 2026-10-17) -- problem / oracle / archive / run rebuilt on lab_commons.outcomes (A0 at lab-commons a3e0e2b); D1-D30 delivered on branch rebuild/p8-base, the 0.3 evaluation surface retired, the five population algorithms ported to the Solver protocol; what was not verified is listed.
 metadata:
   type: project
 created: 2026-10-18
@@ -9,7 +9,7 @@ accessed: 2026-10-18
 
 # P8: the base is four layers over one outcome record
 
-Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md`, Track D, P8.
+Plan: the downstream plan `PLAN-engines-and-one-outcome-vocabulary`, Track D, P8.
 
 ## Done (D1-D30)
 
@@ -56,4 +56,4 @@ Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-v
   Record (A0 idempotence), so its replay would see one outcome fewer; harmless while cells carry
   measured cost, noted for the integrator.
 - Problem.identity is recomputed on each access (NO-REFLECTION forbids caching on a frozen slot).
-- motronics consumes the 0.3 names (track E); a floating install of this branch breaks it until E.
+- a downstream repo consumes the 0.3 names (track E); a floating install of this branch breaks it until E.

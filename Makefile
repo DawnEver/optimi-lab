@@ -56,7 +56,7 @@ purity:
 	python -m pytest tests/architecture/test_the_runtime_stays_pure.py -v
 
 # THE SINGLE VERIFY ENTRY POINT, and it is the FAMILY'S rather than this repo's: it calls
-# `dev_lab.dev.verify`, the same module motronics, wdg-lab and lab-commons call. That module
+# `dev_lab.dev.verify`, the same module the downstream repo, the sibling lab and lab-commons call. That module
 # builds a real Verdict -- INCONCLUSIVE by default, PROMOTED only on proof that the run covered
 # what it selected -- where `lint fmt-check test` handed back nothing but three exit codes, which
 # cannot say whether the suite covered anything or merely collected nothing and left happy.
@@ -67,11 +67,11 @@ purity:
 # `sys.executable -m` -- the same interpreter that runs the suite. Keeping them as prerequisites
 # would lint the tree twice per invocation and, worse, put the FIRST verdict outside the log that
 # is supposed to carry it. The targets stay for `make lint` / `make fmt-check` on their own.
-# (wdg-lab keeps its `lint` prerequisite: that one also runs `cargo fmt`/`clippy`, which verify
+# (the sibling lab keeps its `lint` prerequisite: that one also runs `cargo fmt`/`clippy`, which verify
 # does not cover. Here there is no second language, so there is nothing left over.)
 #
 # NO `-m 'not slow'` TIER, and that is a finding rather than an omission. This repo declares no
-# `slow` marker -- not in `pyproject.toml`, not in any test -- so the split wdg-lab needed for its
+# `slow` marker -- not in `pyproject.toml`, not in any test -- so the split the sibling lab needed for its
 # 44-minute load benchmark would be a waiver nothing uses: a tier with an empty slow half reads
 # as "something heavy is being deselected" and deselects nothing. Add the marker first if a slow
 # test ever lands here.

@@ -114,7 +114,7 @@ SCANNED: Final = ('src', 'tests', 'scripts', '.claude')
 #: is the arm working: a floor that far behind its population refuses only a total collapse.
 #:
 #: A worktree is judged by the run that happens inside it, which is the kit's own words about the
-#: code walk. Added 2026-10-03, for the same reason as the identical line in the kit's and wdg-lab's
+#: code walk. Added 2026-10-03, for the same reason as the identical line in the kit's and the sibling lab's
 #: copies of this guard -- and this is the third guard in THIS repo to need it.
 SECOND_CHECKOUTS: Final = frozenset({'worktrees'})
 

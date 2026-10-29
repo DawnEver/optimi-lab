@@ -2,7 +2,7 @@
 
 WHAT IS LEFT HERE AFTER THE SPLIT, and it is the whole file: THE VOCABULARY. The walk, the grader,
 the floor order, the waiver arm and the planted control ship as `dev_lab.dev.famtests.countpins`
--- carved from this file, because `NAMED-SETS-NOT-COUNTS` is a family rule and the sibling wdg-lab
+-- carved from this file, because `NAMED-SETS-NOT-COUNTS` is a family rule and the sibling lab
 cites it at six modules while holding no guard at all. What no library may decide is WHICH NAMES
 EXCUSE A NUMBER: the suffix set IS the exemption mechanism, so a default shipped by a package
 imported for something else would be a waiver this repo never wrote. The kit therefore takes every

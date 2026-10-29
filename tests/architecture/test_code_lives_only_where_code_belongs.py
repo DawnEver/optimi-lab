@@ -31,7 +31,7 @@ CODE_ROOTS: Final = ('src/', 'tests/', 'scripts/', 'examples/', '.claude/hooks/'
 #: into them made this guard report eleven files of optimi-lab's own source as code outside the code
 #: roots -- a reading about which branches happen to be checked out on this box, and about nothing
 #: else. Added 2026-10-03, the same day and for the same reason as the identical line in the kit's
-#: and wdg-lab's copies of this guard.
+#: and the sibling lab's copies of this guard.
 PRUNED: Final = ('.claude/worktrees', 'docs', 'htmlcov')
 
 #: How long a one-off may wait in ``scratch/`` before it is archived or promoted.

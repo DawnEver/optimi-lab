@@ -5,7 +5,7 @@ THE SECOND DISPLACEMENT, and it is the same one the retired benchmark tests name
 `non_dominated_sorting` is what `Record.pareto()` is built on, so it decides the front of every
 run this library performs. Measured 2026-09-19 on trunk: `grep -rw` over `tests/` returned ZERO
 hits for each of the three, and zero for `crowding_distance` besides. The hand-built cases that
-did exist lived in the consumer (`motronics/tests/unit/pareto/test_nsga2_benchmark.py`), so the
+did exist lived in the consumer (a downstream NSGA-II benchmark test), so the
 dominance core of this library was checked only by a repository that imports it. They are ported
 here, where the code is.
 

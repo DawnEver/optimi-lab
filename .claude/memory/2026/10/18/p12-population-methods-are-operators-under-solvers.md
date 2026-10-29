@@ -1,6 +1,6 @@
 ---
 name: p12-population-methods-are-operators-under-solvers
-description: Track D phase P12 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D69-D115 delivered on rebuild/p12-population over P8; the 0.3 algorithm package split by layer into optimi_lab.operator (L5) and optimi_lab.solver (L7); R1 met outside surrogates; two P8 operator defects found by the gate; what was not verified is listed.
+description: Track D phase P12 of PLAN-engines-and-one-outcome-vocabulary (downstream plan, 2026-10-17) -- D69-D115 delivered on rebuild/p12-population over P8; the 0.3 algorithm package split by layer into optimi_lab.operator (L5) and optimi_lab.solver (L7); R1 met outside surrogates; two P8 operator defects found by the gate; what was not verified is listed.
 metadata:
   type: project
 created: 2026-10-18
@@ -9,7 +9,7 @@ accessed: 2026-10-18
 
 # P12: population methods are operators under solvers
 
-Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md`, Track D, P12.
+Plan: the downstream plan `PLAN-engines-and-one-outcome-vocabulary`, Track D, P12.
 Base: P8 (`rebuild/p8-base`), then merged forward to optimi-lab main 240ed83.
 
 ## Layout

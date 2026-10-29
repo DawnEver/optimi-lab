@@ -21,15 +21,12 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 _FILE_FLOOR: Final = 70
 
 #: Names this repo publishes ON PURPOSE, masked before the machine-local denylist applies (it serves every
-#: repo, the kit included, and the kit names no consumer). Its own name, the two PUBLIC siblings it
-#: declares as dependents in its own manifest and tests, and the family forge with its team namespace,
-#: which every dependency URL in `pyproject.toml` and `uv.lock` names (the same two wdg-lab publishes).
+#: repo, the kit included, and the kit names no consumer). Its own name, and the family forge with its team
+#: namespace, which every dependency URL in `pyproject.toml` and `uv.lock` names. No downstream consumer is
+#: named: a published tree carries none.
 #: Every other denylist entry -- people, accounts, hosts -- still applies, including on those lines.
 PUBLIC_NAMES: Final[tuple[str, ...]] = (
     'optimi-lab',
-    'wdg-lab',
-    'wdg_lab',
-    'motronics',
     'mingyangbao.site',
     'Tianjie-Zou-Team',
 )

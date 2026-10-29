@@ -10,7 +10,7 @@ name = "optimi_lab"
 dynamic = [
     "version"
 ]
-license = "Apache-2.0"
+license = "MIT"
 license-files = ["LICENSE"]
 description = ""
 readme = "README.md"
