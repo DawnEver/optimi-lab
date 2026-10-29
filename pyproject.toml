@@ -55,7 +55,8 @@ dev = [
     # development dependencies; lab-commons itself is standard-library-only. This library is imported
     # BY other libraries, so the kit must not become a runtime dependency. The URL is bare: a sha or a
     # tag is a ceiling nobody re-argued, and a repo held at one stops being told when a rule moved.
-    "dev-lab @ git+https://github.com/DawnEver/dev-lab.git",
+    # [test] brings the JS engine the agent-guard tests run the guard in (dev_lab.dev.jsrun).
+    "dev-lab[test] @ git+https://github.com/DawnEver/dev-lab.git",
 ]
 # The `reminder` extra (resend) went with optimi_lab.utils.email_reminder: a numerics library
 # does not send mail.
