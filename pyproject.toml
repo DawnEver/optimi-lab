@@ -26,8 +26,8 @@ authors = [{ name = "Mingyang Bao" }]
 # rtoml, pint, pydantic, pandas and matplotlib went with the roles that needed them; scikit-learn
 # left with P10 (every surrogate is self-implemented, optimi_lab.model) and is a TEST oracle only.
 dependencies = [
-    "lab-commons @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/lab-commons.git",
-    "numerics-lab @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/numerics-lab.git",
+    "lab-commons @ git+https://github.com/DawnEver/lab-commons.git",
+    "numerics-lab @ git+https://github.com/DawnEver/numerics-lab.git",
     "numpy",
     "scipy",
 ]
@@ -55,7 +55,7 @@ dev = [
     # development dependencies; lab-commons itself is standard-library-only. This library is imported
     # BY other libraries, so the kit must not become a runtime dependency. The URL is bare: a sha or a
     # tag is a ceiling nobody re-argued, and a repo held at one stops being told when a rule moved.
-    "dev-lab @ git+https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git",
+    "dev-lab @ git+https://github.com/DawnEver/dev-lab.git",
 ]
 # The `reminder` extra (resend) went with optimi_lab.utils.email_reminder: a numerics library
 # does not send mail.
@@ -64,7 +64,7 @@ dev = [
 
 # dev-lab floats on integrate/main like every family repo; the lock is the pin.
 [tool.uv.sources]
-dev-lab = { git = "https://gitea.mingyangbao.site/Tianjie-Zou-Team/dev-lab.git", branch = "integrate/main" }
+dev-lab = { git = "https://github.com/DawnEver/dev-lab.git", branch = "integrate/main" }
 
 # ===================
 # Build
