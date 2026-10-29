@@ -241,6 +241,9 @@ trunk = 'main'
 sessions = ['integrate/main']
 prune_merged = true
 
+# GitHub Actions: the family PR lifecycle, rendered by dev_lab.dev.ciworkflows.
+[tool.dev_lab.ci."ci.yml"]
+
 [tool.lab_commons.hpc]
 # PIN + FRESHNESS (user ruling 2026-10-17): the venv is exactly the committed lock, and the lock keys it.
 install = 'uv sync --frozen --group dev'

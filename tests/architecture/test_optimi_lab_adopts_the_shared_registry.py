@@ -367,6 +367,11 @@ _ABSENT: Final = frozenset({
     'REGISTRY-OWNS-THE-DECISION',
     'FORMATS-UPGRADE-ON-READ',
     'NETWORK-RETRY-THEN-REPORT',
+    # Arrived with dev-lab 0d6d0c61 (2026-10-29). Each rests on a deny/PostToolUse row this repo's
+    # `scripts/deny_rules.py` does not ship yet (`RECURSIVE-DELETE`'s exit is `branchset --apply`;
+    # `PUSHED-HEAD-IS-WATCHED`'s is `forge watch`); shipping the row is what closes each.
+    'PUSHED-HEAD-IS-WATCHED',
+    'RECURSIVE-DELETE',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -418,7 +423,10 @@ _ABSENT: Final = frozenset({
 #: MERGE-DEVIATIONS-NAMED, VERDICT-BAR-IS-THE-INCREMENT and the retired verdict row (now
 #: VERDICTS-FROM-THE-FORGE) left for mechanisms: each reason named the missing push wiring, and the
 #: hook table installs it. FORMATS-UPGRADE-ON-READ arrived and was measured absent with its reason.
-_ABSENT_CEILING: Final = 7
+#:
+#: AND 7 -> 9 on 2026-10-29, a rise for two rules this repo had never carried: relocking dev-lab to
+#: 0d6d0c61 brought PUSHED-HEAD-IS-WATCHED and RECURSIVE-DELETE, admitted with their reason above.
+_ABSENT_CEILING: Final = 9
 
 
 def _adoption() -> Adoption:
