@@ -2,7 +2,7 @@
 
 WHAT MOVED AND WHY. This file used to carry its own pdoc invocation, its own image-mirroring walk
 and its own ``subprocess.run(..., check=False)``. The first two were shared, near-identically, with
-``wdg-lab/scripts/docs.py`` and ``motronics-studio/scripts/repo/docs.py`` -- three implementations
+two sibling repos' docs scripts -- three implementations
 of one question -- and the ``check=False`` was OURS ALONE: a pdoc that errored produced an empty
 ``docs/`` and exit 0, which is indistinguishable from a real build at every downstream point. This
 file was also asking pdoc for ``-o`` (write files and exit) AND ``-h``/``-p`` (serve) in one call,
@@ -20,7 +20,7 @@ Usage: ``python scripts/pdoc.py``.
 """
 
 import webbrowser
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 from dev_lab.dev.docsite import pdoc_site
@@ -31,8 +31,13 @@ scripts_index = parts.index('scripts')
 root_path = Path(*parts[:scripts_index])
 
 #: The installed distribution's version -- never the version module setuptools-scm writes at install, which
-#: exists only in the tree that ran the install (a cluster tree reusing a keyed env has none).
-__version__ = version('optimi-lab')
+#: exists only in the tree that ran the install (a cluster tree reusing a keyed env has none). A deps-only env
+#: (the forge's cluster hand) has no distribution at all, and the footer then says so instead of the import raising.
+NOT_INSTALLED = 'not installed'
+try:
+    __version__ = version('optimi-lab')
+except PackageNotFoundError:
+    __version__ = NOT_INSTALLED
 
 __all__ = ['main']
 

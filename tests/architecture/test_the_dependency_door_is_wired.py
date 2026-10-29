@@ -14,7 +14,7 @@ anchors `dev_lab.dev.dep` renders `NO_ANCHORS_DECLARED` (H2 detected and not rem
 `scripts/dep.py` supplies `.verify/verify-*.log`.
 
 THE ASSERTIONS ARE NOW THE FAMILY'S, ADOPTED 2026-09-19 from `dev_lab.dev.famtests.depdoor`.
-Two independent audit lanes measured this file against wdg-lab's twin at 91.5% identical, and the
+Two independent audit lanes measured this file against the sibling lab's twin at 91.5% identical, and the
 8.5% was a docstring, the repo's name four times, a `tempfile` prefix and two invented timestamps --
 not one assertion and not one message. What is LOCAL and arrives below as a keyword with NO DEFAULT
 is exactly that: the name `optimi-lab`, `scripts/dep.py`'s anchor adapter and its port factory, and the

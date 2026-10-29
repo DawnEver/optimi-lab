@@ -13,7 +13,7 @@ than a convention. It kills only the DIRECT child, and then -- on Windows -- rea
 of them lives: a hang detector that hangs, where raising the wall makes it strictly worse.
 
 THE BODIES ARE THE FAMILY'S, and this file is the repo's ANSWERS. `dev_lab.dev.famtests.
-boundedremedy` holds every assertion below. Measured before adoption, this file and wdg-lab's
+boundedremedy` holds every assertion below. Measured before adoption, this file and the sibling lab's
 near-twin carried an identical wall, an identical reap ceiling, a byte-identical planted-parent
 snippet and five assertion bodies written twice; a shared body under two names is the fork that
 package exists to remove, so the copy is gone rather than wrapped or re-exported. What stays here is
@@ -66,13 +66,13 @@ REAP_SECONDS_CEILING = 4.0
 #: How many spawn-overheads of slack this repo grants before it would rather call a reading
 #: inconclusive. Priced from a measurement rather than chosen: an empty bounded child costs ~0.13 s
 #: on this box (2026-09-18, five readings, 0.121-0.140), so eight of them is ~1.0 s of slack here.
-#: LOWER than wdg-lab's twelve, and the difference is a real one: this repo compiles nothing and
+#: LOWER than the sibling lab's twelve, and the difference is a real one: this repo compiles nothing and
 #: declares no slow tier, so a run of it that is already many times slower than this reading is
 #: reporting on the machine rather than on the code.
 SPAWN_OVERHEAD_BAND = 8.0
 
 #: How many times the permitted return the planted child's lifetime must be before a pass is
-#: evidence at all. Six -- tighter than wdg-lab's four for the same reason the band is narrower:
+#: evidence at all. Six -- tighter than the sibling lab's four for the same reason the band is narrower:
 #: with nothing heavy sharing the box, this repo asks for a wider margin before it calls a bounded
 #: return distinguishable from a wait on the tree. The declared numbers give a 7 s permitted return
 #: against a 120 s child, clearing six-fold with room to spare.

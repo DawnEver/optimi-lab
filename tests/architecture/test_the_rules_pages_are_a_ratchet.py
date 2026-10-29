@@ -73,21 +73,24 @@ PINNED: Final[dict[str, int]] = {
     '.claude/rules/invariant.md': 33,
     # How work gets done here. 22 lines, and the tightest page in the family at that size.
     '.claude/rules/workflow.md': 22,
+    # The family principles, RENDERED from `dev_lab.dev.principles` (e0894ea) and edited there, never
+    # here. 18 lines, MEASURED 2026-10-29: the page arrived with the dev-lab ac7db79 relock.
+    '.claude/rules/principles.md': 18,
 }
 
-#: THE TOTAL BUDGET, and it is pinned AT the measurement with ZERO headroom -- 33 + 22 = 55,
-#: re-measured 2026-09-18. Headroom is the one thing this arm must not have. Slack in a total is
+#: THE TOTAL BUDGET, and it is pinned AT the measurement with ZERO headroom -- 33 + 22 + 18 = 73,
+#: re-measured 2026-10-29. Headroom is the one thing this arm must not have. Slack in a total is
 #: budget nobody argued for, spent by whoever arrives next, and handing it out in advance is the
 #: exact failure the ceiling exists to refuse; a zero-headroom ceiling says instead that a new page
 #: is paid for out of an existing one. The two arms are then never in tension, because the per-page
 #: ratchet already drives a pin DOWN in the edit that shrinks its page, so the sum tracks the pins
 #: exactly and the ceiling binds at precisely one moment: when somebody wants a line back.
-CEILING: Final = 55
+CEILING: Final = 73
 
 #: A floor on the scan: below this the walk did not reach `.claude/rules/` at all, and an empty page
-#: set is indistinguishable from a compressed one. Pinned AT the measured 2 -- this corpus can only
+#: set is indistinguishable from a compressed one. Pinned AT the measured 3 -- this corpus can only
 #: grow, so a page that stops being seen is a defect rather than noise.
-PAGE_FLOOR: Final = 2
+PAGE_FLOOR: Final = 3
 
 
 def test_the_rule_pages_hold_their_measured_budget_per_page_and_in_total() -> None:

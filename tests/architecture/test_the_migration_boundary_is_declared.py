@@ -163,7 +163,7 @@ def test_no_recorded_shortfall_names_a_file_the_manifest_no_longer_places() -> N
 def test_each_bar_sits_inside_the_interval_its_own_two_measured_rows_draw() -> None:
     """THE BARS ARE BOUNDED BY EVIDENCE, and until now that bracket lived in a COMMENT.
 
-    Neither bar is a family constant and the kit deliberately ships neither as a value: motronics'
+    Neither bar is a family constant and the kit deliberately ships neither as a value: a downstream repo's
     `scripts/` roster bounds the ceiling at 40 over an interval excluding 50, while this tree's
     excludes 40. What the kit ships is the ARM, which takes this repo's value together with the two
     real files that bracket it -- and a comment is exactly where a bar quietly widens to absorb the
@@ -412,7 +412,7 @@ def test_the_shell_rows_are_exactly_the_named_set() -> None:
     holds none, and the arm it used to have merely asserted the absence. `stays_rows` had no shell
     exclusion, so the day a shell script landed it would have been parametrized into section 4,
     handed to `ast.parse` and the guard would have ERRORED rather than failed -- naming no file and
-    reading as a broken test rather than as an unmeasured row. wdg-lab's `SHELL_ROWS` is the shape
+    reading as a broken test rather than as an unmeasured row. the sibling lab's `SHELL_ROWS` is the shape
     that answers it and this is now the same shape: `stays_rows` excludes the named set, and the set
     is compared by EQUALITY, so an arriving `.sh` file is a decision somebody makes here.
 

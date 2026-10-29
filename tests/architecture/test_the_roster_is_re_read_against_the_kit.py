@@ -10,7 +10,7 @@ every time -- 17 rows declared MOVES, 7 were real, 5 were splits and 5 were alre
 THE WHOLE ASSERTION BODY IS THE FAMILY'S. `dev_lab.dev.supersede` holds the two detectors (a kit
 module NAMING a consumer path, and the consumer IMPORTING that module), the seven grades, the ruler
 and both floors; `dev_lab.dev.famtests.rostercensus` holds the arms that sit on top of it. Those
-arms were hand-written TWICE on the same day -- here at 198 lines and in wdg-lab at 190 -- and,
+arms were hand-written TWICE on the same day -- here at 198 lines and in the sibling lab at 190 -- and,
 diffed with each repo's own name blanked, the two files were IDENTICAL IN CODE: every line that
 differed was a docstring. What is left here is the half the kit refuses to guess -- EVERY REPO-SHAPED
 FACT ARRIVES AS AN ARGUMENT WITH NO DEFAULT -- which is where optimi-lab's four answers are written
@@ -74,7 +74,7 @@ KIT_PACKAGE: Final = 'dev_lab.dev'
 #: 65 IS THIS CHECKOUT'S OWN NUMBER, NOT A NUMBER COPIED SIDEWAYS. The rule this repo has applied at
 #: every re-take is a slack of 13 below the measured reading (48 was taken against 61, 54 against 67,
 #: 61 against 74); 78 - 13 = 65. The quantity being floored is the INSTALLED KIT, which is shared with
-#: wdg-lab, while the headroom prices how much of it THIS repo will silently lose, which is not.
+#: the sibling lab, while the headroom prices how much of it THIS repo will silently lose, which is not.
 #:
 #: THE 78 IS A FRESH READING, TAKEN 2026-09-21 WHEN THIS ENV WAS RE-SYNCED to
 #: `0.2.2.dev175+g803505c7f`, and this re-take is the arm's THIRD consecutive firing. That sync is

@@ -1,6 +1,6 @@
 ---
 name: p9-gradient-methods-are-pure-functions-over-numerics-lab
-description: Track D phase P9 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D31-D41 on branch rebuild/p9-gradients; every gradient method is a pure function over evaluate(x) built on numerics-lab (B3 API), driven by the run loop through one replay adapter; scipy.optimize only as a test reference; numerics-lab declared as a floating git dependency whose remote does not exist yet.
+description: Track D phase P9 of PLAN-engines-and-one-outcome-vocabulary (downstream plan, 2026-10-17) -- D31-D41 on branch rebuild/p9-gradients; every gradient method is a pure function over evaluate(x) built on numerics-lab (B3 API), driven by the run loop through one replay adapter; scipy.optimize only as a test reference; numerics-lab declared as a floating git dependency whose remote does not exist yet.
 metadata:
   type: project
 created: 2026-10-18
@@ -9,7 +9,7 @@ accessed: 2026-10-18
 
 # P9: gradient methods are pure functions over numerics-lab
 
-Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md`, Track D, P9.
+Plan: the downstream plan `PLAN-engines-and-one-outcome-vocabulary`, Track D, P9.
 
 ## Shape
 

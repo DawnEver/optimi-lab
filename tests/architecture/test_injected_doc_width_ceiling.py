@@ -62,13 +62,14 @@ DECLARED: Final[frozenset[str]] = frozenset()
 #: The largest `DECLARED` may be. ZERO -- there is no width debt here and no hatch to widen.
 DECLARED_CEILING: Final = 0
 
-#: Re-measured 2026-09-18: the injected-doc corpus here is 2 files, `.claude/rules/invariant.md` and
-#: `.claude/rules/workflow.md`. A scan reaching fewer has stopped matching the corpus.
-FILES_READ_FLOOR: Final = 2
+#: Re-measured 2026-10-29: the injected-doc corpus here is 3 files, `.claude/rules/invariant.md`,
+#: `.claude/rules/principles.md` (rendered from dev-lab since e0894ea) and `.claude/rules/workflow.md`.
+#: A scan reaching fewer has stopped matching the corpus.
+FILES_READ_FLOOR: Final = 3
 
 #: How far past the floor the corpus may grow before the floor stops binding and must be re-taken.
-#: 2 + 1 = 3 against today's 2, which is as tight as this kit allows (a headroom of 0 is refused as
-#: misdeclared). A fourth rules page reds this constant instead of passing unremarked.
+#: 3 + 1 = 4 against today's 3, which is as tight as this kit allows (a headroom of 0 is refused as
+#: misdeclared). A fifth rules page reds this constant instead of passing unremarked.
 FILES_READ_HEADROOM: Final = 1
 
 _WHAT: Final = 'INJECTED-DOC-WIDTH-CEILING'
@@ -125,6 +126,10 @@ def test_the_corpus_is_this_repo_rules_pages() -> None:
     the narrowing. A basename set that lost `AGENTS.md`, or a prefix that stopped matching nested
     pages, passes every control and is caught only here and by the floor.
     """
-    assert set(_corpus()) == {'.claude/rules/invariant.md', '.claude/rules/workflow.md'}, _corpus()
+    assert set(_corpus()) == {
+        '.claude/rules/invariant.md',
+        '.claude/rules/principles.md',
+        '.claude/rules/workflow.md',
+    }, _corpus()
     assert not is_injected_doc('.claude/memory/2026/09/15/entry.md'), 'a dated memory entry is not injected'
     assert is_injected_doc('AGENTS.md'), 'the basename half of the corpus definition has stopped matching'

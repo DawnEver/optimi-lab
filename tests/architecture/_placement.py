@@ -5,7 +5,7 @@ modules plus 18 under `famtests` (re-counted 2026-09-19 from the installed kit, 
 paragraph was written), and this repo imports 21 of them. The migration that produced those imports
 was never written down anywhere in this tree, so the remaining files under `scripts/` and
 `tests/architecture/` were UNMEASURED -- and an unmeasured migration reads exactly like a finished
-one. motronics-studio has had the answering shape since 2026-08-11
+one. A downstream repo has had the answering shape since 2026-08-11
 (`tests/architecture/layering/_placement_*.py`, composed into `PLACEMENT`: measured 2026-09-17 at 71
 rows, 44 STAYS, 13 MOVES, 14 SPLITS). This is the same declaration for this repo, and it is a
 DECLARATION ONLY: not one file is moved by the commit that lands it.
@@ -39,7 +39,7 @@ WHAT THE MEASUREMENT CANNOT SEE, stated so a reader does not supply "everything"
   LITERAL is invisible here. Several rows below are honest `BELOW_THE_BAR` entries for exactly that
   reason and say so.
 * IT IS PYTHON-ONLY, which costs nothing here: measured 2026-09-17, `scripts/` holds three `.py`
-  files and one `README.md`, and there is no shell script in either scanned tree. The wdg-lab twin
+  files and one `README.md`, and there is no shell script in either scanned tree. The sibling lab's twin
   of this table needs a named shell exemption; this one does not, and
   `test_the_shell_rows_are_exactly_the_named_set` -- which compares the scanned trees' shell files
   against an EMPTY `SHELL_ROWS` -- is what keeps that true rather than assumed.
@@ -56,7 +56,7 @@ retired upstream on 2026-10-13 -- this tree imports `agent_guard`, `agenthooks`,
   are about a native extension rebuilt from the checkout you are standing in; measured 2026-09-17,
   this repo has no `rust/` tree, no `Cargo.toml`, no maturin and no compiled extension anywhere.
   There is nothing here to build a wheel from, so importing either would be a capability with no
-  question to answer. The sibling wdg-lab has the subject and hand-rolled it.
+  question to answer. The sibling lab has the subject and hand-rolled it.
 * `netverb` -- NO SUBJECT IN THE SCANNED TREES. Measured 2026-09-17, no file under `scripts/` or
   `tests/architecture/` issues a network verb; the only git this tree runs is `git ls-files` and
   `git cherry`, which are local and reach no forge. `NETWORK-VERB` is declared absent in
@@ -158,8 +158,8 @@ REPO_NOUNS: Final = (
 
 #: THE ALTERNATION, built by `density.noun_pattern` with this repo's BOUNDARY POLICY stated rather
 #: than baked into a regex nobody re-reads. `match_identifier_parts=False` is optimi-lab's answer and
-#: the family does not agree on it: both labs and one motronics roster match WHOLE identifiers, so
-#: `sampler` does not fire inside `resampler`, while motronics' scripts roster widened to identifier
+#: the family does not agree on it: both labs and one downstream roster match WHOLE identifiers, so
+#: `sampler` does not fire inside `resampler`, while a downstream repo's scripts roster widened to identifier
 #: PARTS after measuring a file at 0.00% with its noun sitting inside a longer name. The kit refuses
 #: the empty vocabulary outright, which a hand-built alternation could not.
 NOUN: Final = density.noun_pattern(REPO_NOUNS, match_identifier_parts=False)
@@ -189,7 +189,7 @@ PLACEMENT_HEADROOM: Final = 15
 #: cannot be measured by section 4 at all -- and this tree declares `.sh` RUNNABLE while holding
 #: NONE of them. Before this set existed, the day one arrived `stays_rows` would have handed it to
 #: `ast.parse` and section 4 would have ERRORED rather than failed: the worst of the three outcomes,
-#: because it names no file and reads as a broken test rather than as an unmeasured row. wdg-lab's
+#: because it names no file and reads as a broken test rather than as an unmeasured row. the sibling lab's
 #: roster has the answering shape and this is it. EMPTY is legal and is the state to be in; what it
 #: buys is that a `.sh` row leaves section 4 by NAME rather than by crashing it.
 SHELL_ROWS: Final[frozenset[str]] = frozenset()
@@ -215,7 +215,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`dev_lab.dev.hooks`, and what is left is the REMEDY half, which is a fact about one '
         "tree -- `app_name='optimi_lab'`, the two rules this repo can offer an exit for, and the two "
         'it declares ABSENT (NETWORK-VERB, RAW-PROCESS-KILL). Measured 2026-10-05 after AUTO-MODE-RUNS-THE-DOORS: own=24 lines, up from own=17 on 2026-09-17, '
-        'well under the 50-line binder ceiling. ITS wdg-lab TWIN IS NEAR-IDENTICAL and that is not '
+        'well under the 50-line binder ceiling. ITS SIBLING-LAB TWIN IS NEAR-IDENTICAL and that is not '
         'move evidence but the opposite: the differences are exactly the three things that ought to '
         'differ -- the app name, the prose, and one call -- so both files are already the thin local '
         'half a finished migration leaves behind.',
@@ -249,7 +249,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'now `dev_lab.dev.docsite`. What is left is DATA -- the `optimi_lab` package, the edit '
         'URL, the version footer -- plus the browser branch that stays local so this '
         "repo's own test can patch the name in this repo's own namespace. Measured 2026-09-17: "
-        'RE-MEASURED 2026-10-24 (version footer from installed metadata): own=23 project=4 -> 17.39%, up from own=22 '
+        'RE-MEASURED 2026-10-29 (a deps-only env reads NOT_INSTALLED): own=27 project=4 -> 14.81%, up from own=23 project=4 -> 17.39% on 2026-10-24, from own=22 '
         'project=4 -> 18.18% on 2026-10-04, from own=25 project=3 -> 12.00% on 2026-09-17; densest under `scripts/`.',
     ),
     # ------------------------------------------------------------ tests/architecture/
@@ -314,9 +314,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'The family half shipped as `dev_lab.dev.famtests.countpins`, carved from this very file -- the walk, the '
         'grader, the floors-first order, the unused-exemption arm and the planted control -- and this file calls '
         '`take_scan`, `assert_no_constant_is_a_count_pin` and `assert_the_grader_still_convicts`. `NAMED-SETS-NOT-COUNTS` '
-        'is a family rule stated in motronics-studio `.claude/rules/rem/integration.md` -- a count pin is blind to a '
+        'is a family rule stated in downstream integration rules -- a count pin is blind to a '
         'swap, and invites being lowered -- and the second consumer was already making the claim without the mechanism: '
-        'wdg-lab cites it at six modules that merely USE named sets and held no count-pin guard at all. '
+        'the sibling lab cites it at six modules that merely USE named sets and held no count-pin guard at all. '
         'WHAT REMAINS IS THE PROJECT FACT ALONE, WHICH IS WHY THIS IS NOT A STANDING SPLITS: the VOCABULARY -- eight '
         'threshold suffixes, the standalone spellings derived from them, the scanned root, an EMPTY exempt set and the '
         'two floor numbers. None of it is a library decision. `threshold_suffixes` in particular is the EXEMPTION '
@@ -429,7 +429,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
         "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- of 79 tracked "
         "paths exactly 2 are injected documents and neither has a line past the ceiling), that set's ceiling, and the "
-        'floor with its headroom. RE-MEASURED 2026-09-21: own=25 hits=0, down from own=29, the scan-and-compare pair '
+        'floor with its headroom. RE-MEASURED 2026-10-29: own=29 hits=0 with the principles page in its corpus, up from own=25 on 2026-09-21, the scan-and-compare pair '
         'now one call to `assert_every_document_handed_in_was_read`, admitted by the 50-line binder '
         'ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no '
         'repo noun anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That '
@@ -461,7 +461,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'EXECUTED 2026-09-17 AND THE SIDE CORRECTED 2026-09-19. The body is `dev_lab.dev.famtests.allowguard` -- '
         '`allow_entries`, `contradictions`, `probe_command`, `GLOB_CASES`, `assert_no_allow_contradicts` and '
         '`assert_the_scan_can_still_see` -- and the local copy was deleted with the adoption; the census that decided '
-        "it measured this file and wdg-lab's twin 88.9% identical over 324 lines with ZERO repo nouns in code. FAMILY: "
+        "it measured this file and the sibling lab's twin 88.9% identical over 324 lines with ZERO repo nouns in code. FAMILY: "
         'the glob instantiation and its cases (the `Bash(...)` spelling belongs to the agent client, not to any repo), '
         'the engine driving, and the `probed` floor that refuses a scan of zero rows. LOCAL: the sanctioned exit a red '
         "is redirected to and the two planted rows, which are optimi-lab's because `deny_rules.py` DROPS a rule whose "
@@ -486,8 +486,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         STAYS,
         "ARRIVED 2026-10-04 with lab-commons ec5e8c5's `privatemarkers`: the scan is the family's; this "
         'binder holds the names this public repo publishes on purpose and the file floor. RE-MEASURED '
-        '2026-10-18 after the family forge joined the public names: own=20 hits=1, up from own=13 hits=1 on '
-        '2026-10-04.',
+        '2026-10-29 after the public-tip cleanup dropped its private-name rows: own=17 hits=1, down from '
+        'own=20 hits=1 on 2026-10-18.',
     ),
     'tests/architecture/test_push_admission_is_delegated.py': Placement(
         STAYS,
@@ -567,7 +567,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`dev_lab.dev.famtests.agentguard` -- `assert_the_guard_is_live`, '
         '`assert_the_shipped_set_is_pinned`, `assert_committed_rules_are_rendered`, '
         '`assert_every_rule_is_accounted_for`, `assert_refused_by`, `assert_sanctioned` and '
-        "`assert_node_is_available` -- and the local copy was deleted. THE FAMILY BODY TOOK WDG-LAB'S "
+        "`assert_node_is_available` -- and the local copy was deleted. THE FAMILY BODY TOOK THE SIBLING LAB'S "
         'STRUCTURE, which is the integration rule applied to assertions: the deny arm NAMES the rule it '
         'expects, where this file asked only whether SOMETHING refused -- a question upstream measured being '
         'fooled by registry order on two real rules that both match `git push --force`. THAT IS A STRICTENING '
@@ -614,7 +614,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_dependency_door_is_wired.py': Placement(
         STAYS,
         'A BINDER over `dev_lab.dev.famtests.depdoor`, whose arms drive the real `dev_lab.dev.dep` '
-        "door; the shape is wdg-lab's twin, measured 91.5% identical on 2026-09-17 before the arms moved "
+        "door; the shape is the sibling lab's twin, measured 91.5% identical on 2026-09-17 before the arms moved "
         "upstream. LOCAL: the repo name the report prints, `scripts/dep.py`'s anchor adapter and port, the "
         "`.verify/verify-*.log` shape, the box-ledger isolation for the arms' own seats, and the one JOIN the "
         'kit cannot ask -- that the anchors are read from the directory the verdict entry point writes. '
@@ -639,7 +639,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_public_surface_is_declared.py': Placement(
         STAYS,
         'IT SCANS `src/optimi_lab` AND NOTHING ELSE, and the twin comparison refutes a move rather '
-        "than supporting one: MEASURED 2026-09-17, this file and wdg-lab's same-named module are 462 "
+        "than supporting one: MEASURED 2026-09-17, this file and the sibling lab's same-named module are 462 "
         'lines together with 410 differing -- 89% DIFFERENT, so the shared name is not shared code. '
         "Its three properties are stated in this package's terms and its size band is this "
         "package's datum (320, measured against a largest module of 261). RE-MEASURED 2026-10-17: "
@@ -661,7 +661,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'with no evidence value. THE SWAP WAS NOT A RENAME: exactly ONE of the six public names survived the '
         'move (`ratchet_breaks`; `rule_pages` became `page_lines`, and every repo fact became a keyword with '
         'no default), so every call site was re-read against the new signatures rather than mapped. '
-        'RE-MEASURED 2026-09-19: own=25 hits=0, well under the 50-line binder ceiling and justified as a '
+        'RE-MEASURED 2026-10-29: own=26 hits=0 with the principles pin, up from own=25 on 2026-09-19, well under the 50-line binder ceiling and justified as a '
         'binder rather than by density; what is left is four numbers and two paths, the shape the noun scan '
         'cannot see. THE CENSUS MISS THIS ROW RECORDED IS CLOSED, AND THE RECORD IS KEPT BECAUSE THE MISS WAS '
         'WORTH MORE THAN THE ROW. On kit `0.2.2.dev71+gf6c46bb90` `supersede.take_census` graded this pair '
@@ -735,7 +735,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`dev_lab.dev.verify`, still routes its run through `verifybox.boxed` -- by AST over the '
         'installed source, with a planted source that names the call without making it. RE-MEASURED '
         "2026-10-23 after retired helper removal: own=21 hits=0, up from own=17 on 2026-09-19 when the arms were a famtest's; the shape is "
-        "wdg-lab's, under the binder ceiling.",
+        "the sibling lab's, under the binder ceiling.",
     ),
     'tests/architecture/test_this_checkout_is_visible_on_origin.py': Placement(
         STAYS,
@@ -791,7 +791,7 @@ def nouns_in_code(rel: str, root: Path | None = None) -> set[str]:
     THE ASYMMETRY WITH `nouns_in_prose` IS DELIBERATE AND IT WAS MEASURED IN THE SIBLING. Property
     3's hazard is carrying a repo fact into a vendor-neutral package, and a fact only a SENTENCE
     carries is rewritten by the move itself. Reading prose there produces FALSE REFUSALS: on the
-    first run of wdg-lab's copy of this guard, 2026-09-17, three correct `MOVES` rows were refused
+    first run of the sibling lab's copy of this guard, 2026-09-17, three correct `MOVES` rows were refused
     because their docstrings used an English word and named their own repo while explaining where a
     contradiction had been found. None of those is a domain fact.
 
@@ -839,7 +839,7 @@ def is_justified(reading: density.Density) -> bool:
 #:
 #: IT IS NOT A FAMILY CONSTANT AND THE KIT DELIBERATELY DOES NOT SHIP ONE, which is the finding the
 #: placement half exists to carry. Three of the family's four rosters read 50 and the fourth --
-#: motronics' `scripts/` -- reads 40 over an interval of (35, 42) that EXCLUDES 50, while this
+#: a downstream repo's `scripts/` -- reads 40 over an interval of (35, 42) that EXCLUDES 50, while this
 #: tree's (43, 67) excludes 40. A module shipping one number would have been wrong for one consumer
 #: on that consumer's own evidence, and wrong in the ADMITTING direction, which is the silent one.
 #: What ships instead is `assert_ceiling_is_bounded`, and the two readings below are its arguments --
@@ -933,7 +933,7 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'THE READING IS HONEST AND THE ROW SAYS WHAT IT MISSES: this file scans `src/optimi_lab` '
         'and reports module names, so its repo facts are a PATH and the strings it prints. THE '
         'REMEDY IS NOT A MOVE -- the twin comparison refutes that outright (89% of the lines across '
-        'this file and wdg-lab\'s same-named module differ). At 0.65% this is "no evidence of '
+        'this file and the sibling lab\'s same-named module differ). At 0.65% this is "no evidence of '
         'density", not "this row is wrong".'
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': (

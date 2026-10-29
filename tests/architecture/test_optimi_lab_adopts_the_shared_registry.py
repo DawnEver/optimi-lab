@@ -111,7 +111,7 @@ _ADMISSION: Final = 'tests/architecture/test_push_admission_is_delegated.py'
 _PYPROJECT: Final = 'pyproject.toml'
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
-#: of it. Not the registry's own rows: those name motronics paths, which resolve in exactly one
+#: of it. Not the registry's own rows: those name downstream paths, which resolve in exactly one
 #: checkout on earth and would grade this repo against a tree it does not have.
 _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # The package docstring claims a three-distribution runtime; the guard reads the dependency

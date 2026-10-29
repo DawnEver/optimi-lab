@@ -3,7 +3,7 @@
 - **This repo's development MECHANISM is the family's, and it lives in `dev-lab`.** Until 2026-09-16 there was none written here at all — no `docs-src/` tree and no page describing how a verdict is produced, how a lane lands, or what the box rations. This directory is that tree's first content.
 - **These pages are POINTED AT, never copied.** A shared document each repo copies is the fork the sharing removes. The table below is what `dev_lab.dev.devdocs.pointer_table` renders, so a page renamed there does not leave this one quietly wrong.
 - **The rule split:** `.claude/rules/**` here is HARD CONSTRAINTS ONLY and is read on every turn; the universal rule STATEMENTS are `dev_lab.dev.rules` rows cited by ID; the MECHANISM is below.
-- Reach the shared tree at `../../../dev-lab/docs-src/dev/` when dev-lab is checked out beside this repo, or read the same files on the forge. **The tree is rendered only as motronics-studio's `family` sub-site; this repo has no hand-written-markdown renderer** — `scripts/pdoc.py` builds the API reference and nothing else, so here these pages are read as markdown. Saying so is the point: a reader expecting a portal and finding markdown has been told something false.
+- Reach the shared tree at `../../../dev-lab/docs-src/dev/` when dev-lab is checked out beside this repo, or read the same files on the forge. **The tree is rendered only as a downstream repo's `family` sub-site; this repo has no hand-written-markdown renderer** — `scripts/pdoc.py` builds the API reference and nothing else, so here these pages are read as markdown. Saying so is the point: a reader expecting a portal and finding markdown has been told something false.
 
 ## The family's pages
 
@@ -39,5 +39,5 @@
 
 - **A mechanism a page describes is not automatically present here**, and assuming it is would be an instruction this repo cannot follow.
 - PRESENT: the Makefile's lint and test targets, `scripts/pdoc.py`, and the lane and worktree hazards, which are properties of the box and of git rather than of any repo.
-- NOT PRESENT: a tiered gate runner with a case library and live solver engines. That one is motronics-studio's, and the portable substitute the family ships is `python -m dev_lab.dev.verify`, which produces the same verdict shape without needing any of it.
+- NOT PRESENT: a tiered gate runner with a case library and live solver engines. That one is a downstream repo's, and the portable substitute the family ships is `python -m dev_lab.dev.verify`, which produces the same verdict shape without needing any of it.
 - This repo's own subject — the optimisers, their operators and their problem definitions — has no page yet; when one is written it belongs here rather than in the shared tree, because its subject changes the moment you change repos.

@@ -102,8 +102,8 @@ def test_d10_planted_control_a_global_generator_and_a_name_clash_are_refused() -
 
 
 def test_d11_fidelity_levels_rise_in_cost_and_the_last_is_the_truth() -> None:
-    fidelity = Fidelity((Level('mec', 1.0), Level('fea', 30.0), Level('jmag', 600.0)))
-    assert fidelity.truth.name == 'jmag'
+    fidelity = Fidelity((Level('mec', 1.0), Level('fea', 30.0), Level('reference', 600.0)))
+    assert fidelity.truth.name == 'reference'
     assert fidelity.index('fea') == 1
     with pytest.raises(Refusal, match='increasing'):
         Fidelity((Level('fea', 30.0), Level('mec', 1.0)))

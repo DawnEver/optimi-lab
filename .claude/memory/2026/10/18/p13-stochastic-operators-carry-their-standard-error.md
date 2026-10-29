@@ -1,6 +1,6 @@
 ---
 name: p13-stochastic-operators-carry-their-standard-error
-description: Track D phase P13 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D116-D125 on rebuild/p13 (P9 + origin/main P12); risk, estimators, MC/RQMC robust evaluation, IS/subset/FORM/SORM/surrogate reliability, MLMC, SAA, OCBA; B0-03/B0-14 promoted; P9's Armijo fallback removed after numerics-lab fixed strong_wolfe; what was measured and what stays open.
+description: Track D phase P13 of PLAN-engines-and-one-outcome-vocabulary (downstream plan, 2026-10-17) -- D116-D125 on rebuild/p13 (P9 + origin/main P12); risk, estimators, MC/RQMC robust evaluation, IS/subset/FORM/SORM/surrogate reliability, MLMC, SAA, OCBA; B0-03/B0-14 promoted; P9's Armijo fallback removed after numerics-lab fixed strong_wolfe; what was measured and what stays open.
 metadata:
   type: project
 created: 2026-10-18
@@ -9,7 +9,7 @@ accessed: 2026-10-18
 
 # P13: stochastic operators carry their standard error
 
-Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md`, Track D, P13.
+Plan: the downstream plan `PLAN-engines-and-one-outcome-vocabulary`, Track D, P13.
 Base: `rebuild/p9-gradients` (f86c4d3), then origin/main (P12, 5b65a67) merged in exactly as P10's
 fef6f45 resolved the same pair (for `core.qmc`, the one Sobol/Halton source).
 

@@ -103,7 +103,7 @@ def _toy(action: Action) -> dict:
         msg = 'Newton stalled at 1e-3'
         raise NotConverged(msg)
     if design['x'] > 0.6:
-        msg = 'no JMAG licence'
+        msg = 'no solver licence'
         raise Unavailable(msg)
     if design['x'] > 0.5:
         msg = 'boom'

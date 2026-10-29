@@ -8,13 +8,13 @@ in a file that is committed and read on every box, and the reader who believes i
 budget finding out.
 
 MEASURED 2026-09-17 across the three repos that ship this engine, by driving the engine rather than
-comparing patterns by eye: exactly one contradiction existed anywhere, `Bash(pytest *)` in wdg-lab
+comparing patterns by eye: exactly one contradiction existed anywhere, `Bash(pytest *)` in the sibling lab
 against `BARE-TEST-INVOCATION`, installed the same day. One row is the whole point -- a one-time
 reconciliation of two hand-written files drifts again by next week, and the next drift is somebody
 else's afternoon.
 
 THE BODY IS THE FAMILY'S AS OF 2026-09-17, and the census that decided it is worth quoting: this
-file and wdg-lab's twin were 324 lines together with 36 differing -- 88.9% identical, ZERO repo
+file and the sibling lab's twin were 324 lines together with 36 differing -- 88.9% identical, ZERO repo
 nouns in code. The only lines that were ever optimi-lab's are the sanctioned exit a red is redirected
 to and the two planted rows.
 
@@ -46,7 +46,7 @@ in the same change that added the row, which is what the mark's own reason instr
 
 WHY IT WAITED, AND WHY THAT IS NOT A TEST PROPERTY. Widening an agent's own permission file is a
 human's call -- an agent that grants itself a road has not measured anything -- so the xfail stood
-until the user ruled. The row is deliberately ONE: `wdg-lab` permits seven, and every one of those
+until the user ruled. The row is deliberately ONE: the sibling lab permits seven, and every one of those
 is a road somebody argued for. An `allow` list is not a place to pre-pay for roads nobody has
 needed yet, and the scan below is only as sharp as the list is honest.
 

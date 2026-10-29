@@ -1,6 +1,6 @@
 ---
 name: p14-structured-solvers-read-algebra-and-report-one-solution
-description: Track D phase P14 of PLAN-engines-and-one-outcome-vocabulary (motronics memory 2026/10/17) -- D126-D132 on rebuild/p14-structured (from integrate/main 329e959); LP simplex + Mehrotra IPM, QP route onto P9, MILP B&B with Gomory cuts, DP, small CP, Benders, ADMM; what was measured, what verify could not run, what is open.
+description: Track D phase P14 of PLAN-engines-and-one-outcome-vocabulary (downstream plan, 2026-10-17) -- D126-D132 on rebuild/p14-structured (from integrate/main 329e959); LP simplex + Mehrotra IPM, QP route onto P9, MILP B&B with Gomory cuts, DP, small CP, Benders, ADMM; what was measured, what verify could not run, what is open.
 metadata:
   type: project
 created: 2026-10-18
@@ -9,7 +9,7 @@ accessed: 2026-10-18
 
 # P14: structured solvers read algebra and report one solution
 
-Plan: motronics-studio `.claude/memory/2026/10/17/PLAN-engines-and-one-outcome-vocabulary.md`, Track D, P14.
+Plan: the downstream plan `PLAN-engines-and-one-outcome-vocabulary`, Track D, P14.
 Base: `integrate/main` 329e959 (P8-P13 merged).
 
 ## Shape
