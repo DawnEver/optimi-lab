@@ -116,6 +116,7 @@ _SHIPPED: Final = frozenset({
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
     'PUSH-REMOTE-DELETE',
+    'RECURSIVE-DELETE',
     'RECURSIVE-GREP',
     'STATUS-VIA-DOORS',  # replaced REVIEW-STATUS-VIA-DOORS (dev-lab A3 relock): review, hold and security posts
     'REPORTS-LIVE-IN-MEMORY',

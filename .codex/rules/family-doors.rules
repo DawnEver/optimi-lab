@@ -103,7 +103,7 @@ prefix_rule(
 prefix_rule(
     pattern = [[".venv/Scripts/python.exe", ".venv/bin/python", "./.venv/Scripts/python.exe", "./.venv/bin/python"], "-m", "dev_lab.dev.branchprune", "delete"],
     decision = "allow",
-    justification = "LOSSLESS-DELETE: a remote branch only when every commit on it is held elsewhere",
+    justification = "LOSSLESS-DELETE: a remote branch only when every commit is held elsewhere or its content is on integration",
 )
 
 prefix_rule(
