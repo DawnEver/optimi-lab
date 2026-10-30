@@ -12,6 +12,8 @@ mopso -> MOPSO_CD. Not paired: rnsga3 (an aspiration-point method; IGD over the 
 measure it), and pymoo's AGE-MOEA, C-TAEA, GDE3 and the rest, which optimi-lab does not implement.
 """
 
+from functools import cache
+
 import numpy as np
 import pytest
 from catalogue import CATALOGUE, RandomSearch, drive, front_of
@@ -36,27 +38,29 @@ def _median(values: list[float]) -> float:
     return float(np.median(values))
 
 
-def _random_igd(bench: str, evaluations: int, seed: int) -> float:
+@cache
+def _random_median(bench: str, evaluations: int) -> float:
+    """The unguided control's median IGD over ``SEEDS``, once per benchmark per process."""
     b = CATALOGUE[bench]
-    return igd(
-        front_of(b.problem, drive(RandomSearch(b.problem, b.oracle.capability, seed), b.oracle, evaluations)),
-        b.front(200),
-    )
+    return _median([
+        igd(
+            front_of(b.problem, drive(RandomSearch(b.problem, b.oracle.capability, seed), b.oracle, evaluations)),
+            b.front(200),
+        )
+        for seed in SEEDS
+    ])
 
 
 @pytest.mark.parametrize(('bench', 'name'), PAIRS, ids=[f'{b}-{n}' for b, n in PAIRS])
 def test_the_method_reaches_pymoos_igd_within_the_tolerance(bench, name):
+    """Plus the planted control against the SAME reference: a random search does not reach it.
+
+    The control rides in this test (load ruling 2026-10-30): as its own test it re-ran every pymoo
+    reference, doubling the file's pymoo runs for a claim this one already computes the input to.
+    """
     population, evaluations, tolerance, _ = CASES[bench]
     reference = _median([pymoo_igd(bench, name, population, evaluations, seed) for seed in SEEDS])
     ours = _median([_igd(bench, name, population, evaluations, seed) for seed in SEEDS])
     assert ours - reference <= tolerance, f'{bench}/{name}: optimi-lab {ours:.4f}, pymoo {reference:.4f}'
-
-
-@pytest.mark.parametrize('bench', list(CASES))
-def test_a_random_search_does_not_reach_pymoos_igd_within_the_tolerance(bench):
-    """The planted control: the tolerance separates an algorithm from none, against every reference."""
-    population, evaluations, tolerance, names = CASES[bench]
-    unguided = _median([_random_igd(bench, evaluations, seed) for seed in SEEDS])
-    for name in names:
-        reference = _median([pymoo_igd(bench, name, population, evaluations, seed) for seed in SEEDS])
-        assert unguided - reference > tolerance, f'{bench}/{name}: random {unguided:.4f}, pymoo {reference:.4f}'
+    unguided = _random_median(bench, evaluations)
+    assert unguided - reference > tolerance, f'{bench}/{name}: random {unguided:.4f}, pymoo {reference:.4f}'
