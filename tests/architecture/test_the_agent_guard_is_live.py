@@ -144,9 +144,12 @@ def test_node_is_on_path() -> None:
     agentguard.assert_node_is_available()
 
 
-@pytest.mark.workstation
 def test_the_guard_is_live() -> None:
-    """Engine, rules and wiring are all the installed ones -- and a red names the part that is not."""
+    """Engine, rules and wiring are all the installed ones -- and a red names the part that is not.
+
+    No workstation mark (user ruling 2026-10-30): all three parts are TRACKED files, so a fresh
+    hosted clone carries them; the body reads files and runs nothing.
+    """
     agentguard.assert_the_guard_is_live(root=_ROOT)
 
 
