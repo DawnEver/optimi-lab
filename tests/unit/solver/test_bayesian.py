@@ -33,6 +33,11 @@ SEEDS = range(1, 6)
 #: Evaluations per acquisition. Knowledge gradient spends its budget exploring: at 30 its median over SEEDS
 #: is 0.243 on Linux (0.032 on Windows), at 40 0.084, at 50 0.014 on Linux and 0.004 on Windows.
 BRANIN_EVALUATIONS = {'kg': 50}
+#: Evaluations for every other acquisition. At 30 the run sits on Branin's convergence knee: two of five seeds
+#: still stall for pi and ucb on Windows (pi 0.461 and 1.545; ucb 0.847 and 1.587, its third seed 0.101), so the
+#: median rides on ONE trajectory and a last-bit platform difference moves it (macOS arm64 pi: 0.290). At 40,
+#: measured on Windows, every median is <= 0.005 and at most two seeds of any acquisition stall (pi, log_pi).
+BRANIN_DEFAULT_EVALUATIONS = 40
 #: Share of the true front's hypervolume a multi-objective method reaches in 30 evaluations.
 HV_SHARE = 0.9
 #: Unit-cube distance: the polished maximiser of a smooth acquisition against its closed-form argmax.
@@ -101,7 +106,7 @@ def test_every_acquisition_finds_branins_minimum(acquisition):
     for seed in SEEDS:
         problem, oracle = _branin()
         solver = bo(problem, oracle.capability, acquisition=acquisition, seed=seed)
-        drive(solver, oracle, BRANIN_EVALUATIONS.get(acquisition, 30))
+        drive(solver, oracle, BRANIN_EVALUATIONS.get(acquisition, BRANIN_DEFAULT_EVALUATIONS))
         gaps.append(solver.best.cell.values['f'] - BRANIN_MIN)
     assert np.median(gaps) <= BRANIN_GAP, gaps
 
