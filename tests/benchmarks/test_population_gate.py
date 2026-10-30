@@ -18,6 +18,9 @@ from optimi_lab.core import SampleSpec
 from optimi_lab.metric import igd
 from optimi_lab.solver import mode, moead, mopso, nsga2, nsga3, rvea, sms_emoa, spea2, unsga3
 
+# serial: each IGD ceiling was measured at a fixed evaluation budget, so the run cannot shrink to fit a worker.
+pytestmark = pytest.mark.serial
+
 SEEDS = (1, 2, 3)
 
 #: (benchmark, population, evaluations) -> {solver: IGD ceiling, objective units}.
