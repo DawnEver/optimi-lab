@@ -40,6 +40,10 @@ class SobolIndices:
     n_evaluations: int
 
 
+#: Elements of one bootstrap block's ``(resamples, k, n)`` arrays: 2**20 float64 is 8 MB each.
+_BOOTSTRAP_BLOCK = 2**20
+
+
 def _estimate(f_a: np.ndarray, f_b: np.ndarray, f_ab: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Saltelli first order and Jansen total over the trailing row axis; ``f_ab`` is ``(..., k, n)``."""
     variance = np.var(np.concatenate([f_a, f_b], axis=-1), axis=-1)[..., None]
@@ -88,7 +92,14 @@ def sobol_indices(
         refuse('the function output has zero variance over the sample; there is nothing to apportion')
     first, total = _estimate(f_a, f_b, f_ab)
     rows = np.random.default_rng(seed).integers(0, n_base, (n_bootstrap, n_base))
-    boot_first, boot_total = _estimate(f_a[rows], f_b[rows], np.moveaxis(f_ab[:, rows], 0, 1))
+    # One block of resamples at a time: each resample is independent, so blocking only bounds the
+    # ``(resamples, k, n)`` temporaries (~0.5 GB at the defaults with n = 2**13) and changes no value.
+    step = max(1, _BOOTSTRAP_BLOCK // (n_var * n_base))
+    blocks = [
+        _estimate(f_a[part], f_b[part], np.moveaxis(f_ab[:, part], 0, 1))
+        for part in (rows[start : start + step] for start in range(0, n_bootstrap, step))
+    ]
+    boot_first, boot_total = (np.concatenate(estimates) for estimates in zip(*blocks, strict=True))
     tails = 100.0 * np.array([(1.0 - confidence) / 2.0, (1.0 + confidence) / 2.0])
     return SobolIndices(
         names=space.names,

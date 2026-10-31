@@ -229,13 +229,24 @@ def expected_hypervolume_improvement(mean: object, std: object, front: object, r
     return np.prod(psi(upper) - psi(lower), axis=2).sum(axis=1)
 
 
+#: Elements of one block of ``(rows, cells, m)`` box sides: 2**20 float64 is 8 MB.
+_IMPROVEMENT_BLOCK = 2**20
+
+
 def hypervolume_improvement(points: object, front: object, reference: object) -> np.ndarray:
     """The exact hypervolume each row of *points* ``(n, m)`` adds to *front* alone, below *reference*."""
     front, reference = _front_and_reference(front, reference)
     points = np.asarray(points, dtype=float).reshape(-1, reference.size)
     lower, upper = _cells(front, reference)
-    sides = upper[None] - np.maximum(lower[None], points[:, None, :])
-    return np.prod(np.maximum(sides, 0.0), axis=2).sum(axis=1)
+    # Rows are independent, so a block of them at a time bounds the ``(rows, cells, m)`` box sides
+    # instead of materialising them for every row at once, and changes no value.
+    gains = np.empty(len(points))
+    step = max(1, _IMPROVEMENT_BLOCK // max(1, lower.size))
+    for start in range(0, len(points), step):
+        sides = upper[None] - np.maximum(lower[None], points[start : start + step, None, :])
+        np.maximum(sides, 0.0, out=sides)
+        gains[start : start + step] = np.prod(sides, axis=2).sum(axis=1)
+    return gains
 
 
 def noisy_expected_hypervolume_improvement(baseline: object, candidate: object, reference: object) -> Estimate:

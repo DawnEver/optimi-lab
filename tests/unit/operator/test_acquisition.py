@@ -47,11 +47,14 @@ def _series_log_h(z: float, terms: int = 7) -> float:
 def test_expected_and_probability_of_improvement_match_monte_carlo():
     rng = np.random.default_rng(0)
     mean, std, best = np.array([0.3, -0.2, 1.4]), np.array([0.5, 0.1, 0.8]), 0.1
-    draws = mean + std * rng.standard_normal((2_000_000, 3))
-    gain = np.maximum(best - draws, 0.0)
+    draws = rng.standard_normal((2_000_000, 3))  # one buffer, turned into each statistic in place
+    draws *= std
+    draws += mean
+    hit_mean = np.count_nonzero(draws < best, axis=0) / len(draws)
+    hit_std = np.sqrt(hit_mean * (1.0 - hit_mean))  # a Bernoulli's population std, as ``hit.std(0)`` read it
+    gain = np.maximum(np.subtract(best, draws, out=draws), 0.0, out=draws)
     assert np.all(np.abs(expected_improvement(mean, std, best) - gain.mean(0)) <= Z_GATE * gain.std(0) / 1414.2)
-    hit = (draws < best).astype(float)
-    assert np.all(np.abs(probability_of_improvement(mean, std, best) - hit.mean(0)) <= Z_GATE * hit.std(0) / 1414.2)
+    assert np.all(np.abs(probability_of_improvement(mean, std, best) - hit_mean) <= Z_GATE * hit_std / 1414.2)
 
 
 def test_a_zero_std_is_the_limit_never_a_division():
@@ -108,7 +111,9 @@ def test_knowledge_gradient_matches_monte_carlo_over_a_random_set():
     rng = np.random.default_rng(3)
     a, b = rng.normal(size=12), rng.normal(size=12)
     z = rng.standard_normal(1_000_000)
-    gains = np.max(a[None] + b[None] * z[:, None], axis=1) - a.max()
+    # The (draws, lines) matrix a block at a time: the maxima are the same, the matrix never whole.
+    gains = np.concatenate([np.max(a[None] + b[None] * block[:, None], axis=1) for block in np.split(z, 20)])
+    gains -= a.max()
     assert abs(knowledge_gradient(a, b) - gains.mean()) <= Z_GATE * gains.std() / 1000.0
 
 
