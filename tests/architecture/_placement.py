@@ -429,7 +429,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
         "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- of 79 tracked "
         "paths exactly 2 are injected documents and neither has a line past the ceiling), that set's ceiling, and the "
-        'floor with its headroom. RE-MEASURED 2026-10-29: own=29 hits=0 with the principles page in its corpus, up from own=25 on 2026-09-21, the scan-and-compare pair '
+        'floor with its headroom. RE-MEASURED 2026-11-01: own=31 hits=0 with AGENTS.md and CLAUDE.md named in its corpus, up from own=29 on 2026-10-29 (the principles page) and own=25 on 2026-09-21, the scan-and-compare pair '
         'now one call to `assert_every_document_handed_in_was_read`, admitted by the 50-line binder '
         'ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no '
         'repo noun anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That '
