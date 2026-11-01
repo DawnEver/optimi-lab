@@ -20,7 +20,15 @@ from optimi_lab.core.errors import Refusal, refuse
 from optimi_lab.operator.reference import reference_select
 from optimi_lab.operator.selection import crowding_select, tournament_select
 from optimi_lab.oracle import Action, Oracle, Result
-from optimi_lab.policy import Batches, DecidedReplay, RouteRule, RoutingPolicy, ScreeningOracle, Steer, VariationPolicy
+from optimi_lab.policy import (
+    Batches,
+    DecidedReplay,
+    RouteRule,
+    RoutingPolicy,
+    ScreeningOracle,
+    VariationPolicy,
+    VariationRule,
+)
 from optimi_lab.problem import Problem
 from optimi_lab.run import Budget, Dispatch, Run, run
 from optimi_lab.solver.evolutionary import nsga2, nsga3
@@ -136,7 +144,7 @@ def search(
     initial: np.ndarray | None = None,
     settings: Mapping[str, object] | None = None,
     router: RouteRule | None = None,
-    variation: Steer | None = None,
+    variation: VariationRule | None = None,
     dispatch: Dispatch | None = None,
 ) -> Searched:
     """A value-only population search of ``generations + 1`` told batches; *initial* is natural coordinates.

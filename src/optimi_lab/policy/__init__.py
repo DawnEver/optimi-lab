@@ -1,7 +1,7 @@
 """L8 policy: what a caller decides around a solver -- budgets, variation rates, routing, replay, steering.
 
 * :class:`Batches` -- a generation budget counted in told batches.
-* :class:`VariationPolicy` -- SBX/PM rates a :data:`Steer` updates per generation.
+* :class:`VariationPolicy` -- SBX/PM rates a :data:`VariationRule` updates per generation.
 * :class:`RoutingPolicy` -- a :data:`RouteRule` screens or routes each action of a :class:`ScreeningOracle`.
 * :class:`DecidedReplay` -- the run replays decided outcomes only (never SCREENED or retryable ones).
 * surrogate steering -- a pool is fitted (:mod:`~optimi_lab.policy.surrogate_fit`), proposes
@@ -27,7 +27,7 @@ from optimi_lab.policy.proposals import (
     surrogate_selection,
 )
 from optimi_lab.policy.replay import DecidedReplay
-from optimi_lab.policy.routing import RouteChoice, RouteRule, RoutingPolicy, ScreeningOracle, Steer, natural
+from optimi_lab.policy.routing import RouteChoice, RouteRule, RoutingPolicy, ScreeningOracle, natural
 from optimi_lab.policy.steering import (
     SURROGATE_STEERING_FLOOR_R2,
     Evaluated,
@@ -46,7 +46,7 @@ from optimi_lab.policy.surrogate_fit import (
     SurrogateFit,
     fit_surrogate,
 )
-from optimi_lab.policy.variation import VariationPolicy
+from optimi_lab.policy.variation import VariationPolicy, VariationRule
 
 __all__ = [
     'FALLBACK_PROPOSALS',
@@ -69,10 +69,10 @@ __all__ = [
     'ScoredModel',
     'ScreeningOracle',
     'Selection',
-    'Steer',
     'Steering',
     'SurrogateFit',
     'VariationPolicy',
+    'VariationRule',
     'best_model',
     'feasible_front',
     'fit_surrogate',

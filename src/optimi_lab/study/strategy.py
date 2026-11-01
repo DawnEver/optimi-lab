@@ -18,7 +18,7 @@ from lab_commons.outcomes import Identity
 
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import refuse
-from optimi_lab.policy import STEERING_MODELS, RouteRule, Steer, Steering, SurrogateFit
+from optimi_lab.policy import STEERING_MODELS, RouteRule, Steering, SurrogateFit, VariationRule
 from optimi_lab.solver.decomposition import moead
 from optimi_lab.solver.evolutionary import mode, nsga2, nsga3
 from optimi_lab.solver.swarm import mopso
@@ -193,7 +193,7 @@ class _PolicyFields:
     router: RouteRule | None
     fidelities: tuple[FidelityEvaluation, ...]
     primary_cost: float | None
-    variation: Steer | None
+    variation: VariationRule | None
 
 
 @dataclass(frozen=True, init=False)
@@ -205,7 +205,7 @@ class EvaluationPolicy(_PolicyFields):
         router: RouteRule | None = None,
         fidelities: Sequence[FidelityEvaluation] = (),
         primary_cost: float | None = None,
-        variation: Steer | None = None,
+        variation: VariationRule | None = None,
     ) -> None:
         fidelities = tuple(fidelities)
         if any(not isinstance(item, FidelityEvaluation) for item in fidelities):

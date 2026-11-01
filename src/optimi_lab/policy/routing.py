@@ -10,7 +10,7 @@ fidelity. The initial batch is evaluated as drawn -- a router decides offspring 
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Sequence
 from enum import IntEnum
 from numbers import Real as RealNumber
 from typing import Protocol, runtime_checkable
@@ -24,14 +24,11 @@ from optimi_lab.oracle import Action, Oracle, Result
 from optimi_lab.problem import Problem
 from optimi_lab.solver.protocol import Solver
 
-__all__ = ['RouteChoice', 'RouteRule', 'RoutingPolicy', 'ScreeningOracle', 'Steer', 'natural']
+__all__ = ['RouteChoice', 'RouteRule', 'RoutingPolicy', 'ScreeningOracle', 'natural']
 
 #: ``router(points, results)`` -> one evaluator index (or ``RouteChoice.SCREENED``) per unique proposed
 #: action; *points* are natural coordinates in space order, *results* the told results in told order.
 RouteRule = Callable[[np.ndarray, tuple[Result, ...]], np.ndarray]
-
-#: ``variation(results)`` -> variation-rate updates for the next generation, or None to keep them.
-Steer = Callable[[tuple[Result, ...]], Mapping[str, float] | None]
 
 
 class RouteChoice(IntEnum):

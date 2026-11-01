@@ -9,7 +9,10 @@ import numpy as np
 from optimi_lab.oracle import Result
 from optimi_lab.solver.evolutionary import sbx_polynomial
 
-__all__ = ['VariationPolicy']
+__all__ = ['VariationPolicy', 'VariationRule']
+
+#: ``variation(results)`` -> variation-rate updates for the next generation, or None to keep them.
+VariationRule = Callable[[tuple[Result, ...]], Mapping[str, float] | None]
 
 
 class VariationPolicy:
@@ -22,7 +25,7 @@ class VariationPolicy:
     def __init__(
         self,
         read: Callable[[], tuple[Result, ...]],
-        variation: Callable[[tuple[Result, ...]], Mapping[str, float] | None],
+        variation: VariationRule,
         generations: int,
         settings: Mapping[str, object],
     ) -> None:
