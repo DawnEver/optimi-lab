@@ -25,6 +25,7 @@
 | [The integration branch](../../../dev-lab/docs-src/dev/integration.md) | The path of one change, the roles, the integration tick, `forge sync`, `integrate promote`, the merge audit |
 | [Issues](../../../dev-lab/docs-src/dev/issues.md) | An issue is intent; its state is derived from refs and parts; claims and priority are labels and comments |
 | [HPC clusters](../../../dev-lab/docs-src/dev/hpc.md) | A cluster is one more `forge serve` host: grants, the one-line deploy, runs, records |
+| [Submitting research from a workstation](../../../dev-lab/docs-src/dev/hpc-from-a-workstation.md) | A session's own cluster jobs: reach, grants, build, submit, gather, and which account takes them |
 | [Components](../../../dev-lab/docs-src/dev/components.md) | A product mounts its engines as submodules: the table, the derived-file check, the bump loop |
 | [Artefacts](../../../dev-lab/docs-src/dev/artefacts.md) | A run's declared outputs: the store, its layout and its retention |
 | [Retirement](../../../dev-lab/docs-src/dev/retirement.md) | The archive keeps old code, the registry keeps a dead spelling dead |

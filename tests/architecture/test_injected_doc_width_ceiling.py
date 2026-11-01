@@ -130,6 +130,8 @@ def test_the_corpus_is_this_repo_rules_pages() -> None:
         '.claude/rules/invariant.md',
         '.claude/rules/principles.md',
         '.claude/rules/workflow.md',
+        'AGENTS.md',
+        'CLAUDE.md',
     }, _corpus()
     assert not is_injected_doc('.claude/memory/2026/09/15/entry.md'), 'a dated memory entry is not injected'
     assert is_injected_doc('AGENTS.md'), 'the basename half of the corpus definition has stopped matching'
