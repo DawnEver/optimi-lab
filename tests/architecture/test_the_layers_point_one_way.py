@@ -3,7 +3,7 @@
     core -> problem (L1) -> oracle (L2) -> archive (L3) -> metric (L4) -> operator (L5)
          -> model (L6) -> solver (L7) -> policy (L8) -> run (L9)
 
-``core`` (refusals, dominance, point sets) sits under everything. ``analysis`` (sensitivity,
+``core`` (refusals, dominance, point sets) sits under everything. ``benchmark`` (analytic fronts) is L4. ``analysis`` (sensitivity,
 decision, conflict) reads finished samples and is a metric (L4). The package ``__init__`` is the facade over all of them and is the one module
 exempt.
 
@@ -31,6 +31,7 @@ LAYERS: Final[dict[str, int]] = {
     'archive': 3,
     'metric': 4,
     'analysis': 4,
+    'benchmark': 4,
     'operator': 5,
     'model': 6,
     'solver': 7,
