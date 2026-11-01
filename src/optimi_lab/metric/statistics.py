@@ -10,11 +10,12 @@ Self-implemented (R1) over ``scipy.special`` for the normal tail; scipy.stats is
 * :func:`bootstrap_interval` -- the percentile interval of any statistic of one sample.
 * :func:`cluster_bootstrap` -- a statistic over resampled CLUSTERS (whole seeds, whole cases), so paired
   quantities sharing a cluster carry its noise once; the ``(point, low, high)`` 95 % percentile triple.
+* :func:`kendall_tau_a` -- Kendall's rank correlation, tau-a (ties count as neither).
 * :func:`kendall_tau_b` -- Kendall's rank correlation, tau-b (ties corrected as scipy does).
 * :func:`wilson` -- a binomial share and its Wilson score interval.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -26,6 +27,7 @@ __all__ = [
     'RankTest',
     'bootstrap_interval',
     'cluster_bootstrap',
+    'kendall_tau_a',
     'kendall_tau_b',
     'rank',
     'rank_sum_test',
@@ -125,6 +127,18 @@ def bootstrap_interval(
     tails = 100.0 * np.array([(1.0 - confidence) / 2.0, (1.0 + confidence) / 2.0])
     low, high = np.percentile(draws, tails)
     return float(low), float(high)
+
+
+def kendall_tau_a(first: Sequence[float], second: Sequence[float]) -> float:
+    """Kendall's tau-a of two paired samples: ``(C - D) / (n (n - 1) / 2)``; a tied pair counts as neither.
+
+    NaN when shorter than two.
+    """
+    n, score = len(first), 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            score += np.sign(first[i] - first[j]) * np.sign(second[i] - second[j])
+    return float(score / (n * (n - 1) / 2)) if n > 1 else float('nan')
 
 
 def kendall_tau_b(first: object, second: object) -> float:

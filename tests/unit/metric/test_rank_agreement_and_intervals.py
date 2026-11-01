@@ -12,7 +12,7 @@ import pytest
 from scipy import stats
 
 from optimi_lab.core import Refusal
-from optimi_lab.metric import cluster_bootstrap, kendall_tau_b, wilson
+from optimi_lab.metric import cluster_bootstrap, kendall_tau_a, kendall_tau_b, wilson
 
 
 @pytest.mark.parametrize('seed', [0, 1, 2, 3])
@@ -107,3 +107,27 @@ def test_cluster_bootstrap_drops_non_finite_draws_and_reports_nan_when_none_rema
     assert np.isnan(point) and np.isnan(lo) and np.isnan(hi)
     point, lo, hi = cluster_bootstrap(lambda idx: float(len(idx)), 3, draws=10, seed=0)
     assert (point, lo, hi) == (3.0, 3.0, 3.0)
+
+
+def test_kendall_tau_a_closed_forms() -> None:
+    assert kendall_tau_a([1, 2, 3, 4], [10, 20, 30, 40]) == 1.0
+    assert kendall_tau_a([1, 2, 3, 4], [4, 3, 2, 1]) == -1.0
+    # (a, b) = ([1,1,2,3], [1,2,2,3]): 6 pairs, (0,1) tied in a, (1,2) tied in b, the other 4 concordant
+    assert kendall_tau_a([1, 1, 2, 3], [1, 2, 2, 3]) == 4 / 6
+    assert np.isnan(kendall_tau_a([1.0], [2.0]))
+
+
+def test_kendall_tau_a_differs_from_tau_b_under_ties() -> None:
+    a, b = [1, 1, 2, 3], [1, 2, 2, 3]
+    assert kendall_tau_b(a, b) == pytest.approx(4 / 5)
+    assert kendall_tau_a(a, b) != kendall_tau_b(a, b)
+
+
+def test_kendall_tau_a_reproduces_the_pairwise_sign_sum_bit_for_bit() -> None:
+    rng = np.random.default_rng(7)
+    a, b = rng.integers(0, 4, 23).astype(float), rng.normal(size=23)
+    n, score = len(a), 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            score += np.sign(a[i] - a[j]) * np.sign(b[i] - b[j])
+    assert kendall_tau_a(list(a), list(b)) == float(score / (n * (n - 1) / 2))
