@@ -1,10 +1,11 @@
 """D28 -- the II.7 layers point one way: a module imports only its own layer and the ones below.
 
     core -> problem (L1) -> oracle (L2) -> archive (L3) -> metric (L4) -> operator (L5)
-         -> model (L6) -> solver (L7) -> policy (L8) -> run (L9)
+         -> model (L6) -> solver (L7) -> policy (L8) -> run (L9) -> study (L10)
 
 ``core`` (refusals, dominance, point sets) sits under everything. ``benchmark`` (analytic fronts) is L4. ``analysis`` (sensitivity,
-decision, conflict) reads finished samples and is a metric (L4). The package ``__init__`` is the facade over all of them and is the one module
+decision, conflict) reads finished samples and is a metric (L4). ``study`` (L10) runs a declared study over the
+run, the policies and the solvers, so it sits above all of them. The package ``__init__`` is the facade over all of them and is the one module
 exempt.
 
 THE GUARD IS ONE FUNCTION, CALLED TWICE: :func:`against_the_arrow` runs on the real import graph and
@@ -37,6 +38,7 @@ LAYERS: Final[dict[str, int]] = {
     'solver': 7,
     'policy': 8,
     'run': 9,
+    'study': 10,
 }
 EXEMPT: Final = frozenset({'__init__', '__version__'})
 
@@ -45,7 +47,8 @@ EXEMPT: Final = frozenset({'__init__', '__version__'})
 #: RE-TAKEN 2026-10-18 AT 75: P10 (surrogates, optimi_lab.model) read 84.
 #: RE-TAKEN 2026-10-18 AT 92: P11 (model-based solvers, D59-D68) read 101.
 #: RE-TAKEN 2026-10-19 AT 105: P14 driver (oracle.coefficients, solver.structured) read 114.
-MODULE_FLOOR: Final = 105
+#: RE-TAKEN 2026-11-01 AT 127: W3 (benchmark, policy, study and the model/analysis/metric additions) read 136.
+MODULE_FLOOR: Final = 127
 MODULE_HEADROOM: Final = 20
 
 

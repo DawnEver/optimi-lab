@@ -8,7 +8,7 @@ invented objectives; only a :class:`SearchStrategy` runs an optimizer. The class
 from __future__ import annotations
 
 import json
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from math import isfinite, prod
 from types import MappingProxyType
@@ -69,30 +69,39 @@ def _freeze(value: object) -> object:
 
 
 @dataclass(frozen=True)
-class FixedDesign:
+class _FixedDesignFields:
+    points: tuple[tuple[float, ...], ...]
+    shape: tuple[int, ...]
+    groups: tuple[str, ...]
+    order: str
+
+
+@dataclass(frozen=True, init=False)
+class FixedDesign(_FixedDesignFields):
     """Ordered independent natural points, optionally with the exact sweep grid (*shape*, *order*) and *groups*."""
 
-    points: tuple[tuple[float, ...], ...]
-    shape: tuple[int, ...] = ()
-    groups: tuple[str, ...] = ()
-    order: str = 'C'
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'points', tuple(tuple(float(c) for c in point) for point in self.points))
-        object.__setattr__(self, 'shape', tuple(self.shape))
-        object.__setattr__(self, 'groups', tuple(self.groups))
-        if not self.points:
+    def __init__(
+        self,
+        points: Sequence[Sequence[float]],
+        shape: Sequence[int] = (),
+        groups: Sequence[str] = (),
+        order: str = 'C',
+    ) -> None:
+        points = tuple(tuple(float(c) for c in point) for point in points)
+        shape, groups = tuple(shape), tuple(groups)
+        if not points:
             refuse('a fixed design must declare at least one point')
-        if len(set(self.points)) != len(self.points):
+        if len(set(points)) != len(points):
             refuse(
                 'duplicate design points need an explicit replicate identity; implicit experimental replication is not supported'
             )
-        if self.shape and (any(size < 1 for size in self.shape) or prod(self.shape) != len(self.points)):
+        if shape and (any(size < 1 for size in shape) or prod(shape) != len(points)):
             refuse('sweep shape must describe every ordered point exactly')
-        if self.groups and len(self.groups) != len(self.points):
+        if groups and len(groups) != len(points):
             refuse('sweep groups must name one group per ordered point')
-        if self.order not in ('C', 'F'):
+        if order not in ('C', 'F'):
             refuse('sweep order must be C or F')
+        _FixedDesignFields.__init__(self, points, shape, groups, order)
 
 
 @dataclass(frozen=True)
@@ -161,40 +170,51 @@ class SearchStrategy:
 
 
 @dataclass(frozen=True)
-class FidelityEvaluation:
-    """One more evaluator build: its publisher, its nonempty physical identity and comparable cost."""
-
+class _FidelityFields:
     evaluator: Publisher
     evaluation_identity: Mapping[str, object]
     cost: float
 
-    def __post_init__(self) -> None:
-        if not self.evaluation_identity:
+
+@dataclass(frozen=True, init=False)
+class FidelityEvaluation(_FidelityFields):
+    """One more evaluator build: its publisher, its nonempty physical identity and comparable cost."""
+
+    def __init__(self, evaluator: Publisher, evaluation_identity: Mapping[str, object], cost: float) -> None:
+        if not evaluation_identity:
             refuse('a fidelity evaluator needs its explicit nonempty physical evaluation_identity')
-        if not isfinite(self.cost) or self.cost <= 0:
+        if not isfinite(cost) or cost <= 0:
             refuse('a fidelity evaluation cost must be finite and positive')
-        object.__setattr__(self, 'evaluation_identity', canonical_subject(self.evaluation_identity))
+        _FidelityFields.__init__(self, evaluator, canonical_subject(evaluation_identity), cost)
 
 
 @dataclass(frozen=True)
-class EvaluationPolicy:
+class _PolicyFields:
+    router: RouteRule | None
+    fidelities: tuple[FidelityEvaluation, ...]
+    primary_cost: float | None
+    variation: Steer | None
+
+
+@dataclass(frozen=True, init=False)
+class EvaluationPolicy(_PolicyFields):
     """Admission and fidelity (*router*) and variation-rate (*variation*) control, independent of any evaluator name."""
 
-    router: RouteRule | None = None
-    fidelities: tuple[FidelityEvaluation, ...] = ()
-    primary_cost: float | None = None
-    variation: Steer | None = None
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, 'fidelities', tuple(self.fidelities))
-        if any(not isinstance(item, FidelityEvaluation) for item in self.fidelities):
+    def __init__(
+        self,
+        router: RouteRule | None = None,
+        fidelities: Sequence[FidelityEvaluation] = (),
+        primary_cost: float | None = None,
+        variation: Steer | None = None,
+    ) -> None:
+        fidelities = tuple(fidelities)
+        if any(not isinstance(item, FidelityEvaluation) for item in fidelities):
             msg = 'fidelities must be explicit FidelityEvaluation declarations'
             raise TypeError(msg)
-        if self.fidelities and self.router is None:
+        if fidelities and router is None:
             refuse('additional fidelity evaluators need an explicit selection policy')
-        if self.fidelities and self.primary_cost is None:
+        if fidelities and primary_cost is None:
             refuse('primary_cost must declare the primary evaluator comparable cost alongside fidelities')
-        if self.primary_cost is not None and (
-            not self.fidelities or not isfinite(self.primary_cost) or self.primary_cost <= 0
-        ):
+        if primary_cost is not None and (not fidelities or not isfinite(primary_cost) or primary_cost <= 0):
             refuse('primary_cost needs additional fidelity declarations and must be finite and positive')
+        _PolicyFields.__init__(self, router, fidelities, primary_cost, variation)

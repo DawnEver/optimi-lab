@@ -1,8 +1,8 @@
-"""The study record events are BYTE-IDENTICAL to the ones motronics wrote before the engine moved.
+"""The study record events are BYTE-IDENTICAL to the ones the engine wrote before it moved here.
 
-The golden lines were produced by motronics ``pareto.study.study`` (4320f5e438) on the same request --
-two axes as motronics' ``AxisSpec`` spells them, one reading, a two-batch feedback design -- and are
-copied here verbatim; this test imports nothing from motronics.
+The golden lines were produced by the engine's previous home (its ``study`` entry point) on the same
+request -- two axes as that caller's axis declaration spells them, one reading, a two-batch feedback
+design -- and are copied here verbatim; this test imports nothing from that caller.
 """
 
 from __future__ import annotations
@@ -29,13 +29,13 @@ GOLDEN = [
 def _request(path: Path, design, publisher: Publisher | None = None, **kw) -> Request:
     return Request(
         SPACE,
-        AXES,
         READINGS,
         publisher or Publisher(),
-        Codec(),
         design,
         {'case': 'c', 'n': 1},
-        path,
+        axes=AXES,
+        codec=Codec(),
+        record_path=path,
         **kw,
     )
 
@@ -45,7 +45,7 @@ def _feedback() -> FeedbackDesign:
     return FeedbackDesign(initial, lambda _rows: FixedDesign(((0.75, 4.0),)), 2)
 
 
-def test_a_feedback_study_writes_the_motronics_study_events_byte_for_byte(tmp_path: Path) -> None:
+def test_a_feedback_study_writes_the_recorded_study_events_byte_for_byte(tmp_path: Path) -> None:
     path = tmp_path / 'r.jsonl'
     publisher = Publisher()
     outcome = study(_request(path, _feedback(), publisher, provenance={'who': 'test'}))
@@ -64,7 +64,11 @@ def test_a_repeated_study_reuses_its_slot_and_a_changed_layout_is_refused(tmp_pa
     with pytest.raises(ValueError, match='layout'):
         study(_request(path, FeedbackDesign(FixedDesign(((0.25, 3.0),)), lambda _rows: None, 1)))
     with pytest.raises(ValueError, match='identity'):
-        study(Request(SPACE, AXES, READINGS, Publisher(), Codec(), _feedback(), {'case': 'd'}, path))
+        study(
+            Request(
+                SPACE, READINGS, Publisher(), _feedback(), {'case': 'd'}, axes=AXES, codec=Codec(), record_path=path
+            )
+        )
 
 
 def test_a_sampled_grid_keeps_its_shape_and_a_fixed_design_refuses_a_stranger() -> None:

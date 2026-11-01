@@ -11,8 +11,8 @@ study rather than mixing two.
 from __future__ import annotations
 
 import json
-from collections.abc import Mapping
-from dataclasses import dataclass, field
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from math import prod
 from pathlib import Path
 from threading import Lock
@@ -45,7 +45,22 @@ RECORD_SCHEMA = 2
 
 
 @dataclass(frozen=True)
-class Request:
+class _RequestFields:
+    space: Space
+    axes: tuple[dict[str, Any], ...]
+    readings: tuple[dict[str, Any], ...]
+    publisher: Publisher
+    codec: Codec
+    design: FixedDesign | SampleDesign | FeedbackDesign | SearchStrategy
+    evaluation_identity: Mapping[str, object]
+    record_path: Path
+    policy: EvaluationPolicy | None
+    evidence: Evidence
+    provenance: Mapping[str, object]
+
+
+@dataclass(frozen=True, init=False)
+class Request(_RequestFields):
     """One study: the *space*, how the record names its *axes* and *readings*, who answers, and what is run.
 
     *axes* and *readings* are plain descriptors as the caller's codec spells them (each reading has a
@@ -53,30 +68,42 @@ class Request:
     files them and binds a search. *policy* applies to a :class:`SearchStrategy` only.
     """
 
-    space: Space
-    axes: tuple[Mapping[str, Any], ...]
-    readings: tuple[Mapping[str, Any], ...]
-    publisher: Publisher
-    codec: Codec
-    design: FixedDesign | SampleDesign | FeedbackDesign | SearchStrategy
-    evaluation_identity: Mapping[str, object]
-    record_path: Path
-    policy: EvaluationPolicy | None = None
-    evidence: Evidence = Evidence.OBSERVED
-    provenance: Mapping[str, object] = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        if not self.evaluation_identity:
+    def __init__(
+        self,
+        space: Space,
+        readings: Sequence[Mapping[str, Any]],
+        publisher: Publisher,
+        design: FixedDesign | SampleDesign | FeedbackDesign | SearchStrategy,
+        evaluation_identity: Mapping[str, object],
+        *,
+        axes: Sequence[Mapping[str, Any]],
+        codec: Codec,
+        record_path: Path,
+        policy: EvaluationPolicy | None = None,
+        evidence: Evidence = Evidence.OBSERVED,
+        provenance: Mapping[str, object] | None = None,
+    ) -> None:
+        if not evaluation_identity:
             refuse('a study requires an explicit nonempty evaluation_identity')
-        object.__setattr__(self, 'evaluation_identity', canonical_subject(self.evaluation_identity))
-        object.__setattr__(self, 'provenance', canonical_subject(self.provenance))
-        object.__setattr__(self, 'axes', tuple(dict(axis) for axis in self.axes))
-        object.__setattr__(self, 'readings', tuple(dict(reading) for reading in self.readings))
-        names = [reading.get('name') for reading in self.readings]
+        names = [reading.get('name') for reading in readings]
         if not names or len(set(names)) != len(names) or not all(isinstance(n, str) and n for n in names):
             refuse('study readings must be nonempty and uniquely named')
-        if self.policy is not None and not isinstance(self.design, SearchStrategy):
+        if policy is not None and not isinstance(design, SearchStrategy):
             refuse('a fixed/DoE publisher has no optimizer variation or fidelity policy')
+        _RequestFields.__init__(
+            self,
+            space,
+            tuple(dict(axis) for axis in axes),
+            tuple(dict(reading) for reading in readings),
+            publisher,
+            codec,
+            design,
+            canonical_subject(evaluation_identity),
+            Path(record_path),
+            policy,
+            evidence,
+            canonical_subject(provenance or {}),
+        )
 
 
 @dataclass(frozen=True)

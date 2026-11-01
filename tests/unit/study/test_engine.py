@@ -98,7 +98,18 @@ def test_a_surrogate_study_steers_at_the_round_seed_and_records_its_evaluators(t
         seed=7,
         surrogate=SurrogateStrategy(rounds=1, candidates=6, on_round=rounds.append),
     )
-    outcome = study(Request(SPACE, AXES, READINGS, Publisher(), codec, strategy, {'case': 'c'}, tmp_path / 'r.jsonl'))
+    outcome = study(
+        Request(
+            SPACE,
+            READINGS,
+            Publisher(),
+            strategy,
+            {'case': 'c'},
+            axes=AXES,
+            codec=codec,
+            record_path=tmp_path / 'r.jsonl',
+        )
+    )
     assert [r.index for r in rounds] == [0, 1] and outcome.steering is rounds[1].steering
     assert outcome.steering.refusal is None and outcome.steering.solved >= 1
     drawn = {tuple(p) for p in surrogate_candidates(SPACE, candidates=6, seed=7 + 1 * ROUND_SEED_STRIDE)}
@@ -113,7 +124,19 @@ def test_a_fidelity_policy_is_recorded_as_one_study_evaluator_event(tmp_path: Pa
     )
     strategy = SearchStrategy(FixedDesign(tuple(map(tuple, START))), generations=1)
     path = tmp_path / 'r.jsonl'
-    study(Request(SPACE, AXES, READINGS, Publisher(), Codec(), strategy, {'case': 'c'}, path, policy=policy))
+    study(
+        Request(
+            SPACE,
+            READINGS,
+            Publisher(),
+            strategy,
+            {'case': 'c'},
+            axes=AXES,
+            codec=Codec(),
+            record_path=path,
+            policy=policy,
+        )
+    )
     lines = [
         line for line in path.read_text().splitlines() if '"study_evaluator"' in line or '"study_strategy"' in line
     ]
