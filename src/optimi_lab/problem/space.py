@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Iterator, Mapping
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 
 import numpy as np
 
 from optimi_lab.core.errors import refuse, require_declared_names
+from optimi_lab.core.sampling import SampleSpec, sample
 from optimi_lab.problem.variables import Categorical, Field, Integer, Real, Variable
 
 __all__ = ['Space']
@@ -134,6 +135,19 @@ class Space(_SpaceFields):
             if self._is_active(variable, design, set(design)):
                 design[variable.name] = variable.decode(unit[part])
         return design
+
+    def natural_sample(self, spec: SampleSpec) -> np.ndarray:
+        """*spec*'s unit-cube sample decoded to natural coordinates, one row per point in name order.
+
+        A declared ``anchor`` is a NATURAL design here: it is encoded first, so it decodes back to
+        itself as row 0.
+        """
+        if spec.anchor is not None:
+            unit_anchor = self.encode(dict(zip(self.names, spec.anchor, strict=True)))
+            spec = replace(spec, anchor=tuple(float(c) for c in unit_anchor))
+        designs = (self.decode(unit) for unit in sample(self.width, spec))
+        rows = [[design[name] for name in self.names] for design in designs]
+        return np.asarray(rows, dtype=float)
 
     def to_plain(self) -> list[dict[str, object]]:
         """The declaration as plain data, for an identity."""
