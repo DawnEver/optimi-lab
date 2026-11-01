@@ -12,7 +12,15 @@ from lab_commons.outcomes import Evidence
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.oracle import Action
-from optimi_lab.policy import GP_MAX_ROWS, STEERING_MODELS, Evaluation, Steering, SurrogateFit, fit_surrogate, steer
+from optimi_lab.policy import (
+    GP_MAX_ROWS,
+    STEERING_MODELS,
+    Evaluated,
+    Steering,
+    SurrogateFit,
+    fit_surrogate,
+    steer_round,
+)
 from optimi_lab.study.engine import Searched, evaluate, opened, search
 from optimi_lab.study.protocols import SearchBinding
 from optimi_lab.study.strategy import (
@@ -47,7 +55,7 @@ def searched_study(
 ) -> tuple[Searched, SurrogateFit | None, Steering | None, tuple[SurrogateRound, ...]]:
     """Run *strategy* from the natural *initial* points on *bound*; the last fit, steering and the rounds."""
     problem, oracle, record = bound.problem, bound.oracle, bound.record
-    if strategy.surrogate is not None and (policy.router is not None or policy.steer is not None):
+    if strategy.surrogate is not None and (policy.router is not None or policy.variation is not None):
         refuse('surrogate batch feedback cannot silently ignore admission/variation control')
     if strategy.generations:
         searched = search(
@@ -60,7 +68,7 @@ def searched_study(
             seed=strategy.seed,
             initial=initial,
             router=policy.router,
-            steer=policy.steer,
+            variation=policy.variation,
         )
     else:
         searched = evaluate(problem, oracle, initial, record, evidence=evidence)
@@ -68,12 +76,12 @@ def searched_study(
     if feedback is None:
         return searched, _fit(None, bound, searched) if strategy.report_fit else None, None, ()
 
-    def evaluated(points: np.ndarray) -> Evaluation:
+    def evaluated(points: np.ndarray) -> Evaluated:
         after = evaluate(problem, oracle, points, record, evidence=searched.evidence)
         names = problem.space.names
         actions = (Action.of(problem, oracle.capability, dict(zip(names, map(float, p), strict=True))) for p in points)
         results = tuple(r for a in actions if (r := after.archive.result(a.identity)) is not None)
-        return Evaluation(results, after.solved, after.served)
+        return Evaluated(results, after.solved, after.served)
 
     fit = _fit(feedback, bound, searched)
     if feedback.on_round is not None:
@@ -85,7 +93,7 @@ def searched_study(
         for retry in range(min(ROUND_SEED_STRIDE, max(8, 2 * len(searched.ordered_results()) // feedback.candidates))):
             known = searched.ordered_results()
             seed = strategy.seed + index * ROUND_SEED_STRIDE + retry
-            steering = steer(fit, known, evaluated, candidates=feedback.candidates, seed=seed)
+            steering = steer_round(fit, known, evaluated, candidates=feedback.candidates, seed=seed)
             if steering.refusal is None:
                 searched = Searched(
                     opened(problem, oracle, record),

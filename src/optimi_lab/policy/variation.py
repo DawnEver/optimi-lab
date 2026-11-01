@@ -13,20 +13,20 @@ __all__ = ['VariationPolicy']
 
 
 class VariationPolicy:
-    """:func:`sbx_polynomial` whose rates *steer* may update before each of the first *generations* calls.
+    """:func:`sbx_polynomial` whose rates *variation* may update before each of the first *generations* calls.
 
-    *read* returns the results the steer is shown (the routing policy's told results); *settings* are
-    the starting rates. A steer answering None leaves the rates as they are.
+    *read* returns the results the variation is shown (the routing policy's told results); *settings* are
+    the starting rates. A variation answering None leaves the rates as they are.
     """
 
     def __init__(
         self,
         read: Callable[[], tuple[Result, ...]],
-        steer: Callable[[tuple[Result, ...]], Mapping[str, float] | None],
+        variation: Callable[[tuple[Result, ...]], Mapping[str, float] | None],
         generations: int,
         settings: Mapping[str, object],
     ) -> None:
-        self.read, self.steer = read, steer
+        self.read, self.variation = read, variation
         self.remaining = generations
         self.settings = dict(settings)
 
@@ -34,7 +34,7 @@ class VariationPolicy:
         self, population: np.ndarray, width: int, rng: np.random.Generator, *, values: np.ndarray, violation: np.ndarray
     ) -> np.ndarray:
         if self.remaining > 0:
-            updates = self.steer(self.read())
+            updates = self.variation(self.read())
             if updates is not None:
                 self.settings.update(updates)
             self.remaining -= 1

@@ -24,13 +24,13 @@ from optimi_lab.oracle import Action, Oracle, Result
 from optimi_lab.problem import Problem
 from optimi_lab.solver.protocol import Solver
 
-__all__ = ['RouteChoice', 'Router', 'RoutingPolicy', 'ScreeningOracle', 'Steer', 'natural']
+__all__ = ['RouteChoice', 'RouteRule', 'RoutingPolicy', 'ScreeningOracle', 'Steer', 'natural']
 
 #: ``router(points, results)`` -> one evaluator index (or ``RouteChoice.SCREENED``) per unique proposed
 #: action; *points* are natural coordinates in space order, *results* the told results in told order.
-Router = Callable[[np.ndarray, tuple[Result, ...]], np.ndarray]
+RouteRule = Callable[[np.ndarray, tuple[Result, ...]], np.ndarray]
 
-#: ``steer(results)`` -> variation-rate updates for the next generation, or None to keep them.
+#: ``variation(results)`` -> variation-rate updates for the next generation, or None to keep them.
 Steer = Callable[[tuple[Result, ...]], Mapping[str, float] | None]
 
 
@@ -71,7 +71,7 @@ class RoutingPolicy:
     """*solver* behind *router*'s choices on *oracle*, filing screened answers in *record*."""
 
     def __init__(
-        self, solver: Solver, oracle: ScreeningOracle, problem: Problem, record: Record, router: Router | None
+        self, solver: Solver, oracle: ScreeningOracle, problem: Problem, record: Record, router: RouteRule | None
     ) -> None:
         self.solver, self.oracle, self.problem, self.record, self.router = solver, oracle, problem, record, router
         self.order: tuple[Action, ...] = ()

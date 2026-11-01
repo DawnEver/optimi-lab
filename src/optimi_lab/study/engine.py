@@ -20,7 +20,7 @@ from optimi_lab.core.errors import Refusal, refuse
 from optimi_lab.operator.reference import reference_select
 from optimi_lab.operator.selection import crowding_select, tournament_select
 from optimi_lab.oracle import Action, Oracle, Result
-from optimi_lab.policy import Batches, DecidedReplay, Router, RoutingPolicy, ScreeningOracle, Steer, VariationPolicy
+from optimi_lab.policy import Batches, DecidedReplay, RouteRule, RoutingPolicy, ScreeningOracle, Steer, VariationPolicy
 from optimi_lab.problem import Problem
 from optimi_lab.run import Budget, Dispatch, Run, run
 from optimi_lab.solver.evolutionary import nsga2, nsga3
@@ -135,13 +135,13 @@ def search(
     seed: int = 0,
     initial: np.ndarray | None = None,
     settings: Mapping[str, object] | None = None,
-    router: Router | None = None,
-    steer: Steer | None = None,
+    router: RouteRule | None = None,
+    variation: Steer | None = None,
     dispatch: Dispatch | None = None,
 ) -> Searched:
     """A value-only population search of ``generations + 1`` told batches; *initial* is natural coordinates.
 
-    *router* screens or routes offspring (:class:`~optimi_lab.policy.RoutingPolicy`); *steer* sets the
+    *router* screens or routes offspring (:class:`~optimi_lab.policy.RoutingPolicy`); *variation* sets the
     SBX/PM rates per generation and needs nsga2 or nsga3; *dispatch* replaces the default, which
     publishes each batch through ``oracle.publish_batch`` and files every answer as it completes.
     """
@@ -163,12 +163,12 @@ def search(
     if overlap := set(extra) & _ENGINE_OWNED:
         refuse(f'settings repeat engine-owned declarations {sorted(overlap)}')
     control = None
-    if steer is None:
+    if variation is None:
         solver = factory(problem, oracle.capability, seed=seed, spec=spec, initial=unit_initial, **extra)
     else:
         if factory not in (nsga2, nsga3):
             refuse('SBX/PM variation control requires nsga2 or nsga3; the chosen solver has other operator settings')
-        control = VariationPolicy(tuple, steer, generations, extra)
+        control = VariationPolicy(tuple, variation, generations, extra)
         solver = EvolutionarySolver(
             problem,
             oracle.capability,

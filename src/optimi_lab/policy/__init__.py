@@ -2,7 +2,7 @@
 
 * :class:`Batches` -- a generation budget counted in told batches.
 * :class:`VariationPolicy` -- SBX/PM rates a :data:`Steer` updates per generation.
-* :class:`RoutingPolicy` -- a :data:`Router` screens or routes each action of a :class:`ScreeningOracle`.
+* :class:`RoutingPolicy` -- a :data:`RouteRule` screens or routes each action of a :class:`ScreeningOracle`.
 * :class:`DecidedReplay` -- the run replays decided outcomes only (never SCREENED or retryable ones).
 * surrogate steering -- a pool is fitted (:mod:`~optimi_lab.policy.surrogate_fit`), proposes
   (:mod:`~optimi_lab.policy.proposals`) and is gated (:mod:`~optimi_lab.policy.steering`): it chooses
@@ -27,13 +27,13 @@ from optimi_lab.policy.proposals import (
     surrogate_selection,
 )
 from optimi_lab.policy.replay import DecidedReplay
-from optimi_lab.policy.routing import RouteChoice, Router, RoutingPolicy, ScreeningOracle, Steer, natural
+from optimi_lab.policy.routing import RouteChoice, RouteRule, RoutingPolicy, ScreeningOracle, Steer, natural
 from optimi_lab.policy.steering import (
     SURROGATE_STEERING_FLOOR_R2,
-    Evaluation,
+    Evaluated,
     Steering,
     best_model,
-    steer,
+    steer_round,
     steering_refusal,
 )
 from optimi_lab.policy.surrogate_fit import (
@@ -62,9 +62,9 @@ __all__ = [
     'SURROGATE_STEERING_SEED_OFFSET',
     'Batches',
     'DecidedReplay',
-    'Evaluation',
+    'Evaluated',
     'RouteChoice',
-    'Router',
+    'RouteRule',
     'RoutingPolicy',
     'ScoredModel',
     'ScreeningOracle',
@@ -81,7 +81,7 @@ __all__ = [
     'probability_of_feasibility',
     'proposal_accuracy',
     'sd_inflation',
-    'steer',
+    'steer_round',
     'steering_refusal',
     'surrogate_candidates',
     'surrogate_proposals',

@@ -18,7 +18,7 @@ from lab_commons.outcomes import Identity
 
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import refuse
-from optimi_lab.policy import STEERING_MODELS, Router, Steer, Steering, SurrogateFit
+from optimi_lab.policy import STEERING_MODELS, RouteRule, Steer, Steering, SurrogateFit
 from optimi_lab.solver.decomposition import moead
 from optimi_lab.solver.evolutionary import mode, nsga2, nsga3
 from optimi_lab.solver.swarm import mopso
@@ -178,12 +178,12 @@ class FidelityEvaluation:
 
 @dataclass(frozen=True)
 class EvaluationPolicy:
-    """Admission / fidelity (*router*) and variation (*steer*) control, independent of any evaluator name."""
+    """Admission and fidelity (*router*) and variation-rate (*variation*) control, independent of any evaluator name."""
 
-    router: Router | None = None
+    router: RouteRule | None = None
     fidelities: tuple[FidelityEvaluation, ...] = ()
     primary_cost: float | None = None
-    steer: Steer | None = None
+    variation: Steer | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, 'fidelities', tuple(self.fidelities))

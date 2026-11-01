@@ -1,7 +1,7 @@
 """Surrogate steering: a fitted model chooses WHICH points are worth solving, never what they are worth.
 
 :func:`fit_surrogate` fits a pool of registry models to a run's own fully computed results and keeps
-each member's cross-validated scores. :func:`steer` lets the best member RANK a fresh candidate batch
+each member's cross-validated scores. :func:`steer_round` lets the best member RANK a fresh candidate batch
 and then has every chosen point evaluated for real; what crosses from the model is design POINTS (the
 indices of its predicted front), so no predicted number can become a result.
 
@@ -24,7 +24,7 @@ from optimi_lab.policy.proposals import Selection, proposal_accuracy, surrogate_
 from optimi_lab.policy.routing import natural
 from optimi_lab.policy.surrogate_fit import ScoredModel, SurrogateFit, black_boxes, targets
 
-__all__ = ['SURROGATE_STEERING_FLOOR_R2', 'Evaluation', 'Steering', 'best_model', 'steer', 'steering_refusal']
+__all__ = ['SURROGATE_STEERING_FLOOR_R2', 'Evaluated', 'Steering', 'best_model', 'steer_round', 'steering_refusal']
 
 #: The cross-validated ``r2`` a member must score strictly above to choose a point: 0 is the mean.
 SURROGATE_STEERING_FLOOR_R2: Final[float] = 0.0
@@ -53,7 +53,7 @@ class Steering:
 
 
 @dataclass(frozen=True)
-class Evaluation:
+class Evaluated:
     """What evaluating proposals returned: their *results* (proposal order), fresh *solved*, reused *served*."""
 
     results: tuple[Result, ...]
@@ -90,10 +90,10 @@ def steering_refusal(models: Sequence[ScoredModel]) -> str | None:
     )
 
 
-def steer(
+def steer_round(
     fit: SurrogateFit | None,
     known: Sequence[Result],
-    evaluate: Callable[[np.ndarray], Evaluation],
+    evaluate: Callable[[np.ndarray], Evaluated],
     *,
     candidates: int,
     seed: int,

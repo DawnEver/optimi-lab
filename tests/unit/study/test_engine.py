@@ -75,7 +75,7 @@ def test_a_screening_router_spends_no_solve_and_steering_needs_an_sbx_solver(tmp
     statuses = {r.cell.status for r in screened.archive.results()}
     assert statuses == {Status.OK, Status.SCREENED}
     with pytest.raises(Refusal, match='nsga2 or nsga3'):
-        search(PROBLEM, Toy(), Record(tmp_path / 's.jsonl'), algorithm='mode', initial=START, steer=lambda _r: None)
+        search(PROBLEM, Toy(), Record(tmp_path / 's.jsonl'), algorithm='mode', initial=START, variation=lambda _r: None)
 
 
 def test_evaluate_reuses_decided_results_and_counts_what_it_solved(tmp_path: Path) -> None:

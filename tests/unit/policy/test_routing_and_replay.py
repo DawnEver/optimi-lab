@@ -85,11 +85,11 @@ def test_the_batch_budget_counts_tells_not_fresh_evaluations() -> None:
 def test_steered_variation_updates_its_rates_for_the_declared_generations_only() -> None:
     seen: list[int] = []
 
-    def steer(results):
+    def rates(results):
         seen.append(len(results))
         return {'mutation_rate': 0.0, 'crossover_rate': 0.0}
 
-    policy = VariationPolicy(lambda: (1, 2, 3), steer, 2, {'eta_mutation': 15.0})
+    policy = VariationPolicy(lambda: (1, 2, 3), rates, 2, {'eta_mutation': 15.0})
     population = np.array([[0.2, 0.3], [0.6, 0.7]])
     rng = np.random.default_rng(0)
     for _ in range(3):

@@ -15,7 +15,7 @@ from optimi_lab.policy import (
     MIN_SURROGATE_POINTS,
     SURROGATE_POOL,
     SURROGATE_STEERING_SEED_OFFSET,
-    Evaluation,
+    Evaluated,
     ScoredModel,
     Steering,
     best_model,
@@ -23,7 +23,7 @@ from optimi_lab.policy import (
     fit_surrogate,
     probability_of_feasibility,
     proposal_accuracy,
-    steer,
+    steer_round,
     steering_refusal,
     surrogate_candidates,
 )
@@ -102,14 +102,14 @@ def test_a_fit_needs_eight_ok_results_and_skips_the_ones_that_did_not_compute() 
 def test_a_steered_round_evaluates_the_predicted_front_and_counts_what_was_new() -> None:
     known = [_answer(p) for p in np.random.default_rng(1).random((12, 2))]
     fit = fit_surrogate(PROBLEM, known)
-    assert steer(None, known, lambda _p: Evaluation((), 0, 0), candidates=4, seed=0).refusal is not None
+    assert steer_round(None, known, lambda _p: Evaluated((), 0, 0), candidates=4, seed=0).refusal is not None
     asked: list[np.ndarray] = []
 
-    def evaluate(points: np.ndarray) -> Evaluation:
+    def evaluate(points: np.ndarray) -> Evaluated:
         asked.append(points)
-        return Evaluation(tuple(_answer(p) for p in points), len(points), 0)
+        return Evaluated(tuple(_answer(p) for p in points), len(points), 0)
 
-    steering = steer(fit, known, evaluate, candidates=16, seed=5)
+    steering = steer_round(fit, known, evaluate, candidates=16, seed=5)
     assert steering.refusal is None and steering.best[0] == 'polynomial' and steering.best[1] > 0.99
     assert steering.proposed == steering.solved == steering.added == len(asked[0]) >= 1
     assert steering.accuracy['nrmse'] < 1e-6
