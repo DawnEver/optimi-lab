@@ -40,7 +40,7 @@ class Space(_SpaceFields):
         strangers = [v for v in variables if not isinstance(v, _KINDS)]
         if strangers:
             refuse(f'a Space holds Real, Integer, Categorical or Field variables, got {strangers!r}')
-        require_declared_names(tuple(v.name for v in variables), 'space')
+        require_declared_names(tuple(v.name for v in variables), 'space', empty=True)
         seen: dict[str, Variable] = {}
         for variable in variables:
             condition = variable.active_if

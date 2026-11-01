@@ -201,7 +201,8 @@ def sample(width: int, spec: SampleSpec | None = None) -> np.ndarray:
     anchor = _require_anchor(width, spec.anchor)
     n_anchor = 0 if anchor is None else 1
     n_drawn = _drawn_count(width, spec) if spec.n_samples is None else spec.n_samples - n_anchor
-    points = samplers[spec.kind](width, spec, n_drawn)
+    # The empty product: every kind draws the same zero-width rows, and a width-0 sampler would refuse.
+    points = np.zeros((n_drawn, 0)) if width == 0 else samplers[spec.kind](width, spec, n_drawn)
     if points.shape != (n_drawn, width):
         refuse(
             f'sampler {spec.kind.value!r} returned shape {points.shape} for {n_drawn} drawn point(s) and '

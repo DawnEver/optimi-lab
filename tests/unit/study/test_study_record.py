@@ -12,8 +12,9 @@ from pathlib import Path
 
 import pytest
 from lab_commons.outcomes import Record
-from study_toys import AXES, READINGS, SPACE, Codec, Publisher
+from study_toys import AXES, READINGS, SPACE, Answer, Codec, Publisher
 
+from optimi_lab.problem import Space
 from optimi_lab.study import FeedbackDesign, FixedDesign, Request, SampleDesign, study, study_writer
 
 GOLDEN = [
@@ -91,3 +92,28 @@ def test_the_study_record_names_the_request_layout_as_json(tmp_path: Path) -> No
     study(_request(path, FixedDesign(((0.5, 3.0),))))
     design = next(json.loads(line) for line in path.read_text().splitlines() if '"study_design"' in line)
     assert design['data'] == {'groups': [], 'order': 'C', 'points': [{'a': 0.5, 'b': 3.0}], 'shape': []}
+
+
+def test_an_empty_space_runs_a_nominal_measurement_once(tmp_path: Path) -> None:
+    class Nominal(Publisher):
+        def publish(self, points, on_result) -> None:
+            for point in points:
+                self.asked.append(point)
+                on_result(Answer(point, 1.0))
+
+    publisher = Nominal()
+    request = Request(
+        Space(()),
+        READINGS,
+        publisher,
+        FixedDesign(((),)),
+        {'case': 'nominal'},
+        axes=(),
+        codec=Codec(),
+        record_path=tmp_path / 'r.jsonl',
+    )
+    outcome = study(request)
+    assert publisher.asked == [()]
+    assert [row.y for row in outcome.result.rows] == [1.0]
+    with pytest.raises(ValueError, match='duplicate'):
+        FixedDesign(((), ()))
