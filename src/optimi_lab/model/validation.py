@@ -9,6 +9,9 @@
 * :func:`calibration` -- how far a predicted Gaussian ``N(mean, variance)`` is borne out: the
   observed coverage of each central interval, the variance of the standardised residuals (1 when
   calibrated, above when over-confident) and the mean negative log predictive density.
+* :func:`scored_fit` -- a model fitted on all rows beside every one of :data:`SCORES` of its
+  out-of-fold predictions; :func:`box_predictions` -- such a fit's predictions at uniform points of
+  the rows' bounding box, and its ``r2``.
 """
 
 from __future__ import annotations
@@ -21,9 +24,20 @@ import numpy as np
 from scipy.special import ndtri
 
 from optimi_lab.core.errors import refuse
-from optimi_lab.model.protocol import Prediction, Surrogate, training_data
+from optimi_lab.model.protocol import Fitted, Prediction, Surrogate, training_data
 
-__all__ = ['COVERAGE_LEVELS', 'SCORES', 'Calibration', 'calibration', 'cross_validate', 'folds', 'score']
+__all__ = [
+    'COVERAGE_LEVELS',
+    'SCORES',
+    'Calibration',
+    'ScoredFit',
+    'box_predictions',
+    'calibration',
+    'cross_validate',
+    'folds',
+    'score',
+    'scored_fit',
+]
 
 
 def _r2(measured: np.ndarray, predicted: np.ndarray) -> float:
@@ -113,3 +127,28 @@ def calibration(measured: object, prediction: Prediction) -> Calibration:
     coverage = {level: float(np.mean(np.abs(z) <= ndtri(0.5 + level / 2))) for level in COVERAGE_LEVELS}
     density = 0.5 * np.log(2 * np.pi * prediction.variance) + 0.5 * z**2
     return Calibration(coverage, float(np.mean(z**2)), float(np.mean(density)))
+
+
+@dataclass(frozen=True, slots=True)
+class ScoredFit:
+    """A model fitted on every row, and each of :data:`SCORES` of its out-of-fold predictions."""
+
+    scores: dict[str, float]
+    fitted: Fitted
+
+
+def scored_fit(surrogate: Surrogate, x: object, y: object, *, seed: int = 3) -> ScoredFit:
+    """*surrogate* fitted on ``(x, y)``, scored by ``min(5, n)``-fold cross-validation split by *seed*."""
+    x, y = training_data(x, y)
+    predicted = cross_validate(surrogate, x, y, k=min(5, len(x)), seed=seed).mean
+    return ScoredFit({metric: score(metric, y, predicted) for metric in SCORES}, surrogate.fit(x, y))
+
+
+def box_predictions(surrogate: Surrogate, x: object, y: object, *, samples: int, seed: int) -> tuple[np.ndarray, float]:
+    """Predicted means at *samples* uniform points of the rows' box (``default_rng(seed).uniform``), and the
+    fit's cross-validated ``r2``.
+    """
+    fit = scored_fit(surrogate, x, y)
+    x = np.asarray(x, dtype=float)
+    sample = np.random.default_rng(seed).uniform(x.min(axis=0), x.max(axis=0), (samples, x.shape[1]))
+    return fit.fitted.predict(sample).mean, float(fit.scores['r2'])

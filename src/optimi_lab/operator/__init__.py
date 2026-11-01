@@ -72,7 +72,7 @@ from optimi_lab.operator.reliability import (
     subset_simulation,
     surrogate_reliability,
 )
-from optimi_lab.operator.repair import Repair, repair
+from optimi_lab.operator.repair import Repair, bisect_to_admissible, repair, round_to_level
 from optimi_lab.operator.risk import cvar, expectation, mean_plus_std, value_at_risk, worst_case
 from optimi_lab.operator.robust import Response, Rule, draw, robust_mean
 from optimi_lab.operator.sampling import stratified
@@ -138,6 +138,7 @@ __all__ = [
     'associate',
     'augmented_lagrangian_merit',
     'binomial_crossover',
+    'bisect_to_admissible',
     'bound_qp',
     'cauchy_point',
     'crowding_distance',
@@ -198,6 +199,7 @@ __all__ = [
     'require_rankable',
     'require_selectable',
     'robust_mean',
+    'round_to_level',
     'satisfied',
     'simulated_binary_crossover',
     'snap',

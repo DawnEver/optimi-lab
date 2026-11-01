@@ -110,13 +110,14 @@ def require_axis(values: np.ndarray, n: int, axis: int, what: str) -> np.ndarray
     return array
 
 
-def require_declared_names(names: tuple[str, ...], what: str) -> None:
-    """Refuse an empty declaration or a repeated name, naming the duplicates and the whole set.
+def require_declared_names(names: tuple[str, ...], what: str, *, empty: bool = False) -> None:
+    """Refuse an empty declaration (unless *empty* is allowed) or a repeated name, naming the duplicates.
 
     One function for every declared set: "the names must be non-empty and unique" is a property of a
     declaration, not of variables, objectives or constraints, and two copies of it would drift apart.
+    A set whose empty case is well defined (a space: the empty product) passes ``empty=True``.
     """
-    if not names:
+    if not names and not empty:
         refuse(f'a {what} needs at least one entry, got none')
     duplicated = sorted(name for name, count in Counter(names).items() if count > 1)
     if duplicated:

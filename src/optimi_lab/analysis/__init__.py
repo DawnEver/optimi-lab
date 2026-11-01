@@ -2,9 +2,12 @@
 
 Domain-free like the rest of the package. :mod:`~optimi_lab.analysis.sensitivity` apportions an
 output's variance among the declared variables; :mod:`~optimi_lab.analysis.decision` reads a front
-in the minimization frame of :mod:`optimi_lab.core.pareto`.
+in the minimization frame of :mod:`optimi_lab.core.pareto`. :mod:`~optimi_lab.analysis.robust` chooses
+robustly from a fixed pool; :mod:`~optimi_lab.analysis.cluster` and
+:mod:`~optimi_lab.analysis.selection` label regions and pick across them.
 """
 
+from optimi_lab.analysis.cluster import kmeans
 from optimi_lab.analysis.conflict import conflict_matrix, essential_objectives
 from optimi_lab.analysis.decision import (
     PowerLaw,
@@ -15,20 +18,39 @@ from optimi_lab.analysis.decision import (
     topsis,
 )
 from optimi_lab.analysis.morris import MorrisEffects, morris
+from optimi_lab.analysis.robust import (
+    FORMULATIONS,
+    Choice,
+    box_corners,
+    box_draw,
+    choose,
+    robust_validation,
+    thin_candidates,
+)
+from optimi_lab.analysis.selection import stratified_pick
 from optimi_lab.analysis.sensitivity import SobolIndices, main_effect, sobol_indices
 
 __all__ = [
+    'FORMULATIONS',
+    'Choice',
     'MorrisEffects',
     'PowerLaw',
     'SobolIndices',
+    'box_corners',
+    'box_draw',
+    'choose',
     'conflict_matrix',
     'effective_dimension',
     'essential_objectives',
+    'kmeans',
     'knee_index',
     'main_effect',
     'monotone_links',
     'morris',
     'power_law_fit',
+    'robust_validation',
     'sobol_indices',
+    'stratified_pick',
+    'thin_candidates',
     'topsis',
 ]

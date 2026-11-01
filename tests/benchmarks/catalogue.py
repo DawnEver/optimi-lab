@@ -2,7 +2,9 @@
 
 Each :class:`Benchmark` is a :class:`~optimi_lab.problem.Problem`, an oracle over it, and the true
 Pareto front in the MINIMISED frame, computed in closed form rather than from any run of this
-package (a metric verified against its own output proves only that it has not changed).
+package (a metric verified against its own output proves only that it has not changed). ZDT1, ZDT2
+and DTLZ2 are :mod:`optimi_lab.benchmark`'s, the one owner of the analytic problems; this module
+only declares them through the P8 base.
 
 The B0 counterexamples (research package ``12_assumptions_counterexamples``) are tests beside this
 module; the ones a later phase answers are ``xfail(strict=True)`` naming that phase's item, so the
@@ -21,6 +23,7 @@ from dataclasses import dataclass
 import numpy as np
 from lab_commons.outcomes import Status
 
+from optimi_lab import benchmark as analytic_benchmarks
 from optimi_lab.core import non_dominated_sorting
 from optimi_lab.oracle import Action, Capability, Oracle, Result, from_function
 from optimi_lab.problem import BlackBox, Objective, Problem, Real, Space
@@ -47,56 +50,18 @@ def _vector(action: Action, n: int) -> np.ndarray:
     return np.array([action.design[f'x{i}'] for i in range(n)])
 
 
-def _zdt(
-    name: str, shape: Callable[[float, float], float], front: Callable[[np.ndarray], np.ndarray], n: int = 6
-) -> Benchmark:
-    problem = Problem(_space(n), (Objective('f1'), Objective('f2')))
+def _declared(analytic: analytic_benchmarks.Benchmark, name: str) -> Benchmark:
+    """The library's analytic problem behind the P8 base: its evaluation per action, its closed-form front."""
+    n = analytic.n_var
+    names = tuple(f'f{i + 1}' for i in range(analytic.n_obj))
+    problem = Problem(_space(n), tuple(Objective(o) for o in names))
 
     def evaluate(action: Action) -> dict[str, float]:
-        x = _vector(action, n)
-        g = 1.0 + 9.0 * x[1:].sum() / (n - 1)
-        return {'f1': float(x[0]), 'f2': float(g * shape(x[0], g))}
+        f = analytic.evaluate(_vector(action, n)[None, :])[0]
+        return dict(zip(names, map(float, f), strict=True))
 
-    def true_front(points: int) -> np.ndarray:
-        f1 = np.linspace(0.0, 1.0, points)
-        return front(np.column_stack([f1, np.zeros_like(f1)]))
-
-    return Benchmark(name, problem, from_function(evaluate, Capability(outputs=('f1', 'f2'), version=name)), true_front)
-
-
-def _zdt1_front(f: np.ndarray) -> np.ndarray:
-    f[:, 1] = 1.0 - np.sqrt(f[:, 0])
-    return f
-
-
-def _zdt2_front(f: np.ndarray) -> np.ndarray:
-    f[:, 1] = 1.0 - f[:, 0] ** 2
-    return f
-
-
-def _dtlz2(m: int = 3, k: int = 5) -> Benchmark:
-    n = m - 1 + k
-    names = tuple(f'f{i + 1}' for i in range(m))
-    problem = Problem(_space(n), tuple(Objective(name) for name in names))
-
-    def evaluate(action: Action) -> dict[str, float]:
-        x = _vector(action, n)
-        g = float(np.sum((x[m - 1 :] - 0.5) ** 2))
-        theta = x[: m - 1] * np.pi / 2
-        f = []
-        for i in range(m):
-            value = (1 + g) * np.prod(np.cos(theta[: m - 1 - i]))
-            if i > 0:
-                value *= np.sin(theta[m - 1 - i])
-            f.append(float(value))
-        return dict(zip(names, f, strict=True))
-
-    def true_front(points: int) -> np.ndarray:
-        rng = np.random.default_rng(0)
-        f = np.abs(rng.normal(size=(points, m)))
-        return f / np.linalg.norm(f, axis=1, keepdims=True)
-
-    return Benchmark('dtlz2', problem, from_function(evaluate, Capability(outputs=names, version='dtlz2')), true_front)
+    capability = Capability(outputs=names, version=name)
+    return Benchmark(name, problem, from_function(evaluate, capability), analytic.pareto_front)
 
 
 def _bnh() -> Benchmark:
@@ -130,9 +95,9 @@ def _bnh() -> Benchmark:
 CATALOGUE: dict[str, Benchmark] = {
     b.name: b
     for b in (
-        _zdt('zdt1', lambda f1, g: 1 - np.sqrt(f1 / g), _zdt1_front),
-        _zdt('zdt2', lambda f1, g: 1 - (f1 / g) ** 2, _zdt2_front),
-        _dtlz2(),
+        _declared(analytic_benchmarks.zdt1(6), 'zdt1'),
+        _declared(analytic_benchmarks.zdt2(6), 'zdt2'),
+        _declared(analytic_benchmarks.dtlz2(7, 3), 'dtlz2'),
         _bnh(),
     )
 }

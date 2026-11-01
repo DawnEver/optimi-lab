@@ -33,7 +33,18 @@ from optimi_lab.model.protocol import Fitted, Give, Prediction, Surrogate, query
 from optimi_lab.model.radial_basis import RADIAL_KERNELS, FittedRadialBasis, RadialBasis
 from optimi_lab.model.registry import SURROGATES, surrogate
 from optimi_lab.model.tree import SPLITTERS, FittedForest, FittedTree, Forest, RegressionTree
-from optimi_lab.model.validation import COVERAGE_LEVELS, SCORES, Calibration, calibration, cross_validate, folds, score
+from optimi_lab.model.validation import (
+    COVERAGE_LEVELS,
+    SCORES,
+    Calibration,
+    ScoredFit,
+    box_predictions,
+    calibration,
+    cross_validate,
+    folds,
+    score,
+    scored_fit,
+)
 
 __all__ = [
     'ACTIVATIONS',
@@ -75,7 +86,9 @@ __all__ = [
     'RadialBasis',
     'RegressionTree',
     'Ridge',
+    'ScoredFit',
     'Surrogate',
+    'box_predictions',
     'calibration',
     'cross_validate',
     'folds',
@@ -83,6 +96,7 @@ __all__ = [
     'log_likelihood',
     'query_points',
     'score',
+    'scored_fit',
     'surrogate',
     'training_data',
 ]

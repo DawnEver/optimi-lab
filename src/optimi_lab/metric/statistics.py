@@ -8,9 +8,14 @@ Self-implemented (R1) over ``scipy.special`` for the normal tail; scipy.stats is
 * :func:`signed_rank_test` -- Wilcoxon signed-rank on paired samples (two solvers on the same seeds),
   zero differences dropped, the same corrections.
 * :func:`bootstrap_interval` -- the percentile interval of any statistic of one sample.
+* :func:`cluster_bootstrap` -- a statistic over resampled CLUSTERS (whole seeds, whole cases), so paired
+  quantities sharing a cluster carry its noise once; the ``(point, low, high)`` 95 % percentile triple.
+* :func:`kendall_tau_a` -- Kendall's rank correlation, tau-a (ties count as neither).
+* :func:`kendall_tau_b` -- Kendall's rank correlation, tau-b (ties corrected as scipy does).
+* :func:`wilson` -- a binomial share and its Wilson score interval.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -18,7 +23,18 @@ from scipy.special import ndtr
 
 from optimi_lab.core import refuse
 
-__all__ = ['RankTest', 'bootstrap_interval', 'rank', 'rank_sum_test', 'signed_rank_test', 'spearman']
+__all__ = [
+    'RankTest',
+    'bootstrap_interval',
+    'cluster_bootstrap',
+    'kendall_tau_a',
+    'kendall_tau_b',
+    'rank',
+    'rank_sum_test',
+    'signed_rank_test',
+    'spearman',
+    'wilson',
+]
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,3 +127,61 @@ def bootstrap_interval(
     tails = 100.0 * np.array([(1.0 - confidence) / 2.0, (1.0 + confidence) / 2.0])
     low, high = np.percentile(draws, tails)
     return float(low), float(high)
+
+
+def kendall_tau_a(first: Sequence[float], second: Sequence[float]) -> float:
+    """Kendall's tau-a of two paired samples: ``(C - D) / (n (n - 1) / 2)``; a tied pair counts as neither.
+
+    NaN when shorter than two.
+    """
+    n, score = len(first), 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            score += np.sign(first[i] - first[j]) * np.sign(second[i] - second[j])
+    return float(score / (n * (n - 1) / 2)) if n > 1 else float('nan')
+
+
+def kendall_tau_b(first: object, second: object) -> float:
+    """Kendall's tau-b of two paired samples: ``(C - D) / sqrt(untied_1 * untied_2)`` over all pairs.
+
+    NaN when either sample is constant, shorter than two, or holds a NaN (scipy's ``propagate``).
+    """
+    a, b = np.asarray(first, dtype=float).ravel(), np.asarray(second, dtype=float).ravel()
+    if a.size != b.size:
+        refuse(f'tau-b pairs two samples of one length, got {a.size} and {b.size}')
+    if a.size < 2 or np.isnan(a).any() or np.isnan(b).any():
+        return float('nan')
+    i, j = np.triu_indices(a.size, 1)
+    da, db = np.sign(a[i] - a[j]), np.sign(b[i] - b[j])
+    untied = float(np.count_nonzero(da)) * float(np.count_nonzero(db))
+    return float(np.sum(da * db) / np.sqrt(untied)) if untied > 0 else float('nan')
+
+
+def wilson(hits: int, n: int, z: float = 1.959964) -> tuple[float, float, float]:
+    """``(p, low, high)``: the share *hits* / *n* and its Wilson score interval; ``(nan, 0, 1)`` for ``n = 0``."""
+    if n < 0 or not 0 <= hits <= max(n, 0):
+        refuse(f'a binomial share needs 0 <= hits <= n, got {hits} of {n}')
+    if n == 0:
+        return float('nan'), 0.0, 1.0
+    p = hits / n
+    centre = (p + z * z / (2 * n)) / (1 + z * z / n)
+    half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+    return p, max(0.0, centre - half), min(1.0, centre + half)
+
+
+def cluster_bootstrap(
+    statistic: Callable[[np.ndarray], float], n: int, *, draws: int = 2000, seed: int
+) -> tuple[float, float, float]:
+    """``statistic`` of all *n* clusters, and its 95 % percentile interval over clusters resampled with replacement.
+
+    ``statistic`` takes the INDICES of the chosen clusters (``arange(n)`` for the point estimate). Each
+    draw is ``rng.integers(0, n, n)`` from ``default_rng(seed)``; non-finite draws are dropped, and when
+    none remain the interval is NaN.
+    """
+    rng = np.random.default_rng(seed)
+    point = statistic(np.arange(n))
+    values = [statistic(rng.integers(0, n, n)) for _ in range(draws)]
+    values = [v for v in values if np.isfinite(v)]
+    if not values:
+        return point, float('nan'), float('nan')
+    return point, float(np.quantile(values, 0.025)), float(np.quantile(values, 0.975))
