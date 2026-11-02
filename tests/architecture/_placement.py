@@ -427,8 +427,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'ratchet; this file imports both and holds no arm of its own. THE ADOPTION IS RECORDED UPSTREAM AS A REFUSED '
         'MERGE, which is why it is a neighbour of the CJK guard and not the same body: their surfaces share no name, '
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
-        "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- of 79 tracked "
-        "paths exactly 2 are injected documents and neither has a line past the ceiling), that set's ceiling, and the "
+        "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- no injected "
+        "document has a line past the ceiling), that set's ceiling, and the "
         'floor with its headroom. RE-MEASURED 2026-11-01: own=31 hits=0 with AGENTS.md and CLAUDE.md named in its corpus, up from own=29 on 2026-10-29 (the principles page) and own=25 on 2026-09-21, the scan-and-compare pair '
         'now one call to `assert_every_document_handed_in_was_read`, admitted by the 50-line binder '
         'ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no '
