@@ -117,6 +117,13 @@ def test_kendall_tau_a_closed_forms() -> None:
     assert np.isnan(kendall_tau_a([1.0], [2.0]))
 
 
+def test_kendall_tau_a_refuses_samples_of_unequal_length_in_either_order() -> None:
+    with pytest.raises(Refusal, match='one length'):
+        kendall_tau_a([1, 2, 3], [1, 2])
+    with pytest.raises(Refusal, match='one length'):
+        kendall_tau_a([1, 2], [1, 2, 3])
+
+
 def test_kendall_tau_a_differs_from_tau_b_under_ties() -> None:
     a, b = [1, 1, 2, 3], [1, 2, 2, 3]
     assert kendall_tau_b(a, b) == pytest.approx(4 / 5)

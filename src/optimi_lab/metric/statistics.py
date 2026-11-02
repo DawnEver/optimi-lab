@@ -15,7 +15,7 @@ Self-implemented (R1) over ``scipy.special`` for the normal tail; scipy.stats is
 * :func:`wilson` -- a binomial share and its Wilson score interval.
 """
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import numpy as np
@@ -129,16 +129,27 @@ def bootstrap_interval(
     return float(low), float(high)
 
 
-def kendall_tau_a(first: Sequence[float], second: Sequence[float]) -> float:
+def _pair_signs(first: object, second: object, what: str) -> tuple[np.ndarray, np.ndarray] | None:
+    """Per pair ``i < j``, the signs of each sample's difference; None when shorter than two or holding a NaN."""
+    a, b = np.asarray(first, dtype=float).ravel(), np.asarray(second, dtype=float).ravel()
+    if a.size != b.size:
+        refuse(f'{what} pairs two samples of one length, got {a.size} and {b.size}')
+    if a.size < 2 or np.isnan(a).any() or np.isnan(b).any():
+        return None
+    i, j = np.triu_indices(a.size, 1)
+    return np.sign(a[i] - a[j]), np.sign(b[i] - b[j])
+
+
+def kendall_tau_a(first: object, second: object) -> float:
     """Kendall's tau-a of two paired samples: ``(C - D) / (n (n - 1) / 2)``; a tied pair counts as neither.
 
-    NaN when shorter than two.
+    NaN when shorter than two or holding a NaN.
     """
-    n, score = len(first), 0
-    for i in range(n):
-        for j in range(i + 1, n):
-            score += np.sign(first[i] - first[j]) * np.sign(second[i] - second[j])
-    return float(score / (n * (n - 1) / 2)) if n > 1 else float('nan')
+    signs = _pair_signs(first, second, 'tau-a')
+    if signs is None:
+        return float('nan')
+    da, db = signs
+    return float(np.sum(da * db) / da.size)
 
 
 def kendall_tau_b(first: object, second: object) -> float:
@@ -146,13 +157,10 @@ def kendall_tau_b(first: object, second: object) -> float:
 
     NaN when either sample is constant, shorter than two, or holds a NaN (scipy's ``propagate``).
     """
-    a, b = np.asarray(first, dtype=float).ravel(), np.asarray(second, dtype=float).ravel()
-    if a.size != b.size:
-        refuse(f'tau-b pairs two samples of one length, got {a.size} and {b.size}')
-    if a.size < 2 or np.isnan(a).any() or np.isnan(b).any():
+    signs = _pair_signs(first, second, 'tau-b')
+    if signs is None:
         return float('nan')
-    i, j = np.triu_indices(a.size, 1)
-    da, db = np.sign(a[i] - a[j]), np.sign(b[i] - b[j])
+    da, db = signs
     untied = float(np.count_nonzero(da)) * float(np.count_nonzero(db))
     return float(np.sum(da * db) / np.sqrt(untied)) if untied > 0 else float('nan')
 
