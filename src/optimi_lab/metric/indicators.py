@@ -1,24 +1,43 @@
 """L4 metric: front indicators -- hypervolume (exact, Monte Carlo, per-point contribution), IGD, IGD+, spread.
 
-The benchmark PROBLEMS live in the test tree (``tests/benchmarks/catalogue.py``): a problem with a
-known front is a test fixture, an indicator is library numerics. Minimisation frame throughout; a
+The analytic benchmark problems are :mod:`optimi_lab.benchmark`. Minimisation frame throughout; a
 volume is in the product of the objectives' units, a distance in their common unit.
+
+Many-objective reading of one run against a reference set (both in ONE fixed frame,
+:func:`fixed_normalization`, so nothing is rescaled per run): Schott's :func:`spacing`, Zhou et al.'s
+:func:`generalized_spread`, the attained share :func:`coverage`, and :func:`front_metrics` -- every
+one of them plus IGD+ and hypervolume at several reference levels. :func:`within_budget` is the
+equal-budget cut: how many leading rows a solve budget pays for.
 """
+
+from collections.abc import Sequence
 
 import numpy as np
 
 from optimi_lab.core.errors import refuse, require_finite
 from optimi_lab.core.pareto import non_dominated_sorting
+from optimi_lab.metric.attainment import attained
 
 __all__ = [
+    'FRONT_REFERENCES',
+    'coverage',
+    'fixed_normalization',
+    'front_metrics',
+    'generalized_spread',
     'hypervolume',
     'hypervolume_2d',
     'hypervolume_contributions',
     'hypervolume_mc',
     'igd',
     'igd_plus',
+    'spacing',
     'spread',
+    'within_budget',
 ]
+
+#: Hypervolume reference levels per normalized axis (ideal 0, nadir 1): the interior and knee (1.01),
+#: the common convention (1.1), the extremes (2.0).
+FRONT_REFERENCES: tuple[float, ...] = (1.01, 1.1, 2.0)
 
 
 def igd(front: np.ndarray, reference: np.ndarray) -> float:
@@ -150,3 +169,68 @@ def hypervolume_contributions(front: np.ndarray, ref_point: np.ndarray) -> np.nd
     front = np.asarray(front, dtype=float)
     total = hypervolume(front, ref_point)
     return np.array([total - hypervolume(np.delete(front, i, axis=0), ref_point) for i in range(len(front))])
+
+
+def _first_front(f: np.ndarray) -> np.ndarray:
+    return f[np.sort(np.asarray(non_dominated_sorting(f)).ravel())] if len(f) else f
+
+
+def fixed_normalization(points: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """``(ideal, nadir)`` of minimized rows: the minimum, and the maximum of their front; a flat axis spans 1."""
+    points = np.asarray(points, dtype=float)
+    if points.ndim != 2 or not len(points):
+        refuse('a fixed normalization needs at least one row')
+    ideal, nadir = points.min(axis=0), _first_front(points).max(axis=0)
+    return ideal, np.where(nadir <= ideal, ideal + 1.0, nadir)
+
+
+def spacing(front: np.ndarray) -> float:
+    """Schott's spacing: the standard deviation of each point's L1 distance to its nearest neighbour (0 = even)."""
+    if len(front) < 2:
+        return float('nan')
+    d = np.abs(front[:, None, :] - front[None, :, :]).sum(axis=-1)
+    np.fill_diagonal(d, np.inf)
+    nearest = d.min(axis=1)
+    return float(np.sqrt(((nearest - nearest.mean()) ** 2).sum() / (len(front) - 1)))
+
+
+def generalized_spread(front: np.ndarray, reference: np.ndarray) -> float:
+    """Zhou et al.'s Delta*: the reference's per-axis extremes reached and nearest gaps even (0 ideal)."""
+    if len(front) < 2:
+        return float('nan')
+    extremes = reference[np.argmin(reference, axis=0)]
+    d_extreme = np.array([np.linalg.norm(front - e, axis=1).min() for e in extremes])
+    d = np.linalg.norm(front[:, None, :] - front[None, :, :], axis=-1)
+    np.fill_diagonal(d, np.inf)
+    nearest = d.min(axis=1)
+    mean = nearest.mean()
+    return float((d_extreme.sum() + np.abs(nearest - mean).sum()) / (d_extreme.sum() + len(front) * mean))
+
+
+def coverage(front: np.ndarray, reference: np.ndarray) -> float:
+    """The share of the reference points *front* weakly dominates (0 for an empty front)."""
+    if not len(front):
+        return 0.0
+    return float(attained([front], reference).mean())
+
+
+def front_metrics(
+    feasible: np.ndarray, reference: np.ndarray, *, references: Sequence[float] = FRONT_REFERENCES
+) -> dict[str, float]:
+    """``HV(r)`` per reference level, ``IGD+``, ``coverage``, ``spacing`` and ``spread`` of normalized rows."""
+    front = _first_front(feasible) if len(feasible) else np.empty((0, reference.shape[1]))
+    out = {}
+    for r in references:
+        inside = front[np.all(front < r, axis=1)] if len(front) else front
+        out[f'HV({r})'] = float(hypervolume(inside, np.full(reference.shape[1], r))) if len(inside) else 0.0
+    out['IGD+'] = float(igd_plus(front, reference)) if len(front) else float('inf')
+    out['coverage'] = coverage(front, reference)
+    out['spacing'] = spacing(front)
+    out['spread'] = generalized_spread(front, reference)
+    return out
+
+
+def within_budget(costs: Sequence[float], budget: float) -> int:
+    """How many LEADING rows *budget* pays for, each costing its entry of *costs* (a 1e-12 relative slack)."""
+    spent = np.cumsum(np.asarray(costs, dtype=float))
+    return int(np.searchsorted(spent, budget * (1.0 + 1e-12), side='right'))

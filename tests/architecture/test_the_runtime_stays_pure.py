@@ -63,7 +63,8 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
 #: RE-TAKEN 2026-10-18 AT 65 after merging P9 (operator, gradient solvers) onto P12.
 #: RE-TAKEN 2026-10-18 AT 95: P11 (model-based solvers, D59-D68) read 101; already red at c028663, which read 93.
 #: RE-TAKEN 2026-10-18 AT 106: P14 (structured solvers, D126-D132) read 112; 329e959 (P11) read 101.
-SOURCE_FILE_FLOOR: Final = 106
+#: RE-TAKEN 2026-11-01 AT 128: W3 (benchmark, policy, study and the model/analysis/metric additions) read 136.
+SOURCE_FILE_FLOOR: Final = 128
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12

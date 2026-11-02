@@ -51,7 +51,8 @@ _TESTS: Final = _ROOT / 'tests'
 #: RE-TAKEN 2026-10-18 AT 65: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 73.
 #: RE-TAKEN 2026-10-18 AT 95: P11 (model-based solvers, D59-D68) read 101; already red at c028663, which read 93.
 #: RE-TAKEN 2026-10-18 AT 106: P14 (structured solvers, D126-D132) read 112; 329e959 (P11) read 101.
-SOURCE_FILE_FLOOR: Final = 106
+#: RE-TAKEN 2026-11-01 AT 128: W3 (benchmark, policy, study and the model/analysis/metric additions) read 136.
+SOURCE_FILE_FLOOR: Final = 128
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``, which nothing here ever guarded: how far past its floor
 #: the population may grow before the number stops separating a clean scan from a walk that did not
@@ -75,7 +76,8 @@ SOURCE_FILE_HEADROOM: Final = 12
 #: RE-TAKEN 2026-10-18 AT 70: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 77.
 #: RE-TAKEN 2026-10-18 AT 90: P11 (model-based solvers, D59-D68) read 96; already red at c028663, which read 91.
 #: RE-TAKEN 2026-10-18 AT 96: P14 (structured solvers, D126-D132) read 101; 329e959 (P11) read 96.
-TEST_FILE_FLOOR: Final = 96
+#: RE-TAKEN 2026-11-01 AT 115: W3 read 121 test modules.
+TEST_FILE_FLOOR: Final = 115
 
 #: THE OTHER SIDE OF ``TEST_FILE_FLOOR``. Today's reading is 32 - 25 = 7.
 TEST_FILE_HEADROOM: Final = 10

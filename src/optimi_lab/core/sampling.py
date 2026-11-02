@@ -201,7 +201,9 @@ def sample(width: int, spec: SampleSpec | None = None) -> np.ndarray:
     anchor = _require_anchor(width, spec.anchor)
     n_anchor = 0 if anchor is None else 1
     n_drawn = _drawn_count(width, spec) if spec.n_samples is None else spec.n_samples - n_anchor
-    points = samplers[spec.kind](width, spec, n_drawn)
+    # The empty product: a draw is zero-width rows (a width-0 sampler would refuse); its grid is its one point.
+    zero_width = width == 0 and spec.kind is not SampleKind.GRID
+    points = np.zeros((n_drawn, 0)) if zero_width else samplers[spec.kind](width, spec, n_drawn)
     if points.shape != (n_drawn, width):
         refuse(
             f'sampler {spec.kind.value!r} returned shape {points.shape} for {n_drawn} drawn point(s) and '
@@ -212,8 +214,8 @@ def sample(width: int, spec: SampleSpec | None = None) -> np.ndarray:
 
 def _drawn_count(width: int, spec: SampleSpec) -> int:
     """The kind's own count when ``n_samples`` is not given: levels, or the default."""
-    if spec.kind is SampleKind.GRID and spec.levels is not None:
-        return _grid_size(width, spec.levels)
+    if spec.kind is SampleKind.GRID and (spec.levels is not None or width == 0):
+        return _grid_size(width, spec.levels or ())
     return DEFAULT_SAMPLES - (0 if spec.anchor is None else 1)
 
 
@@ -244,7 +246,7 @@ def _grid_size(width: int, levels: tuple[int, ...]) -> int:
 
 def _grid(width: int, spec: SampleSpec, n_drawn: int) -> np.ndarray:
     """The full factorial: every combination of evenly spaced levels, the last variable fastest."""
-    levels = spec.levels if spec.levels is not None else grid_counts(width, n_drawn)
+    levels = spec.levels if spec.levels is not None else (() if width == 0 else grid_counts(width, n_drawn))
     size = _grid_size(width, levels)
     if size != n_drawn:
         refuse(

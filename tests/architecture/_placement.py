@@ -305,8 +305,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'THE DOMAIN FACT IS THE SUBJECT: a library of interchangeable parts IS a set of registries -- which '
         'regressor, which sampler, which direction -- and the failure it refuses is the silent one where an '
         'unrecognised key falls back to a default and the caller gets a run it never asked for. That sentence '
-        'is false of every repo that is not an optimiser. RE-MEASURED 2026-10-18: own=38 hits=4 -> 10.53%, up '
-        'from own=36 repo=4 -> 11.11% on 2026-09-17, and under the ceiling as well.',
+        'is false of every repo that is not an optimiser. RE-MEASURED 2026-11-01: own=42 hits=6 -> 14.29% (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
+        'own=36 repo=4 on 2026-09-17, and under the ceiling as well.',
     ),
     'tests/architecture/test_a_pin_is_a_named_set.py': Placement(
         STAYS,
@@ -427,9 +427,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'ratchet; this file imports both and holds no arm of its own. THE ADOPTION IS RECORDED UPSTREAM AS A REFUSED '
         'MERGE, which is why it is a neighbour of the CJK guard and not the same body: their surfaces share no name, '
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
-        "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- of 79 tracked "
-        "paths exactly 2 are injected documents and neither has a line past the ceiling), that set's ceiling, and the "
-        'floor with its headroom. RE-MEASURED 2026-10-29: own=29 hits=0 with the principles page in its corpus, up from own=25 on 2026-09-21, the scan-and-compare pair '
+        "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- no injected "
+        "document has a line past the ceiling), that set's ceiling, and the "
+        'floor with its headroom. RE-MEASURED 2026-11-01: own=31 hits=0 with AGENTS.md and CLAUDE.md named in its corpus, up from own=29 on 2026-10-29 (the principles page) and own=25 on 2026-09-21, the scan-and-compare pair '
         'now one call to `assert_every_document_handed_in_was_read`, admitted by the 50-line binder '
         'ceiling. THE RELABEL COST THIS FILE ONE WORD AND THE WORD IS THE POINT. Property 2 refuses a STAYS with no '
         'repo noun anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That '

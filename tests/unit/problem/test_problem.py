@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from optimi_lab.core import SampleSpec, sample
 from optimi_lab.core.errors import Refusal
 from optimi_lab.problem import (
     BlackBox,
@@ -132,3 +133,12 @@ def test_d12_linear_constraint_refuses_a_categorical_variable() -> None:
     space = Space((Categorical('c', ('a', 'b')), Real('x', 0.0, 1.0, active_if=When('c', ('a',)))))
     with pytest.raises(Refusal, match='numeric'):
         Problem(space, (Objective('loss'),), constraints=(Linear('l', {'c': 1.0}, hi=1.0),))
+
+
+def test_a_natural_sample_decodes_the_unit_sample_and_keeps_a_natural_anchor_as_row_zero() -> None:
+    space = Space((Real('a', 0.0, 1.0), Real('b', 2.0, 4.0)))
+    drawn = space.natural_sample(SampleSpec(n_samples=4, seed=7))
+    unit = sample(2, SampleSpec(n_samples=4, seed=7))
+    np.testing.assert_allclose(drawn, np.column_stack([unit[:, 0], 2.0 + 2.0 * unit[:, 1]]))
+    anchored = space.natural_sample(SampleSpec(n_samples=3, seed=7, anchor=(0.25, 3.5)))
+    np.testing.assert_allclose(anchored[0], [0.25, 3.5])

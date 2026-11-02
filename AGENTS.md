@@ -4,7 +4,8 @@ Multi-objective optimization and surrogate models, as pure numerics: arrays in, 
 
 ## How a change lands
 
-The family flow, stated once in [the integration branch](https://github.com/DawnEver/lab-commons/blob/integrate/main/docs-src/dev/integration.md):
+The family flow, stated once in
+[the integration branch](https://github.com/DawnEver/lab-commons/blob/integrate/main/docs-src/dev/integration.md):
 
 - Cut `pr/<topic>` from `origin/integrate/main`, measure what you touched, commit, push, open a pull request.
 - A producer claims the pushed head and posts `tests/<part>`; the FORGE merges the PR once every part

@@ -14,11 +14,11 @@ differences (their surfaces share no name, this one keys its declaration by `pat
 other keys by FILE, and only this one has a ceiling on its hatch), so they are adopted as
 neighbours rather than merged.
 
-MEASURED HERE 2026-09-16 and re-measured 2026-09-18: of 79 tracked paths, exactly 2 are injected
-documents by the shared definition (`AGENTS.md` / `CLAUDE.md` by basename anywhere in the tree --
-this repo has neither -- plus everything under `.claude/rules/`, which here is `invariant.md` and
-`workflow.md`). Scanning those two finds ZERO lines past the ceiling, so `DECLARED` is empty and
-there is no width debt to record. NOTHING WAS REFLOWED to reach that: the pages were already inside.
+MEASURED HERE 2026-09-16, re-measured 2026-09-18 and RE-TAKEN 2026-11-02: the corpus is every
+injected document by the shared definition (`AGENTS.md` / `CLAUDE.md` by basename anywhere in the
+tree, plus everything under `.claude/rules/`); `test_the_corpus_is_this_repo_injected_docs` names it.
+Scanning it finds ZERO lines past the ceiling, so `DECLARED` is empty and there is no width debt to
+record. NOTHING WAS REFLOWED to reach that: the pages were already inside.
 
 THE SAME PAGES ARE ALSO PINNED BY LINE COUNT in `test_the_rules_pages_are_a_ratchet.py`, and the two
 pins measure different things on purpose: a rewrite can lower a line count while doubling a line's
@@ -28,11 +28,10 @@ duplicate.
 THE FLOOR IS THE POINT OF A ZERO MEASUREMENT, AND IT NOW HAS ITS SECOND SIDE. An empty declared set
 against an empty found set is the vacuous green this family refuses: a corpus definition that
 stopped matching anything reports exactly what these two compliant pages report. The floor used to
-be pinned AT the measured 2 on the argument that the corpus only grows -- but `assert_width_floor`
+be pinned AT a measurement on the argument that the corpus only grows -- but `assert_width_floor`
 is ONE-SIDED, so "only grows" was an intention rather than a property and growth was silently
-absorbed. `FILES_READ_HEADROOM` makes it a property: at 2 + 1 the third rules page still passes and
-the FOURTH forces the floor to be re-measured, which is what pinning AT a measurement was trying to
-say all along.
+absorbed. `FILES_READ_HEADROOM` makes it a property: one document past the floor still passes, and
+more forces the floor to be re-measured, which is what pinning AT a measurement was trying to say.
 
 `test_the_scan_reads_every_doc_handed_to_it` CLOSES THE OTHER HALF OF THE SAME GAP: the floor counts
 what the scan READ, and a file handed in that it could not decode is a file not checked however
@@ -62,14 +61,13 @@ DECLARED: Final[frozenset[str]] = frozenset()
 #: The largest `DECLARED` may be. ZERO -- there is no width debt here and no hatch to widen.
 DECLARED_CEILING: Final = 0
 
-#: Re-measured 2026-10-29: the injected-doc corpus here is 3 files, `.claude/rules/invariant.md`,
-#: `.claude/rules/principles.md` (rendered from dev-lab since e0894ea) and `.claude/rules/workflow.md`.
-#: A scan reaching fewer has stopped matching the corpus.
-FILES_READ_FLOOR: Final = 3
+#: RE-TAKEN 2026-11-02: the scan reads 5 files, the three `.claude/rules/` pages plus `AGENTS.md` and
+#: `CLAUDE.md` (up from 3 on 2026-10-29). A scan reaching fewer has stopped matching the corpus.
+FILES_READ_FLOOR: Final = 5
 
 #: How far past the floor the corpus may grow before the floor stops binding and must be re-taken.
-#: 3 + 1 = 4 against today's 3, which is as tight as this kit allows (a headroom of 0 is refused as
-#: misdeclared). A fifth rules page reds this constant instead of passing unremarked.
+#: 5 + 1 = 6 against today's 5, which is as tight as this kit allows (a headroom of 0 is refused as
+#: misdeclared).
 FILES_READ_HEADROOM: Final = 1
 
 _WHAT: Final = 'INJECTED-DOC-WIDTH-CEILING'
@@ -119,7 +117,7 @@ def test_the_declaration_is_the_shape_the_ratchet_keys_on() -> None:
     injectedwidth.assert_the_declaration_is_the_shape_the_ratchet_keys_on(DECLARED)
 
 
-def test_the_corpus_is_this_repo_rules_pages() -> None:
+def test_the_corpus_is_this_repo_injected_docs() -> None:
     """WHAT IS BEING CHECKED, named -- a floor over the wrong corpus is a floor over nothing.
 
     This is the axis the planted control above is blind to: it plants a TREE and proves nothing about
@@ -130,6 +128,8 @@ def test_the_corpus_is_this_repo_rules_pages() -> None:
         '.claude/rules/invariant.md',
         '.claude/rules/principles.md',
         '.claude/rules/workflow.md',
+        'AGENTS.md',
+        'CLAUDE.md',
     }, _corpus()
     assert not is_injected_doc('.claude/memory/2026/09/15/entry.md'), 'a dated memory entry is not injected'
     assert is_injected_doc('AGENTS.md'), 'the basename half of the corpus definition has stopped matching'

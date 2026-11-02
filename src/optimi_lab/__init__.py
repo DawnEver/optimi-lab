@@ -1,6 +1,7 @@
 """optimi_lab -- a self-implemented decision library, layered as plan II.7 lays it out.
 
-    problem (L1) -> oracle (L2) -> archive (L3) -> metric (L4) -> ... -> solver (L7) -> run (L9)
+    problem (L1) -> oracle (L2) -> archive (L3) -> metric (L4) -> ... -> solver (L7) -> policy (L8)
+    -> run (L9) -> study (L10)
 
 1. **What is decided** -- :mod:`optimi_lab.problem`: a :class:`Space` of Real, Integer, Categorical
    and Field variables, objectives with a fixed normalisation, five constraint kinds, and an
@@ -14,6 +15,10 @@
    trust regions, quasi-Newton updates and KKT solves.
 5. **How a run proceeds** -- :func:`run`: ask, dispatch, file, tell, until a named reason stops it;
    an interrupted run resumes by replaying its record.
+6. **What a caller decides around it** -- :mod:`optimi_lab.policy`: batch budgets, variation rates,
+   routing and screening, the decided-only replay, and surrogate steering.
+7. **A declared study** -- :mod:`optimi_lab.study`: fixed, sampled, feedback or searched designs under
+   one writer, with the caller's record codec.
 
 The runtime is numpy, scipy, numerics-lab and ``lab_commons.outcomes``; every surrogate (:mod:`optimi_lab.model`)
 is self-implemented. Importing this package reads

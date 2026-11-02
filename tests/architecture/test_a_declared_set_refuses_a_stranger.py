@@ -23,6 +23,8 @@ import pytest
 from optimi_lab.core.errors import Refusal, coerce_enum
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec
 from optimi_lab.model import KERNEL_FAMILIES, RADIAL_KERNELS, SURROGATES, GaussianProcess, RadialBasis, surrogate
+from optimi_lab.policy import STEERING_MODELS
+from optimi_lab.study import ALGORITHMS, SurrogateStrategy, algorithm_factory
 
 #: The stranger. Not a typo of a real key on purpose: a near-miss could be served by a fuzzy match
 #: nobody documented, and this must be a value no reasonable set contains.
@@ -34,6 +36,8 @@ _SETS: list[tuple[str, Callable[[str], object], tuple[str, ...]]] = [
     ('kernel families', GaussianProcess, KERNEL_FAMILIES),
     ('radial kernels', RadialBasis, RADIAL_KERNELS),
     ('sample kinds', lambda key: coerce_enum(SampleKind, key, 'sample kind'), tuple(SAMPLE_KINDS)),
+    ('study algorithms', algorithm_factory, ALGORITHMS),
+    ('steering models', lambda key: SurrogateStrategy(model=key), tuple(STEERING_MODELS)),
 ]
 
 
