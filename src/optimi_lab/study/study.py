@@ -5,8 +5,11 @@ identity, the axes as the caller spells them, the record schema), one ``study_re
 one ``study_evaluator`` per extra fidelity, ``study_provenance``, one ``study_strategy`` per strategy
 slot, for a search one ``study_search`` keyed ``strategy:{slot}:search`` holding its canonical
 parameters, and per batch of an independent-point design a ``study_design`` keyed
-``strategy:{slot}:batch:{i}``. A rerun on the same record re-reads them and refuses a different
-study rather than mixing two.
+``strategy:{slot}:batch:{i}``. A search whose canonical parameters equal a recorded slot's resumes
+that slot; parameters that differ from every recorded search open a new slot (ruling A-63), which
+reads the record's shared archive and its paid results, so the record states exactly which
+parameters each slot ran. A sweep rerun re-reads its batches and refuses a different layout rather
+than mixing two.
 """
 
 from __future__ import annotations
@@ -207,8 +210,8 @@ def _named(value: object) -> str | None:
     return f'{named.__module__}.{named.__qualname__}'
 
 
-def _file_search(request: Request, strategy: SearchStrategy, initial: FixedDesign, record: Record, slot: int) -> None:
-    """File the search's canonical parameters under its slot; a rerun with different ones is refused."""
+def _search_parameters(request: Request, strategy: SearchStrategy, initial: FixedDesign) -> dict[str, Any]:
+    """The search's canonical parameters -- what its slot is matched on and files."""
     feedback, policy = strategy.surrogate, request.policy
     params = {
         'algorithm': _named(strategy.algorithm),
@@ -233,12 +236,7 @@ def _file_search(request: Request, strategy: SearchStrategy, initial: FixedDesig
             'fidelities': [{'evaluation_identity': f.evaluation_identity, 'cost': f.cost} for f in policy.fidelities],
         },
     }
-    canonical = json.loads(Identity.of(params).canonical)['subject']
-    key = f'strategy:{slot}:search'
-    previous = [event for event in record.replay() if event.kind == 'study_search' and event.key == key]
-    if previous and any(event.data != canonical for event in previous):
-        refuse(f'the recorded search parameters of {key} differ from the requested search')
-    record.append(Event('study_search', key, data=canonical))
+    return json.loads(Identity.of(params).canonical)['subject']
 
 
 def study(request: Request) -> StudyOutcome:
@@ -257,17 +255,24 @@ def _study(request: Request, record: Record) -> StudyOutcome:
         record.append(Event('study_provenance', Identity.of(provenance).key, data=provenance))
     filing = request.codec.filing(record)
     kind = type(request.design).__name__
-    strategies = [event for event in record.replay() if event.kind == 'study_strategy']
-    slot = strategies[-1].data['slot'] if strategies and strategies[-1].data['kind'] == kind else len(strategies)
+    events = list(record.replay())
+    strategies = [event for event in events if event.kind == 'study_strategy']
+    fresh = 1 + max((event.data['slot'] for event in strategies), default=-1)
     if isinstance(request.design, SearchStrategy):
         initial = fixed_design(request.space, request.design.initial)
+        params = _search_parameters(request, request.design, initial)
+        recorded = {event.key: event.data for event in events if event.kind == 'study_search'}
+        slot = next(
+            (s.data['slot'] for s in strategies if recorded.get(f'strategy:{s.data["slot"]}:search') == params), fresh
+        )
         _file_strategy(record, kind, slot)
-        _file_search(request, request.design, initial, record, slot)
+        record.append(Event('study_search', f'strategy:{slot}:search', data=params))
         bound = request.codec.searching(filing, record)
         searched, fit, steering, rounds = searched_study(
             bound, request.design, request.policy or EvaluationPolicy(), np.array(initial.points), request.evidence
         )
         return StudyOutcome(searched, fit, steering, rounds)
+    slot = strategies[-1].data['slot'] if strategies and strategies[-1].data['kind'] == kind else fresh
     feedback = request.design if isinstance(request.design, FeedbackDesign) else None
     initial = request.design.initial if feedback is not None else request.design
     if not isinstance(initial, (FixedDesign, SampleDesign)):
