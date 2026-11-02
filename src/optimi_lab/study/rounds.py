@@ -31,10 +31,17 @@ from optimi_lab.study.strategy import (
     SurrogateStrategy,
 )
 
-__all__ = ['searched_study']
+__all__ = ['fit_round', 'searched_study']
 
 
-def _fit(strategy: SurrogateStrategy | None, bound: SearchBinding, searched: Searched) -> SurrogateFit | None:
+def fit_round(strategy: SurrogateStrategy | None, bound: SearchBinding, searched: Searched) -> SurrogateFit | None:
+    """The surrogate one round of *strategy* fits on *searched*, the study loop's ONE fit seam.
+
+    ``None`` or a ``'pool'`` strategy fits the declared pool (the default pool when none is declared);
+    a steering model (``'gp'``) fits ITS pool with the constraints as well and at most
+    ``GP_MAX_ROWS`` of the most recent rows. Public so a consumer observes or replaces the fit by
+    name rather than by patching a private.
+    """
     results, evidence = searched.ordered_results(), searched.evidence
     if strategy is None or strategy.model == 'pool':
         pool = {} if strategy is None or strategy.pool is None else {'pool': strategy.pool}
@@ -74,7 +81,7 @@ def searched_study(
         searched = evaluate(problem, oracle, initial, record, evidence=evidence)
     feedback = strategy.surrogate
     if feedback is None:
-        return searched, _fit(None, bound, searched) if strategy.report_fit else None, None, ()
+        return searched, fit_round(None, bound, searched) if strategy.report_fit else None, None, ()
 
     def evaluated(points: np.ndarray) -> Evaluated:
         after = evaluate(problem, oracle, points, record, evidence=searched.evidence)
@@ -88,7 +95,7 @@ def searched_study(
         )
         return Evaluated(results, after.solved, after.served)
 
-    fit = _fit(feedback, bound, searched)
+    fit = fit_round(feedback, bound, searched)
     if feedback.on_round is not None:
         feedback.on_round(SurrogateRound(0, 0, searched, fit, None))
     rounds: list[SurrogateRound] = []
@@ -117,5 +124,5 @@ def searched_study(
         if steering.refusal is not None or not (steering.added or steering.solved):
             break
         if index < feedback.rounds:
-            fit = _fit(feedback, bound, searched)
+            fit = fit_round(feedback, bound, searched)
     return searched, fit, steering, tuple(rounds)
