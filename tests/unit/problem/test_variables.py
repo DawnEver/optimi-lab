@@ -110,13 +110,23 @@ def test_d5_planted_control_a_missing_active_value_and_an_unknown_parent_are_ref
         Space((Real('g', 0.0, 1.0), Real('w', 1.0, 2.0, active_if=When('g', (0.5,)))))
 
 
-@pytest.mark.parametrize('kind', list(SampleKind))
+@pytest.mark.parametrize('kind', sorted(set(SampleKind) - {SampleKind.GRID}))
 def test_d6_an_empty_space_is_the_empty_product_and_samples_zero_width_rows(kind: SampleKind) -> None:
     empty = Space(())
     assert (len(empty), empty.width, empty.names) == (0, 0, ())
     assert empty.natural_sample(SampleSpec(kind=kind, n_samples=5)).shape == (5, 0)
     assert empty.canonical({}) == {}
     assert empty.decode(np.zeros(0)) == {}
+
+
+def test_d6_the_grid_of_the_empty_product_is_its_one_point_and_keeps_the_levels_check() -> None:
+    empty = Space(())
+    assert empty.natural_sample(SampleSpec(kind=SampleKind.GRID)).shape == (1, 0)
+    assert empty.natural_sample(SampleSpec(kind=SampleKind.GRID, n_samples=1)).shape == (1, 0)
+    with pytest.raises(Refusal, match='grid of 1 point'):
+        empty.natural_sample(SampleSpec(kind=SampleKind.GRID, n_samples=5))
+    with pytest.raises(Refusal, match='one count per variable'):
+        empty.natural_sample(SampleSpec(kind=SampleKind.GRID, n_samples=5, levels=(3,)))
 
 
 def test_d6_planted_control_an_empty_space_keeps_every_other_refusal() -> None:
