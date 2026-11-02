@@ -32,6 +32,12 @@ def test_run_history_refuses_inconsistent_shapes_and_cuts():
         RunHistory(('p', 'q'), x, {'a': np.zeros(4)}, (3, 3))
 
 
+def test_run_history_refuses_a_first_generation_too_small_to_cross_validate():
+    x = np.zeros((6, 2))
+    with pytest.raises(Refusal, match='first generation'):
+        RunHistory(('p', 'q'), x, {'a': np.zeros(6)}, (1, 6))
+
+
 def test_generation_errors_vanish_on_an_exactly_representable_objective():
     errors = generation_errors(_history(), key='polynomial')
     assert set(errors) == {'a', 'b'} and all(len(v) == 3 for v in errors.values())

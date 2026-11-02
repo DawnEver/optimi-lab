@@ -39,6 +39,8 @@ class RunHistory:
         cuts = self.generation_rows
         if not cuts or any(b <= a for a, b in itertools.pairwise(cuts)) or cuts[0] < 1 or cuts[-1] > n:
             refuse(f'generation cuts {cuts} must rise strictly within 1..{n} complete rows')
+        if cuts[0] < 2:
+            refuse(f'the first generation closes at {cuts[0]} row(s); a cross-validated refit needs at least 2')
 
     def row_generation(self) -> np.ndarray:
         """The generation index that evaluated each row: row i is in the first k with i < cuts[k]."""
