@@ -80,7 +80,12 @@ def searched_study(
         after = evaluate(problem, oracle, points, record, evidence=searched.evidence)
         names = problem.space.names
         actions = (Action.of(problem, oracle.capability, dict(zip(names, map(float, p), strict=True))) for p in points)
-        results = tuple(r for a in actions if (r := after.archive.result(a.identity)) is not None)
+        # The same result-or-held-prediction lookup `evaluate` decides reuse by: under PREDICTED
+        # evidence the answers are predictions, which the archive never files as results.
+        predictions = {r.action.identity.key: r for r in after.archive.predictions()}
+        results = tuple(
+            r for a in actions if (r := after.archive.result(a.identity) or predictions.get(a.identity.key)) is not None
+        )
         return Evaluated(results, after.solved, after.served)
 
     fit = _fit(feedback, bound, searched)

@@ -6,11 +6,12 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from lab_commons.outcomes import Identity, Record, Status
+from lab_commons.outcomes import Cell, Evidence, Identity, Record, Status
 from study_toys import AXES, PROBLEM, READINGS, SPACE, Codec, Publisher, Toy
 
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import Refusal
+from optimi_lab.oracle import Result
 from optimi_lab.policy import RouteChoice, surrogate_candidates
 from optimi_lab.solver.evolutionary import nsga2
 from optimi_lab.study import (
@@ -147,6 +148,41 @@ def test_a_fidelity_policy_is_recorded_as_one_study_evaluator_event(tmp_path: Pa
     assert Identity.of({'leg': 'fast', 'mesh': 2}).key.startswith('280cc995')
     with pytest.raises(ValueError, match='selection policy'):
         EvaluationPolicy(fidelities=(fidelity,), primary_cost=4.0)
+
+
+class PredictingToy(Toy):
+    """The toy whose every answer is a PREDICTED cell -- a model standing in for the solver."""
+
+    def answer(self, action):
+        observed = super().answer(action)
+        return Result(action, Cell(Status.OK, values=dict(observed.cell.values), evidence=Evidence.PREDICTED))
+
+
+def test_steering_under_predicted_evidence_counts_and_scores_the_predictions_it_got_back(tmp_path: Path) -> None:
+    codec = Codec(PredictingToy())
+    strategy = SearchStrategy(
+        SampleDesign(SampleSpec(n_samples=10, seed=2)),
+        generations=0,
+        seed=7,
+        surrogate=SurrogateStrategy(rounds=1, candidates=6),
+    )
+    outcome = study(
+        Request(
+            SPACE,
+            READINGS,
+            Publisher(),
+            strategy,
+            {'case': 'c'},
+            axes=AXES,
+            codec=codec,
+            record_path=tmp_path / 'r.jsonl',
+            evidence=Evidence.PREDICTED,
+        )
+    )
+    steering = outcome.steering
+    assert steering.refusal is None and steering.solved >= 1
+    assert steering.added == steering.solved
+    assert steering.accuracy is not None and steering.accuracy['n'] == steering.solved
 
 
 def _search_request(path: Path, strategy: SearchStrategy) -> Request:
