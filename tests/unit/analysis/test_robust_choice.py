@@ -26,6 +26,18 @@ def test_thinning_without_a_feasible_member_starts_at_the_least_first_objective(
     assert thin_candidates(f, 1, feasible=np.zeros(3, dtype=bool)) == [0]
 
 
+def test_thinning_a_front_with_tied_rows_never_picks_a_row_twice():
+    f = np.array([[0.0, 1.0], [1.0, 0.0], [0.0, 1.0]])
+    picked = thin_candidates(f, 3, feasible=np.ones(3, dtype=bool))
+    assert sorted(picked) == [0, 1, 2]
+
+
+def test_thinning_to_fewer_than_one_row_is_refused():
+    f = np.array([[0.0, 1.0], [1.0, 0.0]])
+    with pytest.raises(Refusal):
+        thin_candidates(f, 0, feasible=np.ones(2, dtype=bool))
+
+
 def test_box_draw_is_uniform_on_the_box_from_its_seed():
     lower, upper = np.array([70.0, -0.05, 0.98]), np.array([130.0, 0.05, 1.02])
     draws = box_draw(500, lower, upper, seed=6001)

@@ -42,6 +42,8 @@ def thin_candidates(f: np.ndarray, k: int, *, feasible: np.ndarray) -> list[int]
     """*k* row indices of *f* ``(n, m)``, minimized: nondominated, then spread (see the module docstring)."""
     f, feasible = np.asarray(f, dtype=float), np.asarray(feasible, dtype=bool)
     front = np.sort(np.asarray(non_dominated_sorting(f)).ravel())
+    if k < 1:
+        refuse(f'thinning asks for {k} row(s); it needs at least 1')
     if len(front) < k:
         refuse(f'the front has {len(front)} row(s); thinning asks for {k}')
     span = np.ptp(f[front], axis=0)
@@ -51,6 +53,7 @@ def thin_candidates(f: np.ndarray, k: int, *, feasible: np.ndarray) -> list[int]
     chosen = [start]
     distance = np.linalg.norm(scaled - scaled[start], axis=1)
     while len(chosen) < k:
+        distance[chosen] = -1.0  # a chosen row is never the farthest, even on a front of tied rows
         nxt = int(np.argmax(distance))
         chosen.append(nxt)
         distance = np.minimum(distance, np.linalg.norm(scaled - scaled[nxt], axis=1))
