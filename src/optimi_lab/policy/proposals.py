@@ -12,6 +12,7 @@ from typing import Final
 
 import numpy as np
 
+from optimi_lab.core.errors import refuse
 from optimi_lab.core.pareto import non_dominated_sorting
 from optimi_lab.core.sampling import SampleSpec
 from optimi_lab.model.bench import ColumnBound, feasibility_probability
@@ -122,6 +123,8 @@ def surrogate_selection(fit: SurrogateFit, model: ScoredModel, *, candidates: in
     problem = fit.problem
     drawn = surrogate_candidates(problem.space, candidates=candidates, seed=seed)
     mean, sd = predictive(model, drawn, training_rows=len(fit.results))
+    if fit.feasibility and sd is None:
+        refuse(f'a feasibility fit filters by probability of feasibility, and {model.key!r} gives no predictive sd')
     k = len(problem.objectives)
     minimizing = np.column_stack([[o.minimized(v) for v in mean[:, i]] for i, o in enumerate(problem.objectives)])
     pof = None

@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from lab_commons.outcomes import Cell, Reason, Status
 
-from optimi_lab.core import SampleSpec
+from optimi_lab.core import Refusal, SampleSpec
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.policy import (
     FALLBACK_PROPOSALS,
@@ -27,6 +27,7 @@ from optimi_lab.policy import (
     steering_refusal,
     surrogate_candidates,
 )
+from optimi_lab.policy.proposals import surrogate_selection
 from optimi_lab.problem import BlackBox, Objective, Problem, Real, Relation, Sense, Space
 
 SPACE = Space((Real('x', 0.0, 1.0), Real('y', 0.0, 1.0)))
@@ -115,3 +116,16 @@ def test_a_steered_round_evaluates_the_predicted_front_and_counts_what_was_new()
     assert steering.accuracy['nrmse'] < 1e-6
     drawn = surrogate_candidates(SPACE, candidates=16, seed=5)
     assert {tuple(p) for p in asked[0]} <= {tuple(p) for p in drawn}
+
+
+def test_a_feasibility_fit_refuses_a_model_that_gives_no_predictive_sd() -> None:
+    bounded = Problem(SPACE, PROBLEM.objectives, constraints=(BlackBox('c', Relation.AT_MOST, 1.0),))
+    capability = Capability(outputs=('f', 'g', 'c'), version='lin-c')
+    known = []
+    for x, y in np.random.default_rng(2).random((12, 2)):
+        action = Action.of(bounded, capability, {'x': float(x), 'y': float(y)})
+        known.append(Result(action, Cell(Status.OK, values={'f': x + y, 'g': x - 2 * y, 'c': x * y})))
+    fit = fit_surrogate(bounded, known, pool=('polynomial',), feasibility=True)
+    assert fit is not None and fit.feasibility
+    with pytest.raises(Refusal, match='predictive sd'):
+        surrogate_selection(fit, fit.models[0], candidates=8, seed=0)
