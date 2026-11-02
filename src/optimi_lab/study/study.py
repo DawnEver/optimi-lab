@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from math import prod
 from pathlib import Path
 from threading import Lock
+from types import FunctionType
 from typing import Any
 
 import numpy as np
@@ -199,10 +200,11 @@ def _file_strategy(record: Record, kind: str, slot: int) -> None:
 
 
 def _named(value: object) -> str | None:
-    """A callable as its import path -- stable across processes, unlike its repr."""
+    """A callable as its import path -- stable across processes, unlike its repr; an instance by its class."""
     if value is None or isinstance(value, str):
         return value
-    return f'{getattr(value, "__module__", "?")}.{getattr(value, "__qualname__", type(value).__qualname__)}'
+    named = value if isinstance(value, (FunctionType, type)) else type(value)
+    return f'{named.__module__}.{named.__qualname__}'
 
 
 def _file_search(request: Request, strategy: SearchStrategy, initial: FixedDesign, record: Record, slot: int) -> None:
