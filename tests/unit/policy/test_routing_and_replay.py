@@ -126,6 +126,32 @@ def test_the_router_sees_observed_told_order_and_a_screened_action_is_never_disp
     assert [r.cell.status for r in policy.results()] == [Status.OK, Status.OK, Status.OK, Status.SCREENED]
 
 
+class TwoLeg(Toy):
+    """Toy with a second evaluator whose routed action is a DIFFERENT identity (another fidelity)."""
+
+    evaluators = 2
+    fine = Capability(outputs=('f', 'g'), version='toy-fine')
+
+    def routed(self, action: Action, index: int) -> Action:
+        return action if index == 0 else Action.of(PROBLEM, self.fine, dict(action.design))
+
+
+def test_a_design_decided_at_another_fidelity_is_reused_when_screened_and_listed_once(tmp_path: Path) -> None:
+    design = _action(0.5, 0.6)
+    inner = Scripted([[_action(0.1, 0.2)], [design], [design]])
+    choices = iter([np.array([1]), np.array([RouteChoice.SCREENED])])
+    oracle = TwoLeg()
+    policy = RoutingPolicy(inner, oracle, PROBLEM, Record(tmp_path / 'r.jsonl'), lambda _p, _r: next(choices))
+    policy.tell([oracle.answer(a) for a in policy.ask(5)])
+    routed = policy.ask(5)
+    assert routed[0].identity.key != design.identity.key
+    policy.tell([oracle.answer(a) for a in routed])
+    reused = policy.ask(5)
+    assert [a.identity.key for a in reused] == [design.identity.key]
+    policy.tell([oracle.answer(a) for a in reused])
+    assert len(policy.results()) == 2
+
+
 def test_a_router_answer_outside_the_declared_evaluators_is_refused(tmp_path: Path) -> None:
     inner = Scripted([[_action(0.1, 0.2)], [_action(0.3, 0.4)]])
     toy = Toy()

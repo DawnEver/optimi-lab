@@ -147,8 +147,8 @@ class RoutingPolicy:
             answers[original.identity.key] = Result.from_extras(original, result.cell, result.extras())
             observed[original.identity.key] = result
         for action in self.order:
-            result = observed[action.identity.key]
-            self.observed[result.action.identity.key] = result
+            # Keyed by the ORIGINAL identity, the one `_ask_batch` looks up; the value keeps the routed result.
+            self.observed[action.identity.key] = observed[action.identity.key]
         self.batch_ends.append(len(self.observed))
         self.solver.tell([answers[action.identity.key] for action in self.order])
 
