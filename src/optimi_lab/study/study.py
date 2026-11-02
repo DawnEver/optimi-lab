@@ -3,7 +3,8 @@
 The record carries, ahead of the caller's own physical events: one ``study_context`` (the evaluation
 identity, the axes as the caller spells them, the record schema), one ``study_reading`` per reading,
 one ``study_evaluator`` per extra fidelity, ``study_provenance``, one ``study_strategy`` per strategy
-slot, and per batch of an independent-point design a ``study_design`` keyed
+slot, for a search one ``study_search`` keyed ``strategy:{slot}:search`` holding its canonical
+parameters, and per batch of an independent-point design a ``study_design`` keyed
 ``strategy:{slot}:batch:{i}``. A rerun on the same record re-reads them and refuses a different
 study rather than mixing two.
 """
@@ -193,6 +194,51 @@ def _context(request: Request, record: Record) -> None:
         record.append(Event('study_reading', reading['name'], data=reading))
 
 
+def _file_strategy(record: Record, kind: str, slot: int) -> None:
+    record.append(Event('study_strategy', f'strategy:{slot}', data={'kind': kind, 'slot': slot}))
+
+
+def _named(value: object) -> str | None:
+    """A callable as its import path -- stable across processes, unlike its repr."""
+    if value is None or isinstance(value, str):
+        return value
+    return f'{getattr(value, "__module__", "?")}.{getattr(value, "__qualname__", type(value).__qualname__)}'
+
+
+def _file_search(request: Request, strategy: SearchStrategy, initial: FixedDesign, record: Record, slot: int) -> None:
+    """File the search's canonical parameters under its slot; a rerun with different ones is refused."""
+    feedback, policy = strategy.surrogate, request.policy
+    params = {
+        'algorithm': _named(strategy.algorithm),
+        'generations': strategy.generations,
+        'seed': strategy.seed,
+        'report_fit': strategy.report_fit,
+        'initial': [dict(zip(request.space.names, point, strict=True)) for point in initial.points],
+        'surrogate': None
+        if feedback is None
+        else {
+            'rounds': feedback.rounds,
+            'candidates': feedback.candidates,
+            'pool': None if feedback.pool is None else list(feedback.pool),
+            'model': feedback.model,
+        },
+        'policy': None
+        if policy is None
+        else {
+            'router': _named(policy.router),
+            'variation': _named(policy.variation),
+            'primary_cost': policy.primary_cost,
+            'fidelities': [{'evaluation_identity': f.evaluation_identity, 'cost': f.cost} for f in policy.fidelities],
+        },
+    }
+    canonical = json.loads(Identity.of(params).canonical)['subject']
+    key = f'strategy:{slot}:search'
+    previous = [event for event in record.replay() if event.kind == 'study_search' and event.key == key]
+    if previous and any(event.data != canonical for event in previous):
+        refuse(f'the recorded search parameters of {key} differ from the requested search')
+    record.append(Event('study_search', key, data=canonical))
+
+
 def study(request: Request) -> StudyOutcome:
     """Execute a declared study; every completed answer is filed before this returns."""
     with study_writer(request.record_path):
@@ -211,10 +257,11 @@ def _study(request: Request, record: Record) -> StudyOutcome:
     kind = type(request.design).__name__
     strategies = [event for event in record.replay() if event.kind == 'study_strategy']
     slot = strategies[-1].data['slot'] if strategies and strategies[-1].data['kind'] == kind else len(strategies)
-    record.append(Event('study_strategy', f'strategy:{slot}', data={'kind': kind, 'slot': slot}))
     if isinstance(request.design, SearchStrategy):
-        bound = request.codec.searching(filing, record)
         initial = fixed_design(request.space, request.design.initial)
+        _file_strategy(record, kind, slot)
+        _file_search(request, request.design, initial, record, slot)
+        bound = request.codec.searching(filing, record)
         searched, fit, steering, rounds = searched_study(
             bound, request.design, request.policy or EvaluationPolicy(), np.array(initial.points), request.evidence
         )
@@ -225,6 +272,7 @@ def _study(request: Request, record: Record) -> StudyOutcome:
         msg = 'an independent-point study needs a fixed/sample design; a stateful march belongs to its solver'
         raise TypeError(msg)
     design = fixed_design(request.space, initial)
+    _file_strategy(record, kind, slot)
     designs: list[FixedDesign] = []
     for index in range(feedback.max_batches if feedback is not None else 1):
         layout = {

@@ -147,3 +147,32 @@ def test_a_fidelity_policy_is_recorded_as_one_study_evaluator_event(tmp_path: Pa
     assert Identity.of({'leg': 'fast', 'mesh': 2}).key.startswith('280cc995')
     with pytest.raises(ValueError, match='selection policy'):
         EvaluationPolicy(fidelities=(fidelity,), primary_cost=4.0)
+
+
+def _search_request(path: Path, strategy: SearchStrategy) -> Request:
+    return Request(SPACE, READINGS, Publisher(), strategy, {'case': 'c'}, axes=AXES, codec=Codec(), record_path=path)
+
+
+def test_a_rerun_on_a_search_record_refuses_different_search_parameters(tmp_path: Path) -> None:
+    path = tmp_path / 'r.jsonl'
+    strategy = SearchStrategy(FixedDesign(tuple(map(tuple, START))), generations=1, seed=3)
+    study(_search_request(path, strategy))
+    study(_search_request(path, strategy))
+    assert [e.key for e in Record(path).replay() if e.kind == 'study_strategy'] == ['strategy:0']
+    for changed in (
+        SearchStrategy(strategy.initial, generations=1, seed=4),
+        SearchStrategy(strategy.initial, generations=2, seed=3),
+        SearchStrategy(strategy.initial, algorithm='nsga3', generations=1, seed=3),
+        SearchStrategy(strategy.initial, generations=1, seed=3, surrogate=SurrogateStrategy(candidates=4)),
+    ):
+        with pytest.raises(Refusal, match='search parameters'):
+            study(_search_request(path, changed))
+
+
+def test_a_rejected_request_files_no_strategy_event(tmp_path: Path) -> None:
+    path = tmp_path / 'r.jsonl'
+    with pytest.raises(TypeError, match='fixed/sample design'):
+        study(_search_request(path, object()))  # type: ignore[arg-type]
+    with pytest.raises(Refusal, match='different design space'):
+        study(_search_request(path, SearchStrategy(FixedDesign(((0.1, 2.5, 9.0),)), generations=1)))
+    assert not [e for e in Record(path).replay() if e.kind == 'study_strategy']
