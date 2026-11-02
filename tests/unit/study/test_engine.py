@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 from pathlib import Path
 
 import numpy as np
@@ -189,20 +190,60 @@ def _search_request(path: Path, strategy: SearchStrategy) -> Request:
     return Request(SPACE, READINGS, Publisher(), strategy, {'case': 'c'}, axes=AXES, codec=Codec(), record_path=path)
 
 
-def test_a_rerun_on_a_search_record_refuses_different_search_parameters(tmp_path: Path) -> None:
+def _searches(path: Path) -> dict[str, dict]:
+    return {e.key: e.data for e in Record(path).replay() if e.kind == 'study_search'}
+
+
+def test_an_identical_search_rerun_resumes_its_slot(tmp_path: Path) -> None:
     path = tmp_path / 'r.jsonl'
     strategy = SearchStrategy(FixedDesign(tuple(map(tuple, START))), generations=1, seed=3)
     study(_search_request(path, strategy))
-    study(_search_request(path, strategy))
+    again = Toy()
+    study(
+        Request(SPACE, READINGS, Publisher(), strategy, {'case': 'c'}, axes=AXES, codec=Codec(again), record_path=path)
+    )
     assert [e.key for e in Record(path).replay() if e.kind == 'study_strategy'] == ['strategy:0']
-    for changed in (
+    assert list(_searches(path)) == ['strategy:0:search']
+    assert again.published == []
+
+
+def test_a_search_with_different_parameters_opens_a_new_slot_and_reuses_paid_evidence(tmp_path: Path) -> None:
+    """Ruling A-63: different canonical parameters are a NEW strategy reading the record's shared archive."""
+    path = tmp_path / 'r.jsonl'
+    strategy = SearchStrategy(FixedDesign(tuple(map(tuple, START))), generations=1, seed=3)
+    study(_search_request(path, strategy))
+    changes = (
         SearchStrategy(strategy.initial, generations=1, seed=4),
         SearchStrategy(strategy.initial, generations=2, seed=3),
         SearchStrategy(strategy.initial, algorithm='nsga3', generations=1, seed=3),
         SearchStrategy(strategy.initial, generations=1, seed=3, surrogate=SurrogateStrategy(candidates=4)),
-    ):
-        with pytest.raises(Refusal, match='search parameters'):
-            study(_search_request(path, changed))
+    )
+    for slot, changed in enumerate(changes, start=1):
+        toy = Toy()
+        request = Request(
+            SPACE, READINGS, Publisher(), changed, {'case': 'c'}, axes=AXES, codec=Codec(toy), record_path=path
+        )
+        study(request)
+        assert not {tuple(point) for point in START.tolist()} & set(toy.published)
+        searches = _searches(path)
+        assert len(searches) == slot + 1 and f'strategy:{slot}:search' in searches
+    searches = _searches(path)
+    assert searches['strategy:0:search']['seed'] == 3 and searches['strategy:1:search']['seed'] == 4
+    assert searches['strategy:2:search']['generations'] == 2
+    resumed = Toy()
+    study(
+        Request(
+            SPACE, READINGS, Publisher(), changes[0], {'case': 'c'}, axes=AXES, codec=Codec(resumed), record_path=path
+        )
+    )
+    assert len(_searches(path)) == 5 and resumed.published == []
+
+
+def test_the_study_docstring_states_the_slot_rule() -> None:
+    module = importlib.import_module('optimi_lab.study.study')
+    doc = ' '.join(module.__doc__.split())
+    assert 'differ from every recorded search open a new slot' in doc
+    assert 'equal a recorded slot' in doc and 'resume' in doc
 
 
 def test_a_rejected_request_files_no_strategy_event(tmp_path: Path) -> None:
