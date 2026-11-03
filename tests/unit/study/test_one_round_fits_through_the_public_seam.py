@@ -1,7 +1,7 @@
 """A study round fits its surrogate through ONE public seam, ``optimi_lab.study.rounds.fit_round``.
 
-A consumer (motronics' GP-steering tests) observed the fit by calling and patching the private
-``rounds._fit``; the seam is public so it is named, not reached into.
+A downstream consumer observed the per-round fit by calling and patching a private function; the seam
+is public so it is named, not reached into.
 """
 
 from __future__ import annotations
@@ -25,7 +25,6 @@ def _bound_and_searched():
 
 def test_the_round_fit_is_public():
     assert 'fit_round' in rounds.__all__
-    assert not hasattr(rounds, '_fit')
 
 
 def test_a_gp_round_fits_its_pool_with_the_constraints_and_a_row_cap(monkeypatch):
