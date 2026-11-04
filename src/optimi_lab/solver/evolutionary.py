@@ -65,7 +65,7 @@ __all__ = [
 ]
 
 #: Settings that belong to the base solver rather than to a variation.
-_BASE = frozenset({'spec', 'initial', 'scalarise', 'seed', 'discrete_mutation_rate'})
+_BASE = frozenset({'spec', 'initial', 'scalarise', 'seed', 'discrete_mutation_rate', 'risk', 'scenarios'})
 
 
 def sbx_polynomial(

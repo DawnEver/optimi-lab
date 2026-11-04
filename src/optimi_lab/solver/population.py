@@ -13,6 +13,15 @@ violation (:meth:`optimi_lab.oracle.Result.violation`). ``scalarise`` maps those
 per row, which is how a single-objective algorithm is pointed at several objectives (and how a
 scalarisation scan builds its subproblems). A result that is not ``OK`` is DROPPED from the
 generation, never scored.
+
+A problem that declares :class:`~optimi_lab.problem.Uncertainty` is solved ROBUSTLY: ``scenarios``
+draws of it are taken once from the seed and shared by every design (common random numbers, so two
+designs differ by design and not by draw); each design is asked once per scenario
+(:attr:`optimi_lab.oracle.Action.scenario`), and its row is the declared ``risk``
+(:class:`optimi_lab.operator.Risk`, default the mean) of each scored column and of the violation
+over those scenarios. A :class:`~optimi_lab.problem.Chance` constraint is estimated as the share of
+scenarios that satisfy it; its violation is the shortfall from its probability. A design with any
+scenario not ``OK`` is dropped whole.
 """
 
 import inspect
@@ -23,9 +32,10 @@ import numpy as np
 from lab_commons.outcomes import Status
 
 from optimi_lab.core import SampleSpec, refuse, sample
-from optimi_lab.operator import discrete_mutation, lattice, snap
+from optimi_lab.operator import Risk, discrete_mutation, lattice, snap
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Categorical, Problem
+from optimi_lab.solver.scenarios import Scenarios
 
 __all__ = [
     'LOOP_ARGUMENTS',
@@ -99,6 +109,8 @@ class PopulationSolver(ABC):
         initial: np.ndarray | None = None,
         scalarise: Scalarise | None = None,
         seed: int = 0,
+        risk: Risk | None = None,
+        scenarios: int | None = None,
     ) -> None:
         conditional = [v.name for v in problem.space if v.active_if is not None]
         if conditional:
@@ -114,6 +126,7 @@ class PopulationSolver(ABC):
         self._lattice = lattice(problem.space)
         self._scalarise = scalarise
         self._rng = np.random.default_rng(seed)
+        self._robust = Scenarios.of(problem, risk, scenarios, self._rng)
         first = self._first(spec) if initial is None else self._require_initial(initial)
         self._pop_size = first.shape[0]
         self._generation = self._actions(first)
@@ -135,7 +148,12 @@ class PopulationSolver(ABC):
 
     def _actions(self, unit: np.ndarray) -> list[Action]:
         space = self._problem.space
-        return [Action.of(self._problem, self._capability, space.decode(row)) for row in unit]
+        draws = (None,) if self._robust is None else self._robust.scenarios
+        return [
+            Action.of(self._problem, self._capability, space.decode(row), scenario=scenario)
+            for row in unit
+            for scenario in draws
+        ]
 
     def ask(self, capacity: int) -> Sequence[Action]:
         """The next unasked actions of the current generation, at most *capacity*."""
@@ -161,6 +179,8 @@ class PopulationSolver(ABC):
     def _arrays(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """``(inputs, values, violation, mask)`` of the complete rows, in generation order."""
         results = [self._told[a.identity.key] for a in self._generation]
+        if self._robust is not None:
+            return self._robust_arrays(results)
         mask = np.array([r.cell.status is Status.OK for r in results])
         if not mask.any():
             statuses = sorted({r.cell.status.name for r in results})
@@ -172,6 +192,23 @@ class PopulationSolver(ABC):
         inputs = np.array([self._problem.space.encode(r.action.design) for r in self._results])
         values, violation = score_rows(self._problem, self._scalarise, self._results)
         return inputs, values, violation, mask
+
+    def _robust_arrays(self, results: list[Result]) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """``(inputs, values, violation, mask)`` per DESIGN: each column the declared risk over its scenarios."""
+        robust = self._robust
+        per = len(robust.scenarios)
+        groups = [results[i : i + per] for i in range(0, len(results), per)]
+        mask = np.array([all(r.cell.status is Status.OK for r in group) for group in groups])
+        if not mask.any():
+            refuse(
+                f'none of the {len(groups)} design(s) of this generation produced a value in every one of its '
+                f'{per} scenarios; there is no population to build the next one from'
+            )
+        kept = [group for group, ok in zip(groups, mask, strict=True) if ok]
+        self._results = [group[0] for group in kept]
+        inputs = np.array([self._problem.space.encode(group[0].action.design) for group in kept])
+        rows = [robust.row(*score_rows(robust.sampled, self._scalarise, group), group) for group in kept]
+        return inputs, np.array([v for v, _ in rows]), np.array([c for _, c in rows]), mask
 
     @abstractmethod
     def _admit(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray, mask: np.ndarray) -> None:

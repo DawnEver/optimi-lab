@@ -134,6 +134,11 @@ _SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
 _SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
 _PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
 _SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
+#: A population solver estimates the declared risk over shared scenarios (``solver.population``),
+#: so it takes uncertainty and Chance constraints natively.
+_ROBUST: Final = frozenset({BlackBox, Chance})
+_ROBUST_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=_ROBUST, uncertainty=True)
+_ROBUST_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=_ROBUST, uncertainty=True)
 _LINEAR: Final = Requires(MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.LINEAR}))
 _ROWS: Final = frozenset({Linear, BlackBox})
 
@@ -149,7 +154,6 @@ _ROWS: Final = frozenset({Linear, BlackBox})
 #: BlackBox constraint as a row because its output's coefficients are the oracle's. The gradient methods (``optimi_lab.solver.gradient.METHODS``) need slopes;
 #: the box methods take no other constraint, the constrained ones every constraint that has a gradient.
 SOLVERS: Final[dict[str, Requires]] = {
-    **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
     'projected_gradient': Requires(MultiObjective.SINGLE, information=_SLOPES),
     'lbfgsb': Requires(MultiObjective.SINGLE, information=_SLOPES),
     'newton_cg': Requires(MultiObjective.SINGLE, information=_SLOPES),
@@ -160,11 +164,12 @@ SOLVERS: Final[dict[str, Requires]] = {
     'gcmma': Requires(MultiObjective.SINGLE, information=_SLOPES, constraints=_SMOOTH),
     'mgda': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES),
     'pareto_continuation': Requires(MultiObjective.NATIVE_PARETO, information=_SLOPES, constraints=_SMOOTH),
-    **dict.fromkeys(('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _PARETO),
-    'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=frozenset({BlackBox})),
     **dict.fromkeys(
-        ('ga', 'cmaes', 'ipop_cmaes', 'map_elites', 'nelder_mead', 'mads', 'bobyqa', 'multistart'), _SINGLE
+        ('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _ROBUST_PARETO
     ),
+    'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=_ROBUST, uncertainty=True),
+    **dict.fromkeys(('ga', 'cmaes', 'ipop_cmaes', 'map_elites'), _ROBUST_SINGLE),
+    **dict.fromkeys(('nelder_mead', 'mads', 'bobyqa', 'multistart'), _SINGLE),
     'scalarisation_scan': Requires(MultiObjective.EXTERNAL_SCAN, metric=True, constraints=frozenset({BlackBox})),
     **dict.fromkeys(('hyperband', 'asha'), Requires(MultiObjective.SINGLE, metric=True, fidelity=True)),
     'bo': _SINGLE,
