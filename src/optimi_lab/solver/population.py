@@ -22,6 +22,11 @@ designs differ by design and not by draw); each design is asked once per scenari
 over those scenarios. A :class:`~optimi_lab.problem.Chance` constraint is estimated as the share of
 scenarios that satisfy it; its violation is the shortfall from its probability. A design with any
 scenario not ``OK`` is dropped whole.
+
+A space with conditional (``active_if``) variables or unembedded categoricals is solved through the
+declared ``embedding`` (:class:`optimi_lab.problem.Embedding`): every row an algorithm keeps is the
+embedded row of a told design, and every row it proposes is decoded to a LEGAL design before it is
+asked, so a variation may move a switched-off column or a one-hot block freely.
 """
 
 import inspect
@@ -34,7 +39,7 @@ from lab_commons.outcomes import Status
 from optimi_lab.core import SampleSpec, refuse, sample
 from optimi_lab.operator import Risk, discrete_mutation, lattice, snap
 from optimi_lab.oracle import Action, Capability, Result
-from optimi_lab.problem import Categorical, Problem
+from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.scenarios import Scenarios
 
 __all__ = [
@@ -111,19 +116,15 @@ class PopulationSolver(ABC):
         seed: int = 0,
         risk: Risk | None = None,
         scenarios: int | None = None,
+        embedding: Embedding | None = None,
     ) -> None:
-        conditional = [v.name for v in problem.space if v.active_if is not None]
-        if conditional:
-            refuse(f'population solvers need every variable active; {conditional} are conditional (active_if)')
-        unembedded = [v.name for v in problem.space if isinstance(v, Categorical) and v.embedding is None]
-        if unembedded:
-            refuse(f'categoricals {unembedded} have no metric; apply optimi_lab.oracle.embed to the space first')
+        self._embedding = Embedding.declared(problem.space, embedding)
         if initial is not None and spec is not None:
             refuse('pass spec= (draw the first generation) or initial= (hand it in), not both')
         self._problem = problem
         self._capability = capability
-        self._width = problem.space.width
-        self._lattice = lattice(problem.space)
+        self._width = self._embedding.width
+        self._lattice = lattice(self._embedding.space)
         self._scalarise = scalarise
         self._rng = np.random.default_rng(seed)
         self._robust = Scenarios.of(problem, risk, scenarios, self._rng)
@@ -147,10 +148,10 @@ class PopulationSolver(ABC):
         return initial
 
     def _actions(self, unit: np.ndarray) -> list[Action]:
-        space = self._problem.space
+        embedding = self._embedding
         draws = (None,) if self._robust is None else self._robust.scenarios
         return [
-            Action.of(self._problem, self._capability, space.decode(row), scenario=scenario)
+            Action.of(self._problem, self._capability, embedding.decode(row), scenario=scenario)
             for row in unit
             for scenario in draws
         ]
@@ -189,7 +190,7 @@ class PopulationSolver(ABC):
                 f'there is no population to build the next one from'
             )
         self._results = [r for r, ok in zip(results, mask, strict=True) if ok]
-        inputs = np.array([self._problem.space.encode(r.action.design) for r in self._results])
+        inputs = np.array([self._embedding.encode(r.action.design) for r in self._results])
         values, violation = score_rows(self._problem, self._scalarise, self._results)
         return inputs, values, violation, mask
 
@@ -206,7 +207,7 @@ class PopulationSolver(ABC):
             )
         kept = [group for group, ok in zip(groups, mask, strict=True) if ok]
         self._results = [group[0] for group in kept]
-        inputs = np.array([self._problem.space.encode(group[0].action.design) for group in kept])
+        inputs = np.array([self._embedding.encode(group[0].action.design) for group in kept])
         rows = [robust.row(*score_rows(robust.sampled, self._scalarise, group), group) for group in kept]
         return inputs, np.array([v for v, _ in rows]), np.array([c for _, c in rows]), mask
 

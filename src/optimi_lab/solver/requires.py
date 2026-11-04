@@ -21,7 +21,18 @@ from typing import Final
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.oracle import COEFFICIENTS_FOR, Capability, Information
-from optimi_lab.problem import BlackBox, Categorical, Chance, Explicit, Field, Form, Linear, Path, Problem, Real
+from optimi_lab.problem import (
+    BlackBox,
+    Chance,
+    Explicit,
+    Field,
+    Form,
+    Linear,
+    Path,
+    Problem,
+    Real,
+    needs_embedding,
+)
 
 __all__ = ['SOLVERS', 'Eligible', 'Ineligible', 'Match', 'MultiObjective', 'NeedsTransform', 'Requires', 'match']
 
@@ -38,7 +49,11 @@ class MultiObjective(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class Requires:
-    """A solver's needs: information, many-objective handling, metric, constraint kinds, uncertainty, forms."""
+    """A solver's needs: information, many-objective handling, metric, constraint kinds, uncertainty, forms.
+
+    ``conditional`` says the solver reads a conditional (``active_if``) space through a declared
+    :class:`~optimi_lab.problem.Embedding`; a solver without it is ineligible on one.
+    """
 
     objectives: MultiObjective
     information: frozenset[Information] = frozenset({Information.VALUES})
@@ -47,6 +62,7 @@ class Requires:
     uncertainty: bool = False
     forms: frozenset[Form] = frozenset()
     fidelity: bool = False
+    conditional: bool = False
 
     @staticmethod
     def of(name: str) -> Requires:
@@ -90,6 +106,9 @@ def _refusals(requires: Requires, problem: Problem, capability: Capability) -> I
         yield f'Chance constraints {chance} need an estimator over replicates; the solver handles none'
     if requires.fidelity and problem.fidelity is None:
         yield 'the solver promotes through fidelity levels and the problem declares no Fidelity'
+    conditional = [v.name for v in problem.space if v.active_if is not None]
+    if conditional and not requires.conditional:
+        yield f'the solver has no embedding for conditional variables {conditional} (active_if)'
     if problem.uncertainty is not None and not requires.uncertainty:
         yield 'the problem declares uncertainty and the solver has no risk estimator'
     for form in sorted(requires.forms):
@@ -122,7 +141,7 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
     if requires.information - capability.provides:
         transforms.append('finite_differences')
         per_action = 1.0 + 2.0 * problem.space.width
-    if requires.metric and any(isinstance(v, Categorical) and v.embedding is None for v in problem.space):
+    if requires.metric and needs_embedding(problem.space):
         transforms.append('embed')
     unhandled = (BlackBox, Path, Linear, Explicit)
     if any(isinstance(c, unhandled) and type(c) not in requires.constraints for c in problem.constraints):
@@ -132,13 +151,25 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
 
 _SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
 _SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
-_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=frozenset({BlackBox}))
 _SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
 #: A population solver estimates the declared risk over shared scenarios (``solver.population``),
-#: so it takes uncertainty and Chance constraints natively.
+#: so it takes uncertainty and Chance constraints natively; a model-based one fits its model on the
+#: risk rows (``solver.model_based``), so it takes uncertainty and BlackBox constraints only. Both
+#: read a conditional space through a declared embedding.
 _ROBUST: Final = frozenset({BlackBox, Chance})
-_ROBUST_PARETO: Final = Requires(MultiObjective.NATIVE_PARETO, metric=True, constraints=_ROBUST, uncertainty=True)
-_ROBUST_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=_ROBUST, uncertainty=True)
+_ROBUST_PARETO: Final = Requires(
+    MultiObjective.NATIVE_PARETO, metric=True, constraints=_ROBUST, uncertainty=True, conditional=True
+)
+_ROBUST_SINGLE: Final = Requires(
+    MultiObjective.SINGLE, metric=True, constraints=_ROBUST, uncertainty=True, conditional=True
+)
+_BLACKBOX: Final = frozenset({BlackBox})
+_MODEL_PARETO: Final = Requires(
+    MultiObjective.NATIVE_PARETO, metric=True, constraints=_BLACKBOX, uncertainty=True, conditional=True
+)
+_MODEL_SINGLE: Final = Requires(
+    MultiObjective.SINGLE, metric=True, constraints=_BLACKBOX, uncertainty=True, conditional=True
+)
 _LINEAR: Final = Requires(MultiObjective.SINGLE, constraints=frozenset({Linear}), forms=frozenset({Form.LINEAR}))
 _ROWS: Final = frozenset({Linear, BlackBox})
 
@@ -167,17 +198,17 @@ SOLVERS: Final[dict[str, Requires]] = {
     **dict.fromkeys(
         ('nsga2', 'nsga3', 'unsga3', 'rnsga3', 'spea2', 'sms_emoa', 'rvea', 'mode', 'mopso'), _ROBUST_PARETO
     ),
-    'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=_ROBUST, uncertainty=True),
+    'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=_ROBUST, uncertainty=True, conditional=True),
     **dict.fromkeys(('ga', 'cmaes', 'ipop_cmaes', 'map_elites'), _ROBUST_SINGLE),
     **dict.fromkeys(('nelder_mead', 'mads', 'bobyqa', 'multistart'), _SINGLE),
     'scalarisation_scan': Requires(MultiObjective.EXTERNAL_SCAN, metric=True, constraints=frozenset({BlackBox})),
     **dict.fromkeys(('hyperband', 'asha'), Requires(MultiObjective.SINGLE, metric=True, fidelity=True)),
-    'bo': _SINGLE,
-    'parego': Requires(MultiObjective.WEIGHTED, metric=True, constraints=frozenset({BlackBox})),
-    **dict.fromkeys(('ehvi', 'nehvi'), _PARETO),
-    'mfbo': Requires(MultiObjective.SINGLE, metric=True, fidelity=True),
-    'turbo': Requires(MultiObjective.SINGLE, metric=True),
-    'prescreened': _PARETO,
+    'bo': _MODEL_SINGLE,
+    'parego': Requires(MultiObjective.WEIGHTED, metric=True, constraints=_BLACKBOX, uncertainty=True, conditional=True),
+    **dict.fromkeys(('ehvi', 'nehvi'), _MODEL_PARETO),
+    'mfbo': Requires(MultiObjective.SINGLE, metric=True, fidelity=True, conditional=True),
+    'turbo': Requires(MultiObjective.SINGLE, metric=True, conditional=True),
+    'prescreened': _ROBUST_PARETO,
     'model_trust_region': _SINGLE,
     'lp': Requires(MultiObjective.SINGLE, constraints=_ROWS, forms=frozenset({Form.LINEAR})),
     'milp': _LINEAR,

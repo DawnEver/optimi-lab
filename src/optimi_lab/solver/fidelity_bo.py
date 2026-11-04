@@ -21,7 +21,9 @@ at the told points, ``corr = prod_{t > l} scale_t sqrt(var_l / var_L)`` under th
 :func:`~optimi_lab.solver.model_based.maximise`; one point is asked at a time.
 
 :attr:`MultiFidelityBO.best` is the told OK TRUTH-level result of lowest score (B0-08): a cheap level
-steers, the truth reports. Constraints are refused (penalise them first).
+steers, the truth reports. Constraints are refused (penalise them first), and so is declared
+uncertainty, naming why. A conditional or categorical space is modelled through the declared
+``embedding`` (:class:`optimi_lab.problem.Embedding`).
 """
 
 import itertools
@@ -35,8 +37,8 @@ from optimi_lab.core.qmc import maximin_latin_hypercube
 from optimi_lab.model import CoKriging, FittedCoKriging
 from optimi_lab.operator import expected_improvement
 from optimi_lab.oracle import Action, Capability, Result
-from optimi_lab.problem import Problem
-from optimi_lab.solver.model_based import maximise, require_modelable
+from optimi_lab.problem import Embedding, Problem
+from optimi_lab.solver.model_based import maximise, refuse_uncertainty, require_modelable
 from optimi_lab.solver.population import Scalarise, build, require_one_score, score_rows
 
 __all__ = ['MultiFidelityBO', 'mfbo']
@@ -57,16 +59,23 @@ class MultiFidelityBO:
         polish: int = 3,
         max_evaluations: int | None = None,
         seed: int = 0,
+        embedding: Embedding | None = None,
     ) -> None:
         require_one_score(problem, scalarise, 'mfbo')
-        require_modelable(problem, constraints=False)
+        refuse_uncertainty(
+            problem,
+            'mfbo',
+            'the augmented EI weighs a level by its declared cost per evaluation, and scenarios would multiply '
+            'every level by the scenario count while the AR1 chain correlates single values, not risks',
+        )
+        self._embedding = require_modelable(problem, constraints=False, embedding=embedding)
         if problem.fidelity is None or len(problem.fidelity.levels) < 2:
             refuse('multi-fidelity BO needs problem.fidelity with at least two levels')
         levels = problem.fidelity.levels
         missing = [level.name for level in levels if level.name not in capability.fidelities]
         if missing:
             refuse(f'the oracle does not run fidelity levels {missing}; it runs {list(capability.fidelities)}')
-        width = problem.space.width
+        width = self._embedding.width
         top = 2 * (width + 1)
         counts = [top * 3 ** (len(levels) - 1 - i) for i in range(len(levels))] if initial is None else list(initial)
         if len(counts) != len(levels) or any(b > a for a, b in itertools.pairwise(counts)):
@@ -103,10 +112,10 @@ class MultiFidelityBO:
             return []
         else:
             picks = [self._pick()]
-        space, actions = self._problem.space, []
+        embedding, actions = self._embedding, []
         for row, level in picks:
-            action = Action.of(self._problem, self._capability, space.decode(row), fidelity=self._names[level])
-            self._pending[action.identity.key] = (space.encode(action.design), level)
+            action = Action.of(self._problem, self._capability, embedding.decode(row), fidelity=self._names[level])
+            self._pending[action.identity.key] = (embedding.encode(action.design), level)
             actions.append(action)
         return actions
 
