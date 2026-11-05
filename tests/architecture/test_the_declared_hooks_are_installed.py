@@ -33,7 +33,14 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 #: reds. `pre-push` ARRIVED 2026-10-18 with the family base adopted as is -- the push-side session-
 #: branch, branch-set, behind and lock rows -- where the retired configuration declared none.
 #: `post-checkout` and `post-merge` ARRIVED 2026-11-05 with the dev-lab 6f6b042a base.
-DECLARED_STAGES: Final = frozenset({'commit-msg', 'post-checkout', 'post-commit', 'post-merge', 'pre-commit', 'pre-push'})
+DECLARED_STAGES: Final = frozenset({
+    'commit-msg',
+    'post-checkout',
+    'post-commit',
+    'post-merge',
+    'pre-commit',
+    'pre-push',
+})
 
 
 def test_this_repository_declares_hooks_at_all() -> None:
