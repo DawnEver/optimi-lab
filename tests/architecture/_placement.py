@@ -614,9 +614,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER over `dev_lab.dev.hook_install` (the MEASUREMENT) and '
         '`dev_lab.dev.famtests.hookinstall` (the TEST); this file holds no arm of its own. LOCAL: the '
         'optimi-lab tree under test and the named set of stages `[tool.dev_lab.hooks]` declares, and '
-        'nothing else -- the definition of a binder. RE-MEASURED 2026-10-19: own=13 hits=0 after the two `dev_checkout` box markers, up from own=10 on 2026-10-18, down from own=11 '
-        'on 2026-09-19 when the declaration was a YAML file and the remedy arm still took its name; forty '
-        'lines under the binder ceiling.',
+        'nothing else -- the definition of a binder. RE-MEASURED 2026-11-05: own=20 hits=0 after ruff wrote the '
+        'six declared stages one per line, up from own=13 on 2026-10-19 (the two `dev_checkout` box markers), up '
+        'from own=10 on 2026-10-18, down from own=11 on 2026-09-19 when the declaration was a YAML file and the '
+        'remedy arm still took its name; thirty lines under the binder ceiling.',
     ),
     'tests/architecture/test_the_dependency_door_is_wired.py': Placement(
         STAYS,
