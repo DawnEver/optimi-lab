@@ -24,7 +24,7 @@ from optimi_lab.archive import Archive
 from optimi_lab.core import SampleKind, SampleSpec, refuse, sample
 from optimi_lab.operator import Scalarisation, crowding_select, tchebycheff
 from optimi_lab.oracle import Action, Capability, Result
-from optimi_lab.problem import Problem
+from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.cmaes import cmaes
 from optimi_lab.solver.population import score_rows
 from optimi_lab.solver.protocol import Solver
@@ -120,16 +120,20 @@ def ipop_cmaes(
     **settings: object,
 ) -> Chain:
     """IPOP-CMA-ES (Auger and Hansen, 2005): each restart multiplies the population by *factor*."""
-    base = population if population is not None else 4 + int(3 * np.log(problem.space.width))
+    width = Embedding.declared(problem.space, settings.get('embedding')).width  # type: ignore[arg-type]
+    base = population if population is not None else 4 + int(3 * np.log(width))
     return restarts(lambda k: cmaes(problem, capability, population=base * factor**k, seed=seed + k, **settings), count)
 
 
-def warm_start(archive: Archive, n: int) -> np.ndarray:
-    """The unit-cube rows of the archive's *n* best complete designs (constrained front, then crowding)."""
+def warm_start(archive: Archive, n: int, embedding: Embedding | None = None) -> np.ndarray:
+    """The rows of the archive's *n* best complete designs (constrained front, then crowding), embedded
+    by *embedding* -- the one the warm-started solver is given (none: the space's own unit cube).
+    """
     problem = archive.problem
+    embedding = Embedding.declared(problem.space, embedding)
     results = archive.complete()
     if not results:
         refuse('the archive holds no complete result to warm-start from')
     values, violation = score_rows(problem, None, results)
     keep = crowding_select(values, min(n, len(results)), violation=violation)
-    return np.array([problem.space.encode(results[i].action.design) for i in keep])
+    return np.array([embedding.encode(results[i].action.design) for i in keep])

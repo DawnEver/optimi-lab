@@ -12,7 +12,8 @@ from lab_commons.outcomes import SUBMITTED, Cell, Event, Reason, Record, Status
 from optimi_lab.core.errors import Refusal
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.policy import Batches, DecidedReplay, RouteChoice, RoutingPolicy, ScreeningOracle, VariationPolicy
-from optimi_lab.problem import Objective, Problem, Real, Space
+from optimi_lab.policy.routing import INACTIVE, natural
+from optimi_lab.problem import Integer, Objective, Problem, Real, Space, When
 
 PROBLEM = Problem(Space((Real('x', 0.0, 1.0), Real('y', 0.0, 1.0))), (Objective('f'), Objective('g')))
 
@@ -173,3 +174,14 @@ def test_the_decided_replay_hides_screened_and_retryable_outcomes_but_writes_thr
     assert kinds == [(SUBMITTED, 'a'), ('outcome', 'c'), ('note', 'n')]
     assert len(list(record.replay())) == 5
     assert replay.attempts('a') == 1 and set(replay.latest()) == {'a', 'b', 'c'} and set(replay.decided()) == {'c'}
+
+
+def test_natural_reads_a_switched_off_axis_as_nan_rather_than_raising():
+
+    space = Space((Integer('n', 0, 1), Real('r', 0.0, 1.0, active_if=When('n', (1,)))))
+    problem = Problem(space, (Objective('f'),))
+    capability = Capability(outputs=('f',))
+    off = natural(problem, Action.of(problem, capability, {'n': 0}))
+    assert off[0] == 0.0 and np.isnan(off[1]) and off[1] is INACTIVE
+    assert off == natural(problem, Action.of(problem, capability, {'n': 0}))  # one NaN object: equal tuples
+    assert natural(problem, Action.of(problem, capability, {'n': 1, 'r': 0.25})) == (1.0, 0.25)

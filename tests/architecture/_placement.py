@@ -546,7 +546,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after '
         'AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 '
         'after lab-commons 2cca293, and 2026-10-23 after current dev-lab rule adoption: '
-        'own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
+        'own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
         '2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 '
         'repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from '
         'own=102 repo=3 -> 2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up '
@@ -614,9 +614,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER over `dev_lab.dev.hook_install` (the MEASUREMENT) and '
         '`dev_lab.dev.famtests.hookinstall` (the TEST); this file holds no arm of its own. LOCAL: the '
         'optimi-lab tree under test and the named set of stages `[tool.dev_lab.hooks]` declares, and '
-        'nothing else -- the definition of a binder. RE-MEASURED 2026-10-19: own=13 hits=0 after the two `dev_checkout` box markers, up from own=10 on 2026-10-18, down from own=11 '
-        'on 2026-09-19 when the declaration was a YAML file and the remedy arm still took its name; forty '
-        'lines under the binder ceiling.',
+        'nothing else -- the definition of a binder. RE-MEASURED 2026-11-05: own=20 hits=0 (stages one per line), up from own=13 on 2026-10-19, '
+        'up from own=10 on 2026-10-18, down from own=11 on 2026-09-19 when the declaration was a YAML file and the remedy arm '
+        'still took its name; thirty lines under the binder ceiling.',
     ),
     'tests/architecture/test_the_dependency_door_is_wired.py': Placement(
         STAYS,
