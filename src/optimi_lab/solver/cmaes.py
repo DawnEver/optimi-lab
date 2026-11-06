@@ -17,7 +17,7 @@ import numpy as np
 from optimi_lab.core import refuse
 from optimi_lab.core.sampling import SampleSpec
 from optimi_lab.oracle import Capability
-from optimi_lab.problem import Problem
+from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.population import PopulationSolver, build, require_one_score
 
 __all__ = ['CMAES', 'cmaes']
@@ -44,7 +44,7 @@ class CMAES(PopulationSolver):
         require_one_score(problem, base.get('scalarise'), 'cmaes')
         if 'spec' in base or 'initial' in base:
             refuse('CMA-ES draws its own generations from its distribution; spec= and initial= do not apply')
-        n = problem.space.width
+        n = Embedding.declared(problem.space, base.get('embedding')).width  # type: ignore[arg-type]
         self._n = n
         self._lambda = int(population) if population is not None else 4 + int(3 * np.log(n))
         if self._lambda < 2:

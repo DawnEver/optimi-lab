@@ -18,7 +18,9 @@ most ``length_max``), ``failure_tolerance`` failures in a row halve it (default
 hypercube starts the next one with ``length`` reset; told data of earlier restarts is kept only for
 :attr:`TuRBO.best` -- the told OK result of lowest score across every restart (B0-08).
 
-One score (``scalarise`` for several); constraints are refused (penalise them first).
+One score (``scalarise`` for several); constraints are refused (penalise them first), and so is
+declared uncertainty, naming why. A conditional or categorical space is searched through the declared
+``embedding`` (:class:`optimi_lab.problem.Embedding`).
 """
 
 from collections.abc import Sequence
@@ -31,8 +33,8 @@ from optimi_lab.core import refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube, sobol
 from optimi_lab.model import GaussianProcess
 from optimi_lab.oracle import Action, Capability, Result
-from optimi_lab.problem import Problem
-from optimi_lab.solver.model_based import require_modelable
+from optimi_lab.problem import Embedding, Problem
+from optimi_lab.solver.model_based import refuse_uncertainty, require_modelable
 from optimi_lab.solver.population import Scalarise, build, require_one_score, score_rows
 
 __all__ = ['TuRBO', 'turbo']
@@ -58,10 +60,17 @@ class TuRBO:
         scalarise: Scalarise | None = None,
         max_evaluations: int | None = None,
         seed: int = 0,
+        embedding: Embedding | None = None,
     ) -> None:
         require_one_score(problem, scalarise, 'turbo')
-        require_modelable(problem, constraints=False)
-        width = problem.space.width
+        refuse_uncertainty(
+            problem,
+            'turbo',
+            'its trust region succeeds or fails on each told score, and a risk belongs to a whole scenario group; '
+            'use bo, parego, ehvi or nehvi, which model the risk',
+        )
+        self._embedding = require_modelable(problem, constraints=False, embedding=embedding)
+        width = self._embedding.width
         if not 0 < length_min < length <= length_max or batch < 1 or success_tolerance < 1:
             refuse(f'need 0 < length_min < length <= length_max, batch >= 1, success_tolerance >= 1; got '
                    f'{length_min}, {length}, {length_max}, {batch}, {success_tolerance}')  # fmt: skip
@@ -106,10 +115,10 @@ class TuRBO:
                 refuse('no point of this restart produced a value; there is nothing to model')
             self._queue = list(self._thompson())
         rows, self._queue = self._queue[:room], self._queue[room:]
-        space, actions = self._problem.space, []
+        embedding, actions = self._embedding, []
         for row in rows:
-            action = Action.of(self._problem, self._capability, space.decode(row))
-            self._pending[action.identity.key] = space.encode(action.design)
+            action = Action.of(self._problem, self._capability, embedding.decode(row))
+            self._pending[action.identity.key] = embedding.encode(action.design)
             actions.append(action)
         return actions
 
