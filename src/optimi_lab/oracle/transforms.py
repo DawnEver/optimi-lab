@@ -11,7 +11,9 @@
   finite differences of its own values, per output. A gradient that leaves out a state's
   contribution (the partial where the total derivative is meant, B0-09) is named here.
 * :func:`embed` -- every unembedded categorical gets a one-hot embedding, the one metric that does
-  not depend on the order the levels were written in (B0-11).
+  not depend on the order the levels were written in (B0-11), or the declared ordinal one. A solver
+  takes the whole of it, conditional variables included, as ``embedding=``
+  (:class:`optimi_lab.problem.Embedding`).
 
 A transform that a solver needed is listed in its result (B0-20); the capability registry names it.
 """
@@ -32,7 +34,7 @@ from optimi_lab.oracle.action import Action
 from optimi_lab.oracle.capability import Capability, Information
 from optimi_lab.oracle.oracle import Oracle
 from optimi_lab.oracle.result import Result
-from optimi_lab.problem import Categorical, Chance, Field, Problem, Real, Sense, Space
+from optimi_lab.problem import Chance, Encoding, Field, Problem, Real, Sense, Space, embed_categoricals
 
 __all__ = ['Penalty', 'Scheme', 'check_gradient', 'embed', 'finite_difference', 'with_finite_differences']
 
@@ -192,15 +194,6 @@ class Penalty:
         return replace(result, cell=penalised)
 
 
-def embed(space: Space) -> Space:
-    """*space* with a one-hot embedding on every categorical that has none."""
-    return Space(
-        tuple(
-            replace(
-                v, embedding=tuple(tuple(float(i == j) for j in range(len(v.levels))) for i in range(len(v.levels)))
-            )
-            if isinstance(v, Categorical) and v.embedding is None
-            else v
-            for v in space
-        )
-    )
+def embed(space: Space, encoding: Encoding = Encoding.ONE_HOT) -> Space:
+    """*space* with an *encoding* embedding (default one-hot) on every categorical that has none."""
+    return embed_categoricals(space, encoding)

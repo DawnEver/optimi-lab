@@ -168,7 +168,7 @@ class SmoothView:
     def linearize(self, x: np.ndarray, result: Result) -> Linearization:
         """The linearisation at unit point *x* from an OK *result*; a result without values is Unevaluable."""
         if result.cell.status is not Status.OK:
-            reason = result.cell.reason.detail if result.cell.reason is not None else ''
+            reason = result.cell.reason.text if result.cell.reason is not None else ''
             msg = f'{result.cell.status.name}: {reason}'
             raise Unevaluable(msg)
         values, gradients = result.cell.values, result.gradient

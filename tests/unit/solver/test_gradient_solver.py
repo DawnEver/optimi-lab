@@ -157,3 +157,21 @@ def test_p9_planted_control_a_wrong_declared_gradient_does_not_agree(tmp_path: P
     solver, _ = _drive(tmp_path, 'sqp', _oracle(planted=-1.0), evaluations=400)
     found = np.array([solver.design()[n] for n in NAMES]) if solver.done else None
     assert found is None or not (solver.solution.halt is Halt.CONVERGED and agrees(found, _reference()))
+
+
+def test_p9_a_rejected_trial_point_is_backtracked_not_a_crash(tmp_path: Path) -> None:
+    """A REJECTED result names its cause in ``Reason.text``; the line search backs off it and converges."""
+    problem = Problem(DesignSpace((Real('x', 0.0, 10.0),)), (Objective('f'),))
+
+    def evaluate(action: Action) -> Result:
+        x = action.design['x']
+        if x > 3.0:
+            return Result(action, Cell(Status.REJECTED, reason=Reason('invalid', 'no design out here')))
+        slope = np.array([2 * (x - 2.0) * 10.0])
+        return Result(action, Cell(Status.OK, values={'f': (x - 2.0) ** 2}), gradient={'f': slope})
+
+    oracle = from_function(evaluate, Capability(outputs=('f',), provides=SLOPES))
+    solver = GradientSolver(problem, oracle.capability, 'lbfgsb', start={'x': 0.5})
+    run(problem, oracle, solver, Record(tmp_path / 'r.jsonl'), Budget(evaluations=200))
+    assert solver.solution.halt is Halt.CONVERGED
+    assert agrees(np.array([solver.design()['x']]), np.array([2.0]))

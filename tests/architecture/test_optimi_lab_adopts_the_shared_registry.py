@@ -273,6 +273,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED with lab-commons a2f50b9 at zero sites: the family scanner over every tracked `*.py`,
     # all four banned calls plus `__getattr__`, with an empty two-sided allow-set.
     'NO-REFLECTION': (_NO_REFLECTION,),
+    # Adopted 2026-11-05 with dev-lab 6f6b042a: three PR-flow rows of the forge's own admission (a PR opens
+    # as a draft, forge writes go through its doors, no push lands on a merged PR), as in numerics-lab.
+    'DRAFT-UNTIL-READY': (_PYPROJECT,),
+    'FORGE-DOORS-ARE-CONSENT': (_PYPROJECT,),
+    'NO-PUSH-ONTO-A-LANDED-PR': (_PYPROJECT,),
     # ADOPTED with lab-commons ec5e8c5: `[tool.dev_lab.branchset]` declares trunk `main` and no
     # session branches, and the family famtest polices origin and this box against it.
     'ONE-BRANCH-PER-SESSION': ('pyproject.toml', _ORIGIN),

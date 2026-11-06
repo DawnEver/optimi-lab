@@ -23,7 +23,7 @@ one gets a `TypeError` rather than a silent wrong answer.
 
 ONE ARM STAYS LOCAL because the kit has no place for it: the JOIN between the two halves -- that the
 directory the anchors are looked for in is the directory the verdict entry point writes to. That is
-a fact about this checkout and about `dev_lab.dev.verify.LOG_DIRECTORY` together, and each of
+a fact about this checkout and about `dev_lab.dev.verifysteps.LOG_DIRECTORY` together, and each of
 the kit's arms answers for one half only.
 
 THE MUTATE-DRIVING ARMS NEED A PRIVATE SEAT RECORDS ROOT, and the kit's own suite is where this
@@ -45,7 +45,7 @@ from typing import Final
 
 import pytest
 from dev_lab.dev.famtests import depdoor
-from dev_lab.dev.verify import LOG_DIRECTORY
+from dev_lab.dev.verifysteps import LOG_DIRECTORY
 from lab_commons.box import BOX_ENV
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
@@ -148,7 +148,7 @@ def test_the_anchor_adapter_reads_the_shape_this_repo_writes(tmp_path: Path) -> 
 def test_the_anchor_directory_is_the_one_verify_writes_to() -> None:
     """THE JOIN, and the one arm the kit has no place for: each of its arms answers for one half.
 
-    The anchor shape is BUILT from `dev_lab.dev.verify.LOG_DIRECTORY` rather than spelled, so a
+    The anchor shape is BUILT from `dev_lab.dev.verifysteps.LOG_DIRECTORY` rather than spelled, so a
     `verify` that moved its logs reds here instead of leaving every retirement arm above green over
     a directory nothing writes to.
     """

@@ -37,7 +37,8 @@ def _action(data: dict[str, Any]) -> Action:
     identity = Identity(data['identity'], data['key'])
     want = frozenset(Information(i) for i in data['want'])
     direction = None if data['direction'] is None else tuple(data['direction'])
-    return Action(data['design'], data['fidelity'], want, data['replicate'], identity, direction)
+    scenario = data.get('scenario')  # a record filed before scenarios existed carries none: upgraded on read
+    return Action(data['design'], data['fidelity'], want, data['replicate'], identity, direction, scenario)
 
 
 class Archive:

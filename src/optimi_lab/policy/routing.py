@@ -24,7 +24,7 @@ from optimi_lab.oracle import Action, Oracle, Result
 from optimi_lab.problem import Problem
 from optimi_lab.solver.protocol import Solver
 
-__all__ = ['RouteChoice', 'RouteRule', 'RoutingPolicy', 'ScreeningOracle', 'natural']
+__all__ = ['INACTIVE', 'RouteChoice', 'RouteRule', 'RoutingPolicy', 'ScreeningOracle', 'natural']
 
 #: ``router(points, results)`` -> one evaluator index (or ``RouteChoice.SCREENED``) per unique proposed
 #: action; *points* are natural coordinates in space order, *results* the told results in told order.
@@ -57,11 +57,20 @@ class ScreeningOracle(Oracle, Protocol):
 
 
 def natural(problem: Problem, action: Action) -> tuple[float, ...]:
-    """*action*'s design as natural coordinates in space order; a non-numeric coordinate is refused."""
-    values = tuple(action.design[name] for name in problem.space.names)
+    """*action*'s design as natural coordinates in space order; a non-numeric coordinate is refused.
+
+    An axis its ``active_if`` switched off is absent from the design and reads as NaN, as
+    :meth:`Space.encode` does -- the ONE NaN object :data:`INACTIVE`, so two designs that differ only
+    in a switched-off axis stay equal as tuples and as keys.
+    """
+    values = tuple(action.design.get(name, INACTIVE) for name in problem.space.names)
     if any(isinstance(value, bool) or not isinstance(value, RealNumber) for value in values):
         refuse(f'a routed design is continuous and numeric, got {values!r}')
-    return tuple(float(value) for value in values)
+    return tuple(value if value is INACTIVE else float(value) for value in values)
+
+
+#: The coordinate of an inactive axis in :func:`natural`; one object, so tuple equality holds.
+INACTIVE: float = float('nan')
 
 
 class RoutingPolicy:

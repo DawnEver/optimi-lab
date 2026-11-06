@@ -73,7 +73,7 @@ from optimi_lab.operator.reliability import (
     surrogate_reliability,
 )
 from optimi_lab.operator.repair import Repair, bisect_to_admissible, repair, round_to_level
-from optimi_lab.operator.risk import cvar, expectation, mean_plus_std, value_at_risk, worst_case
+from optimi_lab.operator.risk import Measure, Risk, cvar, expectation, mean_plus_std, value_at_risk, worst_case
 from optimi_lab.operator.robust import Response, Rule, draw, robust_mean
 from optimi_lab.operator.sampling import stratified
 from optimi_lab.operator.scalarisation import (
@@ -122,11 +122,13 @@ __all__ = [
     'Lattice',
     'LimitState',
     'Linearization',
+    'Measure',
     'Multilevel',
     'QPSolution',
     'Reach',
     'Repair',
     'Response',
+    'Risk',
     'Rule',
     'Scalarisation',
     'SecondOrder',

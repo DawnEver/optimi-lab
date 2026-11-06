@@ -6,6 +6,7 @@ problem only through these declarations.
 
 from optimi_lab.problem.constraints import BlackBox, Chance, Constraint, Explicit, Linear, Path, Relation
 from optimi_lab.problem.declarations import Fidelity, Form, Level, Normal, Structure, Uncertainty, Uniform
+from optimi_lab.problem.embedding import Embedding, Encoding, Inactive, embed_categoricals, needs_embedding
 from optimi_lab.problem.objective import Normalization, Objective, Sense
 from optimi_lab.problem.problem import Problem
 from optimi_lab.problem.space import Space
@@ -16,10 +17,13 @@ __all__ = [
     'Categorical',
     'Chance',
     'Constraint',
+    'Embedding',
+    'Encoding',
     'Explicit',
     'Fidelity',
     'Field',
     'Form',
+    'Inactive',
     'Integer',
     'Level',
     'Linear',
@@ -38,4 +42,6 @@ __all__ = [
     'Uniform',
     'Variable',
     'When',
+    'embed_categoricals',
+    'needs_embedding',
 ]

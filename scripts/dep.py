@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 from dev_lab.dev.dep import Port, mutate
-from dev_lab.dev.verify import LOG_DIRECTORY
+from dev_lab.dev.verifysteps import LOG_DIRECTORY
 from lab_commons.log import emit
 
 if TYPE_CHECKING:

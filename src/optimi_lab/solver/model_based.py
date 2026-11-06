@@ -18,8 +18,18 @@ OBSERVED, NEVER PREDICTED (B0-08). :attr:`ModelBased.front` (and each solver's `
 told OK results: a prediction steers an ask and is never reported.
 
 A told point that is not OK leaves the pending set and the data alike. :func:`require_modelable` is
-the one readiness check: every variable unconditional and every categorical embedded (the model
-needs a metric); a constraint other than BlackBox is refused, naming the ``penalise`` transform.
+the one readiness check: a space with conditional variables or unembedded categoricals is modelled
+through the declared ``embedding`` (:class:`optimi_lab.problem.Embedding`) and refused without one;
+a Chance constraint is refused (a model estimates no probability); any other constraint than
+BlackBox is refused, naming the ``penalise`` transform.
+
+ROBUST (a problem declaring :class:`~optimi_lab.problem.Uncertainty`). ``scenarios`` draws are taken
+once from the seed and shared by every design (:class:`optimi_lab.solver.scenarios.Scenarios`); a
+pick is asked once per scenario, and only when every scenario of it is told OK does it enter the
+data -- as ONE row whose objectives and constraint margins are each the declared ``risk`` over its
+scenarios. So the model is fitted on the risk estimate, the acquisition reads the risk at its
+predicted mean, and :attr:`ModelBased.front` reports observed risk rows. A design with any scenario
+not OK is dropped whole.
 """
 
 from abc import ABC, abstractmethod
@@ -34,11 +44,12 @@ from optimi_lab.core import non_dominated_sorting, refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube, sobol
 from optimi_lab.model import FittedGaussianProcess, GaussianProcess
 from optimi_lab.model.likelihood import Box
-from optimi_lab.operator import log_probability_of_feasibility
+from optimi_lab.operator import Risk, log_probability_of_feasibility
 from optimi_lab.oracle import Action, Capability, Result
-from optimi_lab.problem import BlackBox, Categorical, Problem, Relation
+from optimi_lab.problem import BlackBox, Chance, Embedding, Problem, Relation
+from optimi_lab.solver.scenarios import Scenarios
 
-__all__ = ['Acquisition', 'ModelBased', 'margins', 'maximise', 'require_modelable']
+__all__ = ['Acquisition', 'ModelBased', 'margins', 'maximise', 'refuse_uncertainty', 'require_modelable']
 
 #: Unit-cube rows ``(n, d)`` -> one score per row ``(n,)``, larger is better.
 Acquisition = Callable[[np.ndarray], np.ndarray]
@@ -91,19 +102,31 @@ def maximise(
     return best
 
 
-def require_modelable(problem: Problem, *, constraints: bool) -> None:
-    """Refuse what a model over the unit cube cannot read: a conditional or unembedded variable, a foreign constraint.
+def require_modelable(problem: Problem, *, constraints: bool, embedding: Embedding | None = None) -> Embedding:
+    """The embedding a model reads *problem* through, refusing what it cannot read.
 
-    With ``constraints=False`` every constraint is refused, naming the ``penalise`` transform.
+    A conditional or unembedded variable needs a declared *embedding*; a Chance constraint is
+    refused (a model estimates no probability); with ``constraints=False`` every constraint is
+    refused, naming the ``penalise`` transform.
     """
-    conditional = [v.name for v in problem.space if v.active_if is not None]
-    unembedded = [v.name for v in problem.space if isinstance(v, Categorical) and v.embedding is None]
-    if conditional or unembedded:
-        refuse(f'a model needs every variable active and metric; {conditional + unembedded} are not (embed first)')
+    embedding = Embedding.declared(problem.space, embedding)
+    chance = [c.name for c in problem.constraints if isinstance(c, Chance)]
+    if chance:
+        refuse(
+            f'a model estimates no probability, so Chance constraints {chance} cannot be modelled; '
+            f'a population solver estimates them over its scenarios'
+        )
     foreign = [c.name for c in problem.constraints if not (constraints and isinstance(c, BlackBox))]
     if foreign:
         kind = 'BlackBox constraints only' if constraints else 'no constraint'
         refuse(f'this solver models {kind}; apply optimi_lab.oracle.penalise to {foreign}')
+    return embedding
+
+
+def refuse_uncertainty(problem: Problem, what: str, why: str) -> None:
+    """Refuse a problem that declares uncertainty for a solver with no risk estimator, saying *why*."""
+    if problem.uncertainty is not None:
+        refuse(f'{what} has no risk estimator over the problem uncertainty: {why}')
 
 
 class ModelBased(ABC):
@@ -121,22 +144,29 @@ class ModelBased(ABC):
         polish: int = 3,
         max_evaluations: int | None = None,
         seed: int = 0,
+        risk: Risk | None = None,
+        scenarios: int | None = None,
+        embedding: Embedding | None = None,
     ) -> None:
-        require_modelable(problem, constraints=True)
+        self._embedding = require_modelable(problem, constraints=True, embedding=embedding)
         if surrogate is not None and not isinstance(surrogate, GaussianProcess):
             refuse(f'the acquisitions read a joint posterior and fantasies; pass a GaussianProcess, got {surrogate!r}')
-        width = problem.space.width
+        width = self._embedding.width
         initial = 2 * (width + 1) if initial is None else initial
         if initial < 2 or batch < 1 or polish < 0:
             refuse(f'need initial >= 2, batch >= 1 and polish >= 0; got {initial}, {batch} and {polish}')
         self._problem, self._capability, self._width = problem, capability, width
         self._rng = np.random.default_rng(seed)
+        self._robust = Scenarios.of(problem, risk, scenarios, self._rng)
+        self._per = 1 if self._robust is None else len(self._robust.scenarios)
         self._surrogate = surrogate or GaussianProcess(restarts=2, seed=seed)
         self._batch, self._polish, self._max = batch, polish, max_evaluations
         self._candidates = min(256 * width, 4096) if candidates is None else candidates
         self._design = maximin_latin_hypercube(initial, width, self._rng)
         self._asked_design = 0
-        self._pending: dict[str, np.ndarray] = {}
+        self._pending: dict[str, tuple[int, np.ndarray]] = {}
+        self._groups: dict[int, list[Result]] = {}
+        self._picks = 0
         self._seen: set[str] = set()
         self._told = 0
         self._x: list[np.ndarray] = []
@@ -149,6 +179,7 @@ class ModelBased(ABC):
 
     def ask(self, capacity: int) -> Sequence[Action]:
         room = capacity if self._max is None else min(capacity, self._max - self._told - len(self._pending))
+        room //= self._per  # in designs: each is asked once per scenario
         if self.done or room <= 0:
             return []
         if self._asked_design < len(self._design):
@@ -160,10 +191,17 @@ class ModelBased(ABC):
             refuse(f'none of the {self._told} initial point(s) produced a value; there is nothing to model')
         else:
             rows = self._propose(min(room, self._batch))
-        space = self._problem.space
-        actions = [Action.of(self._problem, self._capability, space.decode(row)) for row in rows]
-        for action in actions:
-            self._pending[action.identity.key] = space.encode(action.design)
+        embedding = self._embedding
+        draws = (None,) if self._robust is None else self._robust.scenarios
+        actions: list[Action] = []
+        for row in rows:
+            design = embedding.decode(row)
+            group, self._picks = self._picks, self._picks + 1
+            self._groups[group] = []
+            for scenario in draws:
+                action = Action.of(self._problem, self._capability, design, scenario=scenario)
+                self._pending[action.identity.key] = (group, embedding.encode(action.design))
+                actions.append(action)
         return actions
 
     def tell(self, results: Sequence[Result]) -> None:
@@ -173,18 +211,34 @@ class ModelBased(ABC):
                 if key in self._seen:
                     continue
                 refuse('a result was told that this solver did not ask for; tell each result to its own solver')
-            x = self._pending.pop(key)
+            group, x = self._pending.pop(key)
             self._seen.add(key)
             self._told += 1
-            if result.cell.status is Status.OK:
-                self._x.append(x)
-                self._y.append(np.array([o.minimized(result.cell.values[o.name]) for o in self._problem.objectives]))
-                self._g.append(margins(self._problem, result))
-                self._results.append(result)
+            told = self._groups[group]
+            told.append(result)
+            if len(told) == self._per:
+                del self._groups[group]
+                self._admit(x, told)
+
+    def _admit(self, x: np.ndarray, told: list[Result]) -> None:
+        """One design's results (one per scenario) as one data row -- the risk of each column -- if all are OK."""
+        if any(r.cell.status is not Status.OK for r in told):
+            return
+        objectives = self._problem.objectives
+        y = np.array([[o.minimized(r.cell.values[o.name]) for o in objectives] for r in told])
+        g = np.array([margins(self._problem, r) for r in told]).reshape(len(told), -1)
+        if self._robust is not None:
+            risk = self._robust.risk
+            y = np.array([risk.of(column) for column in y.T]).reshape(1, -1)
+            g = np.array([risk.of(column) for column in g.T]).reshape(1, -1)
+        self._x.append(x)
+        self._y.append(y[0])
+        self._g.append(g[0])
+        self._results.append(told[0])
 
     @property
     def done(self) -> bool:
-        return self._max is not None and self._told >= self._max
+        return self._max is not None and self._max - self._told < self._per and not self._pending
 
     @property
     def front(self) -> list[Result]:
@@ -241,7 +295,8 @@ class ModelBased(ABC):
         """*count* picks, each conditioned on the pending points and on the picks before it."""
         picks: list[np.ndarray] = []
         for _ in range(count):
-            rows = np.array([*self._pending.values(), *picks]).reshape(-1, self._width)
+            pending = dict(self._pending.values())  # one row per design, not one per scenario
+            rows = np.array([*pending.values(), *picks]).reshape(-1, self._width)
             picks.append(self._pick(rows))
         return np.array(picks)
 
