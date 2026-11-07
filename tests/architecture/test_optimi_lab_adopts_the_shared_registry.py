@@ -279,6 +279,8 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'DRAFT-UNTIL-READY': (_PYPROJECT,),
     'FORGE-DOORS-ARE-CONSENT': (_PYPROJECT,),
     'NO-PUSH-ONTO-A-LANDED-PR': (_PYPROJECT,),
+    # Adopted 2026-11-07 with dev-lab #304: the base pre-push row `pr-current` this pyproject's hooks table runs.
+    'PR-HEAD-IS-CURRENT': (_PYPROJECT,),
     # ADOPTED with lab-commons ec5e8c5: `[tool.dev_lab.branchset]` declares trunk `main` and no
     # session branches, and the family famtest polices origin and this box against it.
     'ONE-BRANCH-PER-SESSION': ('pyproject.toml', _ORIGIN),
