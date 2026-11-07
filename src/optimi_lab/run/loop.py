@@ -1,7 +1,8 @@
 """The run: ask, file, dispatch, file, tell -- until a named reason stops it.
 
 EXECUTION IS INJECTED. ``dispatch(oracle, actions)`` yields results as they finish; this package
-ships only :func:`serial`. A cluster, a process pool or a vendor queue is a caller's dispatch.
+ships :func:`serial` and :func:`pooled` (a caller-owned thread or process executor, priority-ordered);
+a cluster or a vendor queue is a caller's dispatch.
 
 RESUME IS REPLAY. Every action the solver asks is looked up in the record first: the k-th ask of an
 identity is answered with the k-th outcome recorded for it -- so a TIMEOUT that was retried replays
@@ -23,7 +24,9 @@ import asyncio
 import sys
 from collections import defaultdict, deque
 from collections.abc import AsyncIterator, Callable, Sequence
+from concurrent.futures import Executor
 from dataclasses import dataclass
+from typing import Any
 
 from lab_commons.outcomes import Record
 
@@ -33,7 +36,7 @@ from optimi_lab.problem import Problem
 from optimi_lab.run.ledger import Budget, Ledger, Stop, Termination
 from optimi_lab.solver.protocol import Solver
 
-__all__ = ['Dispatch', 'Run', 'run', 'run_async', 'serial']
+__all__ = ['Dispatch', 'Run', 'pooled', 'run', 'run_async', 'serial']
 
 #: ``dispatch(oracle, actions)`` -> results as they finish, in any order.
 Dispatch = Callable[[Oracle, Sequence[Action]], AsyncIterator[Result]]
@@ -43,6 +46,28 @@ async def serial(oracle: Oracle, actions: Sequence[Action]) -> AsyncIterator[Res
     """One action at a time, in order."""
     for action in actions:
         yield await oracle(action)
+
+
+def pooled(executor: Executor, *, priority: Callable[[Action], Any] | None = None) -> Dispatch:
+    """A dispatch over a caller-owned *executor*: each action submitted lowest *priority* first, results as they finish.
+
+    The executor IS the pool: its width is the cap on concurrent evaluations and its ``initializer``
+    runs once per worker before any action; a process executor needs a picklable oracle. Ties in
+    *priority* (and every action when it is None) keep the ask order. The caller opens and closes it.
+    """
+
+    async def dispatch(oracle: Oracle, actions: Sequence[Action]) -> AsyncIterator[Result]:
+        ordered = list(actions) if priority is None else sorted(actions, key=priority)
+        futures = [asyncio.wrap_future(executor.submit(_evaluate, oracle, action)) for action in ordered]
+        for finished in asyncio.as_completed(futures):
+            yield await finished
+
+    return dispatch
+
+
+def _evaluate(oracle: Oracle, action: Action) -> Result:
+    """One action on a worker: the oracle's own coroutine, driven to completion there."""
+    return asyncio.run(oracle(action))
 
 
 @dataclass(frozen=True, slots=True)

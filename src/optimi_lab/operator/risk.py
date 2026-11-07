@@ -121,6 +121,15 @@ class Risk(_RiskFields):
             refuse(f'k= is given exactly for mean_plus_std, got {measure.value} with k={k!r}')
         _RiskFields.__init__(self, measure, None if alpha is None else _alpha(alpha), None if k is None else float(k))
 
+    @property
+    def label(self) -> str:
+        """The statistic a value of this risk IS, as a report prints it: ``CVaR0.9``, ``VaR0.95``, ``mean+2std``."""
+        if self.alpha is not None:
+            return f'{"CVaR" if self.measure is Measure.CVAR else "VaR"}{self.alpha:g}'
+        if self.k is not None:
+            return f'mean+{self.k:g}std'
+        return self.measure.value
+
     def of(self, values, weights=None) -> float:
         """The declared measure of the loss distribution *values* (equally weighted when *weights* is None)."""
         if self.measure is Measure.MEAN:

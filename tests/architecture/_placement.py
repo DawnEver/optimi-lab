@@ -225,7 +225,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER over `dev_lab.dev.dep`: the env_key, the refusal while a verdict holds this '
         "environment's seat and the anchor retirement are all upstream, and since lab-commons 96a90c8 who may "
         "block a change is the kit's own answer too, so this file supplies the ONE answer that is not -- that "
-        "this tree's verdict records are `.verify/verify-*.log`. RE-MEASURED 2026-10-18: own=19 hits=0, down "
+        "this tree's verdict records are the dated `verify/verify-*.log`. RE-MEASURED 2026-11-07: own=21 hits=0 after "
+        'the anchors moved to the output tree, up from own=19 on 2026-10-18, itself down '
         "from own=22 on 2026-09-17 when it also named the box seat's holders. The seam is ALREADY CUT here, "
         'which is why this is a `STAYS` and not a `SPLITS`: `Port` is the shape upstream defined for exactly '
         'this residue, and this file is the residue.',
@@ -265,7 +266,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-10-29 after the CI-workflow row: own=525 hits=46 -> 8.76%, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
+        'family half in it to split off. RE-MEASURED 2026-11-07 after the dated-anchor rows: own=527 hits=46 -> 8.73%, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
         'own=519 hits=47 -> 9.06% after dev-lab delegation and new binders on 2026-10-23, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
@@ -546,7 +547,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after '
         'AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 '
         'after lab-commons 2cca293, and 2026-10-23 after current dev-lab rule adoption: '
-        'own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
+        'own=152 hits=3 -> 1.97% on 2026-11-07 (the PR-REVIEW rename and the WRITES-STAY-IN-THE-TREE row), up from own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
         '2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 '
         'repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from '
         'own=102 repo=3 -> 2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up '
@@ -574,7 +575,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'AND NO CALLER DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against '
         "the real registry when the arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine "
         'command-plus-rule rows and the six sanctioned exits. RE-MEASURED 2026-10-23 after adopting the two '
-        'new reset/stage guards and their controls: own=67 hits=1 on 2026-10-30 (the guard-is-live `workstation` marker dropped, user ruling 10-30), down from own=68 hits=1 on 2026-10-29 (two engine-only `workstation` markers dropped), down from own=69 hits=1 on 2026-10-26 (REVIEW-STATUS-VIA-DOORS pinned), up from own=68 hits=1 on 2026-10-25 (WORKTREE-BASE-IS-EXPLICIT is a hint now, its deny probe row gone), down from own=69 hits=1 on 2026-10-25 (BARE-PYTHON pinned), up from own=68 hits=1 on 2026-10-24 (TREE-HAS-A-LIVE-RUN pinned), up from own=67 hits=1 on 2026-10-23, up from own=61 hits=0 on 2026-10-19, '
+        'new reset/stage guards and their controls: own=69 hits=1 on 2026-11-07 (HPC-THROUGH-THE-DOOR and WRITES-STAY-IN-THE-TREE pinned), up from own=67 hits=1 on 2026-10-30 (the guard-is-live `workstation` marker dropped, user ruling 10-30), down from own=68 hits=1 on 2026-10-29 (two engine-only `workstation` markers dropped), down from own=69 hits=1 on 2026-10-26 (REVIEW-STATUS-VIA-DOORS pinned), up from own=68 hits=1 on 2026-10-25 (WORKTREE-BASE-IS-EXPLICIT is a hint now, its deny probe row gone), down from own=69 hits=1 on 2026-10-25 (BARE-PYTHON pinned), up from own=68 hits=1 on 2026-10-24 (TREE-HAS-A-LIVE-RUN pinned), up from own=67 hits=1 on 2026-10-23, up from own=61 hits=0 on 2026-10-19, '
         'up from own=58 on 2026-10-18 after SUBAGENT-NO-PUSH and REPORTS-LIVE-IN-MEMORY, up from own=57 on 2026-10-09, up from own=55 on '
         '2026-10-05, up from own=52 on 2026-10-03 after the progressive injected-text control was adopted, '
         'itself up from own=50 on 2026-10-01 by the two names lab-commons 9ce57c3 shipped (BARE-INTERPRETER, '
@@ -623,9 +624,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'A BINDER over `dev_lab.dev.famtests.depdoor`, whose arms drive the real `dev_lab.dev.dep` '
         "door; the shape is the sibling lab's twin, measured 91.5% identical on 2026-09-17 before the arms moved "
         "upstream. LOCAL: the repo name the report prints, `scripts/dep.py`'s anchor adapter and port, the "
-        "`.verify/verify-*.log` shape, the box-ledger isolation for the arms' own seats, and the one JOIN the "
+        "dated `verify/verify-*.log` shape, the box-ledger isolation for the arms' own seats, and the one JOIN the "
         'kit cannot ask -- that the anchors are read from the directory the verdict entry point writes. '
-        'RE-MEASURED 2026-10-18: own=50 hits=1 -> 2.00%, up from own=49 on 2026-10-07, AT the binder ceiling.',
+        'RE-MEASURED 2026-11-07: own=50 hits=1 -> 2.00% after the anchors moved to the output tree, up from own=49 on '
+        '2026-10-07, AT the binder ceiling.',
     ),
     'tests/architecture/test_the_migration_boundary_is_declared.py': Placement(
         STAYS,

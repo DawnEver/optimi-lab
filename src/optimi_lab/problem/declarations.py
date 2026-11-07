@@ -10,16 +10,18 @@ from __future__ import annotations
 
 import itertools
 import math
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
+from types import MappingProxyType
+from typing import Final
 
 import numpy as np
 from scipy.special import ndtr, ndtri
 
 from optimi_lab.core.errors import refuse, require_declared_names
 
-__all__ = ['Fidelity', 'Form', 'Level', 'Normal', 'Structure', 'Uncertainty', 'Uniform']
+__all__ = ['DISTRIBUTIONS', 'Fidelity', 'Form', 'Level', 'Normal', 'Structure', 'Uncertainty', 'Uniform']
 
 
 class Form(StrEnum):
@@ -104,6 +106,13 @@ class Uniform:
         return self.quantile(ndtr(z))
 
 
+#: A declared distribution name -> its parameter class; ``(a, b)`` is ``(mean, std)`` or ``(lo, hi)``.
+DISTRIBUTIONS: Final[Mapping[str, type[Normal | Uniform]]] = MappingProxyType({
+    'normal': Normal,
+    'uniform': Uniform,
+})
+
+
 @dataclass(frozen=True, slots=True)
 class _UncertaintyFields:
     parameters: tuple[Normal | Uniform, ...]
@@ -117,6 +126,19 @@ class Uncertainty(_UncertaintyFields):
         parameters = tuple(parameters)
         require_declared_names(tuple(p.name for p in parameters), 'uncertainty')
         _UncertaintyFields.__init__(self, parameters)
+
+    @classmethod
+    def declared(cls, rows: Iterable[tuple[str, str, float, float, str | None]]) -> Uncertainty | None:
+        """The uncertainty over declared ``(name, distribution, a, b, unit)`` rows; None when there are none.
+
+        ``distribution`` names a :data:`DISTRIBUTIONS` key; ``(a, b)`` is ``(mean, std)`` or ``(lo, hi)``.
+        """
+        parameters = []
+        for name, distribution, a, b, unit in rows:
+            if distribution not in DISTRIBUTIONS:
+                refuse(f'parameter {name!r}: no distribution {distribution!r}; declare one of {sorted(DISTRIBUTIONS)}')
+            parameters.append(DISTRIBUTIONS[distribution](name, float(a), float(b), unit))
+        return cls(tuple(parameters)) if parameters else None
 
     @property
     def names(self) -> tuple[str, ...]:

@@ -4,13 +4,17 @@ The analytic benchmark problems are :mod:`optimi_lab.benchmark`. Minimisation fr
 volume is in the product of the objectives' units, a distance in their common unit.
 
 Many-objective reading of one run against a reference set (both in ONE fixed frame,
-:func:`fixed_normalization`, so nothing is rescaled per run): Schott's :func:`spacing`, Zhou et al.'s
+:func:`fixed_normalization`, pinned across reports by :func:`pinned_normalization`, so nothing is
+rescaled per run): Schott's :func:`spacing`, Zhou et al.'s
 :func:`generalized_spread`, the attained share :func:`coverage`, and :func:`front_metrics` -- every
 one of them plus IGD+ and hypervolume at several reference levels. :func:`within_budget` is the
 equal-budget cut: how many leading rows a solve budget pays for.
 """
 
-from collections.abc import Sequence
+import json
+import os
+from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 import numpy as np
 
@@ -30,6 +34,7 @@ __all__ = [
     'hypervolume_mc',
     'igd',
     'igd_plus',
+    'pinned_normalization',
     'spacing',
     'spread',
     'within_budget',
@@ -182,6 +187,35 @@ def fixed_normalization(points: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         refuse('a fixed normalization needs at least one row')
     ideal, nadir = points.min(axis=0), _first_front(points).max(axis=0)
     return ideal, np.where(nadir <= ideal, ideal + 1.0, nadir)
+
+
+def pinned_normalization(path: Path, points: Mapping[str, np.ndarray]) -> dict[str, tuple[np.ndarray, np.ndarray]]:
+    """Each key's ``(ideal, nadir)``, PINNED in the JSON file *path* the first time the key is read.
+
+    A frame derived from the union of the runs present moves as runs are added, so one run scores
+    differently in two reports. The first read of a key fixes its frame (:func:`fixed_normalization`
+    of its minimized *points*) and every later read returns the pinned one; a key first seen later is
+    pinned then, never re-derived; a key with no rows is skipped. Delete the file to re-pin deliberately.
+    The file is replaced atomically, so a reader never sees a half-written frame.
+    """
+    pinned = json.loads(path.read_text(encoding='utf-8')) if path.is_file() else {}
+    fresh = {}
+    for key in sorted(points):
+        rows = np.asarray(points[key], dtype=float)
+        if key in pinned or not rows.size:
+            continue
+        ideal, nadir = fixed_normalization(rows)
+        fresh[key] = {'lower': ideal.tolist(), 'upper': nadir.tolist()}
+    if fresh:
+        pinned |= fresh
+        path.parent.mkdir(parents=True, exist_ok=True)
+        staged = path.with_name(f'{path.name}.{os.getpid()}.tmp')
+        staged.write_text(json.dumps(pinned, indent=1, sort_keys=True) + '\n', encoding='utf-8')
+        staged.replace(path)
+    return {
+        key: (np.array(frame['lower'], dtype=float), np.array(frame['upper'], dtype=float))
+        for key, frame in pinned.items()
+    }
 
 
 def spacing(front: np.ndarray) -> float:
