@@ -24,7 +24,8 @@ reason in the comment above it, and on 2026-09-17 every one of those reasons was
 than re-read: three of them did not survive it and became mechanisms.
 
 TWO RULES ARRIVED UPSTREAM AND WERE ADOPTED ON THE SAME DAY, 2026-09-16:
-`NO-CJK-IN-TRACKED-SOURCE` and `INJECTED-DOC-WIDTH-CEILING`, each driving the SHARED scanner in
+`NO-CJK-IN-TRACKED-SOURCE` (since 2026-11-07 always on from dev-lab's pytest plugin,
+`dev_lab.dev.famtests.alwayson`, so it has no row here) and `INJECTED-DOC-WIDTH-CEILING`, each driving the SHARED scanner in
 `dev_lab.dev.cjk` / `dev_lab.dev.docwidth` over this tree's own corpus. Both measured CLEAN
 here (53 files scanned, zero CJK; two injected docs, zero lines past 120 columns), so both declared
 sets are EMPTY and each carries a FLOOR pinned at its measurement -- an empty declaration over an
@@ -69,7 +70,7 @@ from pathlib import Path
 from typing import Final
 
 from dev_lab.dev.profile import RepoProfile
-from dev_lab.dev.rules import RULES, Adoption, TestPath, assert_adopted, unadopted, waived
+from dev_lab.dev.rules import ALWAYS_ON, RULES, Adoption, TestPath, assert_adopted, unadopted, waived
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
@@ -89,7 +90,6 @@ _RETIRED: Final = 'tests/architecture/test_a_retired_spelling_stays_retired.py'
 _MEMORY: Final = 'tests/architecture/test_memory_lives_under_a_date.py'
 _MONTHS: Final = 'tests/architecture/test_every_month_carries_its_plans.py'
 _RULES_RATCHET: Final = 'tests/architecture/test_the_rules_pages_are_a_ratchet.py'
-_NO_CJK: Final = 'tests/architecture/test_no_cjk_in_tracked_source.py'
 _DOC_WIDTH: Final = 'tests/architecture/test_injected_doc_width_ceiling.py'
 _HOOKS: Final = 'tests/architecture/test_the_declared_hooks_are_installed.py'
 _BOUNDED: Final = 'tests/architecture/test_a_bounded_wait_names_its_remedy.py'
@@ -171,10 +171,6 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'MONTHLY-PLANS-CARRIED': (_MONTHS,),
     # The always-loaded rule pages are pinned per file, ratcheting down only.
     'DOCS-SPLIT': (_RULES_RATCHET,),
-    # The shared scanner over this tree's whole tracked corpus, with the declared set EMPTY --
-    # measured 2026-09-16 at 53 files scanned and zero CJK characters. Adopted at zero, so the
-    # declaration's job is to refuse the FIRST arrival rather than to record a debt.
-    'NO-CJK-IN-TRACKED-SOURCE': (_NO_CJK,),
     # The same shape over the injected-doc corpus (here: the two `.claude/rules/` pages), measured
     # 2026-09-16 at zero lines past 120 columns. It is the WIDTH dimension the line-count ratchet
     # in `_RULES_RATCHET` cannot see, over the same pages.
@@ -456,7 +452,7 @@ def test_optimi_lab_adopts_the_shared_registry() -> None:
 
 def test_the_two_sets_account_for_the_registry_exactly() -> None:
     """A rule added upstream must be typed into one set or the other before anything else passes."""
-    accounted = _ENFORCED | _ABSENT
+    accounted = _ENFORCED | _ABSENT | ALWAYS_ON
     live = {rule.id for rule in RULES}
     assert accounted == live, (
         f'rules this repo says nothing about: {sorted(live - accounted)}; names that are not rules: '
