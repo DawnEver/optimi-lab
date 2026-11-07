@@ -134,9 +134,7 @@ class PopulationSolver(ABC):
         self._asked = 0
         self._told: dict[str, Result] = {}
         self._results: list[Result] = []
-        # The computed rows of a seed not yet admitted: a first generation that lost points is TOPPED UP
-        # with fresh draws until it holds the rows this algorithm breeds from (``_breeding_minimum``).
-        self._seed: tuple[np.ndarray, np.ndarray, np.ndarray, list[Result]] | None = None
+        self._seed: list[tuple[np.ndarray, np.ndarray, np.ndarray, list[Result]]] = []  # seed rows not yet admitted
         self._seeded = False
 
     #: The fewest rows the algorithm's next generation can be bred from (two parents of a crossover).
@@ -178,39 +176,23 @@ class PopulationSolver(ABC):
         if len(self._told) == len(keys):
             if self._seeded:
                 self._admit(*self._arrays())
-                unit = self._propose()
-            else:
-                unit = self._next_seed()
+            unit = self._propose() if self._seeded else self._next_seed()
             self._generation, self._asked, self._told = self._actions(unit), 0, {}
 
     def _next_seed(self) -> np.ndarray:
-        """Fold this seed batch in: the first bred generation once the seed is admitted, else fresh draws topping it up.
-
-        A seed whose points the oracle refused is not a population an operator can breed from -- a
-        tournament of two cannot draw from one row -- so the shortfall is drawn afresh from the space,
-        and the run continues instead of dying on the size of its survivors.
-        """
+        """Admit the seed once it holds ``_breeding_minimum`` rows (a tournament cannot draw from one), else top it up."""
         rows = self._arrays(empty_ok=True)
         if rows is not None:
-            inputs, values, violation, _ = rows
-            batch = (inputs, values, violation, list(self._results))
-            if self._seed is not None:
-                held = self._seed
-                batch = (
-                    np.vstack([held[0], inputs]),
-                    np.vstack([held[1], values]),
-                    np.concatenate([held[2], violation]),
-                    held[3] + batch[3],
-                )
-            self._seed = batch
-        held = 0 if self._seed is None else len(self._seed[0])
-        if held >= min(self._breeding_minimum, self._pop_size):
-            inputs, values, violation, results = self._seed
-            self._results, self._seed, self._seeded = results, None, True
-            self._admit(inputs, values, violation, np.ones(len(inputs), dtype=bool))
-            return self._propose()
-        shortfall = max(self._pop_size - held, self._breeding_minimum - held)
-        return sample(self._width, SampleSpec(n_samples=shortfall, seed=int(self._rng.integers(2**32))))
+            self._seed.append((*rows[:3], self._results))
+        held = sum(len(batch[0]) for batch in self._seed)
+        if held < min(self._breeding_minimum, self._pop_size):
+            shortfall = max(self._pop_size, self._breeding_minimum) - held
+            return sample(self._width, SampleSpec(n_samples=shortfall, seed=int(self._rng.integers(2**32))))
+        inputs, values, violation = (np.concatenate([batch[k] for batch in self._seed]) for k in range(3))
+        self._results = [result for batch in self._seed for result in batch[3]]
+        self._seed, self._seeded = [], True
+        self._admit(inputs, values, violation, np.ones(held, dtype=bool))
+        return self._propose()
 
     @property
     def done(self) -> bool:
@@ -218,10 +200,7 @@ class PopulationSolver(ABC):
         return False
 
     def _arrays(self, *, empty_ok: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray] | None:
-        """``(inputs, values, violation, mask)`` of the complete rows, in generation order.
-
-        A generation with no complete row is refused, or answered ``None`` under ``empty_ok`` (a seed batch).
-        """
+        """``(inputs, values, violation, mask)`` of the complete rows in generation order; none: refused, or None."""
         results = [self._told[a.identity.key] for a in self._generation]
         if self._robust is not None:
             return self._robust_arrays(results, empty_ok=empty_ok)
