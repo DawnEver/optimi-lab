@@ -102,6 +102,7 @@ from optimi_lab.operator.selection import (
 from optimi_lab.operator.variation import (
     DEStrategy,
     binomial_crossover,
+    de_rows_needed,
     differential_mutation,
     exponential_crossover,
     polynomial_mutation,
@@ -149,6 +150,7 @@ __all__ = [
     'cvar',
     'damped_secant',
     'das_dennis',
+    'de_rows_needed',
     'decomposition_weights',
     'differential_mutation',
     'discrete_mutation',
