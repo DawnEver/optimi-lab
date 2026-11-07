@@ -16,12 +16,13 @@ from typing import Final
 
 from lab_commons.outcomes import Identity
 
+from optimi_lab import solver as library
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import refuse
+from optimi_lab.oracle import Capability
 from optimi_lab.policy import STEERING_MODELS, RouteRule, Steering, SurrogateFit, VariationRule
-from optimi_lab.solver.decomposition import moead
-from optimi_lab.solver.evolutionary import mode, nsga2, nsga3
-from optimi_lab.solver.swarm import mopso
+from optimi_lab.problem import Problem
+from optimi_lab.solver import METHODS, SEEDING, SOLVERS, GradientSolver, Solver
 from optimi_lab.study.protocols import Publisher
 
 __all__ = [
@@ -39,19 +40,40 @@ __all__ = [
     'canonical_subject',
 ]
 
-_FACTORIES: Final = {'mode': mode, 'moead': moead, 'mopso': mopso, 'nsga2': nsga2, 'nsga3': nsga3}
-#: The population solvers a study names.
+
+def _gradient(method: str) -> Callable[..., Solver]:
+    """Gradient method *method* as a factory; it is deterministic, so the seed is not read."""
+
+    def factory(problem: Problem, capability: Capability, *, seed: int = 0, **settings: object) -> Solver:
+        del seed
+        return GradientSolver(problem, capability, method, **settings)
+
+    factory.__name__ = method
+    return factory
+
+
+#: Every registered solver that takes a first batch (``solver.SEEDING``), by name -> its library factory.
+_FACTORIES: Final = MappingProxyType({
+    name: _gradient(name) if name in METHODS else getattr(library, name) for name in sorted(SEEDING)
+})
+#: The solvers a study names: the library's whole seeded registry.
 ALGORITHMS: Final = tuple(_FACTORIES)
 #: Surrogate round *i*, retry *r* steers at ``seed + i * ROUND_SEED_STRIDE + r``.
 ROUND_SEED_STRIDE: Final = 1000
 
 
 def algorithm_factory(name: str | Callable) -> Callable:
-    """The solver factory *name* declares; a callable is already one and is returned as given."""
+    """The library factory solver *name* declares; a callable is already one and is returned as given.
+
+    A name outside ``solver.SOLVERS`` is refused naming the registry; a registered algebraic solver
+    (``lp``, ``qp``, ...) reads coefficients rather than a first batch, and is refused naming the seeded set.
+    """
     if callable(name):
         return name
+    if name not in SOLVERS:
+        refuse(f'unknown algorithm {name!r}; the registered solvers are {sorted(SOLVERS)}')
     if name not in _FACTORIES:
-        refuse(f'unknown algorithm {name!r}; choose {ALGORITHMS}')
+        refuse(f'{name!r} reads coefficients, not a first batch; a study searches with {ALGORITHMS}')
     return _FACTORIES[name]
 
 
@@ -162,8 +184,12 @@ class SearchStrategy:
     seed: int = 0
     surrogate: SurrogateStrategy | None = None
     report_fit: bool = False
+    #: A TRUE-SOLVE budget replacing the generations stop; None keeps ``generations + 1`` batches.
+    solves: int | None = None
 
     def __post_init__(self) -> None:
+        if self.solves is not None and self.solves < 1:
+            refuse(f'solves={self.solves!r} is a true-solve budget of at least 1')
         if self.generations < 0 or (self.generations == 0 and self.surrogate is None):
             refuse('optimization needs positive generations or explicit surrogate feedback')
         algorithm_factory(self.algorithm)

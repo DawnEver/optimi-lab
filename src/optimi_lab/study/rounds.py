@@ -21,11 +21,13 @@ from optimi_lab.policy import (
     fit_surrogate,
     steer_round,
 )
+from optimi_lab.solver import SEEDING, Seeding, require_seedable
 from optimi_lab.study.engine import Searched, evaluate, opened, search
 from optimi_lab.study.protocols import SearchBinding
 from optimi_lab.study.strategy import (
     ROUND_SEED_STRIDE,
     EvaluationPolicy,
+    SampleDesign,
     SearchStrategy,
     SurrogateRound,
     SurrogateStrategy,
@@ -65,17 +67,25 @@ def searched_study(
     if strategy.surrogate is not None and (policy.router is not None or policy.variation is not None):
         refuse('surrogate batch feedback cannot silently ignore admission/variation control')
     if strategy.generations:
+        name = strategy.algorithm
+        # A solver drawing its own first batch takes the declared design's COUNT, and only from a sample
+        # rule it honours; a point list it would silently replace is refused (``require_seedable``).
+        draws_own = isinstance(name, str) and SEEDING[name] not in (Seeding.POPULATION, Seeding.START, Seeding.SLOPES)
+        if draws_own:
+            declared = strategy.initial
+            require_seedable(name, declared.spec if isinstance(declared, SampleDesign) else np.asarray(initial))
         searched = search(
             problem,
             oracle,
             record,
-            algorithm=strategy.algorithm,
+            algorithm=name,
             population=len(initial),
             generations=strategy.generations,
             seed=strategy.seed,
-            initial=initial,
+            initial=None if draws_own else initial,
             router=policy.router,
             variation=policy.variation,
+            solves=strategy.solves,
         )
     else:
         searched = evaluate(problem, oracle, initial, record, evidence=evidence)

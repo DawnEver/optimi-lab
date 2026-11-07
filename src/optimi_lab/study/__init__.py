@@ -11,7 +11,7 @@
 
 from optimi_lab.policy import ScreeningOracle
 from optimi_lab.study._lock import study_writer
-from optimi_lab.study.engine import Searched, evaluate, opened, search
+from optimi_lab.study.engine import Searched, build_solver, evaluate, opened, search
 from optimi_lab.study.protocols import Answer, Codec, Filing, Publisher, SearchBinding
 from optimi_lab.study.rounds import searched_study
 from optimi_lab.study.strategy import (
@@ -53,6 +53,7 @@ __all__ = [
     'SurrogateRound',
     'SurrogateStrategy',
     'algorithm_factory',
+    'build_solver',
     'canonical_subject',
     'evaluate',
     'fixed_design',

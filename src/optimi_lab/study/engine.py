@@ -19,7 +19,7 @@ from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import Refusal, refuse
 from optimi_lab.operator.reference import reference_select
 from optimi_lab.operator.selection import crowding_select, tournament_select
-from optimi_lab.oracle import Action, Oracle, Result
+from optimi_lab.oracle import Action, Capability, Oracle, Result
 from optimi_lab.policy import (
     Batches,
     DecidedReplay,
@@ -31,14 +31,39 @@ from optimi_lab.policy import (
 )
 from optimi_lab.problem import Problem
 from optimi_lab.run import Budget, Dispatch, Run, run
+from optimi_lab.solver import (
+    SEEDING,
+    SEQUENTIAL,
+    Ineligible,
+    NeedsTransform,
+    Requires,
+    Seeding,
+    Solver,
+    match,
+    search_embedding,
+)
 from optimi_lab.solver.evolutionary import nsga2, nsga3
 from optimi_lab.solver.population import EvolutionarySolver
 from optimi_lab.study.strategy import algorithm_factory
 
-__all__ = ['Searched', 'evaluate', 'opened', 'search']
+__all__ = ['Searched', 'build_solver', 'evaluate', 'opened', 'search']
 
 #: Arguments the engine owns; a solver setting may not repeat them.
-_ENGINE_OWNED = frozenset({'problem', 'capability', 'spec', 'initial', 'seed'})
+_ENGINE_OWNED = frozenset({
+    'problem',
+    'capability',
+    'spec',
+    'initial',
+    'seed',
+    'embedding',
+    'population',
+    'start',
+    'starts',
+    'max_evaluations',
+    'generations',
+})
+#: Solvers whose schedule adapts over the whole run, so they take the search's ``generations``.
+_TAKES_GENERATIONS = frozenset({'rvea'})
 
 
 @dataclass(frozen=True)
@@ -132,6 +157,88 @@ def evaluate(
     return Searched(archive, evidence=evidence, solved=len(fresh), served=len(actions) - len(fresh))
 
 
+def _refuse_solves(solves: int | None) -> None:
+    if solves is not None and solves < 1:
+        refuse(f'solves={solves!r} is a true-solve budget of at least 1')
+
+
+def build_solver(
+    name: str | Callable,
+    problem: Problem,
+    capability: Capability,
+    *,
+    seed: int,
+    population: int,
+    generations: int,
+    initial: np.ndarray | None = None,
+    settings: Mapping[str, object] | None = None,
+) -> Solver:
+    """Solver *name* over *problem*, matched by the library and seeded by its ``solver.SEEDING`` row.
+
+    *initial* is unit-cube rows: a POPULATION solver's first generation (None draws *population* by
+    LHS); a START or SLOPES solver's ONE start (None: the cube's centre); a solver that draws its own
+    first batch is refused rows and draws *population* itself. A name is refused by its own
+    ``Requires`` (``solver.requires.match``); the one transform applied is a conditional space's
+    embedding. A bare callable is a population solver, called unmatched.
+    """
+    factory = algorithm_factory(name)
+    extra = dict(settings or {})
+    if overlap := set(extra) & _ENGINE_OWNED:
+        refuse(f'settings repeat engine-owned declarations {sorted(overlap)}')
+    spec = SampleSpec(n_samples=population, seed=seed) if initial is None else None
+    if callable(name):
+        return factory(problem, capability, seed=seed, spec=spec, initial=initial, **extra)
+    verdict = match(Requires.of(name), problem, capability)
+    if isinstance(verdict, Ineligible):
+        refuse(f'{name} cannot run this problem: {verdict.reason}')
+    if isinstance(verdict, NeedsTransform) and set(verdict.transforms) - {'embed'}:
+        refuse(f'{name} runs this problem only after {list(verdict.transforms)}, which a study does not apply')
+    if (embedding := search_embedding(problem)) is not None:
+        extra['embedding'] = embedding
+    if name in _TAKES_GENERATIONS:
+        extra['generations'] = generations
+    if SEEDING[name] is Seeding.POPULATION:
+        seeded: dict[str, object] = {'spec': spec, 'initial': initial}
+    else:
+        seeded = _seeded(name, extra, problem=problem, population=population, generations=generations, initial=initial)
+    return factory(problem, capability, seed=seed, **seeded, **extra)
+
+
+def _seeded(
+    name: str,
+    extra: dict[str, object],
+    *,
+    problem: Problem,
+    population: int,
+    generations: int,
+    initial: np.ndarray | None,
+) -> dict[str, object]:
+    """The first-batch and length settings *name*'s seeding hands its factory (*extra* loses what they consume)."""
+    seeding = SEEDING[name]
+    evaluations = population * (generations + 1)
+    if seeding in (Seeding.START, Seeding.SLOPES) and initial is not None and len(initial) != 1:
+        refuse(f'{name} walks from ONE start point; it was handed {len(initial)} rows')
+    if seeding is Seeding.SLOPES:
+        return {} if initial is None else {'start': problem.space.decode(initial[0])}
+    if seeding is Seeding.START:
+        return {'max_evaluations': evaluations, **({} if initial is None else {'start': initial[0]})}
+    if initial is not None:
+        refuse(f'{name} draws its own first batch ({seeding.value}); it was handed {len(initial)} rows it would ignore')
+    if seeding in (Seeding.STARTS, Seeding.SCAN):
+        local = extra.pop('local', None)
+        starts = sorted(key for key, row in SEEDING.items() if row is Seeding.START)
+        if local not in starts:
+            refuse(f'{name} chains a local search: settings.local must name one of {starts}, got {local!r}')
+        chained = algorithm_factory(local)
+        if seeding is Seeding.STARTS:
+            return {'local': chained, 'starts': population, 'max_evaluations': generations + 1}
+        if 'weights' not in extra:
+            refuse(f'{name} needs settings.weights, one weight row per scalarisation')
+        weights = np.atleast_2d(np.asarray(extra.pop('weights'), dtype=float))
+        return {'local': chained, 'weights': weights, 'max_evaluations': max(1, evaluations // len(weights))}
+    return {Seeding.MODEL: {'initial': population}, Seeding.SELF: {'population': population}}.get(seeding, {})
+
+
 def search(
     problem: Problem,
     oracle: ScreeningOracle,
@@ -146,18 +253,26 @@ def search(
     router: RouteRule | None = None,
     variation: VariationRule | None = None,
     dispatch: Dispatch | None = None,
+    solves: int | None = None,
 ) -> Searched:
-    """A value-only population search of ``generations + 1`` told batches; *initial* is natural coordinates.
+    """A search by *algorithm* of ``generations + 1`` told batches; *initial* is natural coordinates.
+
+    *algorithm* names any seeded library solver, matched and seeded by :func:`build_solver`, or is a
+    population-solver callable; a SEQUENTIAL solver's run is bounded by ``population * (generations + 1)``
+    evaluations rather than batches.
 
     *router* screens or routes offspring (:class:`~optimi_lab.policy.RoutingPolicy`); *variation* sets the
     SBX/PM rates per generation and needs nsga2 or nsga3; *dispatch* replaces the default, which
     publishes each batch through ``oracle.publish_batch`` and files every answer as it completes.
+    *solves* is a TRUE-SOLVE budget: the search stops once that many points were evaluated, however many
+    generations it takes, so a screening router pays the same solves as a run that screens nothing;
+    None keeps the ``generations + 1`` batch stop.
     """
     factory = algorithm_factory(algorithm)
     if population < 1 or generations < 1:
         refuse('a search needs population >= 1 and generations >= 1; named points use evaluate')
+    _refuse_solves(solves)
     opened(problem, oracle, record)  # refuse a foreign record BEFORE evaluating or mutating it
-    spec: SampleSpec | None = SampleSpec(n_samples=population, seed=seed)
     unit_initial: np.ndarray | None = None
     if initial is not None:
         natural = np.asarray(initial, dtype=float)
@@ -166,28 +281,42 @@ def search(
         unit_initial = np.array([
             problem.space.encode(dict(zip(problem.space.names, point, strict=True))) for point in natural
         ])
-        spec, population = None, len(natural)
-    extra = dict(settings or {})
-    if overlap := set(extra) & _ENGINE_OWNED:
-        refuse(f'settings repeat engine-owned declarations {sorted(overlap)}')
+        population = len(natural)
     control = None
     if variation is None:
-        solver = factory(problem, oracle.capability, seed=seed, spec=spec, initial=unit_initial, **extra)
+        solver = build_solver(
+            algorithm,
+            problem,
+            oracle.capability,
+            seed=seed,
+            population=population,
+            generations=generations,
+            initial=unit_initial,
+            settings=settings,
+        )
     else:
         if factory not in (nsga2, nsga3):
             refuse('SBX/PM variation control requires nsga2 or nsga3; the chosen solver has other operator settings')
+        extra = dict(settings or {})
+        if overlap := set(extra) & _ENGINE_OWNED:
+            refuse(f'settings repeat engine-owned declarations {sorted(overlap)}')
         control = VariationPolicy(tuple, variation, generations, extra)
         solver = EvolutionarySolver(
             problem,
             oracle.capability,
             seed=seed,
-            spec=spec,
+            spec=SampleSpec(n_samples=population, seed=seed) if unit_initial is None else None,
             initial=unit_initial,
             variation=control,
             selection=crowding_select if factory is nsga2 else reference_select,
             parent_selection=tournament_select,
         )
-    bounded = Batches(solver, generations + 1)
+    evaluations = population * (generations + 1)
+    # A SEQUENTIAL solver asks a few points per round, so its rounds are bounded by evaluations.
+    rounds = evaluations if isinstance(algorithm, str) and algorithm in SEQUENTIAL else generations + 1
+    # Under a solve budget a batch can repeat decided points and solve nothing new, so the batches
+    # stay bounded -- by the budget, since every productive batch pays at least one solve.
+    bounded = Batches(solver, rounds if solves is None else max(rounds, solves))
     policy = RoutingPolicy(bounded, oracle, problem, record, router)
     if control is not None:
         control.read = policy.results
@@ -198,7 +327,7 @@ def search(
         for action in actions:
             yield answered[action.identity.key]
 
-    budget = Budget(evaluations=population * (generations + 1))
+    budget = Budget(evaluations=evaluations if solves is None else solves)
     try:
         execution = run(problem, oracle, policy, DecidedReplay(record), budget, dispatch=dispatch or published)
     except Refusal as error:
