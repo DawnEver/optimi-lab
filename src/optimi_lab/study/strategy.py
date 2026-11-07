@@ -14,13 +14,18 @@ from math import isfinite, prod
 from types import MappingProxyType
 from typing import Final
 
+import numpy as np
 from lab_commons.outcomes import Identity
 
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import refuse
+from optimi_lab.operator import Risk
 from optimi_lab.policy import STEERING_MODELS, RouteRule, Steering, SurrogateFit, VariationRule
+from optimi_lab.solver.build import UNDRIVEN
 from optimi_lab.solver.decomposition import moead
 from optimi_lab.solver.evolutionary import mode, nsga2, nsga3
+from optimi_lab.solver.requires import SOLVERS
+from optimi_lab.solver.seeding import SEEDING, Seeding, require_seedable
 from optimi_lab.solver.swarm import mopso
 from optimi_lab.study.protocols import Publisher
 
@@ -154,7 +159,14 @@ class SurrogateStrategy:
 
 @dataclass(frozen=True)
 class SearchStrategy:
-    """An explicit optimization intent over the problem the codec binds."""
+    """An explicit optimization intent over the problem the codec binds.
+
+    *algorithm* names any registered solver an oracle drives (``optimi_lab.solver.SOLVERS`` but
+    :data:`~optimi_lab.solver.seeding.UNDRIVEN`), or is a population factory. *settings* are the solver's
+    own; *risk* and *scenarios* the robust declaration over the problem's uncertainty. A solver that draws
+    its own first batch is seeded by COUNT from *initial*, which must then be an unanchored Latin-hypercube
+    sample (:func:`~optimi_lab.solver.seeding.require_seedable`).
+    """
 
     initial: FixedDesign | SampleDesign
     algorithm: str | Callable = 'nsga2'
@@ -162,11 +174,30 @@ class SearchStrategy:
     seed: int = 0
     surrogate: SurrogateStrategy | None = None
     report_fit: bool = False
+    settings: Mapping[str, object] = field(default_factory=dict)
+    risk: Risk | None = None
+    scenarios: int | None = None
 
     def __post_init__(self) -> None:
         if self.generations < 0 or (self.generations == 0 and self.surrogate is None):
             refuse('optimization needs positive generations or explicit surrogate feedback')
-        algorithm_factory(self.algorithm)
+        object.__setattr__(self, 'settings', MappingProxyType(dict(self.settings)))
+        if callable(self.algorithm):
+            return
+        if self.algorithm not in SOLVERS or self.algorithm in UNDRIVEN:
+            refuse(f'unknown algorithm {self.algorithm!r}; choose {sorted(set(SOLVERS) - set(UNDRIVEN))}')
+        if self.algorithm in SEEDING:
+            first = self.initial.spec if isinstance(self.initial, SampleDesign) else np.array(self.initial.points)
+            require_seedable(self.algorithm, first)
+
+    @property
+    def draws_own(self) -> bool:
+        """Whether the named solver draws its own first batch, so *initial* is read as a count only."""
+        if callable(self.algorithm) or self.algorithm not in SEEDING:
+            return False
+        seeding = SEEDING[self.algorithm]
+        one_start = isinstance(self.initial, FixedDesign) and len(self.initial.points) == 1
+        return seeding.draws_own and not (one_start and seeding in (Seeding.START, Seeding.SLOPES))
 
 
 @dataclass(frozen=True)
