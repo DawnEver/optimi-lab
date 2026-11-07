@@ -10,6 +10,7 @@ its elite by Deb's rule on one score (``scalarise`` for several objectives). Eac
 The result is the grid itself (:attr:`MapElites.elites`), not a front.
 """
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -19,7 +20,7 @@ from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
 from optimi_lab.solver.population import PopulationSolver, build, require_one_score
 
-__all__ = ['Descriptor', 'MapElites', 'map_elites']
+__all__ = ['Descriptor', 'MapElites', 'descriptors_of', 'map_elites']
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,3 +89,27 @@ class MapElites(PopulationSolver):
 def map_elites(problem: Problem, capability: Capability, **settings: object) -> MapElites:
     """MAP-Elites; ``**settings`` are :class:`MapElites`'s (``descriptors`` required) and the base solver's."""
     return build(MapElites, problem, capability, 'map_elites', **settings)
+
+
+def descriptors_of(problem: Problem, declared: Mapping[str, Sequence[float] | float]) -> tuple[Descriptor, ...]:
+    """The archive axes declared as ``{name: [lo, hi, bins]}``, each in its name's unit.
+
+    A name is a declared problem output or a design variable; a bounded variable may give ``[bins]``
+    (or a bare ``bins``) alone and is binned over its own bounds. Anything else is refused naming what
+    can be binned.
+    """
+    if not isinstance(declared, Mapping) or not declared:
+        refuse('map_elites needs descriptors = {NAME: [lo, hi, bins]}, one per archive axis')
+    axes = {variable.name: variable for variable in problem.space}
+    out = []
+    for name, row in declared.items():
+        values = list(row) if isinstance(row, (list, tuple)) else [row]
+        if name in axes and len(values) == 1 and hasattr(axes[name], 'lo'):
+            values = [axes[name].lo, axes[name].hi, values[0]]
+        if (name not in problem.outputs and name not in axes) or len(values) != 3:
+            refuse(
+                f'descriptor {name!r} = {row!r}: name a declared output {list(problem.outputs)} as [lo, hi, bins] '
+                f'or a design variable {sorted(axes)} as [lo, hi, bins] or [bins]'
+            )
+        out.append(Descriptor(str(name), float(values[0]), float(values[1]), int(values[2])))
+    return tuple(out)
