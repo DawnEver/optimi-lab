@@ -15,8 +15,6 @@ A :class:`DesignDomain` is what every map of the density method needs and no mor
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
-
 import numpy as np
 
 from optimi_lab.core.errors import refuse
@@ -32,54 +30,50 @@ def _frozen(value, dtype, shape_head: tuple[int, ...] | None = None) -> np.ndarr
     return array
 
 
-@dataclass(frozen=True, eq=False)
 class DesignDomain:
-    """The cells of a density design; see the module docstring."""
+    """The cells of a density design; see the module docstring. Every array is stored read-only."""
 
-    centroids: np.ndarray
-    measures: np.ndarray
-    adjacency: np.ndarray
-    faces: np.ndarray
-    length_unit: str
-    boundary_cells: np.ndarray = field(default_factory=lambda: np.zeros(0, dtype=int))
-    boundary_faces: np.ndarray = field(default_factory=lambda: np.zeros(0))
-    boundary_distances: np.ndarray = field(default_factory=lambda: np.zeros(0))
-    solid: np.ndarray | None = None
-    void: np.ndarray | None = None
-    design_index: np.ndarray | None = None
-
-    def __post_init__(self) -> None:
-        centroids = _frozen(self.centroids, float)
-        n = len(centroids)
-        if centroids.ndim != 2 or n == 0:
-            refuse(f'centroids must be a non-empty (n, d) array, got shape {centroids.shape}')
-        if not self.length_unit:
+    def __init__(
+        self,
+        centroids: np.ndarray,
+        measures: np.ndarray,
+        adjacency: np.ndarray,
+        faces: np.ndarray,
+        length_unit: str,
+        *,
+        boundary_cells: np.ndarray = (),
+        boundary_faces: np.ndarray = (),
+        boundary_distances: np.ndarray = (),
+        solid: np.ndarray | None = None,
+        void: np.ndarray | None = None,
+        design_index: np.ndarray | None = None,
+    ) -> None:
+        self.centroids = _frozen(centroids, float)
+        n = len(self.centroids)
+        if self.centroids.ndim != 2 or n == 0:
+            refuse(f'centroids must be a non-empty (n, d) array, got shape {self.centroids.shape}')
+        if not length_unit:
             refuse('a design domain declares its length unit')
-        adjacency = _frozen(np.reshape(self.adjacency, (-1, 2)), int)
-        b = len(np.atleast_1d(self.boundary_cells))
-        parts = {
-            'centroids': centroids,
-            'measures': _frozen(self.measures, float, (n,)),
-            'adjacency': adjacency,
-            'faces': _frozen(self.faces, float, (len(adjacency),)),
-            'boundary_cells': _frozen(self.boundary_cells, int, (b,)),
-            'boundary_faces': _frozen(self.boundary_faces, float, (b,)),
-            'boundary_distances': _frozen(self.boundary_distances, float, (b,)),
-            'solid': _frozen(np.zeros(n, bool) if self.solid is None else self.solid, bool, (n,)),
-            'void': _frozen(np.zeros(n, bool) if self.void is None else self.void, bool, (n,)),
-            'design_index': _frozen(np.arange(n) if self.design_index is None else self.design_index, int, (n,)),
-        }
-        if np.any(parts['measures'] <= 0.0):
+        self.length_unit = length_unit
+        self.measures = _frozen(measures, float, (n,))
+        self.adjacency = _frozen(np.reshape(adjacency, (-1, 2)), int)
+        self.faces = _frozen(faces, float, (len(self.adjacency),))
+        b = len(np.atleast_1d(boundary_cells))
+        self.boundary_cells = _frozen(boundary_cells, int, (b,))
+        self.boundary_faces = _frozen(boundary_faces, float, (b,))
+        self.boundary_distances = _frozen(boundary_distances, float, (b,))
+        self.solid = _frozen(np.zeros(n, bool) if solid is None else solid, bool, (n,))
+        self.void = _frozen(np.zeros(n, bool) if void is None else void, bool, (n,))
+        self.design_index = _frozen(np.arange(n) if design_index is None else design_index, int, (n,))
+        if np.any(self.measures <= 0.0):
             refuse('every cell measure must be positive')
-        if adjacency.size and (adjacency.min() < 0 or adjacency.max() >= n):
+        if self.adjacency.size and (self.adjacency.min() < 0 or self.adjacency.max() >= n):
             refuse(f'adjacency names a cell outside 0..{n - 1}')
-        if np.any(parts['solid'] & parts['void']):
-            refuse(f'cells {np.flatnonzero(parts["solid"] & parts["void"]).tolist()} are both solid and void')
-        index = parts['design_index']
+        if np.any(self.solid & self.void):
+            refuse(f'cells {np.flatnonzero(self.solid & self.void).tolist()} are both solid and void')
+        index = self.design_index
         if index.min() != 0 or np.unique(index).size != index.max() + 1:
             refuse('design_index must number the design variables 0..m-1 with none unused')
-        for name, value in parts.items():
-            object.__setattr__(self, name, value)
 
     @property
     def n_cells(self) -> int:
@@ -124,7 +118,19 @@ class DesignDomain:
         if not np.allclose(c[partner], image, atol=1e-9 * scale):
             refuse(f'the domain is not mirror-symmetric across axis {axis}')
         first = np.minimum(np.arange(self.n_cells), partner)
-        return replace(self, design_index=np.unique(first, return_inverse=True)[1])
+        return DesignDomain(
+            self.centroids,
+            self.measures,
+            self.adjacency,
+            self.faces,
+            self.length_unit,
+            boundary_cells=self.boundary_cells,
+            boundary_faces=self.boundary_faces,
+            boundary_distances=self.boundary_distances,
+            solid=self.solid,
+            void=self.void,
+            design_index=np.unique(first, return_inverse=True)[1],
+        )
 
     @classmethod
     def grid(
@@ -151,11 +157,11 @@ class DesignDomain:
         adjacency = np.vstack(pairs)
         cells = np.concatenate(boundary)
         return cls(
-            centroids=centroids,
-            measures=np.full(index.size, spacing ** len(shape)),
-            adjacency=adjacency,
-            faces=np.full(len(adjacency), face),
-            length_unit=length_unit,
+            centroids,
+            np.full(index.size, spacing ** len(shape)),
+            adjacency,
+            np.full(len(adjacency), face),
+            length_unit,
             boundary_cells=cells,
             boundary_faces=np.full(cells.size, face),
             boundary_distances=np.full(cells.size, 0.5 * spacing),

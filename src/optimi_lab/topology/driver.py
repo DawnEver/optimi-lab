@@ -25,7 +25,7 @@ import numpy as np
 from optimi_lab.core.errors import coerce_enum, refuse
 from optimi_lab.solver.moving_asymptotes import mma
 from optimi_lab.topology.density import ROBUST_ETAS, DensityFilter, DesignChain, HelmholtzFilter
-from optimi_lab.topology.provider import Evaluation, PhysicsProvider, TopologyProblem
+from optimi_lab.topology.provider import PhysicsProvider, TopologyPoint, TopologyProblem
 
 __all__ = ['DEFAULT_CONTINUATION', 'Continuation', 'Iteration', 'Optimizer', 'TopologyResult', 'topology_optimize']
 
@@ -86,7 +86,7 @@ class _Settled(Exception):
         self.design, self.finished = design, finished
 
 
-def _oc_step(evaluation: Evaluation, move: float) -> np.ndarray:
+def _oc_step(evaluation: TopologyPoint, move: float) -> np.ndarray:
     """The optimality-criteria update, bisecting the multiplier on the linearised constraint."""
     point = evaluation.linearization
     if point.c.size != 1:
@@ -134,7 +134,7 @@ def topology_optimize(
     for stage, beta in enumerate(continuation.betas):
         chain.beta = float(beta)
         previous = [design]
-        last: list[Evaluation] = []
+        last: list[TopologyPoint] = []
 
         def evaluate(z: np.ndarray, stage=stage, beta=beta, previous=previous, last=last):
             evaluation = problem.evaluate(z)

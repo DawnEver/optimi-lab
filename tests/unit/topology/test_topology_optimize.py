@@ -28,7 +28,7 @@ from optimi_lab.topology import (
     DesignChain,
     DesignDomain,
     HelmholtzFilter,
-    Response,
+    ProviderResponse,
     Role,
     TopologyProblem,
     fd_check,
@@ -55,8 +55,8 @@ class MbbBeam:
     def __init__(self, nelx: int, nely: int, volfrac: float, *, solid=None, void=None, robust_volume=False) -> None:
         self.domain = DesignDomain.grid((nelx, nely), spacing=1.0, length_unit='mm', solid=solid, void=void)
         self.responses = (
-            Response('compliance', Role.OBJECTIVE),
-            Response('volume', Role.CONSTRAINT, bound=volfrac, robust=robust_volume),
+            ProviderResponse('compliance', Role.OBJECTIVE),
+            ProviderResponse('volume', Role.CONSTRAINT, bound=volfrac, robust=robust_volume),
         )
         ex, ey = np.meshgrid(np.arange(nelx), np.arange(nely), indexing='ij')
         n1 = (nely + 1) * ex.ravel() + ey.ravel()
@@ -163,9 +163,15 @@ class _Declared(MbbBeam):
 @pytest.mark.parametrize(
     ('responses', 'message'),
     [
-        ((Response('volume', Role.CONSTRAINT, bound=0.5),), 'exactly one objective'),
-        ((Response('compliance', Role.OBJECTIVE), Response('volume', Role.OBJECTIVE)), 'exactly one objective'),
-        ((Response('compliance', Role.OBJECTIVE), Response('volume', Role.CONSTRAINT)), 'needs a bound'),
+        ((ProviderResponse('volume', Role.CONSTRAINT, bound=0.5),), 'exactly one objective'),
+        (
+            (ProviderResponse('compliance', Role.OBJECTIVE), ProviderResponse('volume', Role.OBJECTIVE)),
+            'exactly one objective',
+        ),
+        (
+            (ProviderResponse('compliance', Role.OBJECTIVE), ProviderResponse('volume', Role.CONSTRAINT)),
+            'needs a bound',
+        ),
     ],
     ids=['none', 'two', 'unbounded'],
 )
@@ -185,7 +191,10 @@ def test_the_driver_refuses_an_unknown_optimizer_and_a_foreign_filter() -> None:
 
 
 def test_a_response_the_provider_does_not_return_is_refused() -> None:
-    provider = _Declared((Response('compliance', Role.OBJECTIVE), Response('stress', Role.CONSTRAINT, bound=1.0)))
+    provider = _Declared((
+        ProviderResponse('compliance', Role.OBJECTIVE),
+        ProviderResponse('stress', Role.CONSTRAINT, bound=1.0),
+    ))
     problem = TopologyProblem(provider, DesignChain(DensityFilter(provider.domain, 1.5, unit='mm')))
     with pytest.raises(Refusal, match='stress'):
         problem.evaluate(np.full(12, 0.5))

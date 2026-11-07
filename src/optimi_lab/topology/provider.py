@@ -31,7 +31,7 @@ from optimi_lab.topology.density import DesignChain, grayness
 from optimi_lab.topology.domain import DesignDomain
 from optimi_lab.topology.interpolation import ks
 
-__all__ = ['Evaluation', 'PhysicsProvider', 'Response', 'Role', 'TopologyProblem']
+__all__ = ['PhysicsProvider', 'ProviderResponse', 'Role', 'TopologyPoint', 'TopologyProblem']
 
 
 class Role(StrEnum):
@@ -42,7 +42,7 @@ class Role(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class Response:
+class ProviderResponse:
     """A declared provider output: minimised (``OBJECTIVE``) or held ``<= bound`` (``CONSTRAINT``).
 
     ``robust``: read on every projected realization (else on the nominal one only); ``scale``: the
@@ -60,13 +60,13 @@ class PhysicsProvider(Protocol):
     """The physics behind a topology problem; see the module docstring."""
 
     domain: DesignDomain
-    responses: tuple[Response, ...]
+    responses: tuple[ProviderResponse, ...]
 
     def evaluate(self, physical: np.ndarray) -> Mapping[str, tuple[float, np.ndarray]]: ...
 
 
 @dataclass(frozen=True, slots=True, eq=False)
-class Evaluation:
+class TopologyPoint:
     """One evaluation: what the optimizer reads, plus the raw values a record keeps."""
 
     linearization: Linearization
@@ -97,11 +97,11 @@ class TopologyProblem:
         self.objective = objectives[0]
         self._scale: float | None = None
 
-    def _realizations(self, response: Response) -> range:
+    def _realizations(self, response: ProviderResponse) -> range:
         return range(len(self.chain.etas)) if response.robust else range(self.chain.nominal, self.chain.nominal + 1)
 
-    def evaluate(self, design: np.ndarray) -> Evaluation:
-        """The :class:`Evaluation` at design variables *design*."""
+    def evaluate(self, design: np.ndarray) -> TopologyPoint:
+        """The :class:`TopologyPoint` at design variables *design*."""
         physical = self.chain.forward(design)
         needed = sorted({k for r in self.provider.responses for k in self._realizations(r)})
         answers = {k: self.provider.evaluate(physical[k]) for k in needed}
@@ -139,4 +139,4 @@ class TopologyProblem:
                 c.append((value - r.bound) / scale)
                 dc.append(pull(k, slope) / scale)
         point = Linearization(design, [scaled], df[None, :], c=c, dc=np.array(dc).reshape(len(c), len(design)))
-        return Evaluation(point, raw, tuple(c), physical)
+        return TopologyPoint(point, raw, tuple(c), physical)

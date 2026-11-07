@@ -25,10 +25,10 @@ import numpy as np
 
 from optimi_lab.core.errors import coerce_enum, refuse
 
-__all__ = ['Scheme', 'interpolate', 'ks', 'p_norm']
+__all__ = ['Interpolation', 'interpolate', 'ks', 'p_norm']
 
 
-class Scheme(StrEnum):
+class Interpolation(StrEnum):
     """The interpolation schemes :func:`interpolate` accepts."""
 
     SIMP = 'simp'
@@ -36,10 +36,14 @@ class Scheme(StrEnum):
 
 
 def interpolate(
-    rho: np.ndarray, values: Sequence[float | np.ndarray], *, scheme: Scheme | str = Scheme.SIMP, penalty: float = 3.0
+    rho: np.ndarray,
+    values: Sequence[float | np.ndarray],
+    *,
+    scheme: Interpolation | str = Interpolation.SIMP,
+    penalty: float = 3.0,
 ) -> tuple[np.ndarray, np.ndarray]:
     """``(property, d property / d rho)`` between the ordered material *values*; see the module docstring."""
-    scheme = coerce_enum(Scheme, scheme, 'the interpolation scheme')
+    scheme = coerce_enum(Interpolation, scheme, 'the interpolation scheme')
     if len(values) < 2:
         refuse(f'interpolation needs at least two material values, got {len(values)}')
     *stacked, rho = np.broadcast_arrays(*[np.asarray(v, dtype=float) for v in values], np.asarray(rho, dtype=float))
@@ -47,7 +51,7 @@ def interpolate(
     segments = len(values) - 1
     k = np.clip(np.floor(rho * segments).astype(int), 0, segments - 1)
     t = rho * segments - k
-    if scheme is Scheme.SIMP:
+    if scheme is Interpolation.SIMP:
         w, dw = t**penalty, penalty * t ** (penalty - 1.0)
     else:
         den = 1.0 + penalty * (1.0 - t)

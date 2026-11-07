@@ -23,9 +23,9 @@ from optimi_lab.topology.driver import (
     TopologyResult,
     topology_optimize,
 )
-from optimi_lab.topology.interpolation import Scheme, interpolate, ks, p_norm
+from optimi_lab.topology.interpolation import Interpolation, interpolate, ks, p_norm
 from optimi_lab.topology.measures import VirtualTemperature, components, feature_sizes, member_widths
-from optimi_lab.topology.provider import Evaluation, PhysicsProvider, Response, Role, TopologyProblem
+from optimi_lab.topology.provider import PhysicsProvider, ProviderResponse, Role, TopologyPoint, TopologyProblem
 
 __all__ = [
     'DEFAULT_CONTINUATION',
@@ -34,14 +34,14 @@ __all__ = [
     'DensityFilter',
     'DesignChain',
     'DesignDomain',
-    'Evaluation',
     'HelmholtzFilter',
+    'Interpolation',
     'Iteration',
     'Optimizer',
     'PhysicsProvider',
-    'Response',
+    'ProviderResponse',
     'Role',
-    'Scheme',
+    'TopologyPoint',
     'TopologyProblem',
     'TopologyResult',
     'VirtualTemperature',
