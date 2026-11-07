@@ -208,6 +208,10 @@ filterwarnings = [
     "ignore::UserWarning",
 ]
 minversion = "6.0"
+# A hung test fails at 300 s and names itself with a stack dump, instead of burning the box's 3600 s wall
+# silently (2026-11-07: eight Windows jobs since 11-06 were killed at the wall with ~100 tests unrun, no name).
+timeout = 300
+timeout_method = "thread"
 markers = [
     "workstation: needs a live checkout or agent tooling (hooks, origin refs, worktrees, node)",
 ]
