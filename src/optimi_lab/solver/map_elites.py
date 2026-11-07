@@ -17,7 +17,7 @@ import numpy as np
 
 from optimi_lab.core import refuse
 from optimi_lab.oracle import Capability
-from optimi_lab.problem import Problem
+from optimi_lab.problem import Field, Integer, Problem, Real
 from optimi_lab.solver.population import PopulationSolver, build, require_one_score
 
 __all__ = ['Descriptor', 'MapElites', 'descriptors_of', 'map_elites']
@@ -104,7 +104,7 @@ def descriptors_of(problem: Problem, declared: Mapping[str, Sequence[float] | fl
     out = []
     for name, row in declared.items():
         values = list(row) if isinstance(row, (list, tuple)) else [row]
-        if name in axes and len(values) == 1 and hasattr(axes[name], 'lo'):
+        if name in axes and len(values) == 1 and isinstance(axes[name], (Real, Integer, Field)):
             values = [axes[name].lo, axes[name].hi, values[0]]
         if (name not in problem.outputs and name not in axes) or len(values) != 3:
             refuse(

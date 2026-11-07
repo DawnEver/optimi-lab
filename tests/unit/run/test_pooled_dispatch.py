@@ -45,7 +45,7 @@ def test_a_pooled_run_tells_the_same_results_as_a_serial_one(tmp_path: Path) -> 
             Budget(evaluations=10),
             dispatch=pooled(executor),
         )
-    assert done.stop.termination is Termination.SOLVER_DONE
+    assert done.stop.reason is Termination.SOLVER_DONE
     assert [r.cell.values for r in pooled_solver.told] == [r.cell.values for r in serial_solver.told]
 
 

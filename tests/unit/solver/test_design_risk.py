@@ -14,7 +14,7 @@ from optimi_lab.solver import DesignRisk, design_front, design_risk
 PROBLEM = Problem(
     Space((Real('x', 0.0, 1.0),)),
     (Objective('f'), Objective('g', Sense.MAXIMIZE, normalization=Normalization(reference=1.0, scale=2.0))),
-    constraints=(BlackBox('c', '<=', 0.0),),
+    constraints=(BlackBox('c', '<=', 0.0, scale=1.0),),
     uncertainty=Uncertainty((Uniform('xi', -1.0, 1.0),)),
 )
 CAPABILITY = Capability(outputs=('f', 'g', 'c'))
