@@ -243,6 +243,7 @@ def _search_parameters(request: Request, strategy: SearchStrategy, initial: Fixe
             else {'risk': {'measure': strategy.risk.measure.value, 'alpha': strategy.risk.alpha, 'k': strategy.risk.k}}
         ),
         **({} if strategy.scenarios is None else {'scenarios': strategy.scenarios}),
+        **({} if strategy.solves is None else {'solves': strategy.solves}),
     }
     return json.loads(Identity.of(params).canonical)['subject']
 

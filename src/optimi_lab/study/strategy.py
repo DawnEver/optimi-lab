@@ -163,7 +163,9 @@ class SearchStrategy:
 
     *algorithm* names any registered solver an oracle drives (``optimi_lab.solver.SOLVERS`` but
     :data:`~optimi_lab.solver.seeding.UNDRIVEN`), or is a population factory. *settings* are the solver's
-    own; *risk* and *scenarios* the robust declaration over the problem's uncertainty. A solver that draws
+    own; *risk* and *scenarios* the robust declaration over the problem's uncertainty. *solves* stops the
+    search at that many oracle evaluations (a scenario is one) in place of *generations*; surrogate
+    feedback evaluates outside that budget, so the two are refused together. A solver that draws
     its own first batch is seeded by COUNT from *initial*, which must then be an unanchored Latin-hypercube
     sample (:func:`~optimi_lab.solver.seeding.require_seedable`).
     """
@@ -177,10 +179,15 @@ class SearchStrategy:
     settings: Mapping[str, object] = field(default_factory=dict)
     risk: Risk | None = None
     scenarios: int | None = None
+    solves: int | None = None
 
     def __post_init__(self) -> None:
         if self.generations < 0 or (self.generations == 0 and self.surrogate is None):
             refuse('optimization needs positive generations or explicit surrogate feedback')
+        if self.solves is not None and self.solves < 1:
+            refuse(f'a solve budget needs solves >= 1, got {self.solves}')
+        if self.solves is not None and self.surrogate is not None:
+            refuse('a solve budget caps the search; surrogate feedback evaluates outside it')
         if callable(self.algorithm):
             return
         if self.algorithm not in SOLVERS or self.algorithm in UNDRIVEN:
