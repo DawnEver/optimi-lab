@@ -128,8 +128,8 @@ def test_a_moead_child_is_scored_under_each_neighbours_own_weight():
 def test_a_generation_with_one_surviving_point_still_breeds_the_next(factory, tmp_path):
     """One computed point is a population of one: it is every parent, not a tournament too small to run.
 
-    MEASURED 2026-11-07 (motronics mf-cost, nsga2 on synrm_parametric): every point but one of a generation
-    was refused by the oracle, and the run died on ``tournament_size 2 exceeds the 1 row(s)``.
+    MEASURED 2026-11-07 in a downstream design search: every point but one of a seed generation was refused
+    by the oracle, and the run died on ``tournament_size 2 exceeds the 1 row(s)``.
     """
     seen = []
 
