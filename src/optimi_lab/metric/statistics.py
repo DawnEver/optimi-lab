@@ -2,6 +2,8 @@
 
 Self-implemented (R1) over ``scipy.special`` for the normal tail; scipy.stats is a TEST oracle only.
 
+* :func:`pearson` -- Pearson's linear correlation, the same shape as :func:`spearman` (a float for
+  two columns, else the matrix).
 * :func:`rank_sum_test` -- Wilcoxon-Mann-Whitney, two-sided, normal approximation with the tie and
   continuity corrections: are two independent samples (final indicator values of two solvers over
   seeds) drawn from one distribution?
@@ -29,6 +31,7 @@ __all__ = [
     'cluster_bootstrap',
     'kendall_tau_a',
     'kendall_tau_b',
+    'pearson',
     'rank',
     'rank_sum_test',
     'signed_rank_test',
@@ -60,6 +63,13 @@ def rank(values: np.ndarray, axis: int = 0) -> np.ndarray:
             ranks[start:end] = 0.5 * (start + end + 1)
         out[(order, *index)] = ranks
     return np.moveaxis(out, 0, axis)
+
+
+def pearson(values: np.ndarray) -> np.ndarray | float:
+    """Pearson's r between the columns of *values* (a float for two columns, else the matrix)."""
+    with np.errstate(invalid='ignore', divide='ignore'):
+        r = np.corrcoef(np.asarray(values, dtype=float), rowvar=False)
+    return float(r[0, 1]) if r.shape == (2, 2) else r
 
 
 def spearman(values: np.ndarray) -> np.ndarray | float:
