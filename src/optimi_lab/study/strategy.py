@@ -163,9 +163,9 @@ class SearchStrategy:
 
     *algorithm* names any registered solver an oracle drives (``optimi_lab.solver.SOLVERS`` but
     :data:`~optimi_lab.solver.seeding.UNDRIVEN`), or is a population factory. *settings* are the solver's
-    own; *risk* and *scenarios* the robust declaration over the problem's uncertainty. *solves* caps the
-    search at that many oracle evaluations (a scenario is one); surrogate feedback evaluates outside that
-    budget, so the two are refused together. A solver that draws
+    own; *risk* and *scenarios* the robust declaration over the problem's uncertainty. *solves* stops the
+    search at that many oracle evaluations (a scenario is one) in place of *generations*; surrogate
+    feedback evaluates outside that budget, so the two are refused together. A solver that draws
     its own first batch is seeded by COUNT from *initial*, which must then be an unanchored Latin-hypercube
     sample (:func:`~optimi_lab.solver.seeding.require_seedable`).
     """

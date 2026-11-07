@@ -27,15 +27,15 @@ def test_a_search_stops_once_it_has_made_its_declared_solves(tmp_path: Path) -> 
     assert searched.execution.stop.reason is Termination.EVALUATIONS
 
 
-def test_a_budget_above_the_generation_bound_leaves_the_generations_to_stop_it(tmp_path: Path) -> None:
-    free, capped = Toy(), Toy()
-    search(PROBLEM, free, Record(tmp_path / 'free.jsonl'), population=4, generations=2, initial=START)
+def test_a_solve_budget_outlasts_the_generations_that_would_otherwise_stop_the_search(tmp_path: Path) -> None:
+    free, budgeted = Toy(), Toy()
+    search(PROBLEM, free, Record(tmp_path / 'free.jsonl'), population=4, generations=1, initial=START)
     searched = search(
-        PROBLEM, capped, Record(tmp_path / 'r.jsonl'), population=4, generations=2, initial=START, solves=99
+        PROBLEM, budgeted, Record(tmp_path / 'r.jsonl'), population=4, generations=1, initial=START, solves=20
     )
     assert searched.execution is not None
-    assert capped.published == free.published
-    assert searched.execution.stop.reason is Termination.SOLVER_DONE
+    assert len(free.published) <= 8 < len(budgeted.published) == searched.execution.ledger.evaluations == 20
+    assert searched.execution.stop.reason is Termination.EVALUATIONS
 
 
 def test_every_scenario_counts_as_one_solve(tmp_path: Path) -> None:

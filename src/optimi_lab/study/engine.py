@@ -7,6 +7,7 @@ An answer is filed the moment it completes, so a paid evaluation survives a late
 
 from __future__ import annotations
 
+import sys
 from collections.abc import AsyncIterator, Callable, Mapping, Sequence
 from dataclasses import dataclass
 from threading import Lock
@@ -169,8 +170,10 @@ def search(
     its own first batch takes no *initial* (*population* is then its count), and a sequential one is bounded
     by ``population * (generations + 1)`` evaluations (:func:`~optimi_lab.solver.seeding.batch_bound`). A
     callable is a population factory, called as given. A problem declaring uncertainty is searched
-    ROBUSTLY: each design is one evaluation per scenario, and the budget counts every one. *solves* caps
-    that budget: the search stops once it has made that many oracle evaluations, a scenario being one.
+    ROBUSTLY: each design is one evaluation per scenario, and the budget counts every one. A declared
+    *solves* REPLACES that budget: the search stops once it has made that many oracle evaluations (a
+    scenario is one, a screened offspring none), however many generations it took; *generations* then
+    paces only a schedule that reads it (*variation*). A solver that concludes stops it earlier.
 
     *router* screens or routes offspring (:class:`~optimi_lab.policy.RoutingPolicy`); *variation* sets the
     SBX/PM rates per generation and needs nsga2 or nsga3 (:func:`~optimi_lab.policy.build_steered_solver`);
@@ -232,7 +235,7 @@ def search(
             scenarios=scenarios,
         )
     rounds = batch_bound(algorithm, population, generations) if algorithm in SEEDING else generations + 1
-    bounded = Batches(solver, rounds)
+    bounded = Batches(solver, rounds if solves is None else sys.maxsize)
     policy = RoutingPolicy(bounded, oracle, problem, record, router)
     if control is not None:
         control.read = policy.results
@@ -245,8 +248,7 @@ def search(
 
     # A robust solver asks each design once per shared scenario, so a scenario is one evaluation.
     per_design = 1 if problem.uncertainty is None else scenarios or DEFAULT_SCENARIOS
-    bound = population * (generations + 1) * per_design
-    budget = Budget(evaluations=bound if solves is None else min(bound, solves))
+    budget = Budget(evaluations=population * (generations + 1) * per_design if solves is None else solves)
     try:
         execution = run(problem, oracle, policy, DecidedReplay(record), budget, dispatch=dispatch or published)
     except Refusal as error:
