@@ -9,16 +9,19 @@ their solvers are made:
   reach, so a weighted-sum scan of a concave front returns its ends only);
 * :func:`multistart` -- one local solver per start point of a scrambled Sobol set;
 * :func:`restarts` -- ``count`` solvers from one factory taking the restart index; IPOP-CMA-ES is
-  restarts whose population doubles (:func:`ipop_cmaes`).
+  restarts whose population doubles (:func:`ipop_cmaes`);
+* :func:`memetic` -- a global solver for a fixed number of evaluations, then a local (gradient) solver
+  from each of its ``polish`` best complete designs: the hybrid population -> gradient refinement.
 
 :func:`warm_start` turns an archive's complete results into the unit-cube rows a population solver
 takes as ``initial=``: its constrained Pareto ranking, crowding broken, best first. In a run over the
 same record a re-asked design is answered from that record rather than evaluated again.
 """
 
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 
 import numpy as np
+from lab_commons.outcomes import Status
 
 from optimi_lab.archive import Archive
 from optimi_lab.core import SampleKind, SampleSpec, refuse, sample
@@ -29,7 +32,7 @@ from optimi_lab.solver.cmaes import cmaes
 from optimi_lab.solver.population import score_rows
 from optimi_lab.solver.protocol import Solver
 
-__all__ = ['Chain', 'ipop_cmaes', 'multistart', 'restarts', 'scalarisation_scan', 'warm_start']
+__all__ = ['Chain', 'ipop_cmaes', 'memetic', 'multistart', 'restarts', 'scalarisation_scan', 'warm_start']
 
 
 class Chain:
@@ -123,6 +126,66 @@ def ipop_cmaes(
     width = Embedding.declared(problem.space, settings.get('embedding')).width  # type: ignore[arg-type]
     base = population if population is not None else 4 + int(3 * np.log(width))
     return restarts(lambda k: cmaes(problem, capability, population=base * factor**k, seed=seed + k, **settings), count)
+
+
+class _Capped:
+    """*solver* asked no more than *evaluations* actions; done once that many are told, keeping what was told."""
+
+    def __init__(self, solver: Solver, evaluations: int) -> None:
+        if evaluations < 1:
+            refuse(f'evaluations must be at least 1, got {evaluations!r}')
+        self._solver, self._cap = solver, evaluations
+        self._asked = 0
+        self.results: list[Result] = []
+
+    def ask(self, capacity: int) -> Sequence[Action]:
+        actions = self._solver.ask(min(capacity, self._cap - self._asked)) if self._asked < self._cap else []
+        self._asked += len(actions)
+        return actions
+
+    def tell(self, results: Sequence[Result]) -> None:
+        self.results.extend(results)
+        self._solver.tell(results)
+
+    @property
+    def done(self) -> bool:
+        return len(self.results) >= self._cap or self._solver.done
+
+
+def memetic(
+    problem: Problem,
+    capability: Capability,
+    *,
+    explore: Solver,
+    evaluations: int,
+    refine: Callable[[Problem, Capability, Mapping[str, object]], Solver],
+    polish: int = 1,
+) -> Chain:
+    """*explore* for *evaluations* actions, then ``refine(problem, capability, start)`` from its *polish* best designs.
+
+    "Best" is the constrained Pareto ranking with crowding broken (as :func:`warm_start`), over the complete
+    results the exploration was told; the refinements run one after another, the best design's first.
+
+    Raises:
+        Refusal: the exploration told no complete result -- there is no design to refine from.
+
+    """
+    if polish < 1:
+        refuse(f'polish must be at least 1, got {polish!r}')
+    head = _Capped(explore, evaluations)
+
+    def stages() -> Iterator[Solver]:
+        yield head
+        complete = [r for r in head.results if r.cell.status is Status.OK]
+        if not complete:
+            refuse(
+                f'the exploration told no complete design in its {len(head.results)} evaluation(s); nothing to refine'
+            )
+        values, violation = score_rows(problem, None, complete)
+        for index in crowding_select(values, min(polish, len(complete)), violation=violation):
+            yield refine(problem, capability, complete[index].action.design)
+
+    return Chain(stages())
 
 
 def warm_start(archive: Archive, n: int, embedding: Embedding | None = None) -> np.ndarray:
