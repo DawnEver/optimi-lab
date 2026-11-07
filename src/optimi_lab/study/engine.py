@@ -162,6 +162,24 @@ def _refuse_solves(solves: int | None) -> None:
         refuse(f'solves={solves!r} is a true-solve budget of at least 1')
 
 
+def _refuse_choosers(algorithm: str | Callable, oracle: ScreeningOracle, router: RouteRule | None) -> None:
+    """Exactly ONE chooser picks each point's evaluator leg: a *router*, or a solver that picks its own level.
+
+    A ``Seeding.LEVELS`` solver asks every action at a level of ``problem.fidelity``; a router would overwrite
+    that pick, so the two together are refused. An oracle of several legs with neither would answer every
+    action on leg 0, so the cheaper legs it declares would be a declaration nothing reads.
+    """
+    levels = sorted(name for name, row in SEEDING.items() if row is Seeding.LEVELS)
+    picks_level = isinstance(algorithm, str) and algorithm in levels
+    if picks_level and router is not None:
+        refuse(f'{algorithm} picks its own level for every point; a router choosing the leg too is a second chooser')
+    if not picks_level and router is None and getattr(oracle, 'evaluators', 1) > 1:
+        refuse(
+            f'{oracle.evaluators} evaluator legs need an explicit selection policy: a router, or a solver that picks '
+            f'its own level ({levels})'
+        )
+
+
 def build_solver(
     name: str | Callable,
     problem: Problem,
@@ -236,6 +254,10 @@ def _seeded(
             refuse(f'{name} needs settings.weights, one weight row per scalarisation')
         weights = np.atleast_2d(np.asarray(extra.pop('weights'), dtype=float))
         return {'local': chained, 'weights': weights, 'max_evaluations': max(1, evaluations // len(weights))}
+    if name == 'mfbo' and problem.fidelity is not None and len(problem.fidelity.levels) >= 2:
+        # The nested design: *population* points at the truth, each cheaper level three times the one above.
+        top = len(problem.fidelity.levels) - 1
+        return {'initial': tuple(population * 3 ** (top - level) for level in range(top + 1))}
     return {Seeding.MODEL: {'initial': population}, Seeding.SELF: {'population': population}}.get(seeding, {})
 
 
@@ -272,6 +294,7 @@ def search(
     if population < 1 or generations < 1:
         refuse('a search needs population >= 1 and generations >= 1; named points use evaluate')
     _refuse_solves(solves)
+    _refuse_choosers(algorithm, oracle, router)
     opened(problem, oracle, record)  # refuse a foreign record BEFORE evaluating or mutating it
     unit_initial: np.ndarray | None = None
     if initial is not None:
