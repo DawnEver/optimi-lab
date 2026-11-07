@@ -1107,7 +1107,7 @@ wheels = [
 [[package]]
 name = "numerics-lab"
 version = "0.1.0"
-source = { git = "https://github.com/DawnEver/numerics-lab.git#fe3924f82376df709b8b46b5e338d0a73816dd4c" }
+source = { git = "https://github.com/DawnEver/numerics-lab.git#06c3714c25fd54c50d6dda0aed6b5a04a62ce137" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
