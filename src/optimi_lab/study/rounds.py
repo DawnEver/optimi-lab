@@ -80,6 +80,7 @@ def searched_study(
             variation=policy.variation,
             risk=strategy.risk,
             scenarios=strategy.scenarios,
+            solves=strategy.solves,
         )
     else:
         searched = evaluate(problem, oracle, initial, record, evidence=evidence)

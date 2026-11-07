@@ -160,6 +160,7 @@ def search(
     dispatch: Dispatch | None = None,
     risk: Risk | None = None,
     scenarios: int | None = None,
+    solves: int | None = None,
 ) -> Searched:
     """A value-only search of ``generations + 1`` told batches; *initial* is natural coordinates.
 
@@ -168,7 +169,8 @@ def search(
     its own first batch takes no *initial* (*population* is then its count), and a sequential one is bounded
     by ``population * (generations + 1)`` evaluations (:func:`~optimi_lab.solver.seeding.batch_bound`). A
     callable is a population factory, called as given. A problem declaring uncertainty is searched
-    ROBUSTLY: each design is one evaluation per scenario, and the budget counts every one.
+    ROBUSTLY: each design is one evaluation per scenario, and the budget counts every one. *solves* caps
+    that budget: the search stops once it has made that many oracle evaluations, a scenario being one.
 
     *router* screens or routes offspring (:class:`~optimi_lab.policy.RoutingPolicy`); *variation* sets the
     SBX/PM rates per generation and needs nsga2 or nsga3 (:func:`~optimi_lab.policy.build_steered_solver`);
@@ -179,6 +181,8 @@ def search(
         refuse(f'unknown algorithm {algorithm!r}; choose {sorted(set(SOLVERS) - set(UNDRIVEN))}')
     if population < 1 or generations < 1:
         refuse('a search needs population >= 1 and generations >= 1; named points use evaluate')
+    if solves is not None and solves < 1:
+        refuse(f'a solve budget needs solves >= 1, got {solves}')
     opened(problem, oracle, record)  # refuse a foreign record BEFORE evaluating or mutating it
     spec: SampleSpec | None = SampleSpec(n_samples=population, seed=seed)
     unit_initial: np.ndarray | None = None
@@ -241,7 +245,8 @@ def search(
 
     # A robust solver asks each design once per shared scenario, so a scenario is one evaluation.
     per_design = 1 if problem.uncertainty is None else scenarios or DEFAULT_SCENARIOS
-    budget = Budget(evaluations=population * (generations + 1) * per_design)
+    bound = population * (generations + 1) * per_design
+    budget = Budget(evaluations=bound if solves is None else min(bound, solves))
     try:
         execution = run(problem, oracle, policy, DecidedReplay(record), budget, dispatch=dispatch or published)
     except Refusal as error:
