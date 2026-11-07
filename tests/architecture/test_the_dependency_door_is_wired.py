@@ -11,19 +11,19 @@ WHAT WAS ACTUALLY MISSING was not a door but optimi-lab's answer to it. H1 -- a 
 verdict run -- is the kit's alone since the CPU seat and the environment seat were split: `verify`
 holds this environment's `EnvironmentSeat` and `dep.mutate` refuses while it is held. Without the
 anchors `dev_lab.dev.dep` renders `NO_ANCHORS_DECLARED` (H2 detected and not remediable);
-`scripts/dep.py` supplies `.verify/verify-*.log`.
+`scripts/dep.py` supplies the `verify-*.log` files under the dated `verify` output kind.
 
 THE ASSERTIONS ARE NOW THE FAMILY'S, ADOPTED 2026-09-19 from `dev_lab.dev.famtests.depdoor`.
 Two independent audit lanes measured this file against the sibling lab's twin at 91.5% identical, and the
 8.5% was a docstring, the repo's name four times, a `tempfile` prefix and two invented timestamps --
 not one assertion and not one message. What is LOCAL and arrives below as a keyword with NO DEFAULT
 is exactly that: the name `optimi-lab`, `scripts/dep.py`'s anchor adapter and its port factory, and the
-repo-relative shape `.verify/verify-*.log` that optimi-lab's own `verify` writes. A repo that forgets
+repo-relative shape `<output>/*/*/*/verify/verify-*.log` that optimi-lab's own `verify` writes. A repo that forgets
 one gets a `TypeError` rather than a silent wrong answer.
 
 ONE ARM STAYS LOCAL because the kit has no place for it: the JOIN between the two halves -- that the
 directory the anchors are looked for in is the directory the verdict entry point writes to. That is
-a fact about this checkout and about `dev_lab.dev.verifysteps.LOG_DIRECTORY` together, and each of
+a fact about this checkout and about `dev_lab.dev.verifysteps.output_dir(root, LOG_KIND)` together, and each of
 the kit's arms answers for one half only.
 
 THE MUTATE-DRIVING ARMS NEED A PRIVATE SEAT RECORDS ROOT, and the kit's own suite is where this
@@ -40,28 +40,29 @@ real one. A REAL mutation is still excluded, by the verdict holding this environ
 from __future__ import annotations
 
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Final
 
 import pytest
+from dev_lab.dev.datedlog import date_parts, declared_output
 from dev_lab.dev.famtests import depdoor
-from dev_lab.dev.verifysteps import LOG_DIRECTORY
+from dev_lab.dev.verifysteps import LOG_KIND
 from lab_commons.box import BOX_ENV
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from scripts.dep import ANCHOR_GLOB, port, repo_root, verdict_anchors  # noqa: E402
+from scripts.dep import ANCHOR_GLOB, anchor_shape, port, repo_root, verdict_anchors  # noqa: E402
 
 #: What the report must call this checkout. It is what a reader deciding whether to stop their own
 #: run has to go on, so naming the wrong repo is not cosmetic.
 REPO_NAME: Final = 'optimi-lab'
 
 #: The repo-relative NAME SHAPE a optimi-lab verdict log takes, joined here rather than upstream
-#: because only this repo knows both halves: `dev_lab.dev.verify` owns the directory and
-#: `scripts/dep.py` owns the glob. The floor arm is worth exactly this string's accuracy.
-ANCHOR_SHAPE: Final = f'{LOG_DIRECTORY}/{ANCHOR_GLOB}'
+#: in `scripts/dep.py` because only this repo knows both halves: `dev_lab.dev.verify` owns the
+#: directory and `scripts/dep.py` owns the glob. The floor arm is worth exactly this string's accuracy.
+ANCHOR_SHAPE: Final = anchor_shape()
 
 #: The timestamp the planted verdict logs carry. A constant, because a reading off the clock would
 #: make the arms below a fact about the day they ran.
@@ -148,13 +149,14 @@ def test_the_anchor_adapter_reads_the_shape_this_repo_writes(tmp_path: Path) -> 
 def test_the_anchor_directory_is_the_one_verify_writes_to() -> None:
     """THE JOIN, and the one arm the kit has no place for: each of its arms answers for one half.
 
-    The anchor shape is BUILT from `dev_lab.dev.verifysteps.LOG_DIRECTORY` rather than spelled, so a
-    `verify` that moved its logs reds here instead of leaving every retirement arm above green over
-    a directory nothing writes to.
+    The verify log of TODAY -- the declared output root, the date parts and `LOG_KIND`, exactly as
+    `dev_lab.dev.verifysteps` composes it -- must match the anchor shape, so a `verify` that moved its
+    logs reds here instead of leaving every retirement arm above green over a directory nothing
+    writes to.
     """
-    assert ANCHOR_SHAPE.startswith(f'{LOG_DIRECTORY}/'), (
-        f'the anchors are looked for in {ANCHOR_SHAPE!r}, not under the {LOG_DIRECTORY!r} the '
-        f'verdict entry point writes to'
+    written = PurePosixPath(declared_output(_ROOT), *date_parts(), LOG_KIND, ANCHOR_GLOB.replace('*', _A_TIMESTAMP))
+    assert written.match(ANCHOR_SHAPE), (
+        f'the anchors are looked for in {ANCHOR_SHAPE!r}, not at {written} where the verdict entry point writes'
     )
-    assert (repo_root() / LOG_DIRECTORY).name == LOG_DIRECTORY
+    assert len(written.parts) == len(PurePosixPath(ANCHOR_SHAPE).parts), 'the shape matched a suffix, not the path'
     assert repo_root() == _ROOT, 'the script answers for a different checkout than the one this suite is in'

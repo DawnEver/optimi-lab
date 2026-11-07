@@ -7,9 +7,9 @@ whole of ruff plus pytest) and retires the anchors a moved key invalidated -- id
 repo, because none of that is repo-shaped. Who may block a change is therefore not a repo answer.
 Exactly one question is not answerable from there, and it is the whole content of this file:
 
-* WHICH FILES RECORD A VERDICT ABOUT THIS ENVIRONMENT. Here that is `.verify/verify-*.log`, the logs
-  `run_verify` tees every step into and the only thing in this tree a later `env=` comparison can
-  cite.
+* WHICH FILES RECORD A VERDICT ABOUT THIS ENVIRONMENT. Here that is
+  `<[tool.dev_lab.parts] output>/<yy>/<mm>/<dd>/verify/verify-*.log`, the logs `run_verify` tees every
+  step into and the only thing in this tree a later `env=` comparison can cite.
 
 WHAT CHANGES BY SUPPLYING IT, stated exactly. Without it the door's report renders
 `NO_ANCHORS_DECLARED`: H2 detected and its remedy with nowhere to land.
@@ -30,14 +30,15 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
+from dev_lab.dev.datedlog import declared_output
 from dev_lab.dev.dep import Port, mutate
-from dev_lab.dev.verifysteps import LOG_DIRECTORY
+from dev_lab.dev.verifysteps import LOG_KIND
 from lab_commons.log import emit
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-__all__ = ['ANCHOR_GLOB', 'main', 'port', 'repo_root', 'verdict_anchors']
+__all__ = ['ANCHOR_GLOB', 'anchor_shape', 'main', 'port', 'repo_root', 'verdict_anchors']
 
 #: How a verdict log is spelled by `dev_lab.dev.verify`. Kept as a name rather than inlined
 #: twice, because the anchor half of the door is worth exactly as much as this pattern's accuracy.
@@ -49,13 +50,23 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def anchor_shape() -> str:
+    """The repo-relative glob every verdict log matches: the declared output root, any day, `verify`.
+
+    Built from `dev_lab.dev.datedlog.declared_output` and `dev_lab.dev.verifysteps.LOG_KIND`, the two
+    halves `run_verify` itself writes with, and read off THIS checkout's pyproject, so a tree under
+    test is scanned in the shape this repo really produces.
+    """
+    return f'{declared_output(repo_root())}/*/*/*/{LOG_KIND}/{ANCHOR_GLOB}'
+
+
 def verdict_anchors(root: Path | None = None) -> tuple[Path, ...]:
     """Every verdict log in this tree -- the files a moved env_key turns into a statement about a
     dead environment.
 
     Sorted, so a report naming what it retired reads the same twice.
     """
-    return tuple(sorted((root or repo_root()).joinpath(LOG_DIRECTORY).glob(ANCHOR_GLOB)))
+    return tuple(sorted((root or repo_root()).glob(anchor_shape())))
 
 
 def port(*, root: Path | None = None) -> Port:

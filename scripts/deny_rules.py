@@ -19,7 +19,7 @@ WHAT THIS REPO SHIPS, and why each one is honest here:
 
 * BARE-TEST-INVOCATION and PUSH-NO-VERIFY both need a VERDICT ENTRY POINT, and this repo has
   exactly one -- `python -m dev_lab.dev.verify`, the command that holds the box seat across
-  ruff and pytest and writes the `.verify/verify-*.log` a later `env=` comparison cites. It is a
+  ruff and pytest and writes the dated `verify/verify-*.log` a later `env=` comparison cites. It is a
   module in a declared dev dependency rather than a file in this tree, so the remedy carries NO
   `path`: there is nothing for `remedy_gaps` to resolve, and claiming a path that does not exist
   would be the sealed road wearing a signpost.
