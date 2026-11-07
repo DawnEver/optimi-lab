@@ -266,7 +266,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-11-07 after the dated-anchor rows: own=527 hits=46 -> 8.73%, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
+        'family half in it to split off. RE-MEASURED 2026-11-07 after the no-CJK binder left for the always-on family test: own=521 hits=45 -> 8.64%, down from own=527 hits=46 -> 8.73% the same day after the dated-anchor rows, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
         'own=519 hits=47 -> 9.06% after dev-lab delegation and new binders on 2026-10-23, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
@@ -513,17 +513,6 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "family's (`famtests.noreflection`); this binder holds only optimi-lab's empty allow-set and its "
         'files-read floor. MEASURED 2026-10-04: own=9 hits=0, down from own=27 hits=0 on 2026-10-01.',
     ),
-    'tests/architecture/test_no_cjk_in_tracked_source.py': Placement(
-        STAYS,
-        'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
-        'density bar asks whether a file is mostly generic and never asks whether the family half it was '
-        'waiting for has ALREADY SHIPPED. IT HAD. `dev_lab.dev.famtests.trackedcjk` publishes '
-        '`take_scan`, `assert_no_undeclared_cjk`, the exemption-segment arm, the ratchet-shape arm, the '
-        "self-clean arm and the planted control, over `dev_lab.dev.cjk`'s readings; this file imports "
-        "both. What is left is the LOCAL half the old text already named: optimi_lab's corpus and its "
-        'DECLARED set of files still carrying CJK. RE-MEASURED 2026-09-21: own=22 hits=0, down from own=24, '
-        'the two hand-written lines the `also` argument replaced, admitted by the 50-line binder ceiling.',
-    ),
     'tests/architecture/test_no_clause_checks_its_own_echo.py': Placement(
         STAYS,
         'BORN ADOPTED 2026-09-19, AND IT CLOSES THE OTHER SIDE OF THE RATCHET. `dev_lab.dev.famtests.echoedtoken` '
@@ -547,7 +536,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after '
         'AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 '
         'after lab-commons 2cca293, and 2026-10-23 after current dev-lab rule adoption: '
-        'own=152 hits=3 -> 1.97% on 2026-11-07 (the PR-REVIEW rename and the WRITES-STAY-IN-THE-TREE row), up from own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
+        'own=150 hits=3 -> 2.00% on 2026-11-07 (NO-CJK-IN-TRACKED-SOURCE left for the always-on family test, PR-HEAD-IS-CURRENT joined), down from own=152 hits=3 -> 1.97% the same day (the PR-REVIEW rename and the WRITES-STAY-IN-THE-TREE row), up from own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
         '2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 '
         'repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from '
         'own=102 repo=3 -> 2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up '
@@ -828,7 +817,7 @@ def is_justified(reading: density.Density) -> bool:
 #: Every number below is `measure_density` run on the real file.
 #:
 #:     ADMIT   scripts/dep.py                              own= 22  repo=1   the reference binder
-#:     ADMIT   test_no_cjk_in_tracked_source.py            own= 38  repo=0   declaration + control
+#:     ADMIT   the no-CJK binder (deleted 2026-11-07)      own= 38  repo=0   declaration + control
 #:     ADMIT   test_a_bounded_wait_names_its_remedy.py     own= 43  repo=0   the LARGEST admitted
 #:     REFUSE  test_a_pin_is_a_named_set.py                own= 67  repo=0   carries its own scan
 #:     REFUSE  test_a_relative_tolerance_carries_its_floor own= 71  repo=0   carries its own scan
