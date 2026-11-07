@@ -513,17 +513,6 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "family's (`famtests.noreflection`); this binder holds only optimi-lab's empty allow-set and its "
         'files-read floor. MEASURED 2026-10-04: own=9 hits=0, down from own=27 hits=0 on 2026-10-01.',
     ),
-    'tests/architecture/test_no_cjk_in_tracked_source.py': Placement(
-        STAYS,
-        'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
-        'density bar asks whether a file is mostly generic and never asks whether the family half it was '
-        'waiting for has ALREADY SHIPPED. IT HAD. `dev_lab.dev.famtests.trackedcjk` publishes '
-        '`take_scan`, `assert_no_undeclared_cjk`, the exemption-segment arm, the ratchet-shape arm, the '
-        "self-clean arm and the planted control, over `dev_lab.dev.cjk`'s readings; this file imports "
-        "both. What is left is the LOCAL half the old text already named: optimi_lab's corpus and its "
-        'DECLARED set of files still carrying CJK. RE-MEASURED 2026-09-21: own=22 hits=0, down from own=24, '
-        'the two hand-written lines the `also` argument replaced, admitted by the 50-line binder ceiling.',
-    ),
     'tests/architecture/test_no_clause_checks_its_own_echo.py': Placement(
         STAYS,
         'BORN ADOPTED 2026-09-19, AND IT CLOSES THE OTHER SIDE OF THE RATCHET. `dev_lab.dev.famtests.echoedtoken` '
@@ -828,7 +817,7 @@ def is_justified(reading: density.Density) -> bool:
 #: Every number below is `measure_density` run on the real file.
 #:
 #:     ADMIT   scripts/dep.py                              own= 22  repo=1   the reference binder
-#:     ADMIT   test_no_cjk_in_tracked_source.py            own= 38  repo=0   declaration + control
+#:     ADMIT   the no-CJK binder (deleted 2026-11-07)      own= 38  repo=0   declaration + control
 #:     ADMIT   test_a_bounded_wait_names_its_remedy.py     own= 43  repo=0   the LARGEST admitted
 #:     REFUSE  test_a_pin_is_a_named_set.py                own= 67  repo=0   carries its own scan
 #:     REFUSE  test_a_relative_tolerance_carries_its_floor own= 71  repo=0   carries its own scan
