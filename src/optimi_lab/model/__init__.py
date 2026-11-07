@@ -13,12 +13,13 @@ it; it is never an observation.
   :class:`CoKriging` (AR1 multi-fidelity);
 * learners -- :class:`NearestNeighbours`, :class:`RegressionTree`, :class:`Forest` (random forest,
   extra trees, bagging), :class:`MultilayerPerceptron`;
-* composition and judgement -- :class:`Ensemble`, :func:`cross_validate`, :func:`score`,
+* composition and judgement -- :class:`Ensemble`, :class:`Bagging`, :func:`tune`, :func:`cross_validate`, :func:`score`,
   :func:`calibration`.
 
 scikit-learn is a TEST oracle only (plan R1).
 """
 
+from optimi_lab.model.bagging import Bagging, FittedBagging
 from optimi_lab.model.chaos import ChaosExpansion, FittedChaos, legendre_table
 from optimi_lab.model.co_kriging import CoKriging, FittedCoKriging
 from optimi_lab.model.ensemble import WEIGHTINGS, Ensemble, FittedEnsemble
@@ -33,6 +34,7 @@ from optimi_lab.model.protocol import Fitted, Give, Prediction, Surrogate, query
 from optimi_lab.model.radial_basis import RADIAL_KERNELS, FittedRadialBasis, RadialBasis
 from optimi_lab.model.registry import SURROGATES, surrogate
 from optimi_lab.model.tree import SPLITTERS, FittedForest, FittedTree, Forest, RegressionTree
+from optimi_lab.model.tuning import Trial, Tuning, tune
 from optimi_lab.model.validation import (
     COVERAGE_LEVELS,
     SCORES,
@@ -56,11 +58,13 @@ __all__ = [
     'SPLITTERS',
     'SURROGATES',
     'WEIGHTINGS',
+    'Bagging',
     'Calibration',
     'ChaosExpansion',
     'CoKriging',
     'Ensemble',
     'Fitted',
+    'FittedBagging',
     'FittedChaos',
     'FittedCoKriging',
     'FittedEnsemble',
@@ -88,6 +92,8 @@ __all__ = [
     'Ridge',
     'ScoredFit',
     'Surrogate',
+    'Trial',
+    'Tuning',
     'box_predictions',
     'calibration',
     'cross_validate',
@@ -99,4 +105,5 @@ __all__ = [
     'scored_fit',
     'surrogate',
     'training_data',
+    'tune',
 ]
