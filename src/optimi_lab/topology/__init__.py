@@ -15,16 +15,35 @@ from optimi_lab.topology.density import (
     project,
 )
 from optimi_lab.topology.domain import DesignDomain
+from optimi_lab.topology.driver import (
+    DEFAULT_CONTINUATION,
+    Continuation,
+    Iteration,
+    Optimizer,
+    TopologyResult,
+    topology_optimize,
+)
 from optimi_lab.topology.interpolation import Scheme, interpolate, ks, p_norm
 from optimi_lab.topology.measures import VirtualTemperature, components, feature_sizes, member_widths
+from optimi_lab.topology.provider import Evaluation, PhysicsProvider, Response, Role, TopologyProblem
 
 __all__ = [
+    'DEFAULT_CONTINUATION',
     'ROBUST_ETAS',
+    'Continuation',
     'DensityFilter',
     'DesignChain',
     'DesignDomain',
+    'Evaluation',
     'HelmholtzFilter',
+    'Iteration',
+    'Optimizer',
+    'PhysicsProvider',
+    'Response',
+    'Role',
     'Scheme',
+    'TopologyProblem',
+    'TopologyResult',
     'VirtualTemperature',
     'components',
     'fd_check',
@@ -35,4 +54,5 @@ __all__ = [
     'member_widths',
     'p_norm',
     'project',
+    'topology_optimize',
 ]
