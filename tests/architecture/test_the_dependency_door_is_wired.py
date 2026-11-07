@@ -40,6 +40,7 @@ real one. A REAL mutation is still excluded, by the verdict holding this environ
 from __future__ import annotations
 
 import sys
+from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
 from typing import Final
 
@@ -59,11 +60,6 @@ from scripts.dep import ANCHOR_GLOB, anchor_shape, port, repo_root, verdict_anch
 #: run has to go on, so naming the wrong repo is not cosmetic.
 REPO_NAME: Final = 'optimi-lab'
 
-#: The repo-relative NAME SHAPE a optimi-lab verdict log takes, joined here rather than upstream
-#: in `scripts/dep.py` because only this repo knows both halves: `dev_lab.dev.verify` owns the
-#: directory and `scripts/dep.py` owns the glob. The floor arm is worth exactly this string's accuracy.
-ANCHOR_SHAPE: Final = anchor_shape()
-
 #: The timestamp the planted verdict logs carry. A constant, because a reading off the clock would
 #: make the arms below a fact about the day they ran.
 _A_TIMESTAMP: Final = '20260919T000000Z'
@@ -77,7 +73,7 @@ def _private_seat_records(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> No
 
 def _plant(tmp_path: Path) -> Path:
     """Write one verdict log into *tmp_path*, in the shape this repo really produces."""
-    anchor = tmp_path / ANCHOR_SHAPE.replace('*', _A_TIMESTAMP)
+    anchor = tmp_path / anchor_shape().replace('*', _A_TIMESTAMP)
     anchor.parent.mkdir(parents=True, exist_ok=True)
     anchor.write_text('VERDICT result=PASS env=planted\n', encoding='utf-8')
     return anchor
@@ -141,7 +137,7 @@ def test_the_anchor_adapter_reads_the_shape_this_repo_writes(tmp_path: Path) -> 
     """FLOOR AND CEILING ON THE ANCHOR SCAN: it finds a real log, and it invents none."""
     depdoor.assert_the_anchor_reader_has_a_floor_and_a_ceiling(
         verdict_anchors=verdict_anchors,
-        anchor_glob=ANCHOR_SHAPE,
+        anchor_glob=anchor_shape(),
         tree=tmp_path,
     )
 
@@ -155,8 +151,5 @@ def test_the_anchor_directory_is_the_one_verify_writes_to() -> None:
     writes to.
     """
     written = PurePosixPath(declared_output(_ROOT), *date_parts(), LOG_KIND, ANCHOR_GLOB.replace('*', _A_TIMESTAMP))
-    assert written.match(ANCHOR_SHAPE), (
-        f'the anchors are looked for in {ANCHOR_SHAPE!r}, not at {written} where the verdict entry point writes'
-    )
-    assert len(written.parts) == len(PurePosixPath(ANCHOR_SHAPE).parts), 'the shape matched a suffix, not the path'
+    assert fnmatchcase(str(written), anchor_shape()), f'anchors are looked for in {anchor_shape()!r}, not at {written}'
     assert repo_root() == _ROOT, 'the script answers for a different checkout than the one this suite is in'
