@@ -181,7 +181,6 @@ class SearchStrategy:
     def __post_init__(self) -> None:
         if self.generations < 0 or (self.generations == 0 and self.surrogate is None):
             refuse('optimization needs positive generations or explicit surrogate feedback')
-        object.__setattr__(self, 'settings', MappingProxyType(dict(self.settings)))
         if callable(self.algorithm):
             return
         if self.algorithm not in SOLVERS or self.algorithm in UNDRIVEN:
