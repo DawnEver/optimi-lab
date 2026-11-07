@@ -39,6 +39,7 @@ from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
 from optimi_lab.solver.benders import benders
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.branch_and_bound import milp
+from optimi_lab.solver.build import UNDRIVEN, build_solver
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
 from optimi_lab.solver.constraint_programming import CPSolution, Predicate, all_different, cp
@@ -107,6 +108,7 @@ __all__ = [
     'SEQUENTIAL',
     'SOLVERS',
     'STRUCTURED',
+    'UNDRIVEN',
     'BayesianOptimisation',
     'CPSolution',
     'Chain',
@@ -160,6 +162,7 @@ __all__ = [
     'bo',
     'bobyqa',
     'box_prox',
+    'build_solver',
     'cmaes',
     'cp',
     'descriptors_of',

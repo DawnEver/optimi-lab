@@ -235,6 +235,14 @@ def _search_parameters(request: Request, strategy: SearchStrategy, initial: Fixe
             'primary_cost': policy.primary_cost,
             'fidelities': [{'evaluation_identity': f.evaluation_identity, 'cost': f.cost} for f in policy.fidelities],
         },
+        # Declared only: a search without them keeps the slot parameters it always had.
+        **({'settings': dict(strategy.settings)} if strategy.settings else {}),
+        **(
+            {}
+            if strategy.risk is None
+            else {'risk': {'measure': strategy.risk.measure.value, 'alpha': strategy.risk.alpha, 'k': strategy.risk.k}}
+        ),
+        **({} if strategy.scenarios is None else {'scenarios': strategy.scenarios}),
     }
     return json.loads(Identity.of(params).canonical)['subject']
 
