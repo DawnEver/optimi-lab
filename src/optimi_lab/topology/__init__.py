@@ -15,6 +15,8 @@ from optimi_lab.topology.density import (
     project,
 )
 from optimi_lab.topology.domain import DesignDomain
+from optimi_lab.topology.interpolation import Scheme, interpolate, ks, p_norm
+from optimi_lab.topology.measures import VirtualTemperature, components, feature_sizes, member_widths
 
 __all__ = [
     'ROBUST_ETAS',
@@ -22,7 +24,15 @@ __all__ = [
     'DesignChain',
     'DesignDomain',
     'HelmholtzFilter',
+    'Scheme',
+    'VirtualTemperature',
+    'components',
     'fd_check',
+    'feature_sizes',
     'grayness',
+    'interpolate',
+    'ks',
+    'member_widths',
+    'p_norm',
     'project',
 ]
