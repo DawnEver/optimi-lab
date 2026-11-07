@@ -97,7 +97,7 @@ prefix_rule(
 prefix_rule(
     pattern = [[".venv/Scripts/python.exe", ".venv/bin/python", "./.venv/Scripts/python.exe", "./.venv/bin/python"], "-m", "dev_lab.dev.forge", "pr", "ready"],
     decision = "allow",
-    justification = "marks a draft PR ready for review (DRAFT-UNTIL-READY)",
+    justification = "marks a draft PR ready for review (DRAFT-UNTIL-READY); refused unless the tree is clean and the head is current (PR-HEAD-IS-CURRENT)",
 )
 
 prefix_rule(
