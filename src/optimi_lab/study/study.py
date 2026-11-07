@@ -217,6 +217,14 @@ def _search_parameters(request: Request, strategy: SearchStrategy, initial: Fixe
         'algorithm': _named(strategy.algorithm),
         'generations': strategy.generations,
         'seed': strategy.seed,
+        'risk': None
+        if strategy.risk is None and strategy.scenarios is None
+        else {
+            'measure': None if strategy.risk is None else strategy.risk.measure.value,
+            'alpha': None if strategy.risk is None else strategy.risk.alpha,
+            'k': None if strategy.risk is None else strategy.risk.k,
+            'scenarios': strategy.scenarios,
+        },
         'report_fit': strategy.report_fit,
         'initial': [dict(zip(request.space.names, point, strict=True)) for point in initial.points],
         'surrogate': None

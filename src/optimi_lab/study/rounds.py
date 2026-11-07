@@ -66,6 +66,8 @@ def searched_study(
     problem, oracle, record = bound.problem, bound.oracle, bound.record
     if strategy.surrogate is not None and (policy.router is not None or policy.variation is not None):
         refuse('surrogate batch feedback cannot silently ignore admission/variation control')
+    if strategy.surrogate is not None and problem.uncertainty is not None:
+        refuse('surrogate feedback proposes nominal designs; a problem with declared uncertainty is searched robustly')
     if strategy.generations:
         name = strategy.algorithm
         # A solver drawing its own first batch takes the declared design's COUNT, and only from a sample
@@ -86,6 +88,8 @@ def searched_study(
             router=policy.router,
             variation=policy.variation,
             solves=strategy.solves,
+            risk=strategy.risk,
+            scenarios=strategy.scenarios,
         )
     else:
         searched = evaluate(problem, oracle, initial, record, evidence=evidence)

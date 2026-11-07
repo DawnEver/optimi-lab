@@ -19,6 +19,7 @@ from lab_commons.outcomes import Identity
 from optimi_lab import solver as library
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import refuse
+from optimi_lab.operator import Risk
 from optimi_lab.oracle import Capability
 from optimi_lab.policy import STEERING_MODELS, RouteRule, Steering, SurrogateFit, VariationRule
 from optimi_lab.problem import Problem
@@ -186,10 +187,18 @@ class SearchStrategy:
     report_fit: bool = False
     #: A TRUE-SOLVE budget replacing the generations stop; None keeps ``generations + 1`` batches.
     solves: int | None = None
+    #: The robust declaration over the bound problem's uncertainty: the measure each design is ranked on and
+    #: the shared scenario draws per design (None: the library defaults); refused on a deterministic problem.
+    risk: Risk | None = None
+    scenarios: int | None = None
 
     def __post_init__(self) -> None:
         if self.solves is not None and self.solves < 1:
             refuse(f'solves={self.solves!r} is a true-solve budget of at least 1')
+        if self.scenarios is not None and self.scenarios < 1:
+            refuse(f'scenarios={self.scenarios!r} is a count of shared scenario draws of at least 1')
+        if self.risk is not None and not isinstance(self.risk, Risk):
+            refuse(f'risk is an optimi_lab.operator.Risk, got {type(self.risk).__name__}')
         if self.generations < 0 or (self.generations == 0 and self.surrogate is None):
             refuse('optimization needs positive generations or explicit surrogate feedback')
         algorithm_factory(self.algorithm)
