@@ -1,7 +1,8 @@
 """L8 policy: what a caller decides around a solver -- budgets, variation rates, routing, replay, steering.
 
 * :class:`Batches` -- a generation budget counted in told batches.
-* :class:`VariationPolicy` -- SBX/PM rates a :data:`VariationRule` updates per generation.
+* :class:`VariationPolicy` -- SBX/PM rates a :data:`VariationRule` updates per generation;
+  :func:`build_steered_solver` drives an NSGA-II/III solver by one.
 * :class:`RoutingPolicy` -- a :data:`RouteRule` screens or routes each action of a :class:`ScreeningOracle`.
 * :class:`DecidedReplay` -- the run replays decided outcomes only (never SCREENED or retryable ones).
 * surrogate steering -- a pool is fitted (:mod:`~optimi_lab.policy.surrogate_fit`), proposes
@@ -46,7 +47,7 @@ from optimi_lab.policy.surrogate_fit import (
     SurrogateFit,
     fit_surrogate,
 )
-from optimi_lab.policy.variation import VariationPolicy, VariationRule
+from optimi_lab.policy.variation import VariationPolicy, VariationRule, build_steered_solver
 
 __all__ = [
     'FALLBACK_PROPOSALS',
@@ -74,6 +75,7 @@ __all__ = [
     'VariationPolicy',
     'VariationRule',
     'best_model',
+    'build_steered_solver',
     'feasible_front',
     'fit_surrogate',
     'natural',

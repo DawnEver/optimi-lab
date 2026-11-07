@@ -39,10 +39,12 @@ from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
 from optimi_lab.solver.benders import benders
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.branch_and_bound import milp
+from optimi_lab.solver.build import UNDRIVEN, build_solver
 from optimi_lab.solver.cmaes import CMAES, cmaes
 from optimi_lab.solver.constrained import augmented_lagrangian, interior_point, sqp
 from optimi_lab.solver.constraint_programming import CPSolution, Predicate, all_different, cp
 from optimi_lab.solver.decomposition import DecompositionSolver, moead
+from optimi_lab.solver.design_risk import DesignRisk, design_front, design_risk
 from optimi_lab.solver.dynamic_programming import DPSolution, dynamic_programming
 from optimi_lab.solver.evolutionary import (
     differential,
@@ -62,7 +64,7 @@ from optimi_lab.solver.gradient import METHODS, GradientSolver
 from optimi_lab.solver.linear import LP_METHODS, lp
 from optimi_lab.solver.linear_program import LinearProgram, StructuredSolution
 from optimi_lab.solver.mads import MADS, mads
-from optimi_lab.solver.map_elites import Descriptor, MapElites, map_elites
+from optimi_lab.solver.map_elites import Descriptor, MapElites, descriptors_of, map_elites
 from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
 from optimi_lab.solver.model_based import ModelBased, maximise
 from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_region
@@ -84,6 +86,7 @@ from optimi_lab.solver.requires import (
     match,
 )
 from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
+from optimi_lab.solver.seeding import SEEDING, SEQUENTIAL, Seeding, batch_bound, require_seedable, search_embedding
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
 from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Solution, Unevaluable, kkt_bar
 from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
@@ -101,14 +104,18 @@ __all__ = [
     'MADS',
     'METHODS',
     'RTOL',
+    'SEEDING',
+    'SEQUENTIAL',
     'SOLVERS',
     'STRUCTURED',
+    'UNDRIVEN',
     'BayesianOptimisation',
     'CPSolution',
     'Chain',
     'DPSolution',
     'DecompositionSolver',
     'Descriptor',
+    'DesignRisk',
     'Eligible',
     'Evaluate',
     'EvolutionarySolver',
@@ -134,6 +141,7 @@ __all__ = [
     'Requires',
     'SampleAverage',
     'Scalarise',
+    'Seeding',
     'SequentialSolver',
     'SmoothView',
     'Solution',
@@ -149,12 +157,17 @@ __all__ = [
     'all_different',
     'asha',
     'augmented_lagrangian',
+    'batch_bound',
     'benders',
     'bo',
     'bobyqa',
     'box_prox',
+    'build_solver',
     'cmaes',
     'cp',
+    'descriptors_of',
+    'design_front',
+    'design_risk',
     'differential',
     'dynamic_programming',
     'ehvi',
@@ -191,6 +204,7 @@ __all__ = [
     'projected_gradient',
     'qp',
     'quadratic_prox',
+    'require_seedable',
     'restarts',
     'rnsga3',
     'rvea',
@@ -198,6 +212,7 @@ __all__ = [
     'sample_average',
     'sbx_polynomial',
     'scalarisation_scan',
+    'search_embedding',
     'sms_emoa',
     'spea2',
     'sqp',

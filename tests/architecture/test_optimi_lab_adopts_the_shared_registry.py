@@ -208,7 +208,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # THIS repo's entry point still routes its run through `verifybox.boxed`.
     'ONE-BOX-ONE-LOCK': (_BOX,),
     # CLOSED 2026-09-17. The old reason said nothing here issues a verdict another party cites;
-    # `.verify/verify-*.log` carries an `env=` key computed when the run ENDS, which is exactly the
+    # the dated `verify/verify-*.log` carries an `env=` key computed when the run ENDS, which is exactly the
     # invariant the door exists for, and `dev_lab.dev.dep`'s own docstring named this repo as
     # the one supplying neither adapter. Since lab-commons 96a90c8 the exclusion is the kit's own
     # (the environment seat `verify` holds), and `scripts/dep.py` supplies the one repo answer left --
@@ -244,7 +244,12 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # FORGE-THROUGH-THE-DOOR rests on the SAME two files: its three FORGE-WRITE-* deny rows ship
     # through this guard, so a `gh`/`tea`/raw-API write is refused live and the exit they name is
     # `python -m dev_lab.dev.forge`, the client that stamps which machine and agent wrote.
-    **dict.fromkeys(('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR', 'INJECTED-TEXT-IS-PROGRESSIVE'), (_GUARD, _GUARD_RULES)),
+    # WRITES-STAY-IN-THE-TREE (adopted 2026-11-07, the 1106 relock) is likewise a shipped row of this
+    # guard: a write into a write-prone root outside the checkout is refused live.
+    **dict.fromkeys(
+        ('AGENT-GUARD', 'FORGE-THROUGH-THE-DOOR', 'INJECTED-TEXT-IS-PROGRESSIVE', 'WRITES-STAY-IN-THE-TREE'),
+        (_GUARD, _GUARD_RULES),
+    ),
     # ADOPTED 2026-10-01 with `dev_lab.dev.codeplace`: the filesystem walk over this tree's
     # declared code roots, and the `scratch/` lifecycle that is the exit from it. The mechanism is
     # the family's; the roots, the pruned generated trees and the age bound are this repo's.
@@ -273,6 +278,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED with lab-commons a2f50b9 at zero sites: the family scanner over every tracked `*.py`,
     # all four banned calls plus `__getattr__`, with an empty two-sided allow-set.
     'NO-REFLECTION': (_NO_REFLECTION,),
+    # Adopted 2026-11-05 with dev-lab 6f6b042a: three PR-flow rows of the forge's own admission (a PR opens
+    # as a draft, forge writes go through its doors, no push lands on a merged PR), as in numerics-lab.
+    'DRAFT-UNTIL-READY': (_PYPROJECT,),
+    'FORGE-DOORS-ARE-CONSENT': (_PYPROJECT,),
+    'NO-PUSH-ONTO-A-LANDED-PR': (_PYPROJECT,),
     # ADOPTED with lab-commons ec5e8c5: `[tool.dev_lab.branchset]` declares trunk `main` and no
     # session branches, and the family famtest polices origin and this box against it.
     'ONE-BRANCH-PER-SESSION': ('pyproject.toml', _ORIGIN),
@@ -327,7 +337,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # These decisions belong to the shared forge, not a local replacement. The
     # configured integration and installed admission hooks route publication there.
     **dict.fromkeys(
-        ('ONE-SESSION-ONE-PR', 'NO-STACKED-PRS', 'DOCS-ONLY-CARRIES', 'PR-REVIEW-BLOCKS-ON-HIGH-OR-SECURITY'),
+        ('ONE-SESSION-ONE-PR', 'NO-STACKED-PRS', 'DOCS-ONLY-CARRIES', 'PR-REVIEW-IS-ONE-SHOT-ADVICE'),
         (_PYPROJECT, _HOOKS, _ADMISSION),
     ),
     'MERGE-OR-DELETE': (_PYPROJECT, _ORIGIN),

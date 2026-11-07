@@ -7,6 +7,7 @@ An answer is filed the moment it completes, so a paid evaluation survives a late
 
 from __future__ import annotations
 
+import sys
 from collections.abc import AsyncIterator, Callable, Mapping, Sequence
 from dataclasses import dataclass
 from threading import Lock
@@ -17,8 +18,7 @@ from lab_commons.outcomes import SUBMITTED, Evidence, Record
 from optimi_lab.archive import Archive
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import Refusal, refuse
-from optimi_lab.operator.reference import reference_select
-from optimi_lab.operator.selection import crowding_select, tournament_select
+from optimi_lab.operator import Risk
 from optimi_lab.oracle import Action, Oracle, Result
 from optimi_lab.policy import (
     Batches,
@@ -28,11 +28,14 @@ from optimi_lab.policy import (
     ScreeningOracle,
     VariationPolicy,
     VariationRule,
+    build_steered_solver,
 )
 from optimi_lab.problem import Problem
 from optimi_lab.run import Budget, Dispatch, Run, run
-from optimi_lab.solver.evolutionary import nsga2, nsga3
-from optimi_lab.solver.population import EvolutionarySolver
+from optimi_lab.solver.build import UNDRIVEN, build_solver
+from optimi_lab.solver.requires import SOLVERS
+from optimi_lab.solver.scenarios import DEFAULT_SCENARIOS
+from optimi_lab.solver.seeding import SEEDING, batch_bound, require_seedable, search_embedding
 from optimi_lab.study.strategy import algorithm_factory
 
 __all__ = ['Searched', 'evaluate', 'opened', 'search']
@@ -67,7 +70,17 @@ def opened(problem: Problem, oracle: Oracle, record: Record) -> Archive:
     """The archive of *record*, refused when an action in it belongs to another problem or oracle build."""
     archive = Archive(problem, record)
     for action in (*archive.pending(), *(result.action for result in archive.results())):
-        expected = Action.of(problem, oracle.capability, action.design, fidelity=action.fidelity)
+        # Rebuilt with everything the action asked (a slope, a scenario), so only the problem and build differ.
+        expected = Action.of(
+            problem,
+            oracle.capability,
+            action.design,
+            fidelity=action.fidelity,
+            want=action.want,
+            replicate=action.replicate,
+            direction=action.direction,
+            scenario=action.scenario,
+        )
         if expected.identity.key != action.identity.key:
             refuse('the record belongs to another problem or evaluator identity')
     return archive
@@ -146,16 +159,33 @@ def search(
     router: RouteRule | None = None,
     variation: VariationRule | None = None,
     dispatch: Dispatch | None = None,
+    risk: Risk | None = None,
+    scenarios: int | None = None,
+    solves: int | None = None,
 ) -> Searched:
-    """A value-only population search of ``generations + 1`` told batches; *initial* is natural coordinates.
+    """A value-only search of ``generations + 1`` told batches; *initial* is natural coordinates.
+
+    A NAMED *algorithm* is any registered solver an oracle drives, built by
+    :func:`~optimi_lab.solver.seeding.build_solver` with *settings*, *risk* and *scenarios*: one that draws
+    its own first batch takes no *initial* (*population* is then its count), and a sequential one is bounded
+    by ``population * (generations + 1)`` evaluations (:func:`~optimi_lab.solver.seeding.batch_bound`). A
+    callable is a population factory, called as given. A problem declaring uncertainty is searched
+    ROBUSTLY: each design is one evaluation per scenario, and the budget counts every one. A declared
+    *solves* REPLACES that budget: the search stops once it has made that many oracle evaluations (a
+    scenario is one, a screened offspring none), however many generations it took; *generations* then
+    paces only a schedule that reads it (*variation*). A solver that concludes stops it earlier.
 
     *router* screens or routes offspring (:class:`~optimi_lab.policy.RoutingPolicy`); *variation* sets the
-    SBX/PM rates per generation and needs nsga2 or nsga3; *dispatch* replaces the default, which
-    publishes each batch through ``oracle.publish_batch`` and files every answer as it completes.
+    SBX/PM rates per generation and needs nsga2 or nsga3 (:func:`~optimi_lab.policy.build_steered_solver`);
+    *dispatch* replaces the default, which publishes each batch through ``oracle.publish_batch`` and files
+    every answer as it completes.
     """
-    factory = algorithm_factory(algorithm)
+    if isinstance(algorithm, str) and (algorithm not in SOLVERS or algorithm in UNDRIVEN):
+        refuse(f'unknown algorithm {algorithm!r}; choose {sorted(set(SOLVERS) - set(UNDRIVEN))}')
     if population < 1 or generations < 1:
         refuse('a search needs population >= 1 and generations >= 1; named points use evaluate')
+    if solves is not None and solves < 1:
+        refuse(f'a solve budget needs solves >= 1, got {solves}')
     opened(problem, oracle, record)  # refuse a foreign record BEFORE evaluating or mutating it
     spec: SampleSpec | None = SampleSpec(n_samples=population, seed=seed)
     unit_initial: np.ndarray | None = None
@@ -163,31 +193,49 @@ def search(
         natural = np.asarray(initial, dtype=float)
         if natural.ndim != 2 or natural.shape[1] != len(problem.space.names) or len(natural) < 1:
             refuse('initial is a non-empty (points, design axes) natural-coordinate matrix')
+        # A row the solver reads: through the declared embedding, so an inactive axis sits at its neutral value.
+        encoder = search_embedding(problem) or problem.space
         unit_initial = np.array([
-            problem.space.encode(dict(zip(problem.space.names, point, strict=True))) for point in natural
+            encoder.encode(dict(zip(problem.space.names, point, strict=True))) for point in natural
         ])
         spec, population = None, len(natural)
     extra = dict(settings or {})
     if overlap := set(extra) & _ENGINE_OWNED:
         refuse(f'settings repeat engine-owned declarations {sorted(overlap)}')
     control = None
-    if variation is None:
-        solver = factory(problem, oracle.capability, seed=seed, spec=spec, initial=unit_initial, **extra)
-    else:
-        if factory not in (nsga2, nsga3):
-            refuse('SBX/PM variation control requires nsga2 or nsga3; the chosen solver has other operator settings')
+    if variation is not None:
         control = VariationPolicy(tuple, variation, generations, extra)
-        solver = EvolutionarySolver(
+        solver = build_steered_solver(
+            algorithm_factory(algorithm),
             problem,
             oracle.capability,
             seed=seed,
-            spec=spec,
+            population=population,
             initial=unit_initial,
             variation=control,
-            selection=crowding_select if factory is nsga2 else reference_select,
-            parent_selection=tournament_select,
+            risk=risk,
+            scenarios=scenarios,
         )
-    bounded = Batches(solver, generations + 1)
+    elif callable(algorithm):
+        robust = {key: value for key, value in (('risk', risk), ('scenarios', scenarios)) if value is not None}
+        solver = algorithm(problem, oracle.capability, seed=seed, spec=spec, initial=unit_initial, **robust, **extra)
+    else:
+        if algorithm in SEEDING:
+            require_seedable(algorithm, unit_initial)
+        solver = build_solver(
+            algorithm,
+            problem,
+            oracle.capability,
+            seed=seed,
+            population=population,
+            initial=unit_initial,
+            generations=generations,
+            settings=extra,
+            risk=risk,
+            scenarios=scenarios,
+        )
+    rounds = batch_bound(algorithm, population, generations) if algorithm in SEEDING else generations + 1
+    bounded = Batches(solver, rounds if solves is None else sys.maxsize)
     policy = RoutingPolicy(bounded, oracle, problem, record, router)
     if control is not None:
         control.read = policy.results
@@ -198,7 +246,9 @@ def search(
         for action in actions:
             yield answered[action.identity.key]
 
-    budget = Budget(evaluations=population * (generations + 1))
+    # A robust solver asks each design once per shared scenario, so a scenario is one evaluation.
+    per_design = 1 if problem.uncertainty is None else scenarios or DEFAULT_SCENARIOS
+    budget = Budget(evaluations=population * (generations + 1) * per_design if solves is None else solves)
     try:
         execution = run(problem, oracle, policy, DecidedReplay(record), budget, dispatch=dispatch or published)
     except Refusal as error:
