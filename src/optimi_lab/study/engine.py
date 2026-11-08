@@ -17,6 +17,7 @@ from lab_commons.outcomes import SUBMITTED, Evidence, Record
 from optimi_lab.archive import Archive
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import Refusal, refuse
+from optimi_lab.operator import Risk
 from optimi_lab.operator.reference import reference_select
 from optimi_lab.operator.selection import crowding_select, tournament_select
 from optimi_lab.oracle import Action, Capability, Oracle, Result
@@ -44,6 +45,7 @@ from optimi_lab.solver import (
 )
 from optimi_lab.solver.evolutionary import nsga2, nsga3
 from optimi_lab.solver.population import EvolutionarySolver
+from optimi_lab.solver.scenarios import DEFAULT_SCENARIOS
 from optimi_lab.study.strategy import algorithm_factory
 
 __all__ = ['Searched', 'build_solver', 'evaluate', 'opened', 'search']
@@ -92,7 +94,9 @@ def opened(problem: Problem, oracle: Oracle, record: Record) -> Archive:
     """The archive of *record*, refused when an action in it belongs to another problem or oracle build."""
     archive = Archive(problem, record)
     for action in (*archive.pending(), *(result.action for result in archive.results())):
-        expected = Action.of(problem, oracle.capability, action.design, fidelity=action.fidelity)
+        expected = Action.of(
+            problem, oracle.capability, action.design, fidelity=action.fidelity, scenario=action.scenario
+        )
         if expected.identity.key != action.identity.key:
             refuse('the record belongs to another problem or evaluator identity')
     return archive
@@ -157,6 +161,22 @@ def evaluate(
     return Searched(archive, evidence=evidence, solved=len(fresh), served=len(actions) - len(fresh))
 
 
+def _robust(problem: Problem, risk: Risk | None, scenarios: int | None) -> dict[str, object]:
+    """The solver settings a robust declaration adds; none for a deterministic problem that declares none."""
+    if problem.uncertainty is None:
+        if risk is not None or scenarios is not None:
+            refuse('risk and scenarios estimate over the problem uncertainty, and the problem declares none')
+        return {}
+    return {'risk': risk, 'scenarios': scenarios}
+
+
+def _draws(problem: Problem, scenarios: int | None) -> int:
+    """Evaluations ONE design costs: one per shared scenario under declared uncertainty, else one."""
+    if problem.uncertainty is None:
+        return 1
+    return DEFAULT_SCENARIOS if scenarios is None else scenarios
+
+
 def _refuse_solves(solves: int | None) -> None:
     if solves is not None and solves < 1:
         refuse(f'solves={solves!r} is a true-solve budget of at least 1')
@@ -190,6 +210,8 @@ def build_solver(
     generations: int,
     initial: np.ndarray | None = None,
     settings: Mapping[str, object] | None = None,
+    risk: Risk | None = None,
+    scenarios: int | None = None,
 ) -> Solver:
     """Solver *name* over *problem*, matched by the library and seeded by its ``solver.SEEDING`` row.
 
@@ -198,11 +220,16 @@ def build_solver(
     first batch is refused rows and draws *population* itself. A name is refused by its own
     ``Requires`` (``solver.requires.match``); the one transform applied is a conditional space's
     embedding. A bare callable is a population solver, called unmatched.
+
+    *risk* and *scenarios* are the robust declaration over ``problem.uncertainty``: the solver asks each
+    design once per shared scenario and ranks it on *risk* over them (``solver.scenarios``); declaring
+    either on a problem with no uncertainty is refused.
     """
     factory = algorithm_factory(name)
     extra = dict(settings or {})
     if overlap := set(extra) & _ENGINE_OWNED:
         refuse(f'settings repeat engine-owned declarations {sorted(overlap)}')
+    extra.update(_robust(problem, risk, scenarios))
     spec = SampleSpec(n_samples=population, seed=seed) if initial is None else None
     if callable(name):
         return factory(problem, capability, seed=seed, spec=spec, initial=initial, **extra)
@@ -276,6 +303,8 @@ def search(
     variation: VariationRule | None = None,
     dispatch: Dispatch | None = None,
     solves: int | None = None,
+    risk: Risk | None = None,
+    scenarios: int | None = None,
 ) -> Searched:
     """A search by *algorithm* of ``generations + 1`` told batches; *initial* is natural coordinates.
 
@@ -289,6 +318,8 @@ def search(
     *solves* is a TRUE-SOLVE budget: the search stops once that many points were evaluated, however many
     generations it takes, so a screening router pays the same solves as a run that screens nothing;
     None keeps the ``generations + 1`` batch stop.
+    *risk* and *scenarios* are the robust declaration (:func:`build_solver`); each scenario of a design is
+    one evaluation, so the generations stop counts ``population * scenarios`` per batch.
     """
     factory = algorithm_factory(algorithm)
     if population < 1 or generations < 1:
@@ -316,6 +347,8 @@ def search(
             generations=generations,
             initial=unit_initial,
             settings=settings,
+            risk=risk,
+            scenarios=scenarios,
         )
     else:
         if factory not in (nsga2, nsga3):
@@ -333,8 +366,9 @@ def search(
             variation=control,
             selection=crowding_select if factory is nsga2 else reference_select,
             parent_selection=tournament_select,
+            **_robust(problem, risk, scenarios),
         )
-    evaluations = population * (generations + 1)
+    evaluations = population * (generations + 1) * _draws(problem, scenarios)
     # A SEQUENTIAL solver asks a few points per round, so its rounds are bounded by evaluations.
     rounds = evaluations if isinstance(algorithm, str) and algorithm in SEQUENTIAL else generations + 1
     # Under a solve budget a batch can repeat decided points and solve nothing new, so the batches
