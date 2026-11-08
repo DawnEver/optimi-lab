@@ -134,6 +134,11 @@ class PopulationSolver(ABC):
         self._asked = 0
         self._told: dict[str, Result] = {}
         self._results: list[Result] = []
+        self._seed: list[tuple[np.ndarray, np.ndarray, np.ndarray, list[Result]]] = []  # seed rows not yet admitted
+        self._seeded = False
+
+    #: The fewest rows the algorithm's next generation can be bred from (two parents of a crossover).
+    _breeding_minimum = 2
 
     def _first(self, spec: SampleSpec | None) -> np.ndarray:
         """The first generation's unit-cube rows; an algorithm with its own first draw overrides this."""
@@ -169,20 +174,39 @@ class PopulationSolver(ABC):
                 refuse('a result was told that this generation did not ask for; tell each result to its own solver')
             self._told[result.action.identity.key] = result
         if len(self._told) == len(keys):
-            self._admit(*self._arrays())
-            self._generation, self._asked, self._told = self._actions(self._propose()), 0, {}
+            if self._seeded:
+                self._admit(*self._arrays())
+            unit = self._propose() if self._seeded else self._next_seed()
+            self._generation, self._asked, self._told = self._actions(unit), 0, {}
+
+    def _next_seed(self) -> np.ndarray:
+        """Admit the seed once it holds ``_breeding_minimum`` rows (a tournament cannot draw from one), else top it up."""
+        rows = self._arrays(empty_ok=True)
+        if rows is not None:
+            self._seed.append((*rows[:3], self._results))
+        held = sum(len(batch[0]) for batch in self._seed)
+        if held < min(self._breeding_minimum, self._pop_size):
+            shortfall = max(self._pop_size, self._breeding_minimum) - held
+            return sample(self._width, SampleSpec(n_samples=shortfall, seed=int(self._rng.integers(2**32))))
+        inputs, values, violation = (np.concatenate([batch[k] for batch in self._seed]) for k in range(3))
+        self._results = [result for batch in self._seed for result in batch[3]]
+        self._seed, self._seeded = [], True
+        self._admit(inputs, values, violation, np.ones(held, dtype=bool))
+        return self._propose()
 
     @property
     def done(self) -> bool:
         """A population solver concludes only when an algorithm says so; the run's budget stops the rest."""
         return False
 
-    def _arrays(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """``(inputs, values, violation, mask)`` of the complete rows, in generation order."""
+    def _arrays(self, *, empty_ok: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray] | None:
+        """``(inputs, values, violation, mask)`` of the complete rows in generation order; none: refused, or None."""
         results = [self._told[a.identity.key] for a in self._generation]
         if self._robust is not None:
-            return self._robust_arrays(results)
+            return self._robust_arrays(results, empty_ok=empty_ok)
         mask = np.array([r.cell.status is Status.OK for r in results])
+        if not mask.any() and empty_ok:
+            return None
         if not mask.any():
             statuses = sorted({r.cell.status.name for r in results})
             refuse(
@@ -194,12 +218,16 @@ class PopulationSolver(ABC):
         values, violation = score_rows(self._problem, self._scalarise, self._results)
         return inputs, values, violation, mask
 
-    def _robust_arrays(self, results: list[Result]) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def _robust_arrays(
+        self, results: list[Result], *, empty_ok: bool = False
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray] | None:
         """``(inputs, values, violation, mask)`` per DESIGN: each column the declared risk over its scenarios."""
         robust = self._robust
         per = len(robust.scenarios)
         groups = [results[i : i + per] for i in range(0, len(results), per)]
         mask = np.array([all(r.cell.status is Status.OK for r in group) for group in groups])
+        if not mask.any() and empty_ok:
+            return None
         if not mask.any():
             refuse(
                 f'none of the {len(groups)} design(s) of this generation produced a value in every one of its '
@@ -241,8 +269,10 @@ class EvolutionarySolver(PopulationSolver):
         parent_selection: Callable[..., np.ndarray] | None = None,
         n_offspring: int | None = None,
         discrete_mutation_rate: float | None = None,
+        breeding_minimum: int = 2,
         **base: object,
     ) -> None:
+        self._breeding_minimum = int(breeding_minimum)
         super().__init__(problem, capability, **base)
         settings = dict(variation_settings or {})
         accepted = set(inspect.signature(variation).parameters) - LOOP_ARGUMENTS

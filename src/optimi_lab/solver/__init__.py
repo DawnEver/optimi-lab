@@ -28,7 +28,7 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :class:`StructuredSolver` drives :func:`lp` and :func:`qp` through the run loop, reading the
   coefficients from the oracle's declared capability (``COEFFICIENTS_FOR``);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
-  :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
+  :func:`ipop_cmaes`, :func:`memetic`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
 
 Operators live one layer down, in :mod:`optimi_lab.operator`.
@@ -64,7 +64,7 @@ from optimi_lab.solver.linear import LP_METHODS, lp
 from optimi_lab.solver.linear_program import LinearProgram, StructuredSolution
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, descriptors_of, map_elites
-from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
+from optimi_lab.solver.meta import Chain, ipop_cmaes, memetic, multistart, restarts, scalarisation_scan, warm_start
 from optimi_lab.solver.model_based import ModelBased, maximise
 from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_region
 from optimi_lab.solver.moving_asymptotes import gcmma, mma
@@ -181,6 +181,7 @@ __all__ = [
     'map_elites',
     'match',
     'maximise',
+    'memetic',
     'mfbo',
     'mgda',
     'milp',
