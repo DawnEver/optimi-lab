@@ -14,9 +14,11 @@
   they sit: a boundary layer or an interior anchor). An island sheds
   its heat through void only, so its temperature rises by ``~1 / s_min``; the smooth maximum
   (:func:`~optimi_lab.topology.interpolation.p_norm`) of the cell temperatures per unit source, against
-  the solid design's, is the constraint ``log(r / r_solid) <= log(gamma)``. Cell-centred two-point
+  the solid design's, is :meth:`~VirtualTemperature.log_ratio`, held ``<= log(gamma)``. Cell-centred two-point
   fluxes across shared FACES with a harmonic-mean conductance, so it and :func:`components` mean the
-  same thing by connected.
+  same thing by connected. ``read_on`` (:class:`~optimi_lab.topology.density.Threshold`) makes it read the
+  BUILT design rather than the density, so gray cells that build to void do not conduct.
+* :func:`volume_fraction` -- the measure-weighted solid share, value and gradient.
 """
 
 from __future__ import annotations
@@ -26,12 +28,28 @@ import scipy.sparse as sp
 from numerics_lab.linear import solve_linear_system
 
 from optimi_lab.core.errors import refuse
+from optimi_lab.topology.density import Threshold
 from optimi_lab.topology.domain import DesignDomain
 from optimi_lab.topology.interpolation import p_norm
 
-__all__ = ['VirtualTemperature', 'component_labels', 'components', 'feature_sizes', 'member_widths']
+__all__ = [
+    'PENALTY',
+    'P_NORM',
+    'S_MIN',
+    'VirtualTemperature',
+    'component_labels',
+    'components',
+    'feature_sizes',
+    'member_widths',
+    'volume_fraction',
+]
 
 _CHUNK = 2048
+#: Defaults of the connectivity measures: the SIMP exponent of the conductance (stiffness), the void's
+#: conductance (stiffness) relative to solid, and the p-norm exponent of the smooth maximum.
+PENALTY = 3.0
+S_MIN = 1e-6
+P_NORM = 8.0
 
 
 def component_labels(domain: DesignDomain, solid: np.ndarray) -> np.ndarray:
@@ -107,7 +125,14 @@ class VirtualTemperature:
     """The virtual-temperature connectivity measure, sunk at the *support* cells (zero temperature there)."""
 
     def __init__(
-        self, domain: DesignDomain, support: np.ndarray, *, penalty: float = 3.0, s_min: float = 1e-6, p: float = 8.0
+        self,
+        domain: DesignDomain,
+        support: np.ndarray,
+        *,
+        penalty: float = PENALTY,
+        s_min: float = S_MIN,
+        p: float = P_NORM,
+        read_on: Threshold | None = None,
     ) -> None:
         sink = np.asarray(support, dtype=bool)
         if sink.shape != (domain.n_cells,) or not sink.any():
@@ -116,6 +141,7 @@ class VirtualTemperature:
             refuse('every cell is a sink: there is no temperature to measure')
         a, b = domain.adjacency.T
         self.domain, self.penalty, self.s_min, self.p = domain, float(penalty), float(s_min), float(p)
+        self.read_on = read_on
         self.w_pair = domain.faces / np.linalg.norm(domain.centroids[a] - domain.centroids[b], axis=1)
         self.free = np.flatnonzero(~sink)
         self.reference = self.specific(np.ones(domain.n_cells))[0]
@@ -132,8 +158,13 @@ class VirtualTemperature:
         return s, self.penalty * phys ** (self.penalty - 1.0) * (1.0 - self.s_min)
 
     def response(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
-        """``(J, dJ / d phys)``, the smooth maximum cell temperature; adjoint ``K lam = dJ/dT`` (``K`` symmetric)."""
-        phys = np.asarray(phys, dtype=float)
+        """``(J, dJ / d phys)``, the smooth maximum cell temperature, read through ``read_on`` when declared."""
+        x, slope = _read(self.read_on, phys)
+        j, dj = self._response(x)
+        return j, dj * slope
+
+    def _response(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
+        """``J`` at the density the measure reads; adjoint ``K lam = dJ/dT`` (``K`` symmetric)."""
         n = self.domain.n_cells
         s, ds = self._conductance(phys)
         a, b = self.domain.adjacency.T
@@ -159,18 +190,39 @@ class VirtualTemperature:
         """``(J / Q, d / d phys)``, ``Q = sum phys V`` the total source: the response PER UNIT LOAD.
 
         ``J`` alone is linear in the source, so removing material always lowers it; per unit load a
-        connected design is not cheaper for being smaller.
+        connected design is not cheaper for being smaller. Read through ``read_on`` when declared.
         """
-        phys = np.asarray(phys, dtype=float)
-        j, dj = self.response(phys)
-        q = float(phys @ self.domain.measures)
-        if q == 0.0:
-            return 0.0, np.zeros_like(phys)
-        return j / q, dj / q - j * self.domain.measures / q**2
+        x, slope = _read(self.read_on, phys)
+        return _per_unit_load(*self._response(x), x, self.domain.measures, slope)
 
-    def constraint(self, phys: np.ndarray, gamma: float) -> tuple[float, np.ndarray]:
-        """``(log(r / r_solid) - log(gamma), its gradient)``, ``r`` :meth:`specific`: ``<= 0`` is connected."""
-        r, dr = self.specific(phys)
-        if r == 0.0:
-            return -np.inf, np.zeros_like(dr)
-        return float(np.log(r / self.reference) - np.log(gamma)), dr / r
+    def log_ratio(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
+        """``(log(r / r_solid), its gradient)``, ``r`` :meth:`specific`; a design is connected at ``<= log(gamma)``."""
+        return _log_ratio(*self.specific(phys), self.reference)
+
+
+def _read(read_on: Threshold | None, phys: np.ndarray) -> tuple[np.ndarray, np.ndarray | float]:
+    """``(the density a measure reads, its slope)``: *phys* itself, or its declared threshold."""
+    phys = np.asarray(phys, dtype=float)
+    return (phys, 1.0) if read_on is None else read_on(phys)
+
+
+def _per_unit_load(
+    j: float, dj: np.ndarray, x: np.ndarray, measures: np.ndarray, slope: np.ndarray | float
+) -> tuple[float, np.ndarray]:
+    """``(J / Q, d / d phys)`` with ``Q = sum x m`` the load at the read density *x* (``d x / d phys`` *slope*)."""
+    q = float(x @ measures)
+    if q == 0.0:
+        return 0.0, np.zeros_like(x)
+    return j / q, (dj / q - j * measures / q**2) * slope
+
+
+def _log_ratio(r: float, dr: np.ndarray, reference: float) -> tuple[float, np.ndarray]:
+    if r == 0.0:
+        return -np.inf, np.zeros_like(dr)
+    return float(np.log(r / reference)), dr / r
+
+
+def volume_fraction(domain: DesignDomain, physical: np.ndarray) -> tuple[float, np.ndarray]:
+    """``(sum x m / sum m, its gradient)``: the solid share of the domain, each cell weighted by its measure."""
+    share = domain.measures / float(domain.measures.sum())
+    return float(np.asarray(physical, dtype=float) @ share), share.copy()

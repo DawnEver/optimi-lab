@@ -24,6 +24,7 @@ nominal design a minimum solid and void feature set by the radius and the thresh
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Sequence
+from dataclasses import dataclass
 
 import numpy as np
 import scipy.sparse as sp
@@ -32,10 +33,24 @@ from numerics_lab.linear import solve_linear_system
 from optimi_lab.core.errors import refuse
 from optimi_lab.topology.domain import DesignDomain
 
-__all__ = ['ROBUST_ETAS', 'DensityFilter', 'DesignChain', 'HelmholtzFilter', 'fd_check', 'grayness', 'project']
+__all__ = [
+    'BUILT_READ',
+    'NOMINAL_ETA',
+    'ROBUST_ETAS',
+    'DensityFilter',
+    'DesignChain',
+    'HelmholtzFilter',
+    'Threshold',
+    'built',
+    'fd_check',
+    'grayness',
+    'project',
+]
 
 #: Eroded / nominal / dilated projection thresholds of the robust formulation.
 ROBUST_ETAS = (0.7, 0.5, 0.3)
+#: The nominal threshold (the middle robust one): a cell whose physical density exceeds it is BUILT.
+NOMINAL_ETA = ROBUST_ETAS[len(ROBUST_ETAS) // 2]
 _CHUNK = 2048
 
 
@@ -97,7 +112,7 @@ class HelmholtzFilter:
         return self.mass * self._solve(d_filtered)  # the operator is symmetric
 
 
-def project(x: np.ndarray, beta: float, eta: float = 0.5) -> tuple[np.ndarray, np.ndarray]:
+def project(x: np.ndarray, beta: float, eta: float = NOMINAL_ETA) -> tuple[np.ndarray, np.ndarray]:
     """``(x^, d x^ / d x~)`` of the smoothed Heaviside projection; ``beta = 0`` is the identity."""
     x = np.asarray(x, dtype=float)
     if beta == 0.0:
@@ -105,6 +120,38 @@ def project(x: np.ndarray, beta: float, eta: float = 0.5) -> tuple[np.ndarray, n
     den = np.tanh(beta * eta) + np.tanh(beta * (1.0 - eta))
     t = np.tanh(beta * (x - eta))
     return (np.tanh(beta * eta) + t) / den, beta * (1.0 - t**2) / den
+
+
+def built(physical: np.ndarray, eta: float = NOMINAL_ETA) -> np.ndarray:
+    """The 0/1 design a physical density builds: the cells above *eta*."""
+    return np.asarray(physical, dtype=float) > eta
+
+
+@dataclass(frozen=True, slots=True)
+class Threshold:
+    """A smoothed threshold ``H(x; beta, eta)`` (:func:`project`) a measure reads instead of the density.
+
+    Read on the density, gray cells act as material; read on this threshold, a cell that builds to void
+    (``x < eta``) acts as void, and the gradient is the measure's chained by ``dH``. ``beta`` is FIXED: no
+    continuation stage jumps the response.
+    """
+
+    beta: float = 16.0
+    eta: float = NOMINAL_ETA
+
+    def __post_init__(self) -> None:
+        if not self.beta > 0.0 or not 0.0 < self.eta < 1.0:
+            refuse(f'a threshold needs beta > 0 and eta in (0, 1), got {self.beta} and {self.eta}')
+
+    def __call__(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """``(H(x), dH / dx)``."""
+        return project(x, self.beta, self.eta)
+
+
+#: The BUILT read. At beta 16 a 0.45 cell conducts ~2 % of solid and a 0.55 one ~98 %: a grid joined only by a
+#: bridge of 0.45 is refused by the virtual temperature read on it, one of 0.55 met, where the density read is
+#: fooled by the 0.45 bridge (``tests/unit/topology/test_built_reads_and_bounds.py``).
+BUILT_READ = Threshold()
 
 
 def grayness(x: np.ndarray) -> float:

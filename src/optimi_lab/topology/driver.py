@@ -79,6 +79,11 @@ class TopologyResult:
     physical: tuple[np.ndarray, ...]
     history: tuple[Iteration, ...]
 
+    @property
+    def nominal(self) -> np.ndarray:
+        """The nominal realization (the middle threshold's physical density)."""
+        return self.physical[len(self.physical) // 2]
+
 
 class _Settled(Exception):
     def __init__(self, design: np.ndarray, *, finished: bool) -> None:
