@@ -5,6 +5,7 @@ density chain (:mod:`~optimi_lab.topology.density`) and the driver; a provider s
 their sensitivities to the physical density.
 """
 
+from optimi_lab.topology.connectivity import P_NORM, PENALTY, S_MIN, SelfWeightSupport, VirtualTemperature
 from optimi_lab.topology.density import (
     BUILT_READ,
     NOMINAL_ETA,
@@ -14,7 +15,6 @@ from optimi_lab.topology.density import (
     HelmholtzFilter,
     Threshold,
     built,
-    fd_check,
     grayness,
     project,
 )
@@ -28,19 +28,9 @@ from optimi_lab.topology.driver import (
     topology_optimize,
 )
 from optimi_lab.topology.interpolation import Interpolation, interpolate, ks, p_norm
-from optimi_lab.topology.measures import (
-    P_NORM,
-    PENALTY,
-    S_MIN,
-    SelfWeightSupport,
-    VirtualTemperature,
-    component_labels,
-    components,
-    feature_sizes,
-    member_widths,
-    volume_fraction,
-)
+from optimi_lab.topology.measures import component_labels, components, feature_sizes, member_widths, volume_fraction
 from optimi_lab.topology.provider import PhysicsProvider, ProviderResponse, Role, TopologyPoint, TopologyProblem
+from optimi_lab.topology.verify import GradientCheck, ResponseCheck, fd_check, verify_gradients
 
 __all__ = [
     'BUILT_READ',
@@ -54,6 +44,7 @@ __all__ = [
     'DensityFilter',
     'DesignChain',
     'DesignDomain',
+    'GradientCheck',
     'HelmholtzFilter',
     'Interpolation',
     'Iteration',
@@ -61,6 +52,7 @@ __all__ = [
     'Optimizer',
     'PhysicsProvider',
     'ProviderResponse',
+    'ResponseCheck',
     'Role',
     'SelfWeightSupport',
     'Threshold',
@@ -80,5 +72,6 @@ __all__ = [
     'p_norm',
     'project',
     'topology_optimize',
+    'verify_gradients',
     'volume_fraction',
 ]

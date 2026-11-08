@@ -23,7 +23,7 @@ nominal design a minimum solid and void feature set by the radius and the thresh
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -42,7 +42,6 @@ __all__ = [
     'HelmholtzFilter',
     'Threshold',
     'built',
-    'fd_check',
     'grayness',
     'project',
 ]
@@ -207,18 +206,3 @@ class DesignChain:
             if d is not None:
                 total += np.asarray(d, dtype=float) * slope
         return self.domain.reduce(self.filter.pull_back(total))
-
-
-def fd_check(
-    f: Callable[[np.ndarray], tuple[float, np.ndarray]], x: np.ndarray, indices: Iterable[int], step: float = 1e-6
-) -> list[tuple[int, float, float]]:
-    """``(index, analytic, central difference)`` of ``f(x) -> (value, gradient)`` at each of *indices*."""
-    x = np.asarray(x, dtype=float)
-    analytic = np.asarray(f(x)[1], dtype=float).copy()
-    rows = []
-    for k in indices:
-        plus, minus = x.copy(), x.copy()
-        plus[k] += step
-        minus[k] -= step
-        rows.append((int(k), float(analytic[k]), (f(plus)[0] - f(minus)[0]) / (2.0 * step)))
-    return rows
