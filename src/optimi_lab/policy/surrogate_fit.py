@@ -13,10 +13,10 @@ from typing import Final
 
 import numpy as np
 from lab_commons.outcomes import Evidence, Status
+from learn_lab.protocol import Fitted
+from learn_lab.registry import surrogate
+from learn_lab.validation import scored_fit
 
-from optimi_lab.model.protocol import Fitted
-from optimi_lab.model.registry import surrogate
-from optimi_lab.model.validation import scored_fit
 from optimi_lab.oracle import Result
 from optimi_lab.policy.routing import natural
 from optimi_lab.problem import BlackBox, Problem

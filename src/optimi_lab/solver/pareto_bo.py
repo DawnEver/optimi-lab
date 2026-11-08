@@ -17,10 +17,10 @@ told point is feasible the acquisition IS that probability.
 from collections.abc import Callable, Sequence
 
 import numpy as np
+from learn_lab.models.response import FittedGaussianProcess
+from learn_lab.models.response.likelihood import factor
 
 from optimi_lab.core import refuse
-from optimi_lab.model import FittedGaussianProcess
-from optimi_lab.model.likelihood import factor
 from optimi_lab.operator import (
     das_dennis,
     expected_hypervolume_improvement,

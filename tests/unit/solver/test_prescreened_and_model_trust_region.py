@@ -10,11 +10,12 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from learn_lab.models.response import Polynomial
+from learn_lab.protocol import Prediction
 from scipy.optimize import rosen
 
 from optimi_lab.core import Refusal, SampleSpec
 from optimi_lab.metric import igd
-from optimi_lab.model import Polynomial, Prediction
 from optimi_lab.oracle import Capability, from_function
 from optimi_lab.problem import Objective, Problem, Real, Space
 from optimi_lab.solver import model_trust_region, nsga2, prescreened

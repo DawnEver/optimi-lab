@@ -27,12 +27,11 @@ ROWS: Final[tuple[CollectRow, ...]] = (
         groups=('dev',),
         errors=frozenset(),
         degrades=frozenset(),
-        unresolved=frozenset({'sklearn'}),
+        unresolved=frozenset(),
         why=(
             'The dev dependency group installs the independent development kit and test oracles. '
-            'This row checks the actual group axis, not an optional-dependency extra. sklearn is '
-            'the scikit-learn test oracle; its import spelling remains an explicit unresolved '
-            'supplier until the shared alias registry can derive it.'
+            'This row checks the actual group axis, not an optional-dependency extra. Nothing is unresolved: '
+            'the scikit-learn oracle left with the surrogate models for learn-lab (A1, 2026-11-08).'
         ),
     ),
 )

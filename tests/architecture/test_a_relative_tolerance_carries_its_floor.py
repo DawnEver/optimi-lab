@@ -66,7 +66,7 @@ BAR: Final = 'ratio'
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 137.
 #: RE-TAKEN 2026-10-18 AT 135: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 153.
-#: RE-TAKEN 2026-10-18 AT 165: P9 merged onto P10 (surrogates, optimi_lab.model) read 178.
+#: RE-TAKEN 2026-10-18 AT 165: P9 merged onto P10 (surrogates, the L6 model package since moved to learn-lab) read 178.
 #: RE-TAKEN 2026-10-18 AT 192: P11 (model-based solvers, D59-D68) read 205; already red at c028663, which read 192.
 #: RE-TAKEN 2026-10-18 AT 210: P14 (structured solvers, D126-D132) read 221; 329e959 (P11) read 205.
 PYTHON_FILE_FLOOR: Final = 210
@@ -80,7 +80,7 @@ PYTHON_FILE_HEADROOM: Final = 25
 #: RE-TAKEN 2026-10-16 AT 19, from 9: merged with the routing/steering and Sobol tests, the scan read 19.
 #: RE-TAKEN 2026-10-18 AT 28, from 19: the P8 layer tests read 31.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 59.
-#: RE-TAKEN 2026-10-18 AT 59: P10 (surrogates, optimi_lab.model) read 62.
+#: RE-TAKEN 2026-10-18 AT 59: P10 (surrogates, the L6 model package since moved to learn-lab) read 62.
 #: RE-TAKEN 2026-10-18 AT 60: the P9 ruling tests read 63 approx call sites.
 #: RE-TAKEN 2026-10-18 AT 64: P11 (model-based solvers, D59-D68) read 67 approx call sites.
 APPROX_CALL_FLOOR: Final = 64

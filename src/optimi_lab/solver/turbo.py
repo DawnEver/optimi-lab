@@ -8,7 +8,7 @@ stretches along the directions the model finds smooth), clipped to the unit cube
 * ``candidates`` scrambled Sobol points fill the box, each coordinate perturbed with probability
   ``min(1, 20 / d)`` and the rest held at the incumbent (at least one perturbed);
 * ``batch`` joint posterior draws over the candidates (one draw per pick, numerics-lab's jittered
-  Cholesky via :meth:`~optimi_lab.model.FittedGaussianProcess.draw`) each pick their minimiser,
+  Cholesky via :meth:`~learn_lab.models.response.FittedGaussianProcess.draw`) each pick their minimiser,
   without repeats.
 
 When a batch is told, it is a SUCCESS if it improves the restart's best by more than ``1e-3`` of
@@ -28,10 +28,10 @@ from math import ceil
 
 import numpy as np
 from lab_commons.outcomes import Status
+from learn_lab.models.response import GaussianProcess
 
 from optimi_lab.core import refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube, sobol
-from optimi_lab.model import GaussianProcess
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.model_based import refuse_uncertainty, require_modelable

@@ -1,7 +1,7 @@
 """D28 -- the II.7 layers point one way: a module imports only its own layer and the ones below.
 
     core -> problem (L1) -> oracle (L2) -> archive (L3) -> metric (L4) -> operator (L5)
-         -> model (L6) -> solver (L7) -> policy (L8) -> run (L9) -> study (L10)
+         -> surrogate (L6) -> solver (L7) -> policy (L8) -> run (L9) -> study (L10)
 
 ``core`` (refusals, dominance, point sets) sits under everything. ``benchmark`` (analytic fronts) is L4. ``analysis`` (sensitivity,
 decision, conflict) reads finished samples and is a metric (L4). ``study`` (L10) runs a declared study over the
@@ -34,7 +34,7 @@ LAYERS: Final[dict[str, int]] = {
     'analysis': 4,
     'benchmark': 4,
     'operator': 5,
-    'model': 6,
+    'surrogate': 6,
     'solver': 7,
     'policy': 8,
     'run': 9,
@@ -44,11 +44,12 @@ EXEMPT: Final = frozenset({'__init__', '__version__'})
 
 #: Shipped modules the walk must reach; re-measured 2026-10-17 at 43 with headroom 12.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
-#: RE-TAKEN 2026-10-18 AT 75: P10 (surrogates, optimi_lab.model) read 84.
+#: RE-TAKEN 2026-10-18 AT 75: P10 (surrogates, the L6 model package since moved to learn-lab) read 84.
 #: RE-TAKEN 2026-10-18 AT 92: P11 (model-based solvers, D59-D68) read 101.
 #: RE-TAKEN 2026-10-19 AT 105: P14 driver (oracle.coefficients, solver.structured) read 114.
 #: RE-TAKEN 2026-11-01 AT 127: W3 (benchmark, policy, study and the model/analysis/metric additions) read 136.
-MODULE_FLOOR: Final = 127
+#: RE-TAKEN 2026-11-08 AT 116: A1 (the L6 model package moved to learn-lab) read 125.
+MODULE_FLOOR: Final = 116
 MODULE_HEADROOM: Final = 20
 
 

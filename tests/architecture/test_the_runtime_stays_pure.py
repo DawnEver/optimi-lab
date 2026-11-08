@@ -42,11 +42,12 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 _SRC: Final = _ROOT / 'src' / 'optimi_lab'
 
 #: The whole runtime dependency set. A sixth entry is a decision taken in this file, by name.
-RUNTIME: Final = frozenset({'numpy', 'scipy', 'lab-commons', 'numerics-lab'})
+RUNTIME: Final = frozenset({'numpy', 'scipy', 'lab-commons', 'numerics-lab', 'learn-lab'})
 
 #: The import roots those distributions provide, plus the package itself. scikit-learn left the
-#: runtime with P10 (plan R1, D58): every surrogate is self-implemented and sklearn is a TEST oracle.
+#: runtime with P10 (plan R1, D58); learn-lab, the sixth entry (A1, 2026-11-07), owns every surrogate model.
 RUNTIME_IMPORT_ROOTS: Final = frozenset({
+    'learn_lab',
     'numpy',
     'scipy',
     'optimi_lab',
@@ -59,12 +60,13 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
 #: RE-TAKEN 2026-10-17 AT 37: the P8 base (problem, oracle, archive, run, solver) read 48 shipped modules.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
 #: RE-TAKEN 2026-10-18 AT 66: the P9 + P12 merge read 72.
-#: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, optimi_lab.model) read 84.
+#: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, the L6 model package since moved to learn-lab) read 84.
 #: RE-TAKEN 2026-10-18 AT 65 after merging P9 (operator, gradient solvers) onto P12.
 #: RE-TAKEN 2026-10-18 AT 95: P11 (model-based solvers, D59-D68) read 101; already red at c028663, which read 93.
 #: RE-TAKEN 2026-10-18 AT 106: P14 (structured solvers, D126-D132) read 112; 329e959 (P11) read 101.
 #: RE-TAKEN 2026-11-01 AT 128: W3 (benchmark, policy, study and the model/analysis/metric additions) read 136.
-SOURCE_FILE_FLOOR: Final = 128
+#: RE-TAKEN 2026-11-08 AT 116: A1 (the L6 model package moved to learn-lab) read 125.
+SOURCE_FILE_FLOOR: Final = 116
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``. Today's reading is 22 - 15 = 7.
 SOURCE_FILE_HEADROOM: Final = 12

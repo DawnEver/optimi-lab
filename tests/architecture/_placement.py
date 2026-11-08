@@ -306,7 +306,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'THE DOMAIN FACT IS THE SUBJECT: a library of interchangeable parts IS a set of registries -- which '
         'regressor, which sampler, which direction -- and the failure it refuses is the silent one where an '
         'unrecognised key falls back to a default and the caller gets a run it never asked for. That sentence '
-        'is false of every repo that is not an optimiser. RE-MEASURED 2026-11-01: own=42 hits=6 -> 14.29% (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
+        'is false of every repo that is not an optimiser. RE-MEASURED 2026-11-08: own=38 hits=4 -> 10.53% (A1: the three model sets left with the models for learn-lab), down from own=42 hits=6 -> 14.29% on 2026-11-01 (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
         'own=36 repo=4 on 2026-09-17, and under the ceiling as well.',
     ),
     'tests/architecture/test_a_pin_is_a_named_set.py': Placement(
@@ -354,7 +354,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'deleted public `optimi_lab` names outright, with no compat shim and no deprecation alias, and '
         'recorded which ones only in their commit messages. The scan that refuses a resurrection is small; '
         'the LIST of what was retired is the file, and it means nothing anywhere else. RE-MEASURED 2026-10-23 '
-        'after the development-kit migration: own=123 hits=36 -> 29.27%, up from own=111 repo=28 -> 25.23% after the '
+        'after the development-kit migration, RE-MEASURED 2026-11-08 after A1 (the model package retired): own=125 hits=28 -> 22.40%, down from own=123 hits=36 -> 29.27%, itself up from own=111 repo=28 -> 25.23% after the '
         'P12 retirements the same day, up from own=108 repo=25 -> 23.15% after the P8 retirements on '
         '2026-10-17, up from own=83 repo=8 -> 9.64% on 2026-10-03, up from own=78 repo=8 -> 10.26% on '
         '2026-09-19, itself down from own=80 repo=8 -> 10.00% on 2026-09-17. THE FIVE LINES ARE THE '
@@ -505,7 +505,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_test_tree_collects_after_a_sync.py': Placement(
         STAYS,
         "ARRIVED 2026-10-04 with the consumer-facts merge: the family's `collectcensus` row for this repo's "
-        'test tree. RE-MEASURED 2026-10-23 after dependency-group adoption: own=21 hits=1, up from own=20 hits=1 on 2026-10-04.',
+        'test tree. RE-MEASURED 2026-11-08 after A1 (scikit-learn left the dev group): own=20 hits=2, down from own=21 hits=1 on 2026-10-23 after dependency-group adoption, itself up from own=20 hits=1 on 2026-10-04.',
     ),
     'tests/architecture/test_no_reflection.py': Placement(
         STAYS,
@@ -719,7 +719,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'path resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until this '
         'file both were PROSE, and a `structlog` import added to one function would have left every word of '
         "the claim reading exactly as it does now. Which three distributions are permitted is this library's "
-        "decision and nobody else's. RE-MEASURED 2026-10-23 after development-group isolation and URL-composition guards: own=150 hits=2 -> 1.33%, up from "
+        "decision and nobody else's. RE-MEASURED 2026-11-08 after A1 (learn-lab joined the runtime): own=151 hits=2 -> 1.32%, up from own=150 hits=2 -> 1.33% on 2026-10-23 after development-group isolation and URL-composition guards, itself up from "
         'own=126 hits=2 -> 1.59% after P11, up from own=125 repo=2 -> 1.6% after P9 admitted numerics-lab, up from own=109 repo=1 -> 0.92% after P12 '
         'added the R1 scipy guard, down from own=90 repo=1 -> 1.11% after P8 admitted lab_commons.outcomes on '
         '2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on '

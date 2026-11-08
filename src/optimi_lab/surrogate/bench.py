@@ -1,6 +1,6 @@
 """An offline bench of surrogate families on solved rows: which model is worth steering with, measured.
 
-Every family is a registry model (:mod:`optimi_lab.model.registry`); this module declares
+Every family is a registry model (:mod:`learn_lab.registry`); this module declares
 configurations, combines predictions and scores them -- it implements no regressor of its own.
 
 * A :class:`Family` is a registry key and the configurations INNER cross-validation chooses among, on
@@ -24,13 +24,13 @@ from dataclasses import dataclass, field
 from typing import Final
 
 import numpy as np
+from learn_lab.models.response.polynomial import Ridge
+from learn_lab.registry import surrogate
+from learn_lab.validation import cross_validate, scored_fit
 
 from optimi_lab.core.pareto import constrained_non_dominated_sorting
 from optimi_lab.metric.indicators import igd_plus
 from optimi_lab.metric.statistics import kendall_tau_b, spearman
-from optimi_lab.model.polynomial import Ridge
-from optimi_lab.model.registry import surrogate
-from optimi_lab.model.validation import cross_validate, scored_fit
 from optimi_lab.operator.acquisition import log_probability_of_feasibility
 
 __all__ = [

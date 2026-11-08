@@ -15,9 +15,9 @@ import numpy as np
 from optimi_lab.core.errors import refuse
 from optimi_lab.core.pareto import non_dominated_sorting
 from optimi_lab.core.sampling import SampleSpec
-from optimi_lab.model.bench import ColumnBound, feasibility_probability
 from optimi_lab.policy.surrogate_fit import ScoredModel, SurrogateFit, black_boxes
 from optimi_lab.problem import BlackBox, Relation, Space
+from optimi_lab.surrogate.bench import ColumnBound, feasibility_probability
 
 __all__ = [
     'FALLBACK_PROPOSALS',

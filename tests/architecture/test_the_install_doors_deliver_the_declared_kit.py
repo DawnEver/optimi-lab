@@ -93,7 +93,7 @@ _DOOR_FLOOR: Final = 15
 
 def test_this_repo_declares_the_kit_as_a_floating_requirement() -> None:
     """The rule's subject, asserted rather than assumed: with no floating requirement it is vacuous."""
-    assert floating_requirements(_ROOT / 'pyproject.toml') == ('dev-lab', 'lab-commons', 'numerics-lab')
+    assert floating_requirements(_ROOT / 'pyproject.toml') == ('dev-lab', 'lab-commons', 'learn-lab', 'numerics-lab')
 
 
 def test_every_install_door_already_delivers_the_declared_kit() -> None:

@@ -2,7 +2,7 @@
 
 The levels are :class:`~optimi_lab.problem.Fidelity`'s, cheapest first, the last the truth; an action
 at level ``l`` is asked at that level (``Action.of(..., fidelity=...)``). The model is
-:class:`~optimi_lab.model.CoKriging` over every told point at its level.
+:class:`~learn_lab.models.response.CoKriging` over every told point at its level.
 
 THE INITIAL DESIGN IS NESTED: one maximin Latin hypercube, the truth level taking its first
 ``initial[-1]`` rows and each cheaper level the first ``initial[l]`` (non-increasing toward the truth,
@@ -31,10 +31,10 @@ from collections.abc import Sequence
 
 import numpy as np
 from lab_commons.outcomes import Status
+from learn_lab.models.response import CoKriging, FittedCoKriging
 
 from optimi_lab.core import refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube
-from optimi_lab.model import CoKriging, FittedCoKriging
 from optimi_lab.operator import expected_improvement
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Embedding, Problem

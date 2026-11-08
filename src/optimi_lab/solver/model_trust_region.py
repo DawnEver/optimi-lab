@@ -28,9 +28,10 @@ radius falls below ``radius_end`` (unit-cube units). A constraint is an extreme 
 """
 
 import numpy as np
+from learn_lab.models.response import RadialBasis
+from learn_lab.protocol import Surrogate
 
 from optimi_lab.core import refuse
-from optimi_lab.model import RadialBasis, Surrogate
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
 from optimi_lab.solver.model_based import maximise

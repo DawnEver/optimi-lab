@@ -13,9 +13,9 @@ that probability; UCB and KG take none.
 from typing import Final
 
 import numpy as np
+from learn_lab.models.response import FittedGaussianProcess
 
 from optimi_lab.core import refuse
-from optimi_lab.model import FittedGaussianProcess
 from optimi_lab.operator import (
     expected_improvement,
     knowledge_gradient,
