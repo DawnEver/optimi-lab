@@ -1,4 +1,4 @@
-"""optimi-lab ADOPTS the shared rules registry -- 51 of 58, with the other 7 named as gaps.
+"""optimi-lab ADOPTS the shared rules registry -- 52 of 59, with the other 7 named as gaps.
 
 WHY THIS FILE EXISTS. `dev_lab.dev.rules` holds one canonical copy of the development rules
 that are not about any repo's subject. Before this file, optimi-lab had no `.claude/` at all: its
@@ -278,7 +278,10 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # as a draft, forge writes go through its doors, no push lands on a merged PR), as in numerics-lab.
     'DRAFT-UNTIL-READY': (_PYPROJECT,),
     'FORGE-DOORS-ARE-CONSENT': (_PYPROJECT,),
-    'NO-PUSH-ONTO-A-LANDED-PR': (_PYPROJECT,),
+    # Renamed upstream 2026-11-08: NO-PUSH-ONTO-A-LANDED-PR is now NO-PUSH-ONTO-A-CLOSED-PR (same pre-push
+    # row; a merged PR's branch now continues), and LANDED-BRANCH-CONTINUES is the rendered `continue.yml` job.
+    'NO-PUSH-ONTO-A-CLOSED-PR': (_PYPROJECT,),
+    'LANDED-BRANCH-CONTINUES': ('.github/workflows/continue.yml',),
     # Adopted 2026-11-07 with dev-lab #304: the base pre-push row `pr-current` this pyproject's hooks table runs.
     'PR-HEAD-IS-CURRENT': (_PYPROJECT,),
     # ADOPTED with lab-commons ec5e8c5: `[tool.dev_lab.branchset]` declares trunk `main` and no

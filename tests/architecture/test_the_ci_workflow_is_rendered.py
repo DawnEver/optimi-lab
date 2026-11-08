@@ -10,7 +10,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_the_repo_runs_the_family_pr_lifecycle() -> None:
-    assert set(workflows(ROOT)) == {'ci.yml', 'merge-tick.yml', 'review-again.yml'}
+    # `continue.yml` joined with dev-lab's LANDED-BRANCH-CONTINUES: a push onto a merged PR's branch opens a continuation PR.
+    assert set(workflows(ROOT)) == {'ci.yml', 'continue.yml', 'merge-tick.yml', 'review-again.yml'}
 
 
 def test_every_workflow_matches_its_toml() -> None:

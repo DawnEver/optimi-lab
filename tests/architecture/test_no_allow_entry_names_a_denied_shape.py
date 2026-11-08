@@ -90,7 +90,8 @@ _HARMLESS_ENTRY: Final = 'Bash(echo *)'
 #: bb9968e: 2 derived rows, 7 family doors, and 6 spellings (`.venv/`, `./.venv/`,
 #: `.claude/worktrees/*/.venv/`, each Scripts and bin) of each of 4 doors -- `dep --bootstrap`, which
 #: arrived with bb9968e, and the 3 tracked scripts, whose one `.venv/*/python*` glob each it split.
-_ALLOW_FLOOR: Final = 33
+#: RE-TAKEN 2026-11-08 AT 84, from 33, by counting the rendered `.claude/settings.json` after the dev-lab relock.
+_ALLOW_FLOOR: Final = 84
 _ALLOW_HEADROOM: Final = 2
 
 
