@@ -3,7 +3,7 @@ created: 2026-11-04
 ---
 # Conditional spaces embed, and model-based solvers fit the declared risk
 
-User ruling 2026-11-04: conditional variables and robust search live in optimi-lab, not motronics.
+User ruling 2026-11-04: conditional variables and robust search live in optimi-lab, not in the downstream motor platform.
 
 - `problem.Embedding(space, categorical=one_hot|ordinal, inactive=neutral|indicator, neutral=0.5 | {name: u})`:
   finite rows for a model or a variation; decode goes through `Space.decode`, so it is always legal
