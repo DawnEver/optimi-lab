@@ -91,8 +91,12 @@ class _Contrary:
     def gives(self):
         return frozenset()
 
-    def fit(self, x, y):
-        inner = Polynomial(degree=2).fit(x, y) if len(x) >= 10 else Polynomial(degree=1).fit(x, y)
+    def fit(self, x, y, *, domain=None):
+        inner = (
+            Polynomial(degree=2).fit(x, y, domain=domain)
+            if len(x) >= 10
+            else Polynomial(degree=1).fit(x, y, domain=domain)
+        )
         return _Negated(inner)
 
 

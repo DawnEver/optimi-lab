@@ -29,6 +29,7 @@ from math import ceil
 import numpy as np
 from lab_commons.outcomes import Status
 from learn_lab.models.response import GaussianProcess
+from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube, sobol
@@ -163,7 +164,7 @@ class TuRBO:
 
     def _thompson(self) -> np.ndarray:
         x, y = np.array(self._x), np.array(self._y)
-        fitted = self._surrogate.fit(x, y[:, None])
+        fitted = self._surrogate.fit(x, y[:, None], domain=BoxEnvelope(np.zeros(self._width), np.ones(self._width)))
         lengths = np.exp(fitted.hyperparameters[0][1:-1])
         weights = lengths / np.prod(lengths) ** (1.0 / self._width)
         centre = x[int(np.argmin(y))]

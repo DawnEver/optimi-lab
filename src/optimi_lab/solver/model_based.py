@@ -40,6 +40,7 @@ import numpy as np
 from lab_commons.outcomes import Status
 from learn_lab.models.response import FittedGaussianProcess, GaussianProcess
 from learn_lab.models.response.likelihood import Box
+from learn_lab.validity import BoxEnvelope
 from numerics_lab.minimize import minimize_lbfgs
 
 from optimi_lab.core import non_dominated_sorting, refuse
@@ -156,6 +157,8 @@ class ModelBased(ABC):
         if initial < 2 or batch < 1 or polish < 0:
             refuse(f'need initial >= 2, batch >= 1 and polish >= 0; got {initial}, {batch} and {polish}')
         self._problem, self._capability, self._width = problem, capability, width
+        #: The surrogate's envelope: the whole unit cube the acquisition searches, not the told points' span.
+        self._domain = BoxEnvelope(np.zeros(width), np.ones(width))
         self._rng = np.random.default_rng(seed)
         self._robust = Scenarios.of(problem, risk, scenarios, self._rng)
         self._per = 1 if self._robust is None else len(self._robust.scenarios)
@@ -267,7 +270,7 @@ class ModelBased(ABC):
         """The surrogate on the told inputs -> *targets*, refitted only when the data has grown."""
         cached = self._cache.get(name)
         if cached is None or cached[0] != len(self._x):
-            cached = (len(self._x), self._surrogate.fit(self._inputs, targets))
+            cached = (len(self._x), self._surrogate.fit(self._inputs, targets, domain=self._domain))
             self._cache[name] = cached
         return cached[1]
 

@@ -16,6 +16,7 @@ from lab_commons.outcomes import Evidence, Status
 from learn_lab.protocol import Fitted
 from learn_lab.registry import surrogate
 from learn_lab.validation import scored_fit
+from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.oracle import Result
 from optimi_lab.policy.routing import natural
@@ -83,6 +84,16 @@ def targets(problem: Problem, result: Result, feasibility: bool) -> tuple[float,
     return tuple(float(result.cell.values[name]) for name in names)
 
 
+def natural_box(problem: Problem) -> BoxEnvelope:
+    """The space's natural box -- a fit's envelope, since the candidates a proposal ranks come from all of it."""
+    space = problem.space
+    corners = np.array(
+        [[space.decode(np.full(space.width, edge)).get(n, np.nan) for n in space.names] for edge in (0.0, 1.0)],
+        dtype=float,
+    )
+    return BoxEnvelope(corners.min(axis=0), corners.max(axis=0))
+
+
 def fit_surrogate(
     problem: Problem,
     results: Sequence[Result],
@@ -101,9 +112,10 @@ def fit_surrogate(
     feasibility = feasibility and bool(black_boxes(problem))
     inputs = np.asarray([natural(problem, r.action) for r in taught], dtype=float)
     values = np.asarray([targets(problem, r, feasibility) for r in taught], dtype=float)
+    domain = natural_box(problem)
     models = []
     for key in pool:
-        fit = scored_fit(surrogate(key, **MODEL_SETTINGS.get(key, {})), inputs, values)
+        fit = scored_fit(surrogate(key, **MODEL_SETTINGS.get(key, {})), inputs, values, domain=domain)
         models.append(ScoredModel(key, fit.scores, fit.fitted))
     return SurrogateFit(
         tuple(models), problem, taught, evidence, feasibility, tuple(float(v) for v in np.ptp(values, axis=0))

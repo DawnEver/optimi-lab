@@ -32,6 +32,7 @@ from collections.abc import Sequence
 import numpy as np
 from lab_commons.outcomes import Status
 from learn_lab.models.response import CoKriging, FittedCoKriging
+from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube
@@ -154,7 +155,8 @@ class MultiFidelityBO:
         present = sorted(set(levels.tolist()))
         if present != list(range(len(self._names))):
             refuse(f'every fidelity level needs a told value to model; levels {present} have one')
-        fitted = self._surrogate.fit(x, self._scores(self._results)[:, None], levels)
+        unit = BoxEnvelope(np.zeros(self._width), np.ones(self._width))
+        fitted = self._surrogate.fit(x, self._scores(self._results)[:, None], levels, domain=unit)
         top = len(self._names) - 1
         p = fitted.predict(x, variance=True)
         best = float(np.min(p.mean[:, 0] + np.sqrt(p.variance[:, 0])))

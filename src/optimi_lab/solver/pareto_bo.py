@@ -58,7 +58,7 @@ class ParEGO(ModelBased):
     def _pick(self, pending: np.ndarray) -> np.ndarray:
         weight = self._weights[self._rng.integers(len(self._weights))]
         scores = parego_scores(self._objectives, weight, rho=self._rho)
-        model = self._believed(self._surrogate.fit(self._inputs, scores[:, None]), pending)
+        model = self._believed(self._surrogate.fit(self._inputs, scores[:, None], domain=self._domain), pending)
         log_pf = self._log_feasibility(pending)
         if not self._feasible.any():
             return self._maximise(log_pf)
