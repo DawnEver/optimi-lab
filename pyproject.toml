@@ -281,3 +281,7 @@ pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"
 
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
 [tool.dev_lab.hooks]
+
+[tool.dev_lab.render]
+deltas = "tests/architecture/_famconfig.py"
+adoption = "scripts/deny_rules.py"
