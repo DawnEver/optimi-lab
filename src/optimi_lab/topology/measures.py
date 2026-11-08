@@ -1,7 +1,7 @@
 """Manufacturability measures of a density design on its cell graph: bodies, member widths, connectivity.
 
-* :func:`components` -- face-connected bodies of a 0/1 design (cells touching at a corner or an edge
-  only are separate bodies).
+* :func:`component_labels` / :func:`components` -- the bodies of a 0/1 design, connected through the
+  domain's graph (on a face graph, cells touching at a corner or an edge only are separate bodies).
 * :func:`member_widths` / :func:`feature_sizes` -- the narrowest solid member and void gap, in the
   domain's length unit. ``d`` is each cell's distance to the other phase (centroid to centroid, or to the
   outer boundary through ``boundary_distances`` when the outside IS the other phase); a RIDGE cell holds a
@@ -29,13 +29,13 @@ from optimi_lab.core.errors import refuse
 from optimi_lab.topology.domain import DesignDomain
 from optimi_lab.topology.interpolation import p_norm
 
-__all__ = ['VirtualTemperature', 'components', 'feature_sizes', 'member_widths']
+__all__ = ['VirtualTemperature', 'component_labels', 'components', 'feature_sizes', 'member_widths']
 
 _CHUNK = 2048
 
 
-def components(domain: DesignDomain, solid: np.ndarray) -> int:
-    """Face-connected bodies among the *solid* cells; 0 for an empty design."""
+def component_labels(domain: DesignDomain, solid: np.ndarray) -> np.ndarray:
+    """Each cell's body: ``0..k-1`` over the *solid* cells connected through the domain graph, ``-1`` on void."""
     solid = np.asarray(solid, dtype=bool)
     a, b = domain.adjacency.T
     keep = solid[a] & solid[b]
@@ -48,8 +48,15 @@ def components(domain: DesignDomain, solid: np.ndarray) -> int:
         np.minimum.at(updated, b, low)
         updated = updated[updated]
         if np.array_equal(updated, labels):
-            return int(np.unique(labels[solid]).size)
+            out = np.full(domain.n_cells, -1)
+            out[solid] = np.unique(labels[solid], return_inverse=True)[1]
+            return out
         labels = updated
+
+
+def components(domain: DesignDomain, solid: np.ndarray) -> int:
+    """The number of bodies among the *solid* cells (:func:`component_labels`); 0 for an empty design."""
+    return int(component_labels(domain, solid).max()) + 1
 
 
 def _nearest(points: np.ndarray, targets: np.ndarray, offsets: np.ndarray) -> np.ndarray:

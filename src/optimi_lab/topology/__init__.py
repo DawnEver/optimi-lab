@@ -14,7 +14,7 @@ from optimi_lab.topology.density import (
     grayness,
     project,
 )
-from optimi_lab.topology.domain import DesignDomain
+from optimi_lab.topology.domain import DesignDomain, Neighbourhood
 from optimi_lab.topology.driver import (
     DEFAULT_CONTINUATION,
     Continuation,
@@ -24,7 +24,13 @@ from optimi_lab.topology.driver import (
     topology_optimize,
 )
 from optimi_lab.topology.interpolation import Interpolation, interpolate, ks, p_norm
-from optimi_lab.topology.measures import VirtualTemperature, components, feature_sizes, member_widths
+from optimi_lab.topology.measures import (
+    VirtualTemperature,
+    component_labels,
+    components,
+    feature_sizes,
+    member_widths,
+)
 from optimi_lab.topology.provider import PhysicsProvider, ProviderResponse, Role, TopologyPoint, TopologyProblem
 
 __all__ = [
@@ -37,6 +43,7 @@ __all__ = [
     'HelmholtzFilter',
     'Interpolation',
     'Iteration',
+    'Neighbourhood',
     'Optimizer',
     'PhysicsProvider',
     'ProviderResponse',
@@ -45,6 +52,7 @@ __all__ = [
     'TopologyProblem',
     'TopologyResult',
     'VirtualTemperature',
+    'component_labels',
     'components',
     'fd_check',
     'feature_sizes',
