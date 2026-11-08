@@ -127,8 +127,42 @@ def test_passive_cells_are_held_and_carry_no_sensitivity() -> None:
     solid[:3], void[-2:] = True, True
     domain = _grid(solid=solid, void=void)
     chain = DesignChain(DensityFilter(domain, radius=1.2, unit='mm'), beta=2.0)
-    (phys,) = chain.forward(np.full(40, 0.5))
+    (phys,) = chain.forward(np.full(domain.n_design, 0.5))
     np.testing.assert_array_equal(phys[:3], 1.0)
     np.testing.assert_array_equal(phys[-2:], 0.0)
     g = chain.pull_back([np.where(solid | void, 1.0, 0.0)])
     np.testing.assert_allclose(g, 0.0)
+
+
+def test_passive_cells_are_no_design_variables_and_a_tie_keeps_its_free_cells() -> None:
+    solid = np.zeros(12, dtype=bool)
+    solid[:3] = True  # the first row; its mirror row (9..11) stays free
+    domain = _grid(4, 3, solid=solid)
+    assert domain.n_design == 9
+    np.testing.assert_array_equal(domain.design_index[:3], -1)
+    np.testing.assert_array_equal(domain.expand(np.zeros(9))[:3], 1.0)
+    tied = domain.mirrored(axis=0)
+    assert tied.n_design == 6  # every tied variable is still read by a free cell
+    np.testing.assert_allclose(tied.reduce(np.ones(12)), [1.0, 1.0, 1.0, 2.0, 2.0, 2.0])
+
+
+def test_every_cell_passive_is_refused() -> None:
+    with pytest.raises(Refusal, match='passive'):
+        _grid(4, 3, solid=np.ones(12, dtype=bool))
+
+
+@pytest.mark.parametrize('make', [DensityFilter, HelmholtzFilter], ids=['density', 'helmholtz'])
+def test_a_passive_cell_feeds_its_declared_state_to_its_neighbours_filter(make) -> None:
+    solid, void = np.zeros(40, dtype=bool), np.zeros(40, dtype=bool)
+    solid[:5], void[-5:] = True, True
+    free_cells = ~(solid | void)
+    domain = _grid(solid=solid, void=void)
+    chain = DesignChain(make(domain, radius=1.2, unit='mm'))
+    filtered = chain.filtered(np.full(domain.n_design, 0.5))
+    expected = make(domain, radius=1.2, unit='mm').forward(np.where(solid, 1.0, np.where(void, 0.0, 0.5)))
+    np.testing.assert_allclose(filtered[free_cells], expected[free_cells], atol=1e-12)
+    np.testing.assert_array_equal(filtered[solid], 1.0)
+    np.testing.assert_array_equal(filtered[void], 0.0)
+    # Planted control: pinned AFTER the filter, the passive cells' neighbours read the gray 0.5 they were fed.
+    gray = make(domain, radius=1.2, unit='mm').forward(np.full(40, 0.5))
+    assert np.max(np.abs(gray - expected)[free_cells]) > 1e-3

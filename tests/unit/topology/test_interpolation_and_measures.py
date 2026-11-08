@@ -118,9 +118,20 @@ def test_virtual_temperature_flags_an_island_by_orders_of_magnitude() -> None:
     assert measure.constraint(island.astype(float), 30.0)[0] > np.log(1e3)
 
 
-def test_virtual_temperature_refuses_a_support_with_no_boundary_face() -> None:
+def test_virtual_temperature_sinks_at_an_interior_anchor() -> None:
+    """The sink is a set of CELLS held at zero temperature, so an anchor with no boundary face works."""
     domain = _grid()
-    inner = np.zeros(100, dtype=bool)
-    inner[55] = True
-    with pytest.raises(Refusal, match='boundary face'):
-        VirtualTemperature(domain, inner)
+    hub = _mask(10, 10, lambda i, j: (i >= 4) & (i < 6) & (j >= 4) & (j < 6))
+    measure = VirtualTemperature(domain, hub, penalty=3.0)
+    cross = _mask(10, 10, lambda i, j: ((i >= 4) & (i < 6)) | ((j >= 4) & (j < 6)))
+    island = cross | _mask(10, 10, lambda i, j: (i <= 1) & (j <= 1))
+    assert components(domain, island) == 2
+    assert measure.constraint(cross.astype(float), 30.0)[0] < 0.0
+    assert measure.constraint(island.astype(float), 30.0)[0] > np.log(1e3)
+    rho = np.random.default_rng(4).uniform(0.2, 0.9, domain.n_cells)
+    assert _agrees(fd_check(measure.response, rho, range(0, 100, 7), step=1e-7), rtol=1e-5)
+
+
+def test_virtual_temperature_refuses_an_empty_sink() -> None:
+    with pytest.raises(Refusal, match='no sink'):
+        VirtualTemperature(_grid(), np.zeros(100, dtype=bool))

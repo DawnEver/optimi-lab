@@ -10,7 +10,8 @@
   member; a ridge on a boundary open to the same phase is not a member centre and is not read.
 * :class:`VirtualTemperature` -- a differentiable connectivity measure (Liu et al. 2015, Front. Mech.
   Eng. 10:126; Li et al. 2016, Struct. Multidisc. Optim. 54:971): solid conducts and carries a uniform
-  source, void insulates (``s_min``), the *support* cells' boundary faces are the sink. An island sheds
+  source, void insulates (``s_min``), the *support* CELLS are the sink (held at zero temperature, wherever
+  they sit: a boundary layer or an interior anchor). An island sheds
   its heat through void only, so its temperature rises by ``~1 / s_min``; the smooth maximum
   (:func:`~optimi_lab.topology.interpolation.p_norm`) of the cell temperatures per unit source, against
   the solid design's, is the constraint ``log(r / r_solid) <= log(gamma)``. Cell-centred two-point
@@ -96,20 +97,28 @@ def feature_sizes(domain: DesignDomain, solid: np.ndarray) -> tuple[float, float
 
 
 class VirtualTemperature:
-    """The virtual-temperature connectivity measure, sunk through the *support* cells' boundary faces."""
+    """The virtual-temperature connectivity measure, sunk at the *support* cells (zero temperature there)."""
 
     def __init__(
         self, domain: DesignDomain, support: np.ndarray, *, penalty: float = 3.0, s_min: float = 1e-6, p: float = 8.0
     ) -> None:
-        on = np.asarray(support, dtype=bool)[domain.boundary_cells]
-        if not on.any():
-            refuse('the support cells carry no boundary face to sink through')
+        sink = np.asarray(support, dtype=bool)
+        if sink.shape != (domain.n_cells,) or not sink.any():
+            refuse(f'the support names no sink cell among the {domain.n_cells} (a mask of one bool per cell)')
+        if sink.all():
+            refuse('every cell is a sink: there is no temperature to measure')
         a, b = domain.adjacency.T
         self.domain, self.penalty, self.s_min, self.p = domain, float(penalty), float(s_min), float(p)
         self.w_pair = domain.faces / np.linalg.norm(domain.centroids[a] - domain.centroids[b], axis=1)
-        self.sink = domain.boundary_cells[on]
-        self.w_sink = domain.boundary_faces[on] / domain.boundary_distances[on]
+        self.free = np.flatnonzero(~sink)
         self.reference = self.specific(np.ones(domain.n_cells))[0]
+
+    def _solve(self, k: sp.csc_matrix, rhs: np.ndarray) -> np.ndarray:
+        """``K_ff x_f = rhs_f`` with the sink cells held at zero; the full vector."""
+        out = np.zeros(self.domain.n_cells)
+        f = self.free
+        out[f] = np.asarray(solve_linear_system(k[f][:, f], rhs[f]), dtype=float).reshape(-1)
+        return out
 
     def _conductance(self, phys: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         s = self.s_min + phys**self.penalty * (1.0 - self.s_min)
@@ -122,27 +131,21 @@ class VirtualTemperature:
         s, ds = self._conductance(phys)
         a, b = self.domain.adjacency.T
         g = self.w_pair * 2.0 * s[a] * s[b] / (s[a] + s[b])
-        gs = self.w_sink * s[self.sink]
         k = sp.coo_matrix(
-            (
-                np.concatenate([g, g, -g, -g, gs]),
-                (np.concatenate([a, b, a, b, self.sink]), np.concatenate([a, b, b, a, self.sink])),
-            ),
-            (n, n),
+            (np.concatenate([g, g, -g, -g]), (np.concatenate([a, b, a, b]), np.concatenate([a, b, b, a]))), (n, n)
         ).tocsc()
         area = self.domain.measures
-        t = np.asarray(solve_linear_system(k, phys * area), dtype=float).reshape(-1)
+        t = self._solve(k, phys * area)
         j, dj = p_norm(t, self.p)
         if j == 0.0:
             return 0.0, np.zeros(n)
-        lam = np.asarray(solve_linear_system(k, dj), dtype=float).reshape(-1)
+        lam = self._solve(k, dj)
         dt, dl = t[a] - t[b], lam[a] - lam[b]
         dg_da = self.w_pair * 2.0 * s[b] ** 2 / (s[a] + s[b]) ** 2
         dg_db = self.w_pair * 2.0 * s[a] ** 2 / (s[a] + s[b]) ** 2
         grad = lam * area
         np.add.at(grad, a, -dg_da * ds[a] * dl * dt)
-        np.add.at(grad, b, -dg_db * ds[b] * dl * dt)
-        np.add.at(grad, self.sink, -self.w_sink * ds[self.sink] * lam[self.sink] * t[self.sink])
+        np.add.at(grad, b, -dg_db * ds[b] * dl * dt)  # a pair onto a sink cell: t = lam = 0 there
         return j, grad
 
     def specific(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
