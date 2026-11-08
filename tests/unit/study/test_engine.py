@@ -31,6 +31,7 @@ from optimi_lab.study import (
     algorithm_factory,
     build_solver,
     evaluate,
+    opened,
     search,
     study,
 )
@@ -93,6 +94,21 @@ def test_a_study_strategy_names_a_gradient_solver(tmp_path: Path) -> None:
     bound = SearchBinding(SMOOTH, Sloped(), Record(tmp_path / 's.jsonl'))
     searched, *_ = searched_study(bound, strategy, EvaluationPolicy(), np.array([[0.9, 2.2]]), Evidence.OBSERVED)
     np.testing.assert_allclose(_best(searched), OPTIMUM, atol=1e-4)
+
+
+def test_a_gradient_run_records_and_reopens_its_slope_reading_actions(tmp_path: Path) -> None:
+    record = Record(tmp_path / 'g.jsonl')
+    search(SMOOTH, Sloped(), record, algorithm='lbfgsb', initial=[[0.9, 2.2]], solves=40)
+    archive = opened(SMOOTH, Sloped(), Record(tmp_path / 'g.jsonl'))  # closed, then reopened from disk
+    sloped = [r.action for r in archive.results() if Information.VJP in r.action.want]
+    assert sloped
+    # Planted control: the values-only rebuild the reopen used to make names another action.
+    values_only = Action.of(SMOOTH, Sloped.capability, sloped[0].design)
+    assert values_only.identity.key != sloped[0].identity.key
+    rebuilt = Sloped()
+    rebuilt.capability = Capability(outputs=('f',), provides=Sloped.capability.provides, version='s2')
+    with pytest.raises(Refusal, match='another problem or evaluator'):
+        opened(SMOOTH, rebuilt, record)  # another oracle build is still refused
 
 
 def test_a_named_solver_is_refused_by_its_own_requires(tmp_path: Path) -> None:
