@@ -14,7 +14,7 @@ from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import Refusal
 from optimi_lab.oracle import Action, Capability, Information, Result
 from optimi_lab.policy import RouteChoice, surrogate_candidates
-from optimi_lab.problem import Fidelity, Level, Objective, Problem, Real, Space
+from optimi_lab.problem import Explicit, Fidelity, Level, Objective, Problem, Real, Relation, Space
 from optimi_lab.solver import SEEDING, cmaes
 from optimi_lab.solver.evolutionary import nsga2
 from optimi_lab.study import (
@@ -109,6 +109,22 @@ def test_a_gradient_run_records_and_reopens_its_slope_reading_actions(tmp_path: 
     rebuilt.capability = Capability(outputs=('f',), provides=Sloped.capability.provides, version='s2')
     with pytest.raises(Refusal, match='another problem or evaluator'):
         opened(SMOOTH, rebuilt, record)  # another oracle build is still refused
+
+
+def _total(design) -> float:
+    return float(design['a']) + float(design['b'])
+
+
+def test_nsga2_searches_under_an_explicit_constraint_and_its_front_holds_it(tmp_path: Path) -> None:
+    # y = a + b is minimised against a + b >= 3: unconstrained, the front would reach a + b = 2.
+    held = Problem(SPACE, PROBLEM.objectives, constraints=(Explicit('total', _total, Relation.AT_LEAST, 3.0),))
+    searched = search(held, Toy(), Record(tmp_path / 'e.jsonl'), algorithm='nsga2', population=12, generations=6)
+    assert searched.search_refusal is None
+    results = searched.archive.results()
+    assert any(r.violation(held) > 0 for r in results)  # the constraint was active, not vacuous
+    front = searched.archive.front()
+    assert front
+    assert all(r.violation(held) == 0.0 for r in front)
 
 
 def test_a_named_solver_is_refused_by_its_own_requires(tmp_path: Path) -> None:

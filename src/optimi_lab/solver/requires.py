@@ -151,12 +151,15 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
 
 _SLOPES: Final = frozenset({Information.VALUES, Information.VJP})
 _SMOOTH: Final = frozenset({BlackBox, Linear, Explicit})
-_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=frozenset({BlackBox}))
+#: Black-box and Explicit constraints both enter :meth:`~optimi_lab.oracle.Result.violation`, which a
+#: ranking (Deb's rule) or barrier solver reads; neither needs a model or a gradient of the constraint.
+_RANKED: Final = frozenset({BlackBox, Explicit})
+_SINGLE: Final = Requires(MultiObjective.SINGLE, metric=True, constraints=_RANKED)
 #: A population solver estimates the declared risk over shared scenarios (``solver.population``),
-#: so it takes uncertainty and Chance constraints natively; a model-based one fits its model on the
+#: so it takes uncertainty, Chance and Explicit constraints natively; a model-based one fits its model on the
 #: risk rows (``solver.model_based``), so it takes uncertainty and BlackBox constraints only. Both
 #: read a conditional space through a declared embedding.
-_ROBUST: Final = frozenset({BlackBox, Chance})
+_ROBUST: Final = _RANKED | {Chance}
 _ROBUST_PARETO: Final = Requires(
     MultiObjective.NATIVE_PARETO, metric=True, constraints=_ROBUST, uncertainty=True, conditional=True
 )
@@ -174,7 +177,7 @@ _LINEAR: Final = Requires(MultiObjective.SINGLE, constraints=frozenset({Linear})
 _ROWS: Final = frozenset({Linear, BlackBox})
 
 #: Every solver this package ships, by name. Population and local solvers rank by Deb's rule (or a
-#: barrier on the total violation), so they take black-box constraints natively; MOEA/D decomposes
+#: barrier on the total violation), so they take black-box and Explicit constraints natively; MOEA/D decomposes
 #: by Tchebycheff weights; a scan returns one point per scalarisation; the multi-fidelity schedules
 #: need Fidelity levels. The model-based solvers (P11) model each BlackBox constraint by its own GP;
 #: ParEGO scalarises by a fresh weight per pick (WEIGHTED), EHVI/NEHVI keep the front (NATIVE_PARETO);
@@ -201,7 +204,7 @@ SOLVERS: Final[dict[str, Requires]] = {
     'moead': Requires(MultiObjective.WEIGHTED, metric=True, constraints=_ROBUST, uncertainty=True, conditional=True),
     **dict.fromkeys(('ga', 'cmaes', 'ipop_cmaes', 'map_elites'), _ROBUST_SINGLE),
     **dict.fromkeys(('nelder_mead', 'mads', 'bobyqa', 'multistart'), _SINGLE),
-    'scalarisation_scan': Requires(MultiObjective.EXTERNAL_SCAN, metric=True, constraints=frozenset({BlackBox})),
+    'scalarisation_scan': Requires(MultiObjective.EXTERNAL_SCAN, metric=True, constraints=_RANKED),
     **dict.fromkeys(('hyperband', 'asha'), Requires(MultiObjective.SINGLE, metric=True, fidelity=True)),
     'bo': _MODEL_SINGLE,
     'parego': Requires(MultiObjective.WEIGHTED, metric=True, constraints=_BLACKBOX, uncertainty=True, conditional=True),
