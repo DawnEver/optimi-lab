@@ -3,7 +3,15 @@
 Both measures load the solid with its own weight (a heat source, a body force), let void carry almost nothing
 (``s_min``) and read the smooth maximum (:func:`~optimi_lab.topology.interpolation.p_norm`) of the response PER
 UNIT LOAD against the solid design's: :meth:`log_ratio` ``= log(r / r_solid)``, a design is connected at
-``<= log(gamma)``. An island sheds its load through void only, so its ratio rises by ``~1 / s_min``.
+``<= log(gamma)``. An island sheds its load through void only, so its hottest cell is at least its load over its
+boundary's void conductance -- ``~ (cell / domain)^2 / s_min`` for a one-cell island, NOT ``~1 / s_min``: a fixed
+``s_min`` admits a small enough island, and a cell just under the build threshold, read at beta 16, conducts
+``H(eta)^penalty = 1/8`` of solid whatever ``s_min`` is.
+
+So a :class:`VirtualTemperature` declared with ``gamma`` ENFORCES one body per sink region: it derives the void
+conductance and a CONDUCTANCE read (a threshold above the build one; the source stays on ``read_on``) so that
+:attr:`VirtualTemperature.island_floor` -- a proven lower bound on ``log_ratio`` over every design whose BUILT
+form holds a solid cell face-disconnected from every sink -- exceeds ``log(gamma)`` by ``log ISLAND_MARGIN``.
 
 * :class:`VirtualTemperature` (Liu et al. 2015, Front. Mech. Eng. 10:126; Li et al. 2016, Struct. Multidisc.
   Optim. 54:971): the *support* CELLS are the sink, held at zero temperature wherever they sit (a boundary
@@ -24,21 +32,30 @@ import scipy.sparse as sp
 from numerics_lab.linear import solve_linear_system
 
 from optimi_lab.core.errors import refuse
-from optimi_lab.topology.density import Threshold
+from optimi_lab.topology.density import NOMINAL_ETA, Threshold, project
 from optimi_lab.topology.domain import DesignDomain
 from optimi_lab.topology.interpolation import p_norm
 
-__all__ = ['PENALTY', 'P_NORM', 'S_MIN', 'SelfWeightSupport', 'VirtualTemperature']
+__all__ = ['ISLAND_MARGIN', 'PENALTY', 'P_NORM', 'S_MIN', 'SelfWeightSupport', 'VirtualTemperature']
 
 #: Defaults of the connectivity measures: the SIMP exponent of the conductance (stiffness), the void's
 #: conductance (stiffness) relative to solid, and the p-norm exponent of the smooth maximum.
 PENALTY = 3.0
 S_MIN = 1e-6
 P_NORM = 8.0
+#: The factor on the ratio by which a declared ``gamma`` sits below the island floor it derives.
+ISLAND_MARGIN = 10.0
 
 
 class VirtualTemperature:
-    """The virtual-temperature connectivity measure, sunk at the *support* cells (zero temperature there)."""
+    """The virtual-temperature connectivity measure, sunk at the *support* cells (zero temperature there).
+
+    The SOURCE is read on ``read_on`` (the density when ``None``), the CONDUCTANCE ``s_min + (1 - s_min) c^penalty``
+    on :attr:`conduct_on` -- ``read_on`` itself unless *gamma* is declared. With *gamma* (which needs ``read_on``:
+    its threshold is the build one an island is defined by), ``s_min`` when not given and :attr:`conduct_on` are
+    DERIVED so that :attr:`island_floor` ``>= log(gamma * ISLAND_MARGIN)``; a given ``s_min`` that cannot reach it
+    is refused. Separately anchored pieces (one sink region each) are not islands: N anchors admit N bodies.
+    """
 
     def __init__(
         self,
@@ -46,9 +63,10 @@ class VirtualTemperature:
         support: np.ndarray,
         *,
         penalty: float = PENALTY,
-        s_min: float = S_MIN,
+        s_min: float | None = None,
         p: float = P_NORM,
         read_on: Threshold | None = None,
+        gamma: float | None = None,
     ) -> None:
         sink = np.asarray(support, dtype=bool)
         if sink.shape != (domain.n_cells,) or not sink.any():
@@ -56,11 +74,67 @@ class VirtualTemperature:
         if sink.all():
             refuse('every cell is a sink: there is no temperature to measure')
         a, b = domain.adjacency.T
-        self.domain, self.penalty, self.s_min, self.p = domain, float(penalty), float(s_min), float(p)
-        self.read_on = read_on
+        self.domain, self.penalty, self.p = domain, float(penalty), float(p)
+        self.s_min = S_MIN if s_min is None else float(s_min)
+        self.read_on = self.conduct_on = read_on
         self.w_pair = domain.faces / np.linalg.norm(domain.centroids[a] - domain.centroids[b], axis=1)
         self.free = np.flatnonzero(~sink)
         self.reference = self.specific(np.ones(domain.n_cells))[0]
+        conductance = np.zeros(domain.n_cells)
+        np.add.at(conductance, a, self.w_pair)
+        np.add.at(conductance, b, self.w_pair)
+        joined = self.free[conductance[self.free] > 0.0]
+        # min(measure / sum(face / distance)) over the non-sink cells: an island's load over its boundary's
+        # conductance is a ratio of sums over its cells, so at least the smallest one-cell ratio.
+        self._capacity = float(np.min(domain.measures[joined] / conductance[joined]))
+        if gamma is not None:
+            self._enforce(float(gamma), given_s_min=s_min is not None)
+
+    @property
+    def _eta(self) -> float:
+        """The build threshold: a cell above it is built solid."""
+        return NOMINAL_ETA if self.read_on is None else self.read_on.eta
+
+    def _floor(self, s_void: float) -> float:
+        """The lower bound of ``log_ratio`` over designs with a built island when a built-void cell conducts *s_void*.
+
+        The hottest island cell is at least the island's load (each cell at least the source read at the build
+        threshold) over its boundary conductance (every face onto built void at most ``2 s_void`` per ``face /
+        distance``); ``J >= max T``; the total load is at most the domain's measure.
+        """
+        source = float(_read(self.read_on, np.array([self._eta]))[0][0])
+        total = float(self.domain.measures.sum())
+        return float(np.log(source * self._capacity / (2.0 * s_void * total * self.reference)))
+
+    @property
+    def island_floor(self) -> float:
+        """A lower bound on :meth:`log_ratio` of any design whose built form holds an island (no sink reached)."""
+        lit = float(_read(self.conduct_on, np.array([self._eta]))[0][0])
+        return self._floor(self.s_min + (1.0 - self.s_min) * lit**self.penalty)
+
+    def _enforce(self, gamma: float, *, given_s_min: bool) -> None:
+        """Derive ``s_min`` (unless given) and :attr:`conduct_on` so the island floor clears ``log(gamma)``."""
+        if self.read_on is None:
+            refuse('an enforced gamma needs read_on: the build threshold an island is defined by')
+        if not gamma > 1.0:
+            refuse(f'gamma bounds the ratio to the solid design from above and must exceed 1, got {gamma}')
+        target = float(np.exp(self._floor(1.0) - np.log(gamma * ISLAND_MARGIN)))  # the built-void conductance
+        if given_s_min and self.s_min >= target:
+            refuse(
+                f'a void conductance s_min = {self.s_min:.3g} admits an island under gamma = {gamma:g}: the island '
+                f'floor needs a built-void cell to conduct below {target:.3g}'
+            )
+        if not given_s_min:
+            self.s_min = 0.5 * target
+        lit = ((target - self.s_min) / (1.0 - self.s_min)) ** (1.0 / self.penalty)  # c(eta) the leak may reach
+        beta, eta = self.read_on.beta, np.array([self._eta])
+        low, high = self._eta, 1.0
+        if float(project(eta, beta, high)[0][0]) > lit:
+            refuse(f'no conductance read at beta {beta:g} lets a built-void cell conduct below {target:.3g}')
+        for _ in range(100):  # c(eta) falls as the conductance threshold rises: bisect onto the largest admitted
+            mid = 0.5 * (low + high)
+            low, high = (mid, high) if float(project(eta, beta, mid)[0][0]) > lit else (low, mid)
+        self.conduct_on = Threshold(beta, high)
 
     def _solve(self, k: sp.csc_matrix, rhs: np.ndarray) -> np.ndarray:
         """``K_ff x_f = rhs_f`` with the sink cells held at zero; the full vector."""
@@ -70,43 +144,44 @@ class VirtualTemperature:
         return out
 
     def response(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
-        """``(J, dJ / d phys)``, the smooth maximum cell temperature, read through ``read_on`` when declared."""
-        x, slope = _read(self.read_on, phys)
-        j, dj = self._response(x)
-        return j, dj * slope
+        """``(J, dJ / d phys)``, the smooth maximum cell temperature, the source and conductance each on its read."""
+        (x, slope), (c, c_slope) = _read(self.read_on, phys), _read(self.conduct_on, phys)
+        j, d_source, d_conduct = self._response(x, c)
+        return j, d_source * slope + d_conduct * c_slope
 
-    def _response(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
-        """``J`` at the density the measure reads; adjoint ``K lam = dJ/dT`` (``K`` symmetric)."""
+    def _response(self, source: np.ndarray, conduct: np.ndarray) -> tuple[float, np.ndarray, np.ndarray]:
+        """``(J, dJ / d source, dJ / d conduct)``; adjoint ``K lam = dJ/dT`` (``K`` symmetric)."""
         n = self.domain.n_cells
-        s = self.s_min + phys**self.penalty * (1.0 - self.s_min)
-        ds = self.penalty * phys ** (self.penalty - 1.0) * (1.0 - self.s_min)
+        s = self.s_min + conduct**self.penalty * (1.0 - self.s_min)
+        ds = self.penalty * conduct ** (self.penalty - 1.0) * (1.0 - self.s_min)
         a, b = self.domain.adjacency.T
         g = self.w_pair * 2.0 * s[a] * s[b] / (s[a] + s[b])
         k = sp.coo_matrix(
             (np.concatenate([g, g, -g, -g]), (np.concatenate([a, b, a, b]), np.concatenate([a, b, b, a]))), (n, n)
         ).tocsc()
         area = self.domain.measures
-        t = self._solve(k, phys * area)
+        t = self._solve(k, source * area)
         j, dj = p_norm(t, self.p)
         if j == 0.0:
-            return 0.0, np.zeros(n)
+            return 0.0, np.zeros(n), np.zeros(n)
         lam = self._solve(k, dj)
         dt, dl = t[a] - t[b], lam[a] - lam[b]
         dg_da = self.w_pair * 2.0 * s[b] ** 2 / (s[a] + s[b]) ** 2
         dg_db = self.w_pair * 2.0 * s[a] ** 2 / (s[a] + s[b]) ** 2
-        grad = lam * area
-        np.add.at(grad, a, -dg_da * ds[a] * dl * dt)
-        np.add.at(grad, b, -dg_db * ds[b] * dl * dt)  # a pair onto a sink cell: t = lam = 0 there
-        return j, grad
+        d_conduct = np.zeros(n)
+        np.add.at(d_conduct, a, -dg_da * ds[a] * dl * dt)
+        np.add.at(d_conduct, b, -dg_db * ds[b] * dl * dt)  # a pair onto a sink cell: t = lam = 0 there
+        return j, lam * area, d_conduct
 
     def specific(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
-        """``(J / Q, d / d phys)``, ``Q = sum phys V`` the total source: the response PER UNIT LOAD.
+        """``(J / Q, d / d phys)``, ``Q = sum source V`` the total source: the response PER UNIT LOAD.
 
         ``J`` alone is linear in the source, so removing material always lowers it; per unit load a
-        connected design is not cheaper for being smaller. Read through ``read_on`` when declared.
+        connected design is not cheaper for being smaller.
         """
-        x, slope = _read(self.read_on, phys)
-        return _per_unit_load(*self._response(x), x, self.domain.measures, slope)
+        (x, slope), (c, c_slope) = _read(self.read_on, phys), _read(self.conduct_on, phys)
+        j, d_source, d_conduct = self._response(x, c)
+        return _per_unit_load(j, d_source, x, self.domain.measures, slope, chained=d_conduct * c_slope)
 
     def log_ratio(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
         """``(log(r / r_solid), its gradient)``, ``r`` :meth:`specific`; a design is connected at ``<= log(gamma)``."""
@@ -218,13 +293,22 @@ def _read(read_on: Threshold | None, phys: np.ndarray) -> tuple[np.ndarray, np.n
 
 
 def _per_unit_load(
-    j: float, dj: np.ndarray, x: np.ndarray, measures: np.ndarray, slope: np.ndarray | float
+    j: float,
+    dj: np.ndarray,
+    x: np.ndarray,
+    measures: np.ndarray,
+    slope: np.ndarray | float,
+    *,
+    chained: np.ndarray | float = 0.0,
 ) -> tuple[float, np.ndarray]:
-    """``(J / Q, d / d phys)`` with ``Q = sum x m`` the load at the read density *x* (``d x / d phys`` *slope*)."""
+    """``(J / Q, d / d phys)`` with ``Q = sum x m`` the load at the read density *x* (``d x / d phys`` *slope*).
+
+    *dj* is ``dJ / dx``; *chained* the part of ``dJ / d phys`` that does not pass through *x* (a separate read).
+    """
     q = float(x @ measures)
     if q == 0.0:
         return 0.0, np.zeros_like(x)
-    return j / q, (dj / q - j * measures / q**2) * slope
+    return j / q, (dj / q - j * measures / q**2) * slope + chained / q
 
 
 def _log_ratio(r: float, dr: np.ndarray, reference: float) -> tuple[float, np.ndarray]:
