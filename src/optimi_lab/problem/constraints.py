@@ -1,7 +1,8 @@
 """What must hold: five constraint kinds, distinguished by WHO can evaluate them.
 
 * :class:`Linear` -- a linear form of the numeric variables; the optimiser evaluates it exactly.
-* :class:`Explicit` -- a cheap closed-form function of the design; the optimiser evaluates it.
+* :class:`Explicit` -- a cheap closed-form function of the design; the optimiser evaluates it, and
+  differentiates it by its declared exact ``gradient`` when it has one.
 * :class:`BlackBox` -- an oracle output; known only after an evaluation.
 * :class:`Chance` -- an oracle output that must hold with a probability under the problem's
   :class:`~optimi_lab.problem.declarations.Uncertainty`.
@@ -159,11 +160,17 @@ class _ExplicitFields:
     bound: float
     unit: str | None
     scale: float
+    gradient: Callable[[Mapping[str, object]], Mapping[str, object]] | None
 
 
 @dataclass(frozen=True, slots=True, init=False)
 class Explicit(_ExplicitFields):
-    """``function(design) relation bound``, for a cheap closed form the optimiser may evaluate itself."""
+    """``function(design) relation bound``, for a cheap closed form the optimiser may evaluate itself.
+
+    *gradient*, when given, is the exact ``d function / d variable`` at a design in the variables' own
+    (natural) coordinates: variable name -> a number (a Field: an array of its width); an omitted
+    variable has slope zero. Without it a gradient method differences *function*.
+    """
 
     def __init__(
         self,
@@ -174,9 +181,12 @@ class Explicit(_ExplicitFields):
         *,
         unit: str | None = None,
         scale: float | None = None,
+        gradient: Callable[[Mapping[str, object]], Mapping[str, object]] | None = None,
     ) -> None:
         relation, bound, scale = _bounded(name, relation, bound, scale)
-        _ExplicitFields.__init__(self, name, function, relation, bound, unit, scale)
+        if gradient is not None and not callable(gradient):
+            refuse(f'the gradient of explicit constraint {name!r} is a callable of the design, got {gradient!r}')
+        _ExplicitFields.__init__(self, name, function, relation, bound, unit, scale, gradient)
 
     def violation(self, design: Mapping[str, object]) -> float:
         return _past(self.relation, self.bound, self.scale, float(self.function(design)))
