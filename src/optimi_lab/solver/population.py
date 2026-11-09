@@ -12,7 +12,11 @@ Each algorithm works in the unit cube and in the MINIMISED, normalised objective
 violation (:meth:`optimi_lab.oracle.Result.violation`). ``scalarise`` maps those rows to one score
 per row, which is how a single-objective algorithm is pointed at several objectives (and how a
 scalarisation scan builds its subproblems). A result that is not ``OK`` is DROPPED from the
-generation, never scored.
+generation, never scored -- unless it is a decided one whose design breaks a constraint that reads the design
+alone (:meth:`optimi_lab.oracle.Result.design_violation` > 0, the shape of a design refused before any solve):
+that row is certainly infeasible and RANKED by that violation, so a box that is mostly refused is still walked
+toward feasibility. It has no objective values; it carries the worst scored value of its generation per column
+(zero when none scored), which Deb's rule never reads -- an infeasible row is ordered by violation alone.
 
 A problem that declares :class:`~optimi_lab.problem.Uncertainty` is solved ROBUSTLY: ``scenarios``
 draws of it are taken once from the seed and shared by every design (common random numbers, so two
@@ -204,7 +208,12 @@ class PopulationSolver(ABC):
         results = [self._told[a.identity.key] for a in self._generation]
         if self._robust is not None:
             return self._robust_arrays(results, empty_ok=empty_ok)
-        mask = np.array([r.cell.status is Status.OK for r in results])
+        scored = np.array([r.cell.status is Status.OK for r in results])
+        refused = np.array([
+            not ok and r.cell.status.decided and r.design_violation(self._problem) > 0.0
+            for r, ok in zip(results, scored, strict=True)
+        ])
+        mask = scored | refused
         if not mask.any() and empty_ok:
             return None
         if not mask.any():
@@ -213,9 +222,19 @@ class PopulationSolver(ABC):
                 f'none of the {len(results)} point(s) of this generation produced a value ({statuses}); '
                 f'there is no population to build the next one from'
             )
-        self._results = [r for r, ok in zip(results, mask, strict=True) if ok]
+        self._results = [r for r, kept in zip(results, mask, strict=True) if kept]
         inputs = np.array([self._embedding.encode(r.action.design) for r in self._results])
-        values, violation = score_rows(self._problem, self._scalarise, self._results)
+        ok = scored[mask]
+        columns = 1 if self._scalarise is not None else len(self._problem.objectives)
+        values, violation = np.zeros((len(ok), columns)), np.zeros(len(ok))
+        if ok.any():
+            values[ok], violation[ok] = score_rows(
+                self._problem, self._scalarise, [r for r, is_ok in zip(self._results, ok, strict=True) if is_ok]
+            )
+            values[~ok] = values[ok].max(axis=0)
+        violation[~ok] = [
+            r.design_violation(self._problem) for r, is_ok in zip(self._results, ok, strict=True) if not is_ok
+        ]
         return inputs, values, violation, mask
 
     def _robust_arrays(

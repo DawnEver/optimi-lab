@@ -69,6 +69,8 @@ class MapElites(PopulationSolver):
         del mask
         for point, value, shortfall, result in zip(inputs, values[:, 0], violation, self._results, strict=True):
             reading = {**result.action.design, **result.cell.values}
+            if any(d.name not in reading for d in self._descriptors):
+                continue  # a refused design has no output to bin it by
             cell = tuple(d.bin(float(reading[d.name])) for d in self._descriptors)
             held = self.elites.get(cell)
             if held is None or (shortfall, value) < (held[2], held[1]):
