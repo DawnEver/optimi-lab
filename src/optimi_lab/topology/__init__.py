@@ -24,6 +24,7 @@ from optimi_lab.topology.driver import (
     Continuation,
     Iteration,
     Optimizer,
+    TopologyFailure,
     TopologyResult,
     topology_optimize,
 )
@@ -56,6 +57,7 @@ __all__ = [
     'Role',
     'SelfWeightSupport',
     'Threshold',
+    'TopologyFailure',
     'TopologyPoint',
     'TopologyProblem',
     'TopologyResult',
