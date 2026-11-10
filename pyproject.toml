@@ -34,21 +34,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "pytest-cov",
-    "pytest-mock",
-    "pytest-xdist",
     # Reference oracles for the self-implemented surrogates (plan R1): tests only, never runtime.
     "scikit-learn",
     # pymoo is a TEST ORACLE only (ruling R1): tests/benchmarks compare every population method
     # against its implementation; the runtime never imports it.
     "pymoo",
-    "coverage[toml]",
-
-    'pdoc',
-    'commitizen',
-    "ruff",
-
     # The shared DEVELOPMENT kit: `dev_lab.dev.rules` authors each development rule's universal
     # statement, and `tests/architecture/test_optimi_lab_adopts_the_shared_registry.py` names which
     # of them this repo enforces and which it declares absent. DEV LAYER ONLY -- dev-lab brings
@@ -226,17 +216,6 @@ testpaths = [
     "tests",
     'src',
 ]
-
-# ===================
-# commitizen
-# ===================
-[tool.commitizen]
-name = "cz_conventional_commits"
-tag_format = "v$version"
-version_scheme = "semver2"
-version_provider = "scm"
-changelog_incremental = true
-update_changelog_on_bump = true
 
 # ===================
 # lab-commons branchset (ONE-BRANCH-PER-SESSION)
