@@ -16,6 +16,8 @@ declaration that lies:
 A :data:`SEQUENTIAL` solver asks a few points per round, so its run is bounded by EVALUATIONS
 (:func:`batch_bound`), not by ``generations + 1`` rounds. The algebraic solvers (``lp``, ``milp``, ``qp``,
 ``cp``, ``dynamic_programming``, ``benders``, ``admm``) read coefficients, not a first batch, and have no row.
+
+:func:`~optimi_lab.solver.build.build_solver` builds a registered solver by name over these rows.
 """
 
 from __future__ import annotations
