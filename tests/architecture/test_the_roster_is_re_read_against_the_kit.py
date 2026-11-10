@@ -92,7 +92,8 @@ KIT_PACKAGE: Final = 'dev_lab.dev'
 #: RE-TAKEN 2026-10-09 AT 95, from 90: lab-commons 2cca293 reads 108. Same slack: 108 - 13 = 95.
 #: RE-TAKEN 2026-10-18 AT 159, from 95: lab-commons 96a90c8 (the box, compute, forge and githooks
 #: packages) reads 172. Same slack: 172 - 13 = 159.
-KIT_MODULE_FLOOR: Final = 159
+#: RE-TAKEN 2026-11-10 AT 316, from 159: the relock to the current kit reads 329. Same slack: 329 - 13 = 316.
+KIT_MODULE_FLOOR: Final = 316
 
 #: How far past the floor the kit may grow before the floor stops binding and must be re-taken.
 #: 159 + 16 = 175 against today's 172. The kit grew 67 -> 74 -> 78 in three days in 2026-09, so this binds
