@@ -83,8 +83,9 @@ def mma(
     atol: float = ATOL,
     max_iterations: int = 300,
     max_inner: int = 15,
+    move: float = _MOVE,
 ) -> Solution:
-    """MMA, or GCMMA with ``conservative=True``; see the module docstring."""
+    """MMA, or GCMMA with ``conservative=True``; *move* caps each step at that fraction of ``hi - lo``."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
     span = hi - lo
     point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
@@ -106,8 +107,8 @@ def mma(
             gamma = np.where(trend < 0, _SHRINK, np.where(trend > 0, _GROW, 1.0))
             lower = np.clip(x - gamma * (history[-1] - lower), x - 10 * span, x - 0.01 * span)
             upper = np.clip(x + gamma * (upper - history[-1]), x + 0.01 * span, x + 10 * span)
-        alpha = np.maximum.reduce([lo, lower + 0.1 * (x - lower), x - _MOVE * span])
-        beta = np.minimum.reduce([hi, upper - 0.1 * (upper - x), x + _MOVE * span])
+        alpha = np.maximum.reduce([lo, lower + 0.1 * (x - lower), x - move * span])
+        beta = np.minimum.reduce([hi, upper - 0.1 * (upper - x), x + move * span])
         slopes = np.vstack([point.df[:1], point.dc])
         rho = (
             np.maximum(0.1 / x.size * np.sum(np.abs(slopes) * span, axis=1), 1e-5)
