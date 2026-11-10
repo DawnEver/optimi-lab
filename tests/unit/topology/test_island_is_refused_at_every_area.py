@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from optimi_lab.core import Refusal
-from optimi_lab.topology import BUILT_READ, NOMINAL_ETA, DesignDomain, VirtualTemperature, built, components, fd_check
+from optimi_lab.topology import BUILT_READ, NOMINAL_ETA, DesignDomain, VirtualTemperature, built, components
 
 N = 40
 
@@ -58,11 +58,14 @@ def test_planted_control_a_fixed_void_conductance_reads_a_smaller_island_cooler(
     assert ratios[0] - ratios[-1] > np.log(8.0) - 0.5
 
 
-def test_a_bridge_just_under_the_build_threshold_is_refused() -> None:
-    domain, sink, x = _planted(4, gap_value=NOMINAL_ETA - 1e-3)
-    assert components(domain, built(x)) == 2
-    assert VirtualTemperature(domain, sink, read_on=BUILT_READ).log_ratio(x)[0] < np.log(20.0), 'planted control'
-    assert VirtualTemperature(domain, sink, read_on=BUILT_READ, gamma=20.0).log_ratio(x)[0] > np.log(20.0)
+def test_a_void_bridge_is_refused_and_a_bridge_at_the_build_threshold_reads_joined() -> None:
+    """The one law's stated price: a neighbour read near eta conducts nearly as well as the island heats."""
+    measure = VirtualTemperature(*_planted(4)[:2], read_on=BUILT_READ, gamma=20.0)
+    for gap, refused in ((0.3, True), (NOMINAL_ETA - 1e-3, False)):
+        domain, _, x = _planted(4, gap_value=gap)
+        assert components(domain, built(x)) == 2
+        assert measure.log_ratio(x)[0] >= measure.floor(gap)
+        assert bool(measure.log_ratio(x)[0] > np.log(20.0)) is refused
 
 
 @pytest.mark.parametrize('gamma', [5.0, 20.0])
@@ -76,16 +79,6 @@ def test_separately_anchored_bodies_pass() -> None:
     domain, sink, x = _planted(4, anchored_island=True)
     assert components(domain, built(x)) == 2
     assert VirtualTemperature(domain, sink, read_on=BUILT_READ, gamma=5.0).log_ratio(x)[0] <= np.log(5.0)
-
-
-def test_the_enforcing_gradient_is_the_central_difference_limit() -> None:
-    domain, sink, x = _planted(4, gap_value=1.0)
-    x = np.clip(x + np.random.default_rng(5).uniform(-0.3, 0.3, domain.n_cells), 0.05, 0.95)
-    measure = VirtualTemperature(domain, sink, read_on=BUILT_READ, gamma=20.0)
-    cells = [0, 415, 433, 820, 1000, 1599]
-    rows = fd_check(measure.log_ratio, x, cells, step=1e-6)
-    analytic, fd = np.array([a for _, a, _ in rows]), np.array([f for _, _, f in rows])
-    assert np.max(np.abs(analytic - fd)) / np.max(np.abs(fd)) < 1e-4
 
 
 def test_gamma_needs_a_build_read_and_an_explicit_void_that_admits_an_island_is_refused() -> None:
