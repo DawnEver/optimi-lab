@@ -278,7 +278,10 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # as a draft, forge writes go through its doors, no push lands on a merged PR), as in numerics-lab.
     'DRAFT-UNTIL-READY': (_PYPROJECT,),
     'FORGE-DOORS-ARE-CONSENT': (_PYPROJECT,),
-    'NO-PUSH-ONTO-A-LANDED-PR': (_PYPROJECT,),
+    # Adopted 2026-11-10 (dev-lab #320, as numerics-lab): the rendered `continue.yml` push job, which replaces the
+    # retired NO-PUSH-ONTO-A-LANDED-PR, and the base pre-push row `closed-push`.
+    'LANDED-BRANCH-CONTINUES': ('.github/workflows/continue.yml',),
+    'NO-PUSH-ONTO-A-CLOSED-PR': (_PYPROJECT,),
     # Adopted 2026-11-07 with dev-lab #304: the base pre-push row `pr-current` this pyproject's hooks table runs.
     'PR-HEAD-IS-CURRENT': (_PYPROJECT,),
     # ADOPTED with lab-commons ec5e8c5: `[tool.dev_lab.branchset]` declares trunk `main` and no

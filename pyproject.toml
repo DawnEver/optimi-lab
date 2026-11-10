@@ -287,3 +287,8 @@ breakglass = "role:admin"
 
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
 [tool.dev_lab.hooks]
+
+[tool.dev_lab.render]
+# What the family renderers read from this repo (dev_lab.dev.famfiles.RENDERERS); a relock re-runs each one due.
+deltas = "tests/architecture/_famconfig.py"
+adoption = "scripts/deny_rules.py"
