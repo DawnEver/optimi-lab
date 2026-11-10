@@ -13,6 +13,11 @@ is positive and an objective that only falls as density rises, as in compliance 
 Every evaluation is an :class:`Iteration` of the run's history: stage, ``beta``, objective (raw, the KS
 aggregate when robust), the normalised constraints (``<= 0`` is feasible), the max-norm design change and
 the nominal realization's grayness. GCMMA's rejected inner candidates are evaluations too, and are recorded.
+
+A NUMERICAL failure inside the loop (a singular or non-finite linear solve, a floating-point error) is a
+:class:`TopologyFailure` naming WHERE it arose -- the provider evaluation (physics, filter, projection) or the
+optimizer step between evaluations (MMA's subproblem) -- with the evaluation, stage and ``beta``; the original
+exception is its ``__cause__``. A bare ``Singular matrix`` after two hours names nothing (HPC 7967593).
 """
 
 from __future__ import annotations
@@ -21,13 +26,22 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 import numpy as np
+from numerics_lab.linear import LinearSolveError
 
 from optimi_lab.core.errors import coerce_enum, refuse
 from optimi_lab.solver.moving_asymptotes import mma
 from optimi_lab.topology.density import ROBUST_ETAS, DensityFilter, DesignChain, HelmholtzFilter
 from optimi_lab.topology.provider import PhysicsProvider, TopologyPoint, TopologyProblem
 
-__all__ = ['DEFAULT_CONTINUATION', 'Continuation', 'Iteration', 'Optimizer', 'TopologyResult', 'topology_optimize']
+__all__ = [
+    'DEFAULT_CONTINUATION',
+    'Continuation',
+    'Iteration',
+    'Optimizer',
+    'TopologyFailure',
+    'TopologyResult',
+    'topology_optimize',
+]
 
 _OC_DAMPING = 0.5
 
@@ -78,6 +92,26 @@ class TopologyResult:
     design: np.ndarray
     physical: tuple[np.ndarray, ...]
     history: tuple[Iteration, ...]
+
+    @property
+    def nominal(self) -> np.ndarray:
+        """The nominal realization (the middle threshold's physical density)."""
+        return self.physical[len(self.physical) // 2]
+
+
+#: The numerical failures a :class:`TopologyFailure` names; a refusal (a declaration) passes through untouched.
+NUMERICAL_FAILURES = (np.linalg.LinAlgError, ArithmeticError, LinearSolveError)
+
+
+class TopologyFailure(RuntimeError):
+    """A numerical failure of the topology loop: *where*, at which *evaluation* (1-based), *stage* and *beta*."""
+
+    def __init__(self, where: str, *, evaluation: int, stage: int, beta: float, cause: BaseException) -> None:
+        self.where, self.evaluation, self.stage, self.beta = where, evaluation, stage, float(beta)
+        super().__init__(
+            f'{where} failed at evaluation {evaluation} (stage {stage}, beta = {self.beta:g}): '
+            f'{type(cause).__name__}: {cause}'
+        )
 
 
 class _Settled(Exception):
@@ -137,7 +171,11 @@ def topology_optimize(
         last: list[TopologyPoint] = []
 
         def evaluate(z: np.ndarray, stage=stage, beta=beta, previous=previous, last=last):
-            evaluation = problem.evaluate(z)
+            try:
+                evaluation = problem.evaluate(z)
+            except NUMERICAL_FAILURES as exc:
+                where = 'the provider evaluation'
+                raise TopologyFailure(where, evaluation=len(history) + 1, stage=stage, beta=beta, cause=exc) from exc
             change = float(np.max(np.abs(z - previous[0])))
             history.append(
                 Iteration(stage, beta, evaluation.objective, evaluation.constraints, change, evaluation.grayness)
@@ -171,4 +209,7 @@ def topology_optimize(
             design = settled.design
             if settled.finished:
                 break
+        except NUMERICAL_FAILURES as exc:  # not inside an evaluation: the optimizer's own step after the last one
+            where = f'the {optimizer.value} optimizer step'
+            raise TopologyFailure(where, evaluation=len(history), stage=stage, beta=beta, cause=exc) from exc
     return TopologyResult(design, chain.forward(design), tuple(history))

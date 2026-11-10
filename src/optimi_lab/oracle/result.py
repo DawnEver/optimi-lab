@@ -159,6 +159,16 @@ class Result(_ResultFields):
                 total += c.violation(self.action.design)
         return total
 
+    def design_violation(self, problem: Problem) -> float:
+        """The scaled violation of the constraints of *problem* that read the DESIGN alone (``Explicit``,
+        ``Linear``): the part of :meth:`violation` a result with no output values -- a design refused before any
+        solve -- still has, and is ranked by.
+        """
+        reads_outputs = (BlackBox, Path, Chance)
+        return sum(
+            (c.violation(self.action.design) for c in problem.constraints if not isinstance(c, reads_outputs)), 0.0
+        )
+
     def extras(self) -> dict[str, Any]:
         """The JSON-ready extras an archive files beside the cell."""
         parts = {

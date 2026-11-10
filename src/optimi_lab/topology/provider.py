@@ -11,8 +11,9 @@ asks the provider once per realization it needs, and assembles the
 * the ONE objective is minimised, normalised by its magnitude at the first evaluation. A ``robust``
   objective read on several realizations (eroded / nominal / dilated) is their KS aggregate
   (:func:`~.interpolation.ks`, sharpness *ks_rho*) -- a smooth worst case;
-* each constraint ``value <= bound`` becomes ``(value - bound) / scale <= 0`` (``scale`` declared, else
-  ``|bound|``, else 1), once per realization when ``robust``, else on the nominal one;
+* each constraint ``value <= bound`` becomes ``(value - bound) / scale <= 0`` and ``value >= lower`` becomes
+  ``(lower - value) / scale <= 0`` (``scale`` declared, else ``|bound|`` / ``|lower|``, else 1), upper row
+  first, once per realization when ``robust``, else on the nominal one;
 * every sensitivity is pulled back through projection, filter and symmetry ties to ``d / d z``.
 """
 
@@ -43,10 +44,11 @@ class Role(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class ProviderResponse:
-    """A declared provider output: minimised (``OBJECTIVE``) or held ``<= bound`` (``CONSTRAINT``).
+    """A declared provider output: minimised (``OBJECTIVE``) or held ``lower <= value <= bound`` (``CONSTRAINT``).
 
-    ``robust``: read on every projected realization (else on the nominal one only); ``scale``: the
-    constraint's normalisation, defaulting to ``|bound|`` (or 1 for a zero bound).
+    A constraint declares ``bound`` (upper), ``lower`` or both -- each side is its own row. ``robust``: read on
+    every projected realization (else on the nominal one only); ``scale``: the constraint's normalisation,
+    defaulting to the side's ``|bound|`` / ``|lower|`` (or 1 for a zero one).
     """
 
     name: str
@@ -54,6 +56,7 @@ class ProviderResponse:
     bound: float | None = None
     scale: float | None = None
     robust: bool = True
+    lower: float | None = None
 
 
 class PhysicsProvider(Protocol):
@@ -91,8 +94,8 @@ class TopologyProblem:
             refuse(f'a topology problem has exactly one objective, got {[r.name for r in objectives]}')
         self.constraints = tuple(r for r in provider.responses if r.role == Role.CONSTRAINT)
         for r in self.constraints:
-            if r.bound is None:
-                refuse(f'constraint {r.name!r} needs a bound')
+            if r.bound is None and r.lower is None:
+                refuse(f'constraint {r.name!r} needs a bound (upper, lower or both)')
         self.provider, self.chain, self.ks_rho = provider, chain, float(ks_rho)
         self.objective = objectives[0]
         self._scale: float | None = None
@@ -133,10 +136,13 @@ class TopologyProblem:
         df = self.chain.pull_back(per) / self._scale
         c, dc = [], []
         for r in self.constraints:
-            scale = r.scale or abs(r.bound) or 1.0
-            for k in self._realizations(r):
-                value, slope = read(k, r.name)
-                c.append((value - r.bound) / scale)
-                dc.append(pull(k, slope) / scale)
+            # (limit, sign): the row is sign * (value - limit) / scale <= 0.
+            sides = [(limit, sign) for limit, sign in ((r.bound, 1.0), (r.lower, -1.0)) if limit is not None]
+            for limit, sign in sides:
+                scale = (r.scale or abs(limit) or 1.0) * sign
+                for k in self._realizations(r):
+                    value, slope = read(k, r.name)
+                    c.append((value - limit) / scale)
+                    dc.append(pull(k, slope) / scale)
         point = Linearization(design, [scaled], df[None, :], c=c, dc=np.array(dc).reshape(len(c), len(design)))
         return TopologyPoint(point, raw, tuple(c), physical)

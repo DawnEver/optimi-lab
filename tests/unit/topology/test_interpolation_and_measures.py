@@ -106,7 +106,11 @@ def test_virtual_temperature_gradient_is_exact() -> None:
     rho = np.random.default_rng(3).uniform(0.2, 0.9, domain.n_cells)
     rows = fd_check(measure.response, rho, range(domain.n_cells), step=1e-7)
     assert _agrees(rows, rtol=1e-5)
-    assert _agrees(fd_check(lambda r: measure.constraint(r, 30.0), rho, range(0, 30, 4), step=1e-7), rtol=1e-5)
+    assert _agrees(fd_check(measure.log_ratio, rho, range(0, 30, 4), step=1e-7), rtol=1e-5)
+
+
+#: The connectivity bound of these tests: a design is connected at ``log_ratio <= log(GAMMA)``.
+GAMMA = 30.0
 
 
 def test_virtual_temperature_flags_an_island_by_orders_of_magnitude() -> None:
@@ -114,8 +118,8 @@ def test_virtual_temperature_flags_an_island_by_orders_of_magnitude() -> None:
     measure = VirtualTemperature(domain, _support(domain), penalty=3.0)
     bar = _mask(10, 10, lambda _, j: (j >= 4) & (j < 6))
     island = _mask(10, 10, lambda i, j: (j >= 4) & (j < 6) & (i != 4))
-    assert measure.constraint(bar.astype(float), 30.0)[0] < 0.0
-    assert measure.constraint(island.astype(float), 30.0)[0] > np.log(1e3)
+    assert measure.log_ratio(bar.astype(float))[0] < np.log(GAMMA)
+    assert measure.log_ratio(island.astype(float))[0] > np.log(GAMMA * 1e3)
 
 
 def test_virtual_temperature_sinks_at_an_interior_anchor() -> None:
@@ -126,8 +130,8 @@ def test_virtual_temperature_sinks_at_an_interior_anchor() -> None:
     cross = _mask(10, 10, lambda i, j: ((i >= 4) & (i < 6)) | ((j >= 4) & (j < 6)))
     island = cross | _mask(10, 10, lambda i, j: (i <= 1) & (j <= 1))
     assert components(domain, island) == 2
-    assert measure.constraint(cross.astype(float), 30.0)[0] < 0.0
-    assert measure.constraint(island.astype(float), 30.0)[0] > np.log(1e3)
+    assert measure.log_ratio(cross.astype(float))[0] < np.log(GAMMA)
+    assert measure.log_ratio(island.astype(float))[0] > np.log(GAMMA * 1e3)
     rho = np.random.default_rng(4).uniform(0.2, 0.9, domain.n_cells)
     assert _agrees(fd_check(measure.response, rho, range(0, 100, 7), step=1e-7), rtol=1e-5)
 

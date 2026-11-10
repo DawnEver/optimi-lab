@@ -67,7 +67,11 @@ class Searched:
 
 
 def opened(problem: Problem, oracle: Oracle, record: Record) -> Archive:
-    """The archive of *record*, refused when an action in it belongs to another problem or oracle build."""
+    """The archive of *record*, refused when an action in it belongs to another problem or oracle build.
+
+    Each action is rebuilt with everything it asked -- information, replicate, direction -- so a
+    slope-reading run reopens; only the problem and the oracle build may refuse it.
+    """
     archive = Archive(problem, record)
     for action in (*archive.pending(), *(result.action for result in archive.results())):
         # Rebuilt with everything the action asked (a slope, a scenario), so only the problem and build differ.

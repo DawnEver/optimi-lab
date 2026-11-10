@@ -30,6 +30,7 @@ from optimi_lab.topology import (
     HelmholtzFilter,
     ProviderResponse,
     Role,
+    TopologyFailure,
     TopologyProblem,
     fd_check,
     interpolate,
@@ -198,3 +199,31 @@ def test_a_response_the_provider_does_not_return_is_refused() -> None:
     problem = TopologyProblem(provider, DesignChain(DensityFilter(provider.domain, 1.5, unit='mm')))
     with pytest.raises(Refusal, match='stress'):
         problem.evaluate(np.full(12, 0.5))
+
+
+class _SingularAt(MbbBeam):
+    """The MBB beam whose *at*-th evaluation fails as a bare numpy ``Singular matrix`` (HPC 7967593's message)."""
+
+    def __init__(self, at: int) -> None:
+        super().__init__(6, 4, 0.5)
+        self.at, self.calls = at, 0
+
+    def evaluate(self, physical: np.ndarray) -> dict[str, tuple[float, np.ndarray]]:
+        self.calls += 1
+        if self.calls == self.at:
+            msg = 'Singular matrix'
+            raise np.linalg.LinAlgError(msg)
+        return super().evaluate(physical)
+
+
+def test_a_numerical_failure_names_where_its_evaluation_stage_and_beta() -> None:
+    """A numerical failure in the loop is a :class:`TopologyFailure`: where, which evaluation, stage and beta."""
+    provider = _SingularAt(5)
+    continuation = Continuation(betas=(1.0, 2.0), iterations=3)
+    with pytest.raises(TopologyFailure) as caught:
+        topology_optimize(provider, DensityFilter(provider.domain, 1.5, unit='mm'), continuation=continuation)
+    failure = caught.value
+    assert (failure.where, failure.evaluation, failure.stage, failure.beta) == ('the provider evaluation', 5, 1, 2.0)
+    assert isinstance(failure.__cause__, np.linalg.LinAlgError)
+    for part in ('the provider evaluation', 'evaluation 5', 'stage 1', 'beta = 2', 'LinAlgError: Singular matrix'):
+        assert part in str(failure)

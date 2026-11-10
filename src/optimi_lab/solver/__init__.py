@@ -88,7 +88,18 @@ from optimi_lab.solver.requires import (
 from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
 from optimi_lab.solver.seeding import SEEDING, SEQUENTIAL, Seeding, batch_bound, require_seedable, search_embedding
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
-from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Solution, Unevaluable, kkt_bar
+from optimi_lab.solver.smooth import (
+    ATOL,
+    RTOL,
+    Evaluate,
+    Halt,
+    SmoothView,
+    Solution,
+    Unevaluable,
+    check_explicit_gradient,
+    explicit_slopes,
+    kkt_bar,
+)
 from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
 from optimi_lab.solver.structured import STRUCTURED, StructuredSolver
 from optimi_lab.solver.swarm import SwarmSolver, mopso
@@ -163,6 +174,7 @@ __all__ = [
     'bobyqa',
     'box_prox',
     'build_solver',
+    'check_explicit_gradient',
     'cmaes',
     'cp',
     'descriptors_of',
@@ -171,6 +183,7 @@ __all__ = [
     'differential',
     'dynamic_programming',
     'ehvi',
+    'explicit_slopes',
     'ga',
     'gcmma',
     'hyperband',
