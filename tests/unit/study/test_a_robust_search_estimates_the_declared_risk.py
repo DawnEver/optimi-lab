@@ -19,7 +19,8 @@ from optimi_lab.core.errors import Refusal
 from optimi_lab.operator import Risk
 from optimi_lab.oracle import Action, Result
 from optimi_lab.problem import Objective, Problem, Sense, Uncertainty, Uniform
-from optimi_lab.study import FixedDesign, Request, SearchBinding, SearchStrategy, build_solver, search, study
+from optimi_lab.solver.build import build_solver
+from optimi_lab.study import FixedDesign, Request, SearchBinding, SearchStrategy, search, study
 
 XI = Uncertainty((Uniform('xi', -0.5, 0.5),))
 ROBUST = Problem(SPACE, (Objective('y'), Objective('z', Sense.MAXIMIZE)), uncertainty=XI)
@@ -81,7 +82,9 @@ def test_risk_on_a_problem_without_uncertainty_is_refused(tmp_path: Path) -> Non
 
 
 def test_build_solver_hands_the_declared_risk_to_the_solver() -> None:
-    solver = build_solver('nsga2', ROBUST, Perturbed().capability, seed=0, population=3, generations=1, scenarios=5)
+    solver = build_solver(
+        'nsga2', ROBUST, Perturbed().capability, seed=0, population=3, initial=None, generations=1, scenarios=5
+    )
     assert len(solver.ask(100)) == 3 * 5
 
 
@@ -107,12 +110,8 @@ def test_a_strategy_declares_risk_and_scenarios_and_they_open_their_own_slot(tmp
         )
         searches = [e for e in Record(path).replay() if e.kind == 'study_search']
         assert len(searches) == slot + 1
-        assert searches[-1].data['risk'] == {
-            'measure': strategy.risk.measure.value,
-            'alpha': None,
-            'k': None,
-            'scenarios': 2,
-        }
+        assert searches[-1].data['risk'] == {'measure': strategy.risk.measure.value, 'alpha': None, 'k': None}
+        assert searches[-1].data['scenarios'] == 2
         assert slot == 1 or oracle.published  # the first slot solved its scenario rows; the second reuses them
 
 
