@@ -106,6 +106,7 @@ _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
     'BARE-PYTHON',
     'BARE-TEST-INVOCATION',
+    'CONSENT-CODE-FROM-THE-USER',
     'FORGE-WRITE-VIA-CLI',
     'FORGE-WRITE-VIA-GH-API',
     'FORGE-WRITE-VIA-HTTP',
@@ -119,6 +120,7 @@ _SHIPPED: Final = frozenset({
     'PUSH-REMOTE-DELETE',
     'RECURSIVE-DELETE',
     'RECURSIVE-GREP',
+    'REMOTE-WRITE-THROUGH-A-DOOR',
     'STATUS-VIA-DOORS',  # replaced REVIEW-STATUS-VIA-DOORS (dev-lab A3 relock): review, hold and security posts
     'REPORTS-LIVE-IN-MEMORY',
     'SUBAGENT-NO-PUSH',
