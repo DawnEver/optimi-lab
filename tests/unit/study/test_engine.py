@@ -12,8 +12,9 @@ from study_toys import AXES, PROBLEM, READINGS, SPACE, Codec, Publisher, Toy
 
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import Refusal
-from optimi_lab.oracle import Result
+from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.policy import RouteChoice, surrogate_candidates
+from optimi_lab.problem import Fidelity, Level, Objective, Problem, Real, Space
 from optimi_lab.solver.evolutionary import nsga2
 from optimi_lab.study import (
     ALGORITHMS,
@@ -147,8 +148,65 @@ def test_a_fidelity_policy_is_recorded_as_one_study_evaluator_event(tmp_path: Pa
         '{"data":{"kind":"SearchStrategy","slot":0},"key":"strategy:0","kind":"study_strategy","schema":3}',
     ]
     assert Identity.of({'leg': 'fast', 'mesh': 2}).key.startswith('280cc995')
-    with pytest.raises(ValueError, match='selection policy'):
-        EvaluationPolicy(fidelities=(fidelity,), primary_cost=4.0)
+    # No router is a declaration too: the SOLVER picks each point's level (``Seeding.LEVELS``); the search refuses a
+    # solver that cannot (test_a_router_and_a_level_seeded_solver_are_two_choosers_and_many_legs_need_one).
+    assert EvaluationPolicy(fidelities=(fidelity,), primary_cost=4.0).router is None
+
+
+SMOOTH = Problem(Space((Real('a', 0.0, 1.0), Real('b', 2.0, 4.0))), (Objective('f'),))
+OPTIMUM = (0.3, 3.5)
+#: Two levels of one objective: the cheap level is a biased, scaled copy of the truth.
+LEVELS = {'coarse': 1.0, 'fine': 10.0}
+LEVELLED = Problem(
+    SMOOTH.space, SMOOTH.objectives, fidelity=Fidelity(tuple(Level(name, cost) for name, cost in LEVELS.items()))
+)
+
+
+class Levelled(Toy):
+    """A two-leg screening oracle: leg 0 is the truth ``fine``, leg 1 the cheap ``coarse``; it records each level."""
+
+    capability = Capability(outputs=('f',), fidelities=tuple(LEVELS), version='levelled')
+    evaluators = 2
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.levels: list[str | None] = []
+
+    def answer(self, action: Action) -> Result:
+        a, b = float(action.design['a']), float(action.design['b'])
+        truth = (a - OPTIMUM[0]) ** 2 + (b - OPTIMUM[1]) ** 2
+        value = truth if action.fidelity in ('fine', None) else 0.5 * truth + 0.1 * a
+        return Result(action, Cell(Status.OK, values={'f': value}))
+
+    def routed(self, action: Action, index: int) -> Action:
+        return Action.of(LEVELLED, self.capability, action.design, fidelity=('fine', 'coarse')[index])
+
+    def publish_batch(self, actions, on_result) -> None:
+        self.levels.extend(action.fidelity for action in actions)
+        super().publish_batch(actions, on_result)
+
+
+def test_a_level_seeded_solver_picks_each_points_level_and_its_population_is_the_truth_design(tmp_path: Path) -> None:
+    oracle = Levelled()
+    searched = search(LEVELLED, oracle, Record(tmp_path / 'mf.jsonl'), algorithm='mfbo', population=3, solves=16)
+    assert searched.search_refusal is None
+    # The nested design: the declared population at the truth, three times it at the cheaper level.
+    assert sorted(oracle.levels[:12]) == ['coarse'] * 9 + ['fine'] * 3
+    assert len(oracle.levels) == 16 and set(oracle.levels[12:]) <= set(LEVELS)
+
+
+def test_a_router_and_a_level_seeded_solver_are_two_choosers_and_many_legs_need_one(tmp_path: Path) -> None:
+    with pytest.raises(Refusal, match='picks its own level'):
+        search(
+            LEVELLED,
+            Levelled(),
+            Record(tmp_path / 'two.jsonl'),
+            algorithm='mfbo',
+            population=3,
+            router=lambda points, _results: np.zeros(len(points), dtype=int),
+        )
+    with pytest.raises(Refusal, match='selection policy'):
+        search(LEVELLED, Levelled(), Record(tmp_path / 'none.jsonl'), algorithm='cmaes', population=4)
 
 
 class PredictingToy(Toy):

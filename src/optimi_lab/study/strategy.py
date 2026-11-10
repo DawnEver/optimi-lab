@@ -237,7 +237,11 @@ class _PolicyFields:
 
 @dataclass(frozen=True, init=False)
 class EvaluationPolicy(_PolicyFields):
-    """Admission and fidelity (*router*) and variation-rate (*variation*) control, independent of any evaluator name."""
+    """Admission and fidelity (*router*) and variation-rate (*variation*) control, independent of any evaluator name.
+
+    *fidelities* with no *router* leave each point's level to the solver (``Seeding.LEVELS``); the search
+    refuses a solver that does not pick one, and a router beside one that does (``engine._refuse_choosers``).
+    """
 
     def __init__(
         self,
@@ -250,8 +254,6 @@ class EvaluationPolicy(_PolicyFields):
         if any(not isinstance(item, FidelityEvaluation) for item in fidelities):
             msg = 'fidelities must be explicit FidelityEvaluation declarations'
             raise TypeError(msg)
-        if fidelities and router is None:
-            refuse('additional fidelity evaluators need an explicit selection policy')
         if fidelities and primary_cost is None:
             refuse('primary_cost must declare the primary evaluator comparable cost alongside fidelities')
         if primary_cost is not None and (not fidelities or not isfinite(primary_cost) or primary_cost <= 0):
