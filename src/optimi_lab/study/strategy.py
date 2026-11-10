@@ -14,16 +14,19 @@ from math import isfinite, prod
 from types import MappingProxyType
 from typing import Final
 
+import numpy as np
 from lab_commons.outcomes import Identity
 
-from optimi_lab import solver as library
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import refuse
 from optimi_lab.operator import Risk
-from optimi_lab.oracle import Capability
 from optimi_lab.policy import STEERING_MODELS, RouteRule, Steering, SurrogateFit, VariationRule
-from optimi_lab.problem import Problem
-from optimi_lab.solver import METHODS, SEEDING, SOLVERS, GradientSolver, Solver
+from optimi_lab.solver.build import UNDRIVEN
+from optimi_lab.solver.decomposition import moead
+from optimi_lab.solver.evolutionary import mode, nsga2, nsga3
+from optimi_lab.solver.requires import SOLVERS
+from optimi_lab.solver.seeding import SEEDING, Seeding, require_seedable
+from optimi_lab.solver.swarm import mopso
 from optimi_lab.study.protocols import Publisher
 
 __all__ = [
@@ -41,40 +44,19 @@ __all__ = [
     'canonical_subject',
 ]
 
-
-def _gradient(method: str) -> Callable[..., Solver]:
-    """Gradient method *method* as a factory; it is deterministic, so the seed is not read."""
-
-    def factory(problem: Problem, capability: Capability, *, seed: int = 0, **settings: object) -> Solver:
-        del seed
-        return GradientSolver(problem, capability, method, **settings)
-
-    factory.__name__ = method
-    return factory
-
-
-#: Every registered solver that takes a first batch (``solver.SEEDING``), by name -> its library factory.
-_FACTORIES: Final = MappingProxyType({
-    name: _gradient(name) if name in METHODS else getattr(library, name) for name in sorted(SEEDING)
-})
-#: The solvers a study names: the library's whole seeded registry.
+_FACTORIES: Final = {'mode': mode, 'moead': moead, 'mopso': mopso, 'nsga2': nsga2, 'nsga3': nsga3}
+#: The population solvers a study names.
 ALGORITHMS: Final = tuple(_FACTORIES)
 #: Surrogate round *i*, retry *r* steers at ``seed + i * ROUND_SEED_STRIDE + r``.
 ROUND_SEED_STRIDE: Final = 1000
 
 
 def algorithm_factory(name: str | Callable) -> Callable:
-    """The library factory solver *name* declares; a callable is already one and is returned as given.
-
-    A name outside ``solver.SOLVERS`` is refused naming the registry; a registered algebraic solver
-    (``lp``, ``qp``, ...) reads coefficients rather than a first batch, and is refused naming the seeded set.
-    """
+    """The solver factory *name* declares; a callable is already one and is returned as given."""
     if callable(name):
         return name
-    if name not in SOLVERS:
-        refuse(f'unknown algorithm {name!r}; the registered solvers are {sorted(SOLVERS)}')
     if name not in _FACTORIES:
-        refuse(f'{name!r} reads coefficients, not a first batch; a study searches with {ALGORITHMS}')
+        refuse(f'unknown algorithm {name!r}; choose {ALGORITHMS}')
     return _FACTORIES[name]
 
 
@@ -177,7 +159,16 @@ class SurrogateStrategy:
 
 @dataclass(frozen=True)
 class SearchStrategy:
-    """An explicit optimization intent over the problem the codec binds."""
+    """An explicit optimization intent over the problem the codec binds.
+
+    *algorithm* names any registered solver an oracle drives (``optimi_lab.solver.SOLVERS`` but
+    :data:`~optimi_lab.solver.seeding.UNDRIVEN`), or is a population factory. *settings* are the solver's
+    own; *risk* and *scenarios* the robust declaration over the problem's uncertainty. *solves* stops the
+    search at that many oracle evaluations (a scenario is one) in place of *generations*; surrogate
+    feedback evaluates outside that budget, so the two are refused together. A solver that draws
+    its own first batch is seeded by COUNT from *initial*, which must then be an unanchored Latin-hypercube
+    sample (:func:`~optimi_lab.solver.seeding.require_seedable`).
+    """
 
     initial: FixedDesign | SampleDesign
     algorithm: str | Callable = 'nsga2'
@@ -185,23 +176,36 @@ class SearchStrategy:
     seed: int = 0
     surrogate: SurrogateStrategy | None = None
     report_fit: bool = False
-    #: A TRUE-SOLVE budget replacing the generations stop; None keeps ``generations + 1`` batches.
-    solves: int | None = None
-    #: The robust declaration over the bound problem's uncertainty: the measure each design is ranked on and
-    #: the shared scenario draws per design (None: the library defaults); refused on a deterministic problem.
+    settings: Mapping[str, object] = field(default_factory=dict)
     risk: Risk | None = None
     scenarios: int | None = None
+    solves: int | None = None
 
     def __post_init__(self) -> None:
-        if self.solves is not None and self.solves < 1:
-            refuse(f'solves={self.solves!r} is a true-solve budget of at least 1')
-        if self.scenarios is not None and self.scenarios < 1:
-            refuse(f'scenarios={self.scenarios!r} is a count of shared scenario draws of at least 1')
-        if self.risk is not None and not isinstance(self.risk, Risk):
-            refuse(f'risk is an optimi_lab.operator.Risk, got {type(self.risk).__name__}')
         if self.generations < 0 or (self.generations == 0 and self.surrogate is None):
             refuse('optimization needs positive generations or explicit surrogate feedback')
-        algorithm_factory(self.algorithm)
+        if self.solves is not None and self.solves < 1:
+            refuse(f'a solve budget needs solves >= 1, got {self.solves}')
+        if self.scenarios is not None and self.scenarios < 1:
+            refuse(f'scenarios={self.scenarios!r} is a count of shared scenario draws of at least 1')
+        if self.solves is not None and self.surrogate is not None:
+            refuse('a solve budget caps the search; surrogate feedback evaluates outside it')
+        if callable(self.algorithm):
+            return
+        if self.algorithm not in SOLVERS or self.algorithm in UNDRIVEN:
+            refuse(f'unknown algorithm {self.algorithm!r}; choose {sorted(set(SOLVERS) - set(UNDRIVEN))}')
+        if self.algorithm in SEEDING:
+            first = self.initial.spec if isinstance(self.initial, SampleDesign) else np.array(self.initial.points)
+            require_seedable(self.algorithm, first)
+
+    @property
+    def draws_own(self) -> bool:
+        """Whether the named solver draws its own first batch, so *initial* is read as a count only."""
+        if callable(self.algorithm) or self.algorithm not in SEEDING:
+            return False
+        seeding = SEEDING[self.algorithm]
+        one_start = isinstance(self.initial, FixedDesign) and len(self.initial.points) == 1
+        return seeding.draws_own and not (one_start and seeding in (Seeding.START, Seeding.SLOPES))
 
 
 @dataclass(frozen=True)
