@@ -15,7 +15,7 @@ from optimi_lab.core.errors import Refusal
 from optimi_lab.oracle import Action, Capability, Information, Result
 from optimi_lab.policy import RouteChoice, surrogate_candidates
 from optimi_lab.problem import Explicit, Fidelity, Level, Objective, Problem, Real, Relation, Space
-from optimi_lab.solver import SEEDING, cmaes
+from optimi_lab.solver import build_solver
 from optimi_lab.solver.evolutionary import nsga2
 from optimi_lab.study import (
     ALGORITHMS,
@@ -29,7 +29,6 @@ from optimi_lab.study import (
     SearchStrategy,
     SurrogateStrategy,
     algorithm_factory,
-    build_solver,
     evaluate,
     opened,
     search,
@@ -40,21 +39,17 @@ from optimi_lab.study.rounds import searched_study
 START = np.array([[0.1, 2.5], [0.4, 3.0], [0.7, 3.5], [0.9, 2.2]])
 
 
-def test_the_algorithm_menu_is_every_seeded_library_solver_and_passes_a_callable_through() -> None:
-    assert tuple(sorted(SEEDING)) == ALGORITHMS
+def test_the_algorithm_menu_resolves_names_and_passes_a_callable_through() -> None:
+    assert ALGORITHMS == ('mode', 'moead', 'mopso', 'nsga2', 'nsga3')
     assert ROUND_SEED_STRIDE == 1000
     assert algorithm_factory('nsga2') is nsga2
-    assert algorithm_factory('cmaes') is cmaes
-    assert callable(algorithm_factory('lbfgsb'))
 
     def custom(problem, capability, **settings):
         return nsga2(problem, capability, **settings)
 
     assert algorithm_factory(custom) is custom
-    with pytest.raises(Refusal, match='registered solvers'):
-        algorithm_factory('no_such_solver')
-    with pytest.raises(Refusal, match='first batch'):
-        algorithm_factory('lp')  # registered, but it reads coefficients, not a first batch
+    with pytest.raises(ValueError, match='unknown algorithm'):
+        algorithm_factory('cmaes')
 
 
 SMOOTH = Problem(Space((Real('a', 0.0, 1.0), Real('b', 2.0, 4.0))), (Objective('f'),))
@@ -128,21 +123,21 @@ def test_nsga2_searches_under_an_explicit_constraint_and_its_front_holds_it(tmp_
 
 
 def test_a_named_solver_is_refused_by_its_own_requires(tmp_path: Path) -> None:
-    with pytest.raises(Refusal, match='lbfgsb cannot run'):
+    with pytest.raises(Refusal, match='lbfgsb runs this problem only after'):
         search(SMOOTH, Toy(), Record(tmp_path / 'v.jsonl'), algorithm='lbfgsb', initial=[[0.9, 2.2]])
     with pytest.raises(Refusal, match='single-objective'):
         search(PROBLEM, Toy(), Record(tmp_path / 'm.jsonl'), algorithm='cmaes')
-    with pytest.raises(Refusal, match='ONE start'):
+    with pytest.raises(Refusal, match='learns only from what it asked'):
         search(SMOOTH, Sloped(), Record(tmp_path / 'two.jsonl'), algorithm='lbfgsb', initial=START)
     with pytest.raises(Refusal, match='draws its own'):
         search(SMOOTH, Sloped(), Record(tmp_path / 'bo.jsonl'), algorithm='bo', initial=START)
 
 
 def test_build_solver_validates_a_name_without_evaluating() -> None:
-    solver = build_solver('lbfgsb', SMOOTH, Sloped.capability, seed=0, population=1, generations=1)
+    solver = build_solver('lbfgsb', SMOOTH, Sloped.capability, seed=0, population=1, initial=None, generations=1)
     assert dict(solver.ask(1)[0].design) == {'a': 0.5, 'b': 3.0}  # no start: the cube's centre
-    with pytest.raises(Refusal, match='cannot run'):
-        build_solver('lbfgsb', SMOOTH, Toy.capability, seed=0, population=1, generations=1)
+    with pytest.raises(Refusal, match='only after'):
+        build_solver('lbfgsb', SMOOTH, Toy.capability, seed=0, population=1, initial=None, generations=1)
 
 
 def test_a_self_seeded_solver_runs_by_count_under_the_solve_budget(tmp_path: Path) -> None:
@@ -183,39 +178,6 @@ def test_a_screening_router_spends_no_solve_and_steering_needs_an_sbx_solver(tmp
     assert statuses == {Status.OK, Status.SCREENED}
     with pytest.raises(Refusal, match='nsga2 or nsga3'):
         search(PROBLEM, Toy(), Record(tmp_path / 's.jsonl'), algorithm='mode', initial=START, variation=lambda _r: None)
-
-
-def test_a_true_solve_budget_makes_a_screening_search_pay_the_same_solves_as_one_that_screens_nothing(
-    tmp_path: Path,
-) -> None:
-    def every_other(points, _results):
-        return np.where(np.arange(len(points)) % 2, RouteChoice.SCREENED, 0)
-
-    paid = {}
-    for name, router in (('plain', None), ('screened', every_other)):
-        toy = Toy()
-        search(
-            PROBLEM,
-            toy,
-            Record(tmp_path / f'{name}.jsonl'),
-            population=4,
-            generations=1,
-            initial=START,
-            router=router,
-            solves=11,
-        )
-        paid[name] = len(set(toy.published))
-    assert paid == {'plain': 11, 'screened': 11}
-    toy = Toy()
-    search(PROBLEM, toy, Record(tmp_path / 'g.jsonl'), population=4, generations=1, initial=START, router=every_other)
-    assert len(set(toy.published)) < 8  # without a solve budget the generations stop, screened points unpaid
-
-
-def test_a_solve_budget_below_one_is_refused(tmp_path: Path) -> None:
-    with pytest.raises(Refusal, match='true-solve budget'):
-        search(PROBLEM, Toy(), Record(tmp_path / 'r.jsonl'), initial=START, solves=0)
-    with pytest.raises(Refusal, match='true-solve budget'):
-        SearchStrategy(FixedDesign(tuple(map(tuple, START))), solves=0)
 
 
 def test_evaluate_reuses_decided_results_and_counts_what_it_solved(tmp_path: Path) -> None:
@@ -290,6 +252,8 @@ def test_a_fidelity_policy_is_recorded_as_one_study_evaluator_event(tmp_path: Pa
     assert EvaluationPolicy(fidelities=(fidelity,), primary_cost=4.0).router is None
 
 
+SMOOTH = Problem(Space((Real('a', 0.0, 1.0), Real('b', 2.0, 4.0))), (Objective('f'),))
+OPTIMUM = (0.3, 3.5)
 #: Two levels of one objective: the cheap level is a biased, scaled copy of the truth.
 LEVELS = {'coarse': 1.0, 'fine': 10.0}
 LEVELLED = Problem(

@@ -12,6 +12,7 @@ mopso -> MOPSO_CD. Not paired: rnsga3 (an aspiration-point method; IGD over the 
 measure it), and pymoo's AGE-MOEA, C-TAEA, GDE3 and the rest, which optimi-lab does not implement.
 """
 
+import asyncio.events
 from functools import cache
 
 import numpy as np
@@ -64,3 +65,16 @@ def test_the_method_reaches_pymoos_igd_within_the_tolerance(bench, name):
     assert ours - reference <= tolerance, f'{bench}/{name}: optimi-lab {ours:.4f}, pymoo {reference:.4f}'
     unguided = _random_median(bench, evaluations)
     assert unguided - reference > tolerance, f'{bench}/{name}: random {unguided:.4f}, pymoo {reference:.4f}'
+
+
+def test_a_reference_run_evaluates_on_one_event_loop(monkeypatch):
+    """One event loop per reference run: pymoo's MOEAD evaluates ONE child per call, 3600 calls on DTLZ2.
+
+    Building and closing a Windows proactor loop per call made the dtlz2-moead reference outlast the
+    300 s test timeout on the Windows runner; every reference run shares one loop instead.
+    """
+    loops = []
+    real = asyncio.events.new_event_loop
+    monkeypatch.setattr(asyncio.events, 'new_event_loop', lambda: loops.append(1) or real())
+    pymoo_igd('dtlz2', 'moead', 60, 180, 1)
+    assert len(loops) == 1
