@@ -156,7 +156,7 @@ def _refuse_choosers(algorithm: str | Callable, oracle: ScreeningOracle, router:
     picks_level = isinstance(algorithm, str) and algorithm in levels
     if picks_level and router is not None:
         refuse(f'{algorithm} picks its own level for every point; a router choosing the leg too is a second chooser')
-    if not picks_level and router is None and getattr(oracle, 'evaluators', 1) > 1:
+    if not picks_level and router is None and oracle.evaluators > 1:
         refuse(
             f'{oracle.evaluators} evaluator legs need an explicit selection policy: a router, or a solver that picks '
             f'its own level ({levels})'
