@@ -208,6 +208,10 @@ filterwarnings = [
     "ignore::UserWarning",
 ]
 minversion = "6.0"
+# A hung test fails at 300 s and names itself with a stack dump, instead of burning the box's 3600 s wall
+# silently (2026-11-07: eight Windows jobs since 11-06 were killed at the wall with ~100 tests unrun, no name).
+timeout = 300
+timeout_method = "thread"
 markers = [
     "workstation: needs a live checkout or agent tooling (hooks, origin refs, worktrees, node)",
 ]
@@ -275,5 +279,16 @@ trunk = "main"
 integration = "integrate/main"
 pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"
 
+# FORGE-PROTECTION-DECLARED (dev_lab.dev.forgeprotect): the ONE bypass identity per forge; on GitHub the
+# repo admin (integrator ruling 2026-11-10). `python -m dev_lab.dev.forge protect plan|check|apply`.
+[tool.dev_lab.protection]
+[tool.dev_lab.protection.forges."github.com"]
+breakglass = "role:admin"
+
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
 [tool.dev_lab.hooks]
+
+[tool.dev_lab.render]
+# What the family renderers read from this repo (dev_lab.dev.famfiles.RENDERERS); a relock re-runs each one due.
+deltas = "tests/architecture/_famconfig.py"
+adoption = "scripts/deny_rules.py"
