@@ -42,9 +42,14 @@ __all__ = ['REFERENCE', 'pymoo_igd']
 
 
 class _Recorded(PymooProblem):
-    """The catalogue benchmark as a pymoo problem, keeping every feasible objective row it evaluates."""
+    """The catalogue benchmark as a pymoo problem, keeping every feasible objective row it evaluates.
 
-    def __init__(self, benchmark: Benchmark) -> None:
+    Every evaluation runs on *runner*'s one event loop. pymoo's MOEAD evaluates one child per call, so a
+    fresh loop per call (``asyncio.run``) is a loop built and torn down per child -- 3600 per DTLZ2 run,
+    which on Windows' proactor loop outlasted the test timeout.
+    """
+
+    def __init__(self, benchmark: Benchmark, runner: asyncio.Runner) -> None:
         problem = benchmark.problem
         variables = problem.space.variables
         super().__init__(
@@ -55,6 +60,7 @@ class _Recorded(PymooProblem):
             xu=np.array([v.hi for v in variables]),
         )
         self._benchmark = benchmark
+        self._runner = runner
         self.rows: list[np.ndarray] = []
 
     def _evaluate(self, x: np.ndarray, out: dict, *args: object, **kwargs: object) -> None:
@@ -67,7 +73,7 @@ class _Recorded(PymooProblem):
                 for row in x
             ]
 
-        results = asyncio.run(each())
+        results = self._runner.run(each())
         f = np.array([[o.minimized(r.cell.values[o.name]) for o in problem.objectives] for r in results])
         out['F'] = f
         if problem.constraints:
@@ -99,8 +105,9 @@ REFERENCE: dict[str, Callable[[int, int], object]] = {
 def pymoo_igd(bench: str, name: str, population: int, evaluations: int, seed: int) -> float:
     """The IGD pymoo reaches on *bench* for the algorithm optimi-lab calls *name*, whole evaluated set."""
     benchmark = CATALOGUE[bench]
-    problem = _Recorded(benchmark)
-    algorithm = REFERENCE[name](problem.n_obj, population)
-    minimize(problem, algorithm, ('n_eval', evaluations), seed=seed, verbose=False)
+    with asyncio.Runner() as runner:
+        problem = _Recorded(benchmark, runner)
+        algorithm = REFERENCE[name](problem.n_obj, population)
+        minimize(problem, algorithm, ('n_eval', evaluations), seed=seed, verbose=False)
     rows = np.array(problem.rows[:evaluations]) if problem.rows else np.zeros((0, problem.n_obj))
     return igd(rows[non_dominated_sorting(rows)], benchmark.front(200))
