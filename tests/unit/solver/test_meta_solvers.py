@@ -11,12 +11,12 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from lab_commons.outcomes import Record
+from lab_commons.outcomes import Cell, Reason, Record, Status
 
 from optimi_lab.archive import Archive
 from optimi_lab.core import Refusal, SampleSpec
 from optimi_lab.operator import tchebycheff, weighted_sum
-from optimi_lab.oracle import Capability, from_function
+from optimi_lab.oracle import Capability, Result, from_function
 from optimi_lab.problem import Fidelity, Level, Objective, Problem, Real, Space
 from optimi_lab.run import Budget, run
 from optimi_lab.solver import (
@@ -108,6 +108,24 @@ def test_successive_halving_keeps_a_third_per_rung_through_the_truth():
     results = drive(sh, oracle, 1000)
     per_rung = [sum(r.action.fidelity == level for r in results) for level in ('coarse', 'medium', 'fine')]
     assert per_rung == [27, 9, 3] and sh.done
+
+
+def test_a_refused_start_point_is_redrawn_so_the_bracket_ranks_its_declared_configs():
+    """MEASURED 2026-11-08 downstream: 3 of a 6-evaluation hyperband were unbuildable designs, each a lost slot."""
+    problem, _ = _graded()
+    capability = Capability(outputs=('f',), fidelities=('coarse', 'medium', 'fine'))
+
+    def unbuildable_below_a_third(action):
+        if action.design['t'] < 1 / 3:
+            return Result(action, Cell(Status.ERROR, reason=Reason('invalid', 'planted unbuildable')))
+        return {'f': (action.design['t'] - 0.4) ** 2}
+
+    oracle = from_function(unbuildable_below_a_third, capability)
+    sh = SuccessiveHalving(problem, capability, configs=27, eta=3, seed=1)
+    results = drive(sh, oracle, 1000)
+    coarse_ok = [r for r in results if r.action.fidelity == 'coarse' and r.cell.status is Status.OK]
+    per_rung = [sum(r.action.fidelity == level for r in results) for level in ('medium', 'fine')]
+    assert len(coarse_ok) == 27 and per_rung == [9, 3] and sh.done
 
 
 def test_hyperband_runs_one_bracket_per_start_rung():

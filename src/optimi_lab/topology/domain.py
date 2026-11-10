@@ -7,10 +7,11 @@ A :class:`DesignDomain` is what every map of the density method needs and no mor
 * the cell GRAPH: ``adjacency (k, 2)`` pairs of cells sharing a face and ``faces (k,)`` that face's
   measure; the outer boundary as ``boundary_cells``, ``boundary_faces`` and ``boundary_distances``
   (centroid to face) -- what a two-point flux on the cells needs, and nothing a mesh format implies;
-* PASSIVE masks: ``solid`` cells held at density 1, ``void`` cells at 0;
-* ``design_index (n,)``: the design variable each cell reads. Symmetry and periodicity are a many-to-one
-  ``design_index`` (:meth:`mirrored` builds the mirror one); :meth:`expand` and :meth:`reduce` are the
-  map and its adjoint.
+* PASSIVE masks: ``solid`` cells held at density 1, ``void`` cells at 0 -- held BEFORE any filter
+  (:meth:`expand` reads their state), so a neighbour's filter sees the declared state, never a gray value;
+* ``design_index (n,)``: the design variable each cell reads, ``-1`` on a passive cell (no variable). Symmetry
+  and periodicity are a many-to-one ``design_index`` (:meth:`mirrored` builds the mirror one); a variable
+  only passive cells read is dropped. :meth:`expand` and :meth:`reduce` are the map and its adjoint.
 """
 
 from __future__ import annotations
@@ -74,6 +75,14 @@ class DesignDomain:
         index = self.design_index
         if index.min() != 0 or np.unique(index).size != index.max() + 1:
             refuse('design_index must number the design variables 0..m-1 with none unused')
+        # A PASSIVE cell is no design variable: it reads -1, and a variable only passive cells read is dropped.
+        passive = self.solid | self.void
+        if passive.all():
+            refuse('every cell is passive: there is nothing to design')
+        renumbered = np.full(n, -1, dtype=int)
+        renumbered[~passive] = np.unique(index[~passive], return_inverse=True)[1]
+        self.design_index = _frozen(renumbered, int, (n,))
+        self.state = _frozen(self.solid.astype(float), float, (n,))
 
     @property
     def n_cells(self) -> int:
@@ -97,13 +106,21 @@ class DesignDomain:
         if unit != self.length_unit:
             refuse(f'{what} is in {unit!r} but the domain is in {self.length_unit!r}; convert it first')
 
+    @property
+    def free(self) -> np.ndarray:
+        """Mask of the cells that read a design variable (every cell neither solid nor void)."""
+        return self.design_index >= 0
+
     def expand(self, design: np.ndarray) -> np.ndarray:
-        """Design variables -> one value per cell."""
-        return np.asarray(design, dtype=float)[self.design_index]
+        """Design variables -> one value per cell; a passive cell reads its declared state (solid 1, void 0)."""
+        out = self.state.copy()
+        out[self.free] = np.asarray(design, dtype=float)[self.design_index[self.free]]
+        return out
 
     def reduce(self, per_cell: np.ndarray) -> np.ndarray:
         """The adjoint of :meth:`expand`: per-cell sensitivities summed onto their design variable."""
-        return np.bincount(self.design_index, weights=per_cell, minlength=self.n_design)
+        free = self.free
+        return np.bincount(self.design_index[free], weights=np.asarray(per_cell)[free], minlength=self.n_design)
 
     def mirrored(self, axis: int) -> DesignDomain:
         """A copy of the domain with each cell tied to its mirror image across the mid-plane of *axis*."""

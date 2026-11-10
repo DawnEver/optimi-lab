@@ -1,8 +1,9 @@
 """Design variables -> physical density: tie, FILTER, PROJECT, hold passive cells -- with the exact adjoint.
 
-``z`` (design variables) -> ``x = expand(z)`` (one per cell, :class:`~.domain.DesignDomain`) -> FILTER
+``z`` (design variables) -> ``x = expand(z)`` (one per cell, :class:`~.domain.DesignDomain`; a passive
+``solid``/``void`` cell is no variable and enters at 1/0, so its neighbours filter its declared state) -> FILTER
 ``x~`` -> PROJECTION ``x^ = (tanh(b eta) + tanh(b (x~ - eta))) / (tanh(b eta) + tanh(b (1 - eta)))``
-(smoothed Heaviside; ``b`` raised by continuation) -> passive ``solid``/``void`` cells set to 1/0. The
+(smoothed Heaviside; ``b`` raised by continuation) -> passive cells held at 1/0 (zero slope). The
 physics reads ``x^``; :meth:`DesignChain.pull_back` carries ``d f / d x^`` back to ``d f / d z``.
 
 Two filters, both LINEAR and both with a radius in the domain's length unit:
@@ -131,9 +132,15 @@ class DesignChain:
         """The index of the nominal realization (the middle threshold)."""
         return len(self.etas) // 2
 
+    def filtered(self, design: np.ndarray) -> np.ndarray:
+        """The filtered field at *design*: passive cells enter the filter at their state and leave it there."""
+        out = self.filter.forward(self.domain.expand(design))
+        out[self.domain.solid], out[self.domain.void] = 1.0, 0.0
+        return out
+
     def forward(self, design: np.ndarray) -> tuple[np.ndarray, ...]:
         """One physical density per threshold, at *design* (the design variables)."""
-        filtered = self.filter.forward(self.domain.expand(design))
+        filtered = self.filtered(design)
         passive = self.domain.solid | self.domain.void
         out, self._slopes = [], []
         for eta in self.etas:
