@@ -73,9 +73,14 @@ def searched_study(
             population=len(initial),
             generations=strategy.generations,
             seed=strategy.seed,
-            initial=initial,
+            # A solver drawing its own first batch reads the declared sample as its count only.
+            initial=None if strategy.draws_own else initial,
+            settings=strategy.settings,
             router=policy.router,
             variation=policy.variation,
+            risk=strategy.risk,
+            scenarios=strategy.scenarios,
+            solves=strategy.solves,
         )
     else:
         searched = evaluate(problem, oracle, initial, record, evidence=evidence)
