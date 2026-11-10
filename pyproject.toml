@@ -244,6 +244,7 @@ update_changelog_on_bump = true
 [tool.dev_lab.branchset]
 trunk = 'main'
 sessions = ['integrate/main']
+ephemeral = ['pr/*']
 prune_merged = true
 
 # GitHub Actions: the family PR lifecycle, rendered by dev_lab.dev.ciworkflows.
@@ -278,6 +279,12 @@ resources = ["workstation"]
 trunk = "main"
 integration = "integrate/main"
 pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"
+
+# FORGE-PROTECTION-DECLARED (dev_lab.dev.forgeprotect): the ONE bypass identity per forge; on GitHub the
+# repo admin (integrator ruling 2026-11-10). `python -m dev_lab.dev.forge protect plan|check|apply`.
+[tool.dev_lab.protection]
+[tool.dev_lab.protection.forges."github.com"]
+breakglass = "role:admin"
 
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
 [tool.dev_lab.hooks]
