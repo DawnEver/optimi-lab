@@ -45,6 +45,13 @@ _DONORS = {
     DEStrategy.CURRENT_TO_BEST_1: 2,
     DEStrategy.CURRENT_TO_RAND_1: 3,
 }
+
+
+def de_rows_needed(strategy: DEStrategy | str) -> int:
+    """The fewest rows a DE generation under *strategy* mutates: its donors plus the target itself."""
+    return _DONORS[coerce_enum(DEStrategy, strategy, 'DE strategy')] + 1
+
+
 _NEEDS_BEST = frozenset({DEStrategy.BEST_1, DEStrategy.BEST_2, DEStrategy.CURRENT_TO_BEST_1})
 
 
@@ -210,7 +217,7 @@ def differential_mutation(
     strategy = coerce_enum(DEStrategy, strategy, 'DE strategy')
     population = require_axis(population, width, 1, 'the population to mutate')
     n_points, count = population.shape[0], _DONORS[strategy]
-    if n_points < count + 1:
+    if n_points < de_rows_needed(strategy):
         refuse(
             f'DE {strategy.value} draws {count} rows other than the target, so it needs at least {count + 1} rows, '
             f'got {n_points}; the valid population sizes start there'
