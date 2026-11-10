@@ -293,6 +293,12 @@ prefix_rule(
 )
 
 prefix_rule(
+    pattern = [[".venv/Scripts/python.exe", ".venv/bin/python"], "-m", "dev_lab.dev.hpcaccount", "forget"],
+    decision = "allow",
+    justification = "Forgetting one stale row of each trusted cluster account's learned memory table, backed up beside itself, through the grant's own login hosts; a dry run only reads what each account holds.",
+)
+
+prefix_rule(
     pattern = [[".venv/Scripts/python.exe", ".venv/bin/python"], "-m", "dev_lab.dev.opsserver"],
     decision = "allow",
     justification = "Running one of the ops account's fixed verbs on a declared server the integrator deploys: install, a unit's status, restart, reload or logs, or a daemon reload, with the user's one-time code at the login.",

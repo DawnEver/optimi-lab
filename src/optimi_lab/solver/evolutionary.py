@@ -34,6 +34,7 @@ from optimi_lab.operator import (
     aspiration_directions,
     binomial_crossover,
     crowding_select,
+    de_rows_needed,
     differential_mutation,
     exponential_crossover,
     hypervolume_select,
@@ -136,6 +137,7 @@ def evolutionary(
     n_offspring: int | None = None,
     owner: type[EvolutionarySolver] = EvolutionarySolver,
     own: frozenset[str] = frozenset(),
+    breeding_minimum: int = 2,
 ) -> EvolutionarySolver:
     """*owner* over *variation*/*selection*; a setting is a variation rate, a base setting or one of *own*."""
     rates = set(inspect.signature(variation).parameters) - LOOP_ARGUMENTS
@@ -150,6 +152,7 @@ def evolutionary(
         selection=selection,
         parent_selection=parent_selection,
         n_offspring=n_offspring,
+        breeding_minimum=breeding_minimum,
         **{k: v for k, v in settings.items() if k in _BASE | own},
     )
 
@@ -283,4 +286,5 @@ def mode(
         selection=selection_operator,
         parent_selection=None,
         settings=settings,
+        breeding_minimum=de_rows_needed(settings.get('strategy', DEStrategy.RAND_1)),
     )

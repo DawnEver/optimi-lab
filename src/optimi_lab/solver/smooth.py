@@ -14,7 +14,9 @@ linearisation in the space's unit cube and the minimised, normalised objective f
   same scale :meth:`~optimi_lab.oracle.Result.violation` divides by; a Linear with ``lo == hi`` is an
   equality ``h = 0``;
 * design constraints are differentiated here, through the decode map's derivative: a Linear one
-  exactly, an Explicit one by a central difference in the design's own coordinates.
+  exactly, an Explicit one by its declared exact gradient, else by a central difference in the
+  design's own coordinates (:func:`explicit_slopes`; :func:`check_explicit_gradient` holds one
+  against the other).
 
 Chance and Path constraints, discrete and conditional variables are refused: none has a gradient.
 """
@@ -34,7 +36,19 @@ from optimi_lab.operator import Linearization
 from optimi_lab.oracle import Result
 from optimi_lab.problem import BlackBox, Explicit, Field, Linear, Problem, Real, Relation, Scale
 
-__all__ = ['ATOL', 'RTOL', 'Evaluate', 'Halt', 'SmoothView', 'Solution', 'Unevaluable', 'kkt_bar', 'trial']
+__all__ = [
+    'ATOL',
+    'RTOL',
+    'Evaluate',
+    'Halt',
+    'SmoothView',
+    'Solution',
+    'Unevaluable',
+    'check_explicit_gradient',
+    'explicit_slopes',
+    'kkt_bar',
+    'trial',
+]
 
 #: ``evaluate(x) -> Linearization``; raises :class:`Unevaluable`.
 Evaluate = Callable[[np.ndarray], Linearization]
@@ -95,6 +109,56 @@ def _decode_slope(variable: Real | Field, value: object) -> np.ndarray:
     return np.array([variable.hi - variable.lo])
 
 
+def explicit_slopes(
+    constraint: Explicit, problem: Problem, design: Mapping[str, object], *, exact: bool = True
+) -> dict[str, np.ndarray]:
+    """``d function / d variable`` of *constraint* at *design* in natural coordinates, one array per variable.
+
+    The declared exact gradient when *exact* and the constraint has one; a central difference otherwise.
+    """
+    space = problem.space
+    slopes: dict[str, np.ndarray] = {}
+    if exact and constraint.gradient is not None:
+        declared = dict(constraint.gradient(design))
+        if unknown := sorted(set(declared) - set(space.names)):
+            refuse(f'the gradient of {constraint.name!r} names {unknown}, which are not design variables')
+        for v in space:
+            slope = np.atleast_1d(np.asarray(declared.get(v.name, np.zeros(v.width)), dtype=float))
+            if slope.shape != (v.width,):
+                refuse(f'the gradient of {constraint.name!r} over {v.name!r} has width {v.width}, got {slope.shape}')
+            slopes[v.name] = slope
+        return slopes
+    for v in space:
+        base = np.atleast_1d(np.asarray(design[v.name], dtype=float))
+        slope = np.zeros(base.size)
+        for k in range(base.size):
+            step = _EXPLICIT_STEP * max(1.0, abs(base[k]))
+            ahead, behind = base.copy(), base.copy()
+            ahead[k] += step
+            behind[k] -= step
+            pair = [dict(design, **{v.name: p if isinstance(v, Field) else float(p[0])}) for p in (ahead, behind)]
+            slope[k] = (float(constraint.function(pair[0])) - float(constraint.function(pair[1]))) / (2 * step)
+        slopes[v.name] = slope
+    return slopes
+
+
+def check_explicit_gradient(problem: Problem, design: Mapping[str, object]) -> dict[str, float]:
+    """Per Explicit constraint declaring a gradient, ``|g - g_fd|_max / |g_fd|_max`` at *design*.
+
+    The error is RELATIVE, so it carries no unit; two zero gradients agree exactly.
+    """
+    declared = [c for c in problem.constraints if isinstance(c, Explicit) and c.gradient is not None]
+    if not declared:
+        refuse('no Explicit constraint declares a gradient; there is nothing to check')
+    errors = {}
+    for constraint in declared:
+        g = np.concatenate(list(explicit_slopes(constraint, problem, design).values()))
+        reference = np.concatenate(list(explicit_slopes(constraint, problem, design, exact=False).values()))
+        scale = max(float(np.max(np.abs(reference))), float(np.max(np.abs(g))))
+        errors[constraint.name] = float(np.max(np.abs(g - reference))) / scale if scale > 0 else 0.0
+    return errors
+
+
 @dataclass(frozen=True, slots=True)
 class SmoothView:
     """The smooth problem of *problem*: see the module docstring."""
@@ -137,18 +201,9 @@ class SmoothView:
                         dc.append(sign * row / constraint.scale)
                 continue
             value = float(constraint.function(design))
+            natural = explicit_slopes(constraint, self.problem, design)
             for v in space:
-                base = np.atleast_1d(np.asarray(design[v.name], dtype=float))
-                for k in range(base.size):
-                    step = _EXPLICIT_STEP * max(1.0, abs(base[k]))
-                    ahead, behind = base.copy(), base.copy()
-                    ahead[k] += step
-                    behind[k] -= step
-                    pair = [
-                        dict(design, **{v.name: p if isinstance(v, Field) else float(p[0])}) for p in (ahead, behind)
-                    ]
-                    slope = (float(constraint.function(pair[0])) - float(constraint.function(pair[1]))) / (2 * step)
-                    row[offset[v.name] + k] = slope * slopes[v.name][k]
+                row[offset[v.name] : offset[v.name] + v.width] = natural[v.name] * slopes[v.name]
             sign = 1.0 if constraint.relation is Relation.AT_MOST else -1.0
             c.append(sign * (value - constraint.bound) / constraint.scale)
             dc.append(sign * row / constraint.scale)

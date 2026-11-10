@@ -140,7 +140,8 @@ class RoutingPolicy:
                     archive.tell(result)
                 self.screened[action.identity.key] = result
             else:
-                routed_action = self.oracle.routed(action, index)
+                # No router: the solver chose the leg (its action's fidelity), or there is one leg.
+                routed_action = action if self.router is None else self.oracle.routed(action, index)
                 selected.append(routed_action)
                 archive.submit(routed_action)
                 self.original[routed_action.identity.key] = action

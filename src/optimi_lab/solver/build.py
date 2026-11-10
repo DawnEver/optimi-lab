@@ -159,7 +159,16 @@ def build_solver(
     seeding = SEEDING[name]
     if seeding is Seeding.SLOPES:
         return GradientSolver(problem, capability, name, **_design_start(name, problem, initial), **extra)
-    seeded = _seeded(name, seeding, extra, seed=seed, population=population, generations=generations, initial=initial)
+    seeded = _seeded(
+        name,
+        seeding,
+        extra,
+        problem=problem,
+        seed=seed,
+        population=population,
+        generations=generations,
+        initial=initial,
+    )
     return _FACTORIES[name](problem, capability, seed=seed, **seeded, **extra)
 
 
@@ -168,6 +177,7 @@ def _seeded(
     seeding: Seeding,
     extra: dict[str, object],
     *,
+    problem: Problem,
     seed: int,
     population: int,
     generations: int,
@@ -185,6 +195,10 @@ def _seeded(
         weights = np.atleast_2d(np.asarray(extra.pop('weights'), dtype=float))
         share = max(1, evaluations // len(weights))
         return {'local': _local(name, extra.pop('local')), 'weights': weights, 'max_evaluations': share}
+    if name == 'mfbo' and problem.fidelity is not None and len(problem.fidelity.levels) >= 2:
+        # The nested design: *population* points at the truth, each cheaper level three times the one above.
+        top = len(problem.fidelity.levels) - 1
+        return {'initial': tuple(population * 3 ** (top - level) for level in range(top + 1))}
     own = {Seeding.LEVELS: {}, Seeding.MODEL: {'initial': population}, Seeding.SELF: {'population': population}}
     if seeding in own:
         return own[seeding]

@@ -28,7 +28,7 @@ Every factory takes ``(problem, capability, **settings)`` and returns a :class:`
   :class:`StructuredSolver` drives :func:`lp` and :func:`qp` through the run loop, reading the
   coefficients from the oracle's declared capability (``COEFFICIENTS_FOR``);
 * compositions -- :class:`Chain`, :func:`scalarisation_scan`, :func:`multistart`, :func:`restarts`,
-  :func:`ipop_cmaes`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
+  :func:`ipop_cmaes`, :func:`memetic`, :func:`warm_start`; multi-fidelity -- :class:`SuccessiveHalving`,
   :func:`hyperband`, :class:`ASHA`.
 
 Operators live one layer down, in :mod:`optimi_lab.operator`.
@@ -65,7 +65,7 @@ from optimi_lab.solver.linear import LP_METHODS, lp
 from optimi_lab.solver.linear_program import LinearProgram, StructuredSolution
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, descriptors_of, map_elites
-from optimi_lab.solver.meta import Chain, ipop_cmaes, multistart, restarts, scalarisation_scan, warm_start
+from optimi_lab.solver.meta import Chain, ipop_cmaes, memetic, multistart, restarts, scalarisation_scan, warm_start
 from optimi_lab.solver.model_based import ModelBased, maximise
 from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_region
 from optimi_lab.solver.moving_asymptotes import gcmma, mma
@@ -88,7 +88,18 @@ from optimi_lab.solver.requires import (
 from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
 from optimi_lab.solver.seeding import SEEDING, SEQUENTIAL, Seeding, batch_bound, require_seedable, search_embedding
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
-from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, SmoothView, Solution, Unevaluable, kkt_bar
+from optimi_lab.solver.smooth import (
+    ATOL,
+    RTOL,
+    Evaluate,
+    Halt,
+    SmoothView,
+    Solution,
+    Unevaluable,
+    check_explicit_gradient,
+    explicit_slopes,
+    kkt_bar,
+)
 from optimi_lab.solver.stochastic import SampleAverage, saa, sample_average
 from optimi_lab.solver.structured import STRUCTURED, StructuredSolver
 from optimi_lab.solver.swarm import SwarmSolver, mopso
@@ -163,6 +174,7 @@ __all__ = [
     'bobyqa',
     'box_prox',
     'build_solver',
+    'check_explicit_gradient',
     'cmaes',
     'cp',
     'descriptors_of',
@@ -171,6 +183,7 @@ __all__ = [
     'differential',
     'dynamic_programming',
     'ehvi',
+    'explicit_slopes',
     'ga',
     'gcmma',
     'hyperband',
@@ -184,6 +197,7 @@ __all__ = [
     'map_elites',
     'match',
     'maximise',
+    'memetic',
     'mfbo',
     'mgda',
     'milp',

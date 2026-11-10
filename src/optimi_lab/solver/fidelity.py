@@ -48,7 +48,12 @@ def _rank(problem: Problem, scalarise: Scalarise | None, results: Sequence[Resul
 
 
 class SuccessiveHalving:
-    """One successive-halving bracket of *configs* uniform points from rung *start*."""
+    """One successive-halving bracket of *configs* uniform points from rung *start*.
+
+    A start-rung point the oracle refuses (an unbuildable design) is REDRAWN from the same stream, up to *redraws*
+    replacements (default *configs*), so the bracket ranks the *configs* points it declares instead of losing a
+    slot per refusal; later rungs promote only computed points and never redraw.
+    """
 
     def __init__(
         self,
@@ -60,14 +65,20 @@ class SuccessiveHalving:
         start: int = 0,
         scalarise: Scalarise | None = None,
         seed: int = 0,
+        redraws: int | None = None,
     ) -> None:
         require_one_score(problem, scalarise, 'successive halving')
         self._rungs = _rungs(problem, capability)
         if eta < 2 or configs < 1 or not 0 <= start < len(self._rungs):
             refuse(f'need eta >= 2, configs >= 1 and 0 <= start < {len(self._rungs)}; got {eta}, {configs}, {start}')
+        if redraws is not None and redraws < 0:
+            refuse(f'redraws is a count of replacements, at least 0, got {redraws!r}')
         self._problem, self._capability, self._scalarise, self._eta = problem, capability, scalarise, eta
-        self._rung = start
-        self._points = np.random.default_rng(seed).random((configs, problem.space.width))
+        self._rung, self._start, self._configs = start, start, configs
+        self._redraws = configs if redraws is None else redraws
+        self._rng = np.random.default_rng(seed)
+        self._points = self._rng.random((configs, problem.space.width))
+        self._held: list[tuple[np.ndarray, Result]] = []
         self._load()
 
     def _load(self) -> None:
@@ -88,10 +99,21 @@ class SuccessiveHalving:
             self._told[result.action.identity.key] = result
         if len(self._told) < len({a.identity.key for a in self._batch}):
             return
-        order = _rank(self._problem, self._scalarise, [self._told[a.identity.key] for a in self._batch])
+        told = [self._told[a.identity.key] for a in self._batch]
+        self._held += [(p, r) for p, r in zip(self._points, told, strict=True) if r.cell.status is Status.OK]
+        short = self._configs - len(self._held)
+        if self._rung == self._start and short > 0 and self._redraws > 0:
+            draw = min(short, self._redraws)
+            self._redraws -= draw
+            self._points = self._rng.random((draw, self._problem.space.width))
+            self._load()
+            return
+        points = np.array([p for p, _ in self._held]).reshape(-1, self._problem.space.width)
+        order = _rank(self._problem, self._scalarise, [r for _, r in self._held])
+        self._held, self._configs = [], max(1, len(points) // self._eta)
         self._rung += 1
         if self._rung < len(self._rungs) and len(order):
-            self._points = self._points[order[: max(1, len(self._points) // self._eta)]]
+            self._points = points[order[: self._configs]]
             self._load()
         else:
             self._rung = len(self._rungs)
