@@ -64,6 +64,8 @@ def searched_study(
     problem, oracle, record = bound.problem, bound.oracle, bound.record
     if strategy.surrogate is not None and (policy.router is not None or policy.variation is not None):
         refuse('surrogate batch feedback cannot silently ignore admission/variation control')
+    if strategy.surrogate is not None and problem.uncertainty is not None:
+        refuse('surrogate feedback proposes nominal designs; a problem with declared uncertainty is searched robustly')
     if strategy.generations:
         searched = search(
             problem,
