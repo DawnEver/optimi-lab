@@ -50,8 +50,14 @@ SECTION_DELTAS: Final[dict[str, SectionDelta]] = {
     '[tool.pytest.ini_options]': SectionDelta(repo=_ALIAS, added={'testpaths': ('src',)}, dropped={}, ceiling=1),
 }
 
-#: Tracked project-level files this repo owns beyond the family list. None, measured 2026-10-03.
-OWNED_HERE: Final[dict[str, str]] = {}
+#: Tracked project-level files this repo owns beyond the family list. Measured 2026-11-11: one.
+OWNED_HERE: Final[dict[str, str]] = {
+    '.github/workflows/review-prepare.yml': (
+        'a JUDGE repo only: `[tool.dev_lab.review] where = "judge"` declares it and '
+        '`[tool.dev_lab.ci."review-prepare.yml"]` renders it (test_the_ci_workflow_is_rendered.py); '
+        'the family list carries only the workflows every repo runs'
+    ),
+}
 
 
 @pytest.mark.workstation
