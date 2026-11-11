@@ -25,7 +25,8 @@ from lab_commons.outcomes import Status
 from optimi_lab.core import refuse
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Field, Problem, Real
-from optimi_lab.solver.population import Scalarise, build, require_one_score, score_rows
+from optimi_lab.solver.scoring import Scalarise, require_one_score, score_rows
+from optimi_lab.solver.settings import build
 
 __all__ = ['NelderMead', 'Search', 'SequentialSolver', 'nelder_mead']
 

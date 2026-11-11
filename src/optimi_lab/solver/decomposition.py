@@ -23,7 +23,8 @@ from optimi_lab.operator import (
 )
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
-from optimi_lab.solver.population import PopulationSolver, build
+from optimi_lab.solver.population import PopulationSolver
+from optimi_lab.solver.settings import build
 
 __all__ = ['DecompositionSolver', 'moead']
 
