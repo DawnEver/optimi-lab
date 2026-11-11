@@ -223,7 +223,7 @@ prefix_rule(
 prefix_rule(
     pattern = [[".venv/Scripts/python.exe", ".venv/bin/python"], "-m", "dev_lab.ops.consent", "grant"],
     decision = "allow",
-    justification = "Granting one consent credential with the authenticator code the user supplied in this conversation for it (user ruling 2026-11-08: only the user provides the code, the agent runs the grant); never an invented, stored, logged or reused code.",
+    justification = "Granting one consent credential with the cluster code the user supplied in this conversation for it (user ruling 2026-11-08: only the user provides the code, the agent runs the grant); never an invented, stored, logged or reused code.",
 )
 
 prefix_rule(
