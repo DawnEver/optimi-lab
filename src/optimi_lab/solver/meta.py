@@ -29,8 +29,8 @@ from optimi_lab.operator import Scalarisation, crowding_select, tchebycheff
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.cmaes import cmaes
-from optimi_lab.solver.population import score_rows
 from optimi_lab.solver.protocol import Solver
+from optimi_lab.solver.scoring import score_rows
 
 __all__ = ['Chain', 'ipop_cmaes', 'memetic', 'multistart', 'restarts', 'scalarisation_scan', 'warm_start']
 

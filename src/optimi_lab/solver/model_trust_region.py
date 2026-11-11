@@ -34,8 +34,8 @@ from optimi_lab.model import RadialBasis, Surrogate
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
 from optimi_lab.solver.model_based import maximise
-from optimi_lab.solver.population import build
 from optimi_lab.solver.sequential import Search, SequentialSolver
+from optimi_lab.solver.settings import build
 
 __all__ = ['ModelTrustRegion', 'model_trust_region']
 

@@ -19,8 +19,8 @@ from optimi_lab.core import non_dominated_sorting, refuse
 from optimi_lab.operator import Risk
 from optimi_lab.oracle import Result
 from optimi_lab.problem import Objective, Problem, Sense
-from optimi_lab.solver.population import score_rows
 from optimi_lab.solver.scenarios import Scenarios
+from optimi_lab.solver.scoring import score_rows
 
 __all__ = ['DesignRisk', 'design_front', 'design_risk']
 

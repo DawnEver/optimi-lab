@@ -27,7 +27,8 @@ from optimi_lab.operator import (
 from optimi_lab.oracle import Capability, Result
 from optimi_lab.problem import Problem
 from optimi_lab.solver.model_based import ModelBased
-from optimi_lab.solver.population import Scalarise, build, require_one_score
+from optimi_lab.solver.scoring import Scalarise, require_one_score
+from optimi_lab.solver.settings import build
 
 __all__ = ['ACQUISITIONS', 'BayesianOptimisation', 'bo']
 

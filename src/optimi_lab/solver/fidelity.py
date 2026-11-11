@@ -23,7 +23,8 @@ from optimi_lab.core import refuse
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Problem
 from optimi_lab.solver.meta import Chain
-from optimi_lab.solver.population import Scalarise, build, require_one_score, score_rows
+from optimi_lab.solver.scoring import Scalarise, require_one_score, score_rows
+from optimi_lab.solver.settings import build
 
 __all__ = ['ASHA', 'SuccessiveHalving', 'asha', 'hyperband']
 

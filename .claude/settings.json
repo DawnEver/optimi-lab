@@ -97,6 +97,8 @@
       "Bash(gh workflow disable *)",
       "Bash(.venv/Scripts/python.exe -m dev_lab.dev.hpcaccount deploy-fleet *)",
       "Bash(.venv/bin/python -m dev_lab.dev.hpcaccount deploy-fleet *)",
+      "Bash(.venv/Scripts/python.exe -m dev_lab.dev.hpcaccount forget *)",
+      "Bash(.venv/bin/python -m dev_lab.dev.hpcaccount forget *)",
       "Bash(.venv/Scripts/python.exe -m dev_lab.dev.opsserver *)",
       "Bash(.venv/bin/python -m dev_lab.dev.opsserver *)"
     ]

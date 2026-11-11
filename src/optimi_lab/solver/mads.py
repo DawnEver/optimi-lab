@@ -21,8 +21,8 @@ import numpy as np
 
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
-from optimi_lab.solver.population import build
 from optimi_lab.solver.sequential import Search, SequentialSolver
+from optimi_lab.solver.settings import build
 
 __all__ = ['MADS', 'mads']
 

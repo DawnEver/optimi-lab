@@ -266,7 +266,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-11-07 after the no-CJK binder left for the always-on family test: own=521 hits=45 -> 8.64%, down from own=527 hits=46 -> 8.73% the same day after the dated-anchor rows, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
+        'family half in it to split off. RE-MEASURED 2026-11-11 after the CI-workflow row named its workflow set: own=523 hits=45 -> 8.60%, up from own=521 hits=45 -> 8.64% on 2026-11-07 after the no-CJK binder left for the always-on family test, down from own=527 hits=46 -> 8.73% the same day after the dated-anchor rows, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
         'own=519 hits=47 -> 9.06% after dev-lab delegation and new binders on 2026-10-23, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
@@ -596,8 +596,9 @@ PLACEMENT: Final[dict[str, Placement]] = {
         STAYS,
         'A BINDER over `dev_lab.dev.ciworkflows`, adopted 2026-10-29 with the GitHub Actions PR lifecycle: '
         'the renderer, the family workflow template and the drift reader are upstream. LOCAL: that this '
-        'checkout declares exactly the one `ci.yml` workflow in `[tool.dev_lab.ci]`, and that the committed '
-        'file is the rendering. MEASURED 2026-10-29: own=5 hits=0, far under the 50-line binder ceiling.',
+        'checkout runs the named set of family PR-lifecycle workflows (review-prepare.yml as a judge repo), and '
+        'that each committed file is its rendering. RE-MEASURED 2026-11-11: own=11 hits=0, up from own=5 on '
+        '2026-10-29 by the named workflow set, far under the 50-line binder ceiling.',
     ),
     'tests/architecture/test_the_declared_hooks_are_installed.py': Placement(
         STAYS,

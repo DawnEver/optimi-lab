@@ -39,7 +39,8 @@ from optimi_lab.operator import expected_improvement
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.model_based import maximise, refuse_uncertainty, require_modelable
-from optimi_lab.solver.population import Scalarise, build, require_one_score, score_rows
+from optimi_lab.solver.scoring import Scalarise, require_one_score, score_rows
+from optimi_lab.solver.settings import build
 
 __all__ = ['MultiFidelityBO', 'mfbo']
 
