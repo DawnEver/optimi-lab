@@ -71,7 +71,7 @@ from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_r
 from optimi_lab.solver.moving_asymptotes import gcmma, mma
 from optimi_lab.solver.multiobjective import mgda, pareto_continuation
 from optimi_lab.solver.pareto_bo import HypervolumeImprovement, ParEGO, ehvi, nehvi, parego
-from optimi_lab.solver.population import EvolutionarySolver, PopulationSolver, Scalarise
+from optimi_lab.solver.population import EvolutionarySolver, PopulationSolver
 from optimi_lab.solver.prescreened import Prescreened, prescreened
 from optimi_lab.solver.protocol import Solver
 from optimi_lab.solver.quadratic import qp
@@ -86,6 +86,7 @@ from optimi_lab.solver.requires import (
     match,
 )
 from optimi_lab.solver.rvea import ReferenceVectorSolver, rvea
+from optimi_lab.solver.scoring import Scalarise
 from optimi_lab.solver.seeding import SEEDING, SEQUENTIAL, Seeding, batch_bound, require_seedable, search_embedding
 from optimi_lab.solver.sequential import NelderMead, SequentialSolver, nelder_mead
 from optimi_lab.solver.smooth import (

@@ -56,7 +56,7 @@ def test_a_wrong_sensitivity_fails_its_own_response_only() -> None:
     assert not check.passed
     assert check.responses['volume'].passed
     assert not check.responses['connectivity'].passed
-    assert check.responses['connectivity'].max_rel_error == pytest.approx(0.02 / 1.02, rel=1e-3)
+    assert check.responses['connectivity'].max_rel_error == pytest.approx(0.02 / 1.02, rel=1e-3, abs=0.0)
 
 
 def test_a_check_without_variables_is_refused() -> None:

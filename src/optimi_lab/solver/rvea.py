@@ -19,7 +19,8 @@ from optimi_lab.operator import adapt_directions, angle_penalized_select, das_de
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
 from optimi_lab.solver.evolutionary import sbx_polynomial
-from optimi_lab.solver.population import EvolutionarySolver, build
+from optimi_lab.solver.population import EvolutionarySolver
+from optimi_lab.solver.settings import build
 
 __all__ = ['ReferenceVectorSolver', 'rvea']
 

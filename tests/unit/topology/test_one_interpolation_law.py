@@ -1,6 +1,6 @@
 """A cell's heat source and its conductance follow ONE interpolation law, so a one-body design reads one body.
 
-Measured in motronics (2026-11-10): with ``gamma`` enforced, the conductance was read on a higher threshold
+Measured downstream (2026-11-10): with ``gamma`` enforced, the conductance was read on a higher threshold
 (~0.72) than the source (0.5, beta 16) at ``s_min ~6.9e-10``. A gray interface cell between the two thresholds
 heated but barely conducted and read as a one-cell island: the case's own one-body design read ``log_ratio``
 4.7-8.6 on its filtered field against ``log(gamma)`` 2.30 (0.98 on its exact 0/1 form), infeasible from
