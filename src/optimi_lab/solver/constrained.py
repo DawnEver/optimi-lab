@@ -2,11 +2,16 @@
 
 All three solve ``min f  s.t.  h = 0, c <= 0, lo <= x <= hi`` and halt CONVERGED when the KKT
 residual (:func:`~optimi_lab.operator.kkt_residual`) falls to ``kkt_bar`` (``rtol`` x start, floored by ``atol``). The Lagrangian Hessian is
-a damped BFGS model (Powell damping here, the update numerics-lab's).
+a damped BFGS model (Powell damping here, the update numerics-lab's). Damping bounds the model's
+curvature from below only: noisy gradient differences over short steps drive its LARGEST eigenvalue up
+without limit (measured ~1e15 against ~1e-3), until the KKT solve judges it singular and roundoff turns
+the smallest negative. So an update whose model leaves ``_CONDITION_CEILING`` (or turns indefinite) is
+replaced by the identity -- the start model -- and each reset is counted in ``evidence``.
 
 * :func:`sqp` -- each step solves the QP of the quadratic model under the linearised constraints and
   the box (:func:`~optimi_lab.operator.active_set_qp`); the step is searched on the exact l1 merit by
-  Armijo backtracking. An infeasible linearisation takes the QP's least-violating step.
+  Armijo backtracking. An infeasible linearisation takes the QP's least-violating step; a QP the
+  active-set method refuses halts STALLED with that refusal as its reason, never an exception.
 * :func:`interior_point` -- a primal-dual barrier method: the bounds become inequality rows, every
   inequality gets a slack, the Newton system is condensed onto ``(dx, dy)`` and solved as a KKT
   system -- DENSE or SPARSE (``sparse=True``) through numerics-lab's ``solve_kkt``. Fraction to the
@@ -25,6 +30,7 @@ from numerics_lab.linear import LinearSolveError
 from numerics_lab.linear.kkt import solve_kkt
 from numerics_lab.quasi_newton import bfgs_update
 
+from optimi_lab.core.errors import Refusal
 from optimi_lab.operator import (
     Linearization,
     active_set_qp,
@@ -42,20 +48,41 @@ from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, Solution, kkt_b
 __all__ = ['augmented_lagrangian', 'interior_point', 'sqp']
 
 _ARMIJO = 1e-4
+#: Largest eigenvalue ratio a BFGS model may carry into a KKT solve before it is reset to the identity.
+_CONDITION_CEILING = 1e8
 
 
 def _solution(
-    point: Linearization, box: tuple, multipliers: tuple, iterations: int, halt: Halt, *, reason: str = ''
+    point: Linearization,
+    box: tuple,
+    multipliers: tuple,
+    iterations: int,
+    halt: Halt,
+    *,
+    reason: str = '',
+    evidence: tuple[str, ...] = (),
 ) -> Solution:
     (lo, hi), (y, z) = box, multipliers
     residual = kkt_residual(point, lo, hi, y=y, z=z)
-    return Solution(halt, point.x, point, iterations, residual.worst, reason=reason)
+    return Solution(halt, point.x, point, iterations, residual.worst, reason=reason, evidence=evidence)
 
 
-def _secant(model: np.ndarray, old: Linearization, new: Linearization, y, z) -> np.ndarray:
+def _secant(model: np.ndarray, old: Linearization, new: Linearization, y, z) -> tuple[np.ndarray, bool]:
+    """The damped BFGS update, and whether it left the condition ceiling and was RESET to the identity."""
     s = new.x - old.x
+    if not np.any(s):
+        return model, False
     change = lagrangian_gradient(new, y, z) - lagrangian_gradient(old, y, z)
-    return bfgs_update(model, s, damped_secant(model, s, change)) if np.any(s) else model
+    updated = bfgs_update(model, s, damped_secant(model, s, change))
+    updated = 0.5 * (updated + updated.T)
+    eigenvalues = np.linalg.eigvalsh(updated) if np.all(np.isfinite(updated)) else np.array([np.nan])
+    if not eigenvalues[0] * _CONDITION_CEILING >= eigenvalues[-1] > 0.0:
+        return np.eye(model.shape[0]), True
+    return updated, False
+
+
+def _resets(count: int) -> tuple[str, ...]:
+    return (f'hessian_resets:{count}',) if count else ()
 
 
 def sqp(
@@ -66,30 +93,47 @@ def sqp(
     point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
     bar = kkt_bar(point.df[0], rtol=rtol, atol=atol)
     n = point.x.size
-    model, nu = np.eye(n), 1.0
+    model, nu, resets = np.eye(n), 1.0, 0
     y, z = np.zeros(point.h.size), np.zeros(point.c.size)
     for iteration in range(max_iterations):
         if iteration and kkt_residual(point, lo, hi, y=y, z=z).worst <= bar:
-            return _solution(point, (lo, hi), (y, z), iteration, Halt.CONVERGED)
-        qp = active_set_qp(
-            model,
-            point.gradient,
-            a_eq=point.dh,
-            b_eq=-point.h,
-            a_in=np.vstack([point.dc, np.eye(n), -np.eye(n)]),
-            b_in=np.concatenate([-point.c, hi - point.x, point.x - lo]),
-        )
+            return _solution(point, (lo, hi), (y, z), iteration, Halt.CONVERGED, evidence=_resets(resets))
+        try:
+            qp = active_set_qp(
+                model,
+                point.gradient,
+                a_eq=point.dh,
+                b_eq=-point.h,
+                a_in=np.vstack([point.dc, np.eye(n), -np.eye(n)]),
+                b_in=np.concatenate([-point.c, hi - point.x, point.x - lo]),
+            )
+        except Refusal as refused:
+            return _solution(
+                point,
+                (lo, hi),
+                (y, z),
+                iteration,
+                Halt.STALLED,
+                reason=f'the QP subproblem: {refused}',
+                evidence=_resets(resets),
+            )
         d = qp.x
         if qp.feasible:
             y, z = qp.multipliers_eq, qp.multipliers_in[: point.c.size]
             if kkt_residual(point, lo, hi, y=y, z=z).worst <= bar:
-                return _solution(point, (lo, hi), (y, z), iteration, Halt.CONVERGED)
+                return _solution(point, (lo, hi), (y, z), iteration, Halt.CONVERGED, evidence=_resets(resets))
         nu = l1_penalty(np.concatenate([y, z]), nu)
         slope = l1_slope(point, d, nu)
         if not slope < 0.0:
             halt = Halt.INFEASIBLE if not qp.feasible else Halt.STALLED
             return _solution(
-                point, (lo, hi), (y, z), iteration, halt, reason='the QP step does not descend the l1 merit'
+                point,
+                (lo, hi),
+                (y, z),
+                iteration,
+                halt,
+                reason='the QP step does not descend the l1 merit',
+                evidence=_resets(resets),
             )
         seen: dict[float, Linearization | None] = {}
 
@@ -101,11 +145,20 @@ def sqp(
 
         search = armijo(merit, l1_merit(point, nu), slope, c1=_ARMIJO)
         if not search.accepted:
-            return _solution(point, (lo, hi), (y, z), iteration, Halt.STALLED, reason='no step decreased the l1 merit')
+            return _solution(
+                point,
+                (lo, hi),
+                (y, z),
+                iteration,
+                Halt.STALLED,
+                reason='no step decreased the l1 merit',
+                evidence=_resets(resets),
+            )
         accepted = seen[search.step]
-        model = _secant(model, point, accepted, y, z)
+        model, reset = _secant(model, point, accepted, y, z)
+        resets += reset
         point = accepted
-    return _solution(point, (lo, hi), (y, z), max_iterations, Halt.ITERATION_LIMIT)
+    return _solution(point, (lo, hi), (y, z), max_iterations, Halt.ITERATION_LIMIT, evidence=_resets(resets))
 
 
 def _rows(point: Linearization, lo, hi, sparse: bool):
@@ -204,7 +257,7 @@ def interior_point(
         accepted = seen[t]
         s = s + t * alpha_s * ds
         y, z = y + t * alpha_s * dy, z + t * alpha_z * dz
-        model = _secant(model, point, accepted, y, z[: point.c.size])
+        model, _ = _secant(model, point, accepted, y, z[: point.c.size])
         point = accepted
         values, jacobian = _rows(point, lo, hi, sparse)
         bounds = slice(point.c.size, None)
