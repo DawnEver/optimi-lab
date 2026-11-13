@@ -1,6 +1,6 @@
 """SQP never ends a search with an exception: its BFGS model stays well conditioned, an unsolvable QP is a halt.
 
-The incident (motronics, 2026-11-12): a memetic GA's SQP refine on 82 axes with noisy finite-difference
+The incident (a downstream, 2026-11-12): a memetic GA's SQP refine on 82 axes with noisy finite-difference
 gradients raised ``the QP Hessian is not positive definite on the null space of the active constraints``
 and the whole search ended with no report. Powell damping bounds the model's curvature from BELOW only;
 noisy gradient differences over short steps drove its largest eigenvalue to ~1e15 against a smallest of

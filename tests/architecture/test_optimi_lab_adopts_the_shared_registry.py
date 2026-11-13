@@ -303,6 +303,10 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # line into the tracked `.claude/settings.json`, and `_GUARD`'s liveness arm reads that wiring.
     'PUSHED-HEAD-IS-WATCHED': (_GUARD, '.claude/settings.json'),
     'SESSION-HEARS-ITS-PRS': (_GUARD, '.claude/settings.json'),  # dev-lab #438: the Stop gate and the PR record
+    # ADOPTED 2026-11-13 with the dev-lab 6cc2d023 relock: the guard install wires the `dev_lab.dev.walls`
+    # `PostToolUse` and `Stop` lines into the tracked `.claude/settings.json`, and the COMMIT-HOOKS-RUN deny row
+    # ships through this guard, pinned by name in `_GUARD`.
+    'WALLS-ARE-RECORDED': (_GUARD, _GUARD_RULES, '.claude/settings.json'),
     # ADOPTED 2026-10-18 with `[tool.dev_lab.hooks]` (the family base as is). The commit-msg
     # `merge-audit` row refuses committing a merge that loses or rewrites a test unnamed; the pre-push
     # `session-branch` row (`dev_lab.dev.sessionbranch`) refuses publishing a session branch from
@@ -320,6 +324,9 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
             'ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES',  # the same row, against the pushed tip's branch set (dev-lab ea264f8)
             'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
             'ONE-WRITER-PER-SESSION-BRANCH',
+            # the base pre-push `dev_lab.dev.milestonebase` rows, arrived with the dev-lab 6cc2d023 relock
+            'BASE-HOLDS-THE-MILESTONE',
+            'VERSION-TAG-NEEDS-APPROVAL',
         ),
         (_PYPROJECT, _HOOKS),
     ),
@@ -365,7 +372,7 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   `src/optimi_lab/model/registry.py`, the surrogate names already live in it, and
 #:   `test_a_declared_set_refuses_a_stranger.py` already refuses an unregistered key -- what is
 #:   missing is a SECOND kind to branch on, not a guard).
-#:   FORMATS-UPGRADE-ON-READ (arrived with lab-commons 96a90c8, measured 2026-10-18: `git grep` over
+#:   FORMATS-MIGRATE-ONCE (renamed from FORMATS-UPGRADE-ON-READ by the dev-lab relock of 2026-11-12; arrived with lab-commons 96a90c8, measured 2026-10-18: `git grep` over
 #:   `src/` finds no `json.dump`, `pickle`, `np.save`, `write_text` or schema field -- this library
 #:   persists no format of its own, so there is no older schema for a reader to upgrade).
 #: * WORKFLOW MACHINERY THIS REPO GENUINELY DOES NOT HAVE, measured at the filesystem rather than
@@ -383,7 +390,7 @@ _ABSENT: Final = frozenset({
     'PRODUCTION-ENTRY-POINT',
     'UNITS-GO-THROUGH-PINT',
     'REGISTRY-OWNS-THE-DECISION',
-    'FORMATS-UPGRADE-ON-READ',
+    'FORMATS-MIGRATE-ONCE',
     'NETWORK-RETRY-THEN-REPORT',
 })
 
@@ -435,7 +442,7 @@ _ABSENT: Final = frozenset({
 #: `[tests]`, `[integrator]`, `[hooks]`) and lab-commons 96a90c8 retired two IDs this file cited.
 #: MERGE-DEVIATIONS-NAMED, VERDICT-BAR-IS-THE-INCREMENT and the retired verdict row (now
 #: VERDICTS-FROM-THE-FORGE) left for mechanisms: each reason named the missing push wiring, and the
-#: hook table installs it. FORMATS-UPGRADE-ON-READ arrived and was measured absent with its reason.
+#: hook table installs it. FORMATS-MIGRATE-ONCE (then FORMATS-UPGRADE-ON-READ) arrived and was measured absent with its reason.
 #:
 #: AND 7 -> 9 on 2026-10-29, a rise for two rules this repo had never carried: relocking dev-lab to
 #: 0d6d0c61 brought PUSHED-HEAD-IS-WATCHED and RECURSIVE-DELETE, admitted with their reason above.

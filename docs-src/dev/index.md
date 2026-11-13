@@ -37,6 +37,7 @@
 | [One branch per session](../../../dev-lab/docs-src/dev/branch-set.md) | The declared branch set, merge-or-delete, and the push-time check |
 | [Auto mode runs the doors](../../../dev-lab/docs-src/dev/auto-doors.md) | Local cleanup and run stops are checked doors both clients allow unprompted |
 | [Refusals](../../../dev-lab/docs-src/dev/refusals.md) | Every deny refusal is a clause, a door and a pointer; the full text of each row |
+| [Every wall teaches](../../../dev-lab/docs-src/dev/feedback.md) | The feedback layers, the wall ledger, and closing a gap before the task |
 | [Project files](../../../dev-lab/docs-src/dev/project-files.md) | Every project file is rendered from a family base plus a delta, or owned by the repo; hooks and CI are TOML |
 
 ## What this repo has, and what it does not
