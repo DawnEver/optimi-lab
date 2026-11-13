@@ -443,6 +443,12 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`dev_lab.dev.famtests.monthsummary` publishes the reader, the verdict and the planted control; '
         'what is local is the ONE memory tree this repo keeps and the first month it holds to the rule.',
     ),
+    'tests/architecture/test_every_temp_entry_carries_the_family_prefix.py': Placement(
+        STAYS,
+        'ADOPTED 2026-11-11 and a binder from its first line: `dev_lab.dev.famtests.tempprefix` owns the '
+        'walk, the verdict and the planted control; what is local is the two roots this repo walks (`src`, '
+        '`scripts`) and the measured file floor its walk must reach.',
+    ),
     'tests/architecture/test_memory_lives_under_a_date.py': Placement(
         STAYS,
         'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
