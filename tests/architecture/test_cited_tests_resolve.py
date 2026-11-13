@@ -109,7 +109,7 @@ NOT_CITATIONS: Final[tuple[str, ...]] = ()
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 141.
 #: RE-TAKEN 2026-10-18 AT 147: the P9 + P12 merge read 157.
-#: RE-TAKEN 2026-10-18 AT 165: P10 (surrogates, optimi_lab.model) read 176.
+#: RE-TAKEN 2026-10-18 AT 165: P10 (surrogates, the L6 model package since moved to learn-lab) read 176.
 #: RE-TAKEN 2026-10-18 AT 145: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 161.
 #: RE-TAKEN 2026-10-18 AT 199: P11 (model-based solvers, D59-D68) read 209; already red at c028663, which read 195.
 #: RE-TAKEN 2026-10-18 AT 212: P14 (structured solvers, D126-D132) read 225; 329e959 (P11) read 209.
@@ -132,7 +132,7 @@ SCANNED_FILE_HEADROOM: Final = 20
 #: RE-TAKEN 2026-10-16 AT 312, from 283: the analysis branch read 334; half a headroom below it.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 447.
 #: RE-TAKEN 2026-10-18 AT 470: the P9 + P12 merge read 494.
-#: RE-TAKEN 2026-10-18 AT 515: P10 (surrogates, optimi_lab.model) read 540.
+#: RE-TAKEN 2026-10-18 AT 515: P10 (surrogates, the L6 model package since moved to learn-lab) read 540.
 #: RE-TAKEN 2026-10-18 AT 470: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 508.
 #: RE-TAKEN 2026-10-18 AT 615: P11 (model-based solvers, D59-D68) read 636; already red at c028663, which read 590.
 #: RE-TAKEN 2026-10-18 AT 640: P14 (structured solvers, D126-D132) read 669; 329e959 (P11) read 636.

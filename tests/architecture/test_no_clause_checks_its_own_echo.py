@@ -58,7 +58,7 @@ EXEMPT: Final = ()
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 562.
 #: RE-TAKEN 2026-10-18 AT 620: the P9 + P12 merge read 651.
-#: RE-TAKEN 2026-10-18 AT 680: P10 (surrogates, optimi_lab.model) read 710.
+#: RE-TAKEN 2026-10-18 AT 680: P10 (surrogates, the L6 model package since moved to learn-lab) read 710.
 #: RE-TAKEN 2026-10-18 AT 620: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 674.
 #: RE-TAKEN 2026-10-18 AT 825: P11 (model-based solvers, D59-D68) read 858; already red at c028663, which read 791.
 #: RE-TAKEN 2026-10-18 AT 860: P14 (structured solvers, D126-D132) read 902; 329e959 (P11) read 858.

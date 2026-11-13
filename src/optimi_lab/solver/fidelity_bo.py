@@ -2,7 +2,7 @@
 
 The levels are :class:`~optimi_lab.problem.Fidelity`'s, cheapest first, the last the truth; an action
 at level ``l`` is asked at that level (``Action.of(..., fidelity=...)``). The model is
-:class:`~optimi_lab.model.CoKriging` over every told point at its level.
+:class:`~learn_lab.models.response.CoKriging` over every told point at its level.
 
 THE INITIAL DESIGN IS NESTED: one maximin Latin hypercube, the truth level taking its first
 ``initial[-1]`` rows and each cheaper level the first ``initial[l]`` (non-increasing toward the truth,
@@ -35,10 +35,11 @@ from collections.abc import Sequence
 
 import numpy as np
 from lab_commons.outcomes import Status
+from learn_lab.models.response import CoKriging, FittedCoKriging
+from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube
-from optimi_lab.model import CoKriging, FittedCoKriging
 from optimi_lab.operator import expected_improvement
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Embedding, Problem
@@ -173,7 +174,8 @@ class MultiFidelityBO:
         present = sorted(set(levels.tolist()))
         if present != list(range(len(self._names))):
             refuse(f'every fidelity level needs a told value to model; levels {present} have one')
-        fitted = self._surrogate.fit(x, self._scores(self._results)[:, None], levels)
+        unit = BoxEnvelope(np.zeros(self._width), np.ones(self._width))
+        fitted = self._surrogate.fit(x, self._scores(self._results)[:, None], levels, domain=unit)
         top = len(self._names) - 1
         p = fitted.predict(x, variance=True)
         best = float(np.min(p.mean[:, 0] + np.sqrt(p.variance[:, 0])))

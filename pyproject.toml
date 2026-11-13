@@ -24,10 +24,11 @@ authors = [{ name = "Mingyang Bao" }]
 # step, quasi-Newton update and linear/KKT solve is its. Libraries float (R8): a bare repository URL,
 # no ref; a product that composes both mounts it as a component, whose path source overrides this.
 # rtoml, pint, pydantic, pandas and matplotlib went with the roles that needed them; scikit-learn
-# left with P10 (every surrogate is self-implemented, optimi_lab.model) and is a TEST oracle only.
+# left with P10 and is now learn-lab's test oracle, which owns every surrogate model.
 dependencies = [
     "lab-commons @ git+https://github.com/DawnEver/lab-commons.git",
-    # learn-lab (numpy-only leaf) owns the tuning-space vocabulary (learn_lab.space); optimi-lab searches it.
+    # learn-lab owns every surrogate model (fit -> Fitted -> Prediction) and the tuning-space vocabulary
+    # (learn_lab.space); optimi-lab steers with the models and searches the spaces.
     "learn-lab @ git+https://github.com/DawnEver/learn-lab.git",
     "numerics-lab @ git+https://github.com/DawnEver/numerics-lab.git",
     "numpy",
@@ -40,8 +41,6 @@ dev = [
     "pytest-cov",
     "pytest-mock",
     "pytest-xdist",
-    # Reference oracles for the self-implemented surrogates (plan R1): tests only, never runtime.
-    "scikit-learn",
     # pymoo is a TEST ORACLE only (ruling R1): tests/benchmarks compare every population method
     # against its implementation; the runtime never imports it.
     "pymoo",
