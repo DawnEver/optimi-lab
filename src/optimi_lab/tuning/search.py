@@ -32,6 +32,7 @@ from typing import Final
 
 import numpy as np
 from lab_commons.outcomes import Record
+from lab_commons.temp import TEMP_PREFIX
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.oracle import Action, Capability, NotConverged, Result, from_function
@@ -137,7 +138,7 @@ def minimise(
     solver = build_solver(
         chosen.solver, problem, capability, seed=seed, population=population, initial=None, generations=budget
     )
-    with tempfile.TemporaryDirectory() as root:
+    with tempfile.TemporaryDirectory(prefix=TEMP_PREFIX) as root:
         record = Record(Path(root) / 'tuning.jsonl')
         run(problem, from_function(evaluate, capability), _Novel(solver), record, Budget(evaluations=budget))
     truth = None if levels is None else levels.truth.name

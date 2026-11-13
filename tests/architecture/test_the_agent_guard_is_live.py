@@ -106,7 +106,8 @@ _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
     'BARE-PYTHON',
     'BARE-TEST-INVOCATION',
-    'CONSENT-CODE-FROM-THE-USER',  # gained 2026-11-08 with the dev-lab relock
+    'COMMIT-HOOKS-RUN',  # gained 2026-11-13 with dev-lab 6cc2d023 (WALLS-ARE-RECORDED)
+    'CONSENT-CODE-FROM-THE-USER',
     'FORGE-WRITE-VIA-CLI',
     'FORGE-WRITE-VIA-GH-API',
     'FORGE-WRITE-VIA-HTTP',
@@ -120,8 +121,8 @@ _SHIPPED: Final = frozenset({
     'PUSH-REMOTE-DELETE',
     'RECURSIVE-DELETE',
     'RECURSIVE-GREP',
+    'REMOTE-WRITE-THROUGH-A-DOOR',
     'STATUS-VIA-DOORS',  # replaced REVIEW-STATUS-VIA-DOORS (dev-lab A3 relock): review, hold and security posts
-    'REMOTE-WRITE-THROUGH-A-DOOR',  # gained 2026-11-08 with the dev-lab relock
     'REPORTS-LIVE-IN-MEMORY',
     'SUBAGENT-NO-PUSH',
     'TREE-HAS-A-LIVE-RUN',

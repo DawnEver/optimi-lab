@@ -10,12 +10,14 @@ from optimi_lab.problem import (
     BlackBox,
     Categorical,
     Chance,
+    Explicit,
     Form,
     Integer,
     Normal,
     Objective,
     Problem,
     Real,
+    Relation,
     Space,
     Structure,
     Uncertainty,
@@ -98,3 +100,15 @@ def test_every_registered_solver_names_a_shipped_factory_and_back():
     assert set(SOLVERS) <= set(package.__all__)
     assert {'nsga2', 'spea2', 'rvea', 'sms_emoa', 'cmaes', 'nelder_mead', 'mads', 'bobyqa', 'hyperband'} <= set(SOLVERS)
     assert {'bo', 'parego', 'ehvi', 'nehvi', 'mfbo', 'turbo', 'prescreened', 'model_trust_region'} <= set(SOLVERS)
+
+
+def test_population_and_derivative_free_solvers_take_an_explicit_constraint_without_penalising_it() -> None:
+    problem = Problem(REAL, (Objective('f'),), constraints=(Explicit('sum', _sum, Relation.AT_LEAST, 1.0),))
+    for name in ('nsga2', 'ga', 'cmaes', 'mads', 'nelder_mead', 'bobyqa', 'moead'):
+        assert match(SOLVERS[name], problem, VALUES) == Eligible(), name
+    # Planted control: a solver that ranks by no violation still has to penalise it first.
+    assert match(SOLVERS['turbo'], problem, VALUES) == NeedsTransform(('penalise',), evaluations_per_action=1.0)
+
+
+def _sum(design) -> float:
+    return float(design['x']) + float(design['y'])

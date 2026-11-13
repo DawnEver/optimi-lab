@@ -13,6 +13,7 @@ from functools import partial
 
 import numpy as np
 import pytest
+from numerics_lab.quasi_newton import LbfgsMemory
 from scipy.optimize import NonlinearConstraint, minimize, nnls, rosen, rosen_der, rosen_hess_prod
 
 from optimi_lab.operator import Linearization
@@ -99,6 +100,30 @@ def test_d34_lbfgsb_halts_naming_a_failed_wolfe_search() -> None:
 
     found = lbfgsb(jump, np.zeros(1), np.zeros(1), np.ones(1))
     assert found.halt is Halt.STALLED and found.reason.startswith('the Wolfe search failed')
+
+
+def test_d34_lbfgsb_restarts_its_memory_when_the_compact_model_is_singular(monkeypatch) -> None:
+    """A singular compact middle matrix refreshes the memory, as the reference L-BFGS-B does, never escapes.
+
+    Planted: every third model build is singular -- in floating point a round-off pair (``s ~ 1e-23``) does this
+    on some LAPACK builds and not others; HPC 7967593 died of it as a bare ``Singular matrix`` from MMA's dual.
+    """
+    compact = LbfgsMemory.compact_factors
+    calls = [0]
+
+    def sometimes_singular(self):
+        calls[0] += 1
+        if calls[0] % 3 == 0:
+            msg = 'Singular matrix'
+            raise np.linalg.LinAlgError(msg)
+        return compact(self)
+
+    monkeypatch.setattr(LbfgsMemory, 'compact_factors', sometimes_singular)
+    lo, hi = BOXES[min(BOXES)]
+    found = lbfgsb(rosenbrock, ROSEN_X0, lo, hi)
+    assert calls[0] >= 3, 'the planted fault never fired'
+    assert found.halt is Halt.CONVERGED, found.reason
+    assert agrees(found.x, _box_reference(lo, hi))
 
 
 def test_d35_newton_cg_agrees_with_scipy_trust_ncg_on_the_interior_optimum() -> None:

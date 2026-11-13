@@ -51,7 +51,7 @@ from optimi_lab.operator.estimators import (
 from optimi_lab.operator.form import CURVATURE_STEP, STEP, DesignPoint, SecondOrder, form, sorm
 from optimi_lab.operator.indicator import hypervolume_select, spea2_fitness, spea2_select
 from optimi_lab.operator.kkt import KKTResidual, Linearization, damped_secant, kkt_residual, lagrangian_gradient
-from optimi_lab.operator.merit import augmented_lagrangian_merit, l1_merit, l1_penalty, l1_slope
+from optimi_lab.operator.merit import augmented_lagrangian_merit, l1_merit, l1_penalty, l1_reduction, l1_slope
 from optimi_lab.operator.multilevel import Multilevel, mlmc
 from optimi_lab.operator.qp import QPSolution, active_set_qp, bound_qp
 from optimi_lab.operator.reference import (
@@ -102,6 +102,7 @@ from optimi_lab.operator.selection import (
 from optimi_lab.operator.variation import (
     DEStrategy,
     binomial_crossover,
+    de_rows_needed,
     differential_mutation,
     exponential_crossover,
     polynomial_mutation,
@@ -149,6 +150,7 @@ __all__ = [
     'cvar',
     'damped_secant',
     'das_dennis',
+    'de_rows_needed',
     'decomposition_weights',
     'differential_mutation',
     'discrete_mutation',
@@ -170,6 +172,7 @@ __all__ = [
     'knowledge_gradient',
     'l1_merit',
     'l1_penalty',
+    'l1_reduction',
     'l1_slope',
     'lagrangian_gradient',
     'lattice',

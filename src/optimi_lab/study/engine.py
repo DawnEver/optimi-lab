@@ -35,7 +35,7 @@ from optimi_lab.run import Budget, Dispatch, Run, run
 from optimi_lab.solver.build import UNDRIVEN, build_solver
 from optimi_lab.solver.requires import SOLVERS
 from optimi_lab.solver.scenarios import DEFAULT_SCENARIOS
-from optimi_lab.solver.seeding import SEEDING, batch_bound, require_seedable, search_embedding
+from optimi_lab.solver.seeding import SEEDING, Seeding, batch_bound, require_seedable, search_embedding
 from optimi_lab.study.strategy import algorithm_factory
 
 __all__ = ['Searched', 'evaluate', 'opened', 'search']
@@ -67,7 +67,11 @@ class Searched:
 
 
 def opened(problem: Problem, oracle: Oracle, record: Record) -> Archive:
-    """The archive of *record*, refused when an action in it belongs to another problem or oracle build."""
+    """The archive of *record*, refused when an action in it belongs to another problem or oracle build.
+
+    Each action is rebuilt with everything it asked -- information, replicate, direction -- so a
+    slope-reading run reopens; only the problem and the oracle build may refuse it.
+    """
     archive = Archive(problem, record)
     for action in (*archive.pending(), *(result.action for result in archive.results())):
         # Rebuilt with everything the action asked (a slope, a scenario), so only the problem and build differ.
@@ -145,6 +149,24 @@ def evaluate(
     return Searched(archive, evidence=evidence, solved=len(fresh), served=len(actions) - len(fresh))
 
 
+def _refuse_choosers(algorithm: str | Callable, oracle: ScreeningOracle, router: RouteRule | None) -> None:
+    """Exactly ONE chooser picks each point's evaluator leg: a *router*, or a solver that picks its own level.
+
+    A ``Seeding.LEVELS`` solver asks every action at a level of ``problem.fidelity``; a router would overwrite
+    that pick, so the two together are refused. An oracle of several legs with neither would answer every
+    action on leg 0, so the cheaper legs it declares would be a declaration nothing reads.
+    """
+    levels = sorted(name for name, row in SEEDING.items() if row is Seeding.LEVELS)
+    picks_level = isinstance(algorithm, str) and algorithm in levels
+    if picks_level and router is not None:
+        refuse(f'{algorithm} picks its own level for every point; a router choosing the leg too is a second chooser')
+    if not picks_level and router is None and oracle.evaluators > 1:
+        refuse(
+            f'{oracle.evaluators} evaluator legs need an explicit selection policy: a router, or a solver that picks '
+            f'its own level ({levels})'
+        )
+
+
 def search(
     problem: Problem,
     oracle: ScreeningOracle,
@@ -186,6 +208,7 @@ def search(
         refuse('a search needs population >= 1 and generations >= 1; named points use evaluate')
     if solves is not None and solves < 1:
         refuse(f'a solve budget needs solves >= 1, got {solves}')
+    _refuse_choosers(algorithm, oracle, router)
     opened(problem, oracle, record)  # refuse a foreign record BEFORE evaluating or mutating it
     spec: SampleSpec | None = SampleSpec(n_samples=population, seed=seed)
     unit_initial: np.ndarray | None = None

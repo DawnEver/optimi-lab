@@ -12,8 +12,10 @@ from study_toys import AXES, PROBLEM, READINGS, SPACE, Codec, Publisher, Toy
 
 from optimi_lab.core import SampleSpec
 from optimi_lab.core.errors import Refusal
-from optimi_lab.oracle import Result
+from optimi_lab.oracle import Action, Capability, Information, Result
 from optimi_lab.policy import RouteChoice, surrogate_candidates
+from optimi_lab.problem import Explicit, Fidelity, Level, Objective, Problem, Real, Relation, Space
+from optimi_lab.solver import build_solver
 from optimi_lab.solver.evolutionary import nsga2
 from optimi_lab.study import (
     ALGORITHMS,
@@ -23,13 +25,16 @@ from optimi_lab.study import (
     FixedDesign,
     Request,
     SampleDesign,
+    SearchBinding,
     SearchStrategy,
     SurrogateStrategy,
     algorithm_factory,
     evaluate,
+    opened,
     search,
     study,
 )
+from optimi_lab.study.rounds import searched_study
 
 START = np.array([[0.1, 2.5], [0.4, 3.0], [0.7, 3.5], [0.9, 2.2]])
 
@@ -45,6 +50,101 @@ def test_the_algorithm_menu_resolves_names_and_passes_a_callable_through() -> No
     assert algorithm_factory(custom) is custom
     with pytest.raises(ValueError, match='unknown algorithm'):
         algorithm_factory('cmaes')
+
+
+SMOOTH = Problem(Space((Real('a', 0.0, 1.0), Real('b', 2.0, 4.0))), (Objective('f'),))
+OPTIMUM = (0.3, 3.5)
+
+
+class Sloped(Toy):
+    """A screening oracle declaring its gradient: f = (a - 0.3)^2 + (b - 3.5)^2, slopes in the unit cube."""
+
+    capability = Capability(outputs=('f',), provides=frozenset({Information.VALUES, Information.VJP}), version='s')
+
+    def answer(self, action: Action) -> Result:
+        a, b = float(action.design['a']), float(action.design['b'])
+        cell = Cell(Status.OK, values={'f': (a - OPTIMUM[0]) ** 2 + (b - OPTIMUM[1]) ** 2})
+        if Information.VJP not in action.want:
+            return Result(action, cell)
+        slope = np.array([2 * (a - OPTIMUM[0]), 2 * (b - OPTIMUM[1]) * 2.0])  # d b / d unit = 2
+        return Result(action, cell, gradient={'f': slope})
+
+
+def _best(searched) -> tuple[float, float]:
+    best = min(searched.archive.results(), key=lambda r: r.cell.values['f'])
+    return float(best.action.design['a']), float(best.action.design['b'])
+
+
+def test_a_named_gradient_solver_walks_from_its_one_start_on_the_declared_slope(tmp_path: Path) -> None:
+    oracle = Sloped()
+    searched = search(SMOOTH, oracle, Record(tmp_path / 'g.jsonl'), algorithm='lbfgsb', initial=[[0.9, 2.2]], solves=40)
+    assert searched.search_refusal is None
+    assert oracle.published[0] == (0.9, 2.2)
+    np.testing.assert_allclose(_best(searched), OPTIMUM, atol=1e-4)
+    assert len(set(oracle.published)) <= 40
+
+
+def test_a_study_strategy_names_a_gradient_solver(tmp_path: Path) -> None:
+    strategy = SearchStrategy(FixedDesign(((0.9, 2.2),)), algorithm='lbfgsb', solves=40)
+    bound = SearchBinding(SMOOTH, Sloped(), Record(tmp_path / 's.jsonl'))
+    searched, *_ = searched_study(bound, strategy, EvaluationPolicy(), np.array([[0.9, 2.2]]), Evidence.OBSERVED)
+    np.testing.assert_allclose(_best(searched), OPTIMUM, atol=1e-4)
+
+
+def test_a_gradient_run_records_and_reopens_its_slope_reading_actions(tmp_path: Path) -> None:
+    record = Record(tmp_path / 'g.jsonl')
+    search(SMOOTH, Sloped(), record, algorithm='lbfgsb', initial=[[0.9, 2.2]], solves=40)
+    archive = opened(SMOOTH, Sloped(), Record(tmp_path / 'g.jsonl'))  # closed, then reopened from disk
+    sloped = [r.action for r in archive.results() if Information.VJP in r.action.want]
+    assert sloped
+    # Planted control: the values-only rebuild the reopen used to make names another action.
+    values_only = Action.of(SMOOTH, Sloped.capability, sloped[0].design)
+    assert values_only.identity.key != sloped[0].identity.key
+    rebuilt = Sloped()
+    rebuilt.capability = Capability(outputs=('f',), provides=Sloped.capability.provides, version='s2')
+    with pytest.raises(Refusal, match='another problem or evaluator'):
+        opened(SMOOTH, rebuilt, record)  # another oracle build is still refused
+
+
+def _total(design) -> float:
+    return float(design['a']) + float(design['b'])
+
+
+def test_nsga2_searches_under_an_explicit_constraint_and_its_front_holds_it(tmp_path: Path) -> None:
+    # y = a + b is minimised against a + b >= 3: unconstrained, the front would reach a + b = 2.
+    held = Problem(SPACE, PROBLEM.objectives, constraints=(Explicit('total', _total, Relation.AT_LEAST, 3.0),))
+    searched = search(held, Toy(), Record(tmp_path / 'e.jsonl'), algorithm='nsga2', population=12, generations=6)
+    assert searched.search_refusal is None
+    results = searched.archive.results()
+    assert any(r.violation(held) > 0 for r in results)  # the constraint was active, not vacuous
+    front = searched.archive.front()
+    assert front
+    assert all(r.violation(held) == 0.0 for r in front)
+
+
+def test_a_named_solver_is_refused_by_its_own_requires(tmp_path: Path) -> None:
+    with pytest.raises(Refusal, match='lbfgsb runs this problem only after'):
+        search(SMOOTH, Toy(), Record(tmp_path / 'v.jsonl'), algorithm='lbfgsb', initial=[[0.9, 2.2]])
+    with pytest.raises(Refusal, match='single-objective'):
+        search(PROBLEM, Toy(), Record(tmp_path / 'm.jsonl'), algorithm='cmaes')
+    with pytest.raises(Refusal, match='learns only from what it asked'):
+        search(SMOOTH, Sloped(), Record(tmp_path / 'two.jsonl'), algorithm='lbfgsb', initial=START)
+    with pytest.raises(Refusal, match='draws its own'):
+        search(SMOOTH, Sloped(), Record(tmp_path / 'bo.jsonl'), algorithm='bo', initial=START)
+
+
+def test_build_solver_validates_a_name_without_evaluating() -> None:
+    solver = build_solver('lbfgsb', SMOOTH, Sloped.capability, seed=0, population=1, initial=None, generations=1)
+    assert dict(solver.ask(1)[0].design) == {'a': 0.5, 'b': 3.0}  # no start: the cube's centre
+    with pytest.raises(Refusal, match='only after'):
+        build_solver('lbfgsb', SMOOTH, Toy.capability, seed=0, population=1, initial=None, generations=1)
+
+
+def test_a_self_seeded_solver_runs_by_count_under_the_solve_budget(tmp_path: Path) -> None:
+    oracle = Sloped()
+    searched = search(SMOOTH, oracle, Record(tmp_path / 'c.jsonl'), algorithm='cmaes', population=6, solves=30)
+    assert searched.search_refusal is None
+    assert 6 <= len(set(oracle.published)) <= 30
 
 
 def test_a_search_files_every_batch_and_a_rerun_on_its_record_publishes_nothing(tmp_path: Path) -> None:
@@ -147,8 +247,65 @@ def test_a_fidelity_policy_is_recorded_as_one_study_evaluator_event(tmp_path: Pa
         '{"data":{"kind":"SearchStrategy","slot":0},"key":"strategy:0","kind":"study_strategy","schema":3}',
     ]
     assert Identity.of({'leg': 'fast', 'mesh': 2}).key.startswith('280cc995')
-    with pytest.raises(ValueError, match='selection policy'):
-        EvaluationPolicy(fidelities=(fidelity,), primary_cost=4.0)
+    # No router is a declaration too: the SOLVER picks each point's level (``Seeding.LEVELS``); the search refuses a
+    # solver that cannot (test_a_router_and_a_level_seeded_solver_are_two_choosers_and_many_legs_need_one).
+    assert EvaluationPolicy(fidelities=(fidelity,), primary_cost=4.0).router is None
+
+
+SMOOTH = Problem(Space((Real('a', 0.0, 1.0), Real('b', 2.0, 4.0))), (Objective('f'),))
+OPTIMUM = (0.3, 3.5)
+#: Two levels of one objective: the cheap level is a biased, scaled copy of the truth.
+LEVELS = {'coarse': 1.0, 'fine': 10.0}
+LEVELLED = Problem(
+    SMOOTH.space, SMOOTH.objectives, fidelity=Fidelity(tuple(Level(name, cost) for name, cost in LEVELS.items()))
+)
+
+
+class Levelled(Toy):
+    """A two-leg screening oracle: leg 0 is the truth ``fine``, leg 1 the cheap ``coarse``; it records each level."""
+
+    capability = Capability(outputs=('f',), fidelities=tuple(LEVELS), version='levelled')
+    evaluators = 2
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.levels: list[str | None] = []
+
+    def answer(self, action: Action) -> Result:
+        a, b = float(action.design['a']), float(action.design['b'])
+        truth = (a - OPTIMUM[0]) ** 2 + (b - OPTIMUM[1]) ** 2
+        value = truth if action.fidelity in ('fine', None) else 0.5 * truth + 0.1 * a
+        return Result(action, Cell(Status.OK, values={'f': value}))
+
+    def routed(self, action: Action, index: int) -> Action:
+        return Action.of(LEVELLED, self.capability, action.design, fidelity=('fine', 'coarse')[index])
+
+    def publish_batch(self, actions, on_result) -> None:
+        self.levels.extend(action.fidelity for action in actions)
+        super().publish_batch(actions, on_result)
+
+
+def test_a_level_seeded_solver_picks_each_points_level_and_its_population_is_the_truth_design(tmp_path: Path) -> None:
+    oracle = Levelled()
+    searched = search(LEVELLED, oracle, Record(tmp_path / 'mf.jsonl'), algorithm='mfbo', population=3, solves=16)
+    assert searched.search_refusal is None
+    # The nested design: the declared population at the truth, three times it at the cheaper level.
+    assert sorted(oracle.levels[:12]) == ['coarse'] * 9 + ['fine'] * 3
+    assert len(oracle.levels) == 16 and set(oracle.levels[12:]) <= set(LEVELS)
+
+
+def test_a_router_and_a_level_seeded_solver_are_two_choosers_and_many_legs_need_one(tmp_path: Path) -> None:
+    with pytest.raises(Refusal, match='picks its own level'):
+        search(
+            LEVELLED,
+            Levelled(),
+            Record(tmp_path / 'two.jsonl'),
+            algorithm='mfbo',
+            population=3,
+            router=lambda points, _results: np.zeros(len(points), dtype=int),
+        )
+    with pytest.raises(Refusal, match='selection policy'):
+        search(LEVELLED, Levelled(), Record(tmp_path / 'none.jsonl'), algorithm='cmaes', population=4)
 
 
 class PredictingToy(Toy):

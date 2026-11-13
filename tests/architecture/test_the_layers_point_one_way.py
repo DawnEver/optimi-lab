@@ -37,6 +37,7 @@ LAYERS: Final[dict[str, int]] = {
     'model': 6,
     'solver': 7,
     'policy': 8,
+    'topology': 8,
     'run': 9,
     'study': 10,
     'tuning': 10,

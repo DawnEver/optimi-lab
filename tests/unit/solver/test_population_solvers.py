@@ -122,3 +122,22 @@ def test_a_moead_child_is_scored_under_each_neighbours_own_weight():
     solver._violation = np.zeros(3)
     solver._replace(np.array([[0.0]]), np.array([[0.0, 1.0]]), np.zeros(1), np.array([2]))
     assert solver._values.tolist() == [[0.0, 1.0], [0.5, 0.5], [0.5, 0.5]]
+
+
+@pytest.mark.parametrize('factory', ALGORITHMS)
+def test_a_generation_with_one_surviving_point_still_breeds_the_next(factory, tmp_path):
+    """One computed point is a population of one: it is every parent, not a tournament too small to run.
+
+    MEASURED 2026-11-07 in a downstream design search: every point but one of a seed generation was refused
+    by the oracle, and the run died on ``tournament_size 2 exceeds the 1 row(s)``.
+    """
+    seen = []
+
+    def mostly_refused(action: Action) -> dict[str, float] | Result:
+        seen.append(action)
+        if len(seen) <= 8 and len(seen) != 3:
+            return Result(action, Cell(Status.ERROR, reason=Reason('error', 'planted')))
+        return _bowls(action)
+
+    outcome = _drive(factory, tmp_path / 'r.jsonl', evaluate=mostly_refused)
+    assert outcome.ledger.evaluations == 24, 'the run continues from its one surviving point'

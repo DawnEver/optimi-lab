@@ -11,6 +11,8 @@
 |---|---|
 | [Onboarding a repo](../../../dev-lab/docs-src/dev/onboarding.md) | The one call, every declaration a new repo supplies, and the order that matters |
 | [Migrating a workstation](../../../dev-lab/docs-src/dev/migrate.md) | Start here if you used to run the gate before a push: what to stop, and the five commands that replace it |
+| [The family architecture](../../../dev-lab/docs-src/dev/architecture.md) | The normative spec: repo kinds, branch flow, HPC, consent, six contracts and their gaps, the constitution |
+| [Development architecture and topology](../../../dev-lab/docs-src/dev/topology.md) | The map: repo family, branch flow, forges and identities, hosts, consent, config files, setup and rotation |
 | [The three participants](../../../dev-lab/docs-src/dev/the-three-participants.md) | Who does what: the human, the authors, the producers, the forge and the integrator |
 | [The verdict model](../../../dev-lab/docs-src/dev/verdict-model.md) | What a verdict is, the tiers, and which destination needs which forge parts |
 | [Testing discipline](../../../dev-lab/docs-src/dev/testing-discipline.md) | The lightweight/heavy partition, xfail never skip, one test session per box |
@@ -35,6 +37,7 @@
 | [One branch per session](../../../dev-lab/docs-src/dev/branch-set.md) | The declared branch set, merge-or-delete, and the push-time check |
 | [Auto mode runs the doors](../../../dev-lab/docs-src/dev/auto-doors.md) | Local cleanup and run stops are checked doors both clients allow unprompted |
 | [Refusals](../../../dev-lab/docs-src/dev/refusals.md) | Every deny refusal is a clause, a door and a pointer; the full text of each row |
+| [Every wall teaches](../../../dev-lab/docs-src/dev/feedback.md) | The feedback layers, the wall ledger, and closing a gap before the task |
 | [Project files](../../../dev-lab/docs-src/dev/project-files.md) | Every project file is rendered from a family base plus a delta, or owned by the repo; hooks and CI are TOML |
 
 ## What this repo has, and what it does not

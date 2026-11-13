@@ -51,6 +51,9 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
     'scipy',
     'optimi_lab',
     'lab_commons.outcomes',
+    # ADMITTED 2026-11-13 BY NAME: `tuning.search` names its scratch run record with the family `TEMP_PREFIX`
+    # so the shared-temp sweep owns it; a stdlib-only module of the lab-commons distribution already in RUNTIME.
+    'lab_commons.temp',
     'numerics_lab',
 })
 

@@ -18,7 +18,9 @@ import numpy as np
 from optimi_lab.core import refuse
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Field, Integer, Problem, Real
-from optimi_lab.solver.population import PopulationSolver, build, require_one_score
+from optimi_lab.solver.population import PopulationSolver
+from optimi_lab.solver.scoring import require_one_score
+from optimi_lab.solver.settings import build
 
 __all__ = ['Descriptor', 'MapElites', 'descriptors_of', 'map_elites']
 
@@ -69,6 +71,8 @@ class MapElites(PopulationSolver):
         del mask
         for point, value, shortfall, result in zip(inputs, values[:, 0], violation, self._results, strict=True):
             reading = {**result.action.design, **result.cell.values}
+            if any(d.name not in reading for d in self._descriptors):
+                continue  # a refused design has no output to bin it by
             cell = tuple(d.bin(float(reading[d.name])) for d in self._descriptors)
             held = self.elites.get(cell)
             if held is None or (shortfall, value) < (held[2], held[1]):

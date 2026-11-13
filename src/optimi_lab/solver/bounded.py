@@ -12,7 +12,10 @@ starting gradient, floored by ``atol``). Constraints other than the box are refu
   box -- the direct primal method), then a strong-Wolfe search capped at the box. A failed search
   discards the memory and retries from the steepest-descent model, as Byrd-Lu-Nocedal do; a failure
   with no memory is the halt (STALLED, the search's reason quoted). The model is numerics-lab's
-  :class:`~numerics_lab.quasi_newton.LbfgsMemory` in its compact direct form ``theta I - W M W^T``.
+  :class:`~numerics_lab.quasi_newton.LbfgsMemory` in its compact direct form ``theta I - W M W^T``; a
+  singular middle matrix ``M^-1`` (in floating point, a round-off pair ``s ~ 1e-23`` against ``theta ~ 1e22``)
+  refreshes the memory and continues from the steepest-descent model, as the reference code does when its
+  factorisation fails -- never a bare ``Singular matrix`` out of the solver (HPC 7967593).
 * :func:`newton_cg` -- a trust-region Newton method: Steihaug-CG on the free variables' Hessian.
   The Hessian-vector product is the caller's ``hvp(x, v)`` -- an oracle's declared product -- or,
   ONLY when asked for by name, ``hvp="finite_difference"``: a forward difference of gradients, one
@@ -110,6 +113,16 @@ def _subspace_step(point: Linearization, model: np.ndarray, z: np.ndarray, lo, h
     return z
 
 
+def _model(secants: LbfgsMemory, n: int) -> np.ndarray:
+    """The dense L-BFGS model; the identity on an empty or REFRESHED memory (a singular compact form)."""
+    if secants.pairs:
+        try:
+            return secants.hessian()
+        except np.linalg.LinAlgError:
+            secants.clear()
+    return np.eye(n)
+
+
 def lbfgsb(
     evaluate: Evaluate,
     x0,
@@ -130,7 +143,7 @@ def lbfgsb(
     for iteration in range(max_iterations):
         if _gap(point, lo, hi) <= bar:
             return _halt(point, (lo, hi), iteration, Halt.CONVERGED)
-        model = secants.hessian() if secants.pairs else np.eye(n)
+        model = _model(secants, n)
         z = cauchy_point(point.x, point.gradient, model, lo, hi)
         d = _subspace_step(point, model, z, lo, hi)
         slope = float(point.gradient @ d)
