@@ -93,12 +93,16 @@
       "Bash(git -C * merge --ff-only *)",
       "Bash(.venv/Scripts/python.exe -m dev_lab.dev.branchprune delete *)",
       "Bash(.venv/bin/python -m dev_lab.dev.branchprune delete *)",
+      "Bash(.venv/Scripts/python.exe -m dev_lab.dev.branchprune delete-tag *)",
+      "Bash(.venv/bin/python -m dev_lab.dev.branchprune delete-tag *)",
       "Bash(gh workflow enable *)",
       "Bash(gh workflow disable *)",
       "Bash(.venv/Scripts/python.exe -m dev_lab.dev.hpcaccount deploy-fleet *)",
       "Bash(.venv/bin/python -m dev_lab.dev.hpcaccount deploy-fleet *)",
       "Bash(.venv/Scripts/python.exe -m dev_lab.dev.hpcaccount forget *)",
       "Bash(.venv/bin/python -m dev_lab.dev.hpcaccount forget *)",
+      "Bash(.venv/Scripts/python.exe -m dev_lab.dev.hpcaccount credential *)",
+      "Bash(.venv/bin/python -m dev_lab.dev.hpcaccount credential *)",
       "Bash(.venv/Scripts/python.exe -m dev_lab.dev.opsserver *)",
       "Bash(.venv/bin/python -m dev_lab.dev.opsserver *)"
     ]

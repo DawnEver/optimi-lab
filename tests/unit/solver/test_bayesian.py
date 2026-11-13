@@ -10,10 +10,10 @@ from pathlib import Path
 import numpy as np
 import pytest
 from lab_commons.outcomes import Cell, Reason, Status
+from learn_lab.models.response import RadialBasis
 
 from optimi_lab.core import Refusal
 from optimi_lab.metric import hypervolume
-from optimi_lab.model import RadialBasis
 from optimi_lab.oracle import Action, Capability, Result, from_function
 from optimi_lab.problem import BlackBox, Linear, Objective, Problem, Real, Space
 from optimi_lab.solver import ACQUISITIONS, bo, ehvi, maximise, nehvi, parego

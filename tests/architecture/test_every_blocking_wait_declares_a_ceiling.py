@@ -69,7 +69,7 @@ EXEMPT: Final[tuple[str, ...]] = ()
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): the scan read 138.
 #: RE-TAKEN 2026-10-18 AT 145: the P9 + P12 merge read 154.
-#: RE-TAKEN 2026-10-18 AT 165: P10 (surrogates, optimi_lab.model) read 173.
+#: RE-TAKEN 2026-10-18 AT 165: P10 (surrogates, the L6 model package since moved to learn-lab) read 173.
 #: RE-TAKEN 2026-10-18 AT 145: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 158.
 #: RE-TAKEN 2026-10-18 AT 198: P11 (model-based solvers, D59-D68) read 206; already red at c028663, which read 192.
 #: RE-TAKEN 2026-10-18 AT 212: P14 (structured solvers, D126-D132) read 222; 329e959 (P11) read 206.

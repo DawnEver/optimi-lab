@@ -11,35 +11,35 @@ from dataclasses import dataclass
 from typing import Final
 
 import numpy as np
+from learn_lab.calibration import jackknife
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.core.pareto import non_dominated_sorting
 from optimi_lab.core.sampling import SampleSpec
-from optimi_lab.model.bench import ColumnBound, feasibility_probability
 from optimi_lab.policy.surrogate_fit import ScoredModel, SurrogateFit, black_boxes
 from optimi_lab.problem import BlackBox, Relation, Space
+from optimi_lab.surrogate.bench import ColumnBound, feasibility_probability
 
 __all__ = [
     'FALLBACK_PROPOSALS',
     'FEASIBLE_PROBABILITY',
-    'GP_CALIBRATED_ROWS',
-    'GP_SD_INFLATION',
+    'GP_INTERVAL_COVERAGE',
     'SURROGATE_STEERING_SEED_OFFSET',
     'Selection',
     'feasible_front',
     'predictive',
     'probability_of_feasibility',
     'proposal_accuracy',
-    'sd_inflation',
     'surrogate_candidates',
     'surrogate_proposals',
     'surrogate_selection',
 ]
 
-#: Below :data:`GP_CALIBRATED_ROWS` the GP's predictive sd is widened by this factor (1.96 / 1.45, the
-#: z its 95 % interval actually covered at n=96) before it feeds a probability of feasibility.
-GP_SD_INFLATION: Final[float] = 1.4
-GP_CALIBRATED_ROWS: Final[int] = 200
+#: The GP's observation sd is widened by its MEASURED leave-one-out conformal factor at this coverage
+#: (:func:`learn_lab.calibration.jackknife`, per fit and per column) before it feeds a probability of
+#: feasibility -- the coverage :func:`proposal_accuracy` checks. Below 19 rows a 95 % conformal quantile does
+#: not exist; the factor is then measured at the highest coverage the rows support, ``n / (n + 1)``.
+GP_INTERVAL_COVERAGE: Final[float] = 0.95
 #: A candidate is proposed only when its probability of meeting every bound is at least this ...
 FEASIBLE_PROBABILITY: Final[float] = 0.5
 #: ... else the most probably feasible this many are, so a round still learns where feasibility is.
@@ -61,19 +61,18 @@ class Selection:
     pof: np.ndarray | None
 
 
-def sd_inflation(training_rows: int) -> float:
-    """The factor the GP's predictive sd is widened by at this training size."""
-    return GP_SD_INFLATION if training_rows < GP_CALIBRATED_ROWS else 1.0
-
-
-def predictive(model: ScoredModel, drawn: np.ndarray, *, training_rows: int) -> tuple[np.ndarray, np.ndarray | None]:
-    """Predicted mean and, for the GP, the calibrated observation sd (latent variance plus noise)."""
+def predictive(model: ScoredModel, drawn: np.ndarray) -> tuple[np.ndarray, np.ndarray | None]:
+    """Predicted mean and, for the GP, the conformally calibrated observation sd (latent variance plus noise)."""
     if model.key != _GP:
         return np.asarray(model.fitted.predict(drawn).mean, dtype=float), None
-    predicted = model.fitted.predict(drawn, variance=True)
-    noise = np.asarray(model.fitted.noise, dtype=float)[None, :]  # type: ignore[attr-defined]
+    fitted = model.fitted
+    predicted = fitted.predict(drawn, variance=True)
+    noise = np.asarray(fitted.noise, dtype=float)[None, :]  # type: ignore[attr-defined]
     sd = np.sqrt(np.asarray(predicted.variance, dtype=float) + noise)
-    return np.asarray(predicted.mean, dtype=float), sd * sd_inflation(training_rows)
+    rows = len(fitted.x)  # type: ignore[attr-defined]
+    coverage = min(GP_INTERVAL_COVERAGE, rows / (rows + 1))
+    widening = jackknife(fitted, coverage=coverage).widening  # type: ignore[arg-type]
+    return np.asarray(predicted.mean, dtype=float), sd * widening[None, :]
 
 
 def probability_of_feasibility(mean: np.ndarray, sd: np.ndarray, constraints: Sequence[BlackBox]) -> np.ndarray:
@@ -122,7 +121,7 @@ def surrogate_selection(fit: SurrogateFit, model: ScoredModel, *, candidates: in
     """The distinct candidates at *model*'s predicted (likely-feasible) front, with its predictions."""
     problem = fit.problem
     drawn = surrogate_candidates(problem.space, candidates=candidates, seed=seed)
-    mean, sd = predictive(model, drawn, training_rows=len(fit.results))
+    mean, sd = predictive(model, drawn)
     if fit.feasibility and sd is None:
         refuse(f'a feasibility fit filters by probability of feasibility, and {model.key!r} gives no predictive sd')
     k = len(problem.objectives)

@@ -7,7 +7,7 @@ Multi-objective optimization and surrogate models, as pure numerics.
 Optimi-Lab is a library: it optimizes over declared variables, objectives and constraints, and
 returns arrays. It reads no file, writes no file, configures no logger and depends on numpy,
 scipy, numerics-lab and `lab_commons.outcomes` only, so it can sit inside another program without
-reconfiguring it. Every surrogate model is self-implemented (`optimi_lab.model`).
+reconfiguring it. Every surrogate model is self-implemented in the sibling library learn-lab (`learn_lab.models.response`).
 
 ## Key Features
 
