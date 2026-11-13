@@ -10,7 +10,8 @@ replaced by the identity -- the start model -- and each reset is counted in ``ev
 
 * :func:`sqp` -- each step solves the QP of the quadratic model under the linearised constraints and
   the box (:func:`~optimi_lab.operator.active_set_qp`); the step is searched on the exact l1 merit by
-  Armijo backtracking. An infeasible linearisation takes the QP's least-violating step; a QP the
+  Armijo backtracking. An infeasible linearisation takes the QP's least-violating step, its slope
+  read from the violation it actually removes and ``nu`` raised until it descends; a QP the
   active-set method refuses halts STALLED with that refusal as its reason, never an exception.
 * :func:`interior_point` -- a primal-dual barrier method: the bounds become inequality rows, every
   inequality gets a slack, the Newton system is condensed onto ``(dx, dy)`` and solved as a KKT
@@ -39,6 +40,7 @@ from optimi_lab.operator import (
     kkt_residual,
     l1_merit,
     l1_penalty,
+    l1_reduction,
     l1_slope,
     lagrangian_gradient,
 )
@@ -122,7 +124,8 @@ def sqp(
             y, z = qp.multipliers_eq, qp.multipliers_in[: point.c.size]
             if kkt_residual(point, lo, hi, y=y, z=z).worst <= bar:
                 return _solution(point, (lo, hi), (y, z), iteration, Halt.CONVERGED, evidence=_resets(resets))
-        nu = l1_penalty(np.concatenate([y, z]), nu)
+        reduction = l1_reduction(point, d)
+        nu = l1_penalty(np.concatenate([y, z]), nu, descent=float(point.gradient @ d), reduction=reduction)
         slope = l1_slope(point, d, nu)
         if not slope < 0.0:
             halt = Halt.INFEASIBLE if not qp.feasible else Halt.STALLED
