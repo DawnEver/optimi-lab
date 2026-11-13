@@ -283,7 +283,7 @@ pr_merges_since = "dca72b71758ee4c70fb991fbcb44c56a9e52498d"
 # repo admin (integrator ruling 2026-11-10). `python -m dev_lab.dev.forge protect plan|check|apply`.
 [tool.dev_lab.protection]
 [tool.dev_lab.protection.forges."github.com"]
-breakglass = "role:admin"
+breakglass = ["app:5704921", "role:admin"]  # the ops App merges break-glass; admin stays
 
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
 [tool.dev_lab.hooks]

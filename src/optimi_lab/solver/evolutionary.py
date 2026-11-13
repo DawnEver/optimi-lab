@@ -49,7 +49,9 @@ from optimi_lab.operator import (
 )
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
-from optimi_lab.solver.population import LOOP_ARGUMENTS, EvolutionarySolver, require_one_score
+from optimi_lab.solver.population import EvolutionarySolver
+from optimi_lab.solver.scoring import require_one_score
+from optimi_lab.solver.settings import LOOP_ARGUMENTS
 
 __all__ = [
     'differential',

@@ -19,7 +19,8 @@ from optimi_lab.core import constrained_dominates, constrained_non_dominated_sor
 from optimi_lab.operator import crowding_select, polynomial_mutation, pso_position, pso_velocity
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
-from optimi_lab.solver.population import PopulationSolver, build
+from optimi_lab.solver.population import PopulationSolver
+from optimi_lab.solver.settings import build
 
 __all__ = ['SwarmSolver', 'mopso']
 

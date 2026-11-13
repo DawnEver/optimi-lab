@@ -302,6 +302,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED 2026-10-29: the guard install wires the advisory `PostToolUse` `dev_lab.dev.pushwatch`
     # line into the tracked `.claude/settings.json`, and `_GUARD`'s liveness arm reads that wiring.
     'PUSHED-HEAD-IS-WATCHED': (_GUARD, '.claude/settings.json'),
+    'SESSION-HEARS-ITS-PRS': (_GUARD, '.claude/settings.json'),  # dev-lab #438: the Stop gate and the PR record
     # ADOPTED 2026-10-18 with `[tool.dev_lab.hooks]` (the family base as is). The commit-msg
     # `merge-audit` row refuses committing a merge that loses or rewrites a test unnamed; the pre-push
     # `session-branch` row (`dev_lab.dev.sessionbranch`) refuses publishing a session branch from

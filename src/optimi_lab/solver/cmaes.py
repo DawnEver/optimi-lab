@@ -18,7 +18,9 @@ from optimi_lab.core import refuse
 from optimi_lab.core.sampling import SampleSpec
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Embedding, Problem
-from optimi_lab.solver.population import PopulationSolver, build, require_one_score
+from optimi_lab.solver.population import PopulationSolver
+from optimi_lab.solver.scoring import require_one_score
+from optimi_lab.solver.settings import build
 
 __all__ = ['CMAES', 'cmaes']
 

@@ -45,61 +45,10 @@ from optimi_lab.operator import Risk, discrete_mutation, lattice, snap
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.scenarios import Scenarios
+from optimi_lab.solver.scoring import Scalarise, score_rows
+from optimi_lab.solver.settings import LOOP_ARGUMENTS
 
-__all__ = [
-    'LOOP_ARGUMENTS',
-    'EvolutionarySolver',
-    'PopulationSolver',
-    'Scalarise',
-    'build',
-    'require_one_score',
-    'score_rows',
-    'settings_of',
-]
-
-#: Minimised objective rows ``(n, m)`` -> one score per row ``(n,)``.
-Scalarise = Callable[[np.ndarray], np.ndarray]
-
-#: Arguments every variation receives from the loop rather than from its settings.
-LOOP_ARGUMENTS = frozenset({'population', 'width', 'rng', 'values', 'violation'})
-
-
-def settings_of(owner: type) -> frozenset[str]:
-    """Every keyword setting *owner* takes, its own and each base class's, read off their signatures."""
-    names: set[str] = set()
-    for cls in owner.__mro__[:-1]:
-        parameters = inspect.signature(cls.__init__).parameters.values()
-        names |= {p.name for p in parameters if p.kind is p.KEYWORD_ONLY}
-    return frozenset(names)
-
-
-def build[T](owner: type[T], problem: Problem, capability: Capability, what: str, **settings: object) -> T:
-    """``owner(problem, capability, **settings)``, refusing a setting it does not take and naming those it does."""
-    accepted = settings_of(owner)
-    unknown = sorted(set(settings) - accepted)
-    if unknown:
-        refuse(f'{unknown} are not settings of {what}; the valid settings are {sorted(accepted)}')
-    return owner(problem, capability, **settings)
-
-
-def require_one_score(problem: Problem, scalarise: Scalarise | None, what: str) -> None:
-    """Refuse a single-score algorithm on several objectives unless a scalarisation is supplied."""
-    if scalarise is None and len(problem.objectives) > 1:
-        refuse(
-            f'{what} minimises one score and the problem has {len(problem.objectives)} objectives; '
-            f'pass scalarise= (an optimi_lab.operator scalarisation bound to its weights)'
-        )
-
-
-def score_rows(
-    problem: Problem, scalarise: Scalarise | None, results: Sequence[Result]
-) -> tuple[np.ndarray, np.ndarray]:
-    """``(values, violation)`` of OK *results*: minimised rows (or one scalarised column), violation per row."""
-    values = np.array([[o.minimized(r.cell.values[o.name]) for o in problem.objectives] for r in results])
-    values = values.reshape(len(results), len(problem.objectives))
-    if scalarise is not None:
-        values = np.asarray(scalarise(values), dtype=float).reshape(-1, 1)
-    return values, np.array([r.violation(problem) for r in results])
+__all__ = ['EvolutionarySolver', 'PopulationSolver']
 
 
 class PopulationSolver(ABC):
