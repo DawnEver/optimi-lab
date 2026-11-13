@@ -284,6 +284,13 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'NO-PUSH-ONTO-A-CLOSED-PR': (_PYPROJECT,),
     # Adopted 2026-11-07 with dev-lab #304: the base pre-push row `pr-current` this pyproject's hooks table runs.
     'PR-HEAD-IS-CURRENT': (_PYPROJECT,),
+    # Adopted 2026-11-13 (user ruling): the base pre-push row `milestone-base` this pyproject's hooks table runs.
+    'BASE-HOLDS-THE-MILESTONE': (_PYPROJECT,),
+    'VERSION-TAG-NEEDS-APPROVAL': (_PYPROJECT,),
+    # Adopted 2026-11-13 (user ruling): the guard install wires `dev_lab.dev.walls` post-tool and stop.
+    'WALLS-ARE-RECORDED': (_GUARD,),
+    # Adopted 2026-11-13 (user ruling D51): the archive reads only the current submission shape.
+    'FORMATS-MIGRATE-ONCE': ('tests/unit/archive/test_an_older_record_is_refused_by_name.py',),
     # ADOPTED with lab-commons ec5e8c5: `[tool.dev_lab.branchset]` declares trunk `main` and no
     # session branches, and the family famtest polices origin and this box against it.
     'ONE-BRANCH-PER-SESSION': ('pyproject.toml', _ORIGIN),
@@ -365,9 +372,6 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   `src/optimi_lab/model/registry.py`, the surrogate names already live in it, and
 #:   `test_a_declared_set_refuses_a_stranger.py` already refuses an unregistered key -- what is
 #:   missing is a SECOND kind to branch on, not a guard).
-#:   FORMATS-UPGRADE-ON-READ (arrived with lab-commons 96a90c8, measured 2026-10-18: `git grep` over
-#:   `src/` finds no `json.dump`, `pickle`, `np.save`, `write_text` or schema field -- this library
-#:   persists no format of its own, so there is no older schema for a reader to upgrade).
 #: * WORKFLOW MACHINERY THIS REPO GENUINELY DOES NOT HAVE, measured at the filesystem rather than
 #:   asserted: NETWORK-RETRY-THEN-REPORT (this repo issues NO network verb of its own: re-measured
 #:   2026-10-18, every `git clone/fetch/pull/push/ls-remote` spelling under `scripts/`, `src/` and
@@ -383,7 +387,6 @@ _ABSENT: Final = frozenset({
     'PRODUCTION-ENTRY-POINT',
     'UNITS-GO-THROUGH-PINT',
     'REGISTRY-OWNS-THE-DECISION',
-    'FORMATS-UPGRADE-ON-READ',
     'NETWORK-RETRY-THEN-REPORT',
 })
 
@@ -442,7 +445,11 @@ _ABSENT: Final = frozenset({
 #:
 #: AND 9 -> 7 the same day, when both left for mechanisms: the re-rendered deny rules ship the
 #: RECURSIVE-DELETE row and the guard install wires the PUSHED-HEAD-IS-WATCHED `PostToolUse` line.
-_ABSENT_CEILING: Final = 7
+#:
+#: AND 7 -> 6 on 2026-11-13: FORMATS-UPGRADE-ON-READ was retired for FORMATS-MIGRATE-ONCE (D51), and the
+#: 2026-10-18 measurement was wrong -- the archive DID upgrade a scenario-less submission on read. It now
+#: refuses one by name, and the rule left for that test.
+_ABSENT_CEILING: Final = 6
 
 
 def _adoption() -> Adoption:
