@@ -555,8 +555,8 @@ wheels = [
 
 [[package]]
 name = "dev-lab"
-version = "0.0.1.dev3222+g61560e40c"
-source = { git = "https://github.com/DawnEver/dev-lab.git?branch=integrate%2Fmain#61560e40c1f30539cc97e6b7904753968ea90d29" }
+version = "0.0.1.dev3253+g41d0e5df8"
+source = { git = "https://github.com/DawnEver/dev-lab.git?branch=integrate%2Fmain#41d0e5df8e01e0e27aa7bb48fd17eb875147c90c" }
 dependencies = [
     { name = "cryptography" },
     { name = "lab-commons", extra = ["io", "paths", "structured", "units"] },
@@ -869,8 +869,8 @@ wheels = [
 
 [[package]]
 name = "lab-commons"
-version = "0.3.1.dev1456+g3b167f2bf"
-source = { git = "https://github.com/DawnEver/lab-commons.git#3b167f2bf13ed72dc2e142899aa28017ec54f617" }
+version = "0.3.1.dev1472+g506a604a2"
+source = { git = "https://github.com/DawnEver/lab-commons.git#506a604a24622ddad83a94209a41389814f02ce2" }
 
 [package.optional-dependencies]
 io = [
@@ -1107,7 +1107,7 @@ wheels = [
 [[package]]
 name = "numerics-lab"
 version = "0.1.0"
-source = { git = "https://github.com/DawnEver/numerics-lab.git#da256328535d38d558005e5e315de7bc5b257112" }
+source = { git = "https://github.com/DawnEver/numerics-lab.git#326d903697c0edb5637e7a585ff324ea77bda309" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
