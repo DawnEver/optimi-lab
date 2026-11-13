@@ -27,7 +27,8 @@ authors = [{ name = "Mingyang Bao" }]
 # left with P10 and is now learn-lab's test oracle, which owns every surrogate model.
 dependencies = [
     "lab-commons @ git+https://github.com/DawnEver/lab-commons.git",
-    # learn-lab owns every surrogate model (fit -> Fitted -> Prediction); optimi-lab steers with them.
+    # learn-lab owns every surrogate model (fit -> Fitted -> Prediction) and the tuning-space vocabulary
+    # (learn_lab.space); optimi-lab steers with the models and searches the spaces.
     "learn-lab @ git+https://github.com/DawnEver/learn-lab.git",
     "numerics-lab @ git+https://github.com/DawnEver/numerics-lab.git",
     "numpy",

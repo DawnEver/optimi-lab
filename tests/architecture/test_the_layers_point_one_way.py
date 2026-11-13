@@ -40,6 +40,7 @@ LAYERS: Final[dict[str, int]] = {
     'topology': 8,
     'run': 9,
     'study': 10,
+    'tuning': 10,
 }
 EXEMPT: Final = frozenset({'__init__', '__version__'})
 
