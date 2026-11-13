@@ -11,13 +11,14 @@ import math
 from collections.abc import Mapping
 
 import pytest
+from learn_lab.space import Choice, Integer, Real, Space
 
 from optimi_lab.core import Refusal
-from optimi_lab.tuning import TUNING_METHODS, IntegerRange, Kind, OneOf, RealRange, minimise
+from optimi_lab.tuning import TUNING_METHODS, Kind, minimise
 
 _PENALTY = {'a': 1.0, 'b': 0.0, 'c': 2.0}
-MIXED = {'rate': RealRange(1e-4, 1.0, log=True), 'depth': IntegerRange(0, 10), 'kind': OneOf(('a', 'b', 'c'))}
-ONE_OF_EACH = {Kind.REAL: RealRange(-2.0, 2.0), Kind.INTEGER: IntegerRange(0, 6), Kind.CHOICE: OneOf(('x', 'y'))}
+MIXED = {'rate': Real(1e-4, 1.0, log=True), 'depth': Integer(0, 10), 'kind': Choice(('a', 'b', 'c'))}
+ONE_OF_EACH = {Kind.REAL: Real(-2.0, 2.0), Kind.INTEGER: Integer(0, 6), Kind.CHOICE: Choice(('x', 'y'))}
 LEVELS = {'cheap': 1.0, 'full': 4.0}
 
 
@@ -65,7 +66,7 @@ def test_a_mixed_quadratic_reaches_its_optimum_within_the_budget(method: str, bu
 
 @pytest.mark.parametrize('method', ['nelder_mead', 'bobyqa', 'model_trust_region'])
 def test_a_real_quadratic_reaches_its_optimum_for_the_real_only_methods(method: str) -> None:
-    tuning = minimise(any_quadratic, {'real': RealRange(-2.0, 2.0)}, method=method, budget=40, seed=1)
+    tuning = minimise(any_quadratic, {'real': Real(-2.0, 2.0)}, method=method, budget=40, seed=1)
     assert tuning.best is not None
     assert tuning.best.score == pytest.approx(0.0, abs=1e-3)
 
@@ -163,6 +164,14 @@ def test_a_seed_drawn_for_the_caller_is_reported_and_replays() -> None:
 def test_a_search_that_exhausts_a_finite_space_stops_instead_of_re_asking_for_free() -> None:
     """A re-asked decided design costs no budget, so without the stop this run never ends."""
     objective = Counted(any_quadratic)
-    tuning = minimise(objective, {'choice': OneOf(('x', 'y'))}, method='bayesian', budget=50, seed=0)
+    tuning = minimise(objective, {'choice': Choice(('x', 'y'))}, method='bayesian', budget=50, seed=0)
     assert objective.calls == 2
     assert tuning.best is not None and tuning.best.settings['choice'] == 'y'
+
+
+def test_a_declared_learn_lab_space_is_searched_as_declared() -> None:
+    """The space a model family declares (learn_lab.space.Space) is the search's input, with no translation."""
+    declared = Space({'rate': Real(1e-4, 1.0, log=True), 'depth': Integer(0, 10), 'kind': Choice(('a', 'b', 'c'))})
+    tuning = minimise(mixed_quadratic, declared, method='bayesian', budget=60, seed=1)
+    assert tuning.best is not None
+    assert declared.holds(tuning.best.settings)

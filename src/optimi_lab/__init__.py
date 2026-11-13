@@ -20,8 +20,8 @@
 7. **A declared study** -- :mod:`optimi_lab.study`: fixed, sampled, feedback or searched designs under
    one writer, with the caller's record codec.
 
-The runtime is numpy, scipy, numerics-lab and ``lab_commons.outcomes``; every surrogate (:mod:`optimi_lab.model`)
-is self-implemented. Importing this package reads
+The runtime is numpy, scipy, numerics-lab, learn-lab (the tuning-space vocabulary) and
+``lab_commons.outcomes``; every surrogate (:mod:`optimi_lab.model`) is self-implemented. Importing this package reads
 nothing, writes nothing and leaves the host process's globals untouched.
 """
 
