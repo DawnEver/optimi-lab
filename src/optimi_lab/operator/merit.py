@@ -1,9 +1,12 @@
 """Merit functions: one number that says whether a trial point is better, objective and constraints together.
 
 * The EXACT l1 PENALTY ``f + nu (||h||_1 + ||max(c, 0)||_1)``: for ``nu`` above the largest
-  multiplier its local minimisers are the constrained ones. :func:`l1_slope` is the bound on its
-  directional derivative along a step that satisfies the linearised constraints, which is the slope
-  an Armijo search (numerics-lab) is handed.
+  multiplier its local minimisers are the constrained ones. :func:`l1_slope` bounds its directional
+  derivative along ANY step through the violation the step removes from the linearised constraints
+  (:func:`l1_reduction`) -- the slope an Armijo search (numerics-lab) is handed. A least-violating
+  step from an infeasible linearisation removes only PART of the violation; a slope that assumed all
+  of it promised a decrease no step length had (2026-11-13: an SQP refine on exact gradients
+  stalled). :func:`l1_penalty` raises ``nu`` until a step that removes violation descends.
 * The AUGMENTED LAGRANGIAN (Rockafellar's form for inequalities), smooth in ``x`` for fixed
   multipliers and penalty, which is what lets a bound-constrained gradient method minimise it.
 """
@@ -15,10 +18,12 @@ import numpy as np
 from optimi_lab.core.errors import refuse
 from optimi_lab.operator.kkt import Linearization
 
-__all__ = ['augmented_lagrangian_merit', 'l1_merit', 'l1_penalty', 'l1_slope']
+__all__ = ['augmented_lagrangian_merit', 'l1_merit', 'l1_penalty', 'l1_reduction', 'l1_slope']
 
 #: How far ``nu`` is kept above the largest multiplier, relatively.
 _MARGIN = 1.5
+#: The share of ``nu * reduction`` the penalty keeps as the step's guaranteed l1 descent.
+_DESCENT = 0.1
 
 
 def l1_merit(point: Linearization, nu: float) -> float:
@@ -26,15 +31,34 @@ def l1_merit(point: Linearization, nu: float) -> float:
     return point.objective + nu * point.violation
 
 
+def l1_reduction(point: Linearization, direction: np.ndarray) -> float:
+    """The violation *direction* removes from the linearised constraints: ``violation - ||h + dh d||_1 -
+    ||max(c + dc d, 0)||_1``. All of it for a step that satisfies the linearisation, part of it for a least-violating
+    one, and negative for a step that breaks it.
+    """
+    h = point.h + point.dh @ direction
+    c = point.c + point.dc @ direction
+    return point.violation - float(np.sum(np.abs(h)) + np.sum(np.maximum(c, 0.0)))
+
+
 def l1_slope(point: Linearization, direction: np.ndarray, nu: float) -> float:
-    """``grad f . d - nu * violation``: an upper bound on the l1 merit's derivative along a linearised step."""
-    return float(point.gradient @ direction) - nu * point.violation
+    """``grad f . d - nu * l1_reduction``: an upper bound on the l1 merit's derivative along ANY step *direction*
+    (the linearised violation is convex along it), equal to it where no linearised row crosses zero at the point.
+    """
+    return float(point.gradient @ direction) - nu * l1_reduction(point, direction)
 
 
-def l1_penalty(multipliers: np.ndarray, previous: float) -> float:
-    """``nu`` for the l1 merit: never below *previous*, and at least ``1.5 * max |multiplier|``."""
+def l1_penalty(multipliers: np.ndarray, previous: float, *, descent: float = 0.0, reduction: float = 0.0) -> float:
+    """``nu`` for the l1 merit: never below *previous*, at least ``1.5 * max |multiplier|``, and, when a step removes
+    *reduction* > 0 of the linearised violation while the objective changes at *descent* along it, at least
+    ``descent / ((1 - _DESCENT) * reduction)`` -- so its :func:`l1_slope` is ``<= -_DESCENT * nu * reduction``, a
+    descent (Nocedal and Wright, eq. 18.36). The multipliers alone say nothing at a step whose QP was infeasible.
+    """
     largest = float(np.max(np.abs(multipliers), initial=0.0))
-    return max(previous, _MARGIN * largest)
+    nu = max(previous, _MARGIN * largest)
+    if reduction > 0.0:
+        nu = max(nu, descent / ((1.0 - _DESCENT) * reduction))
+    return nu
 
 
 def augmented_lagrangian_merit(
