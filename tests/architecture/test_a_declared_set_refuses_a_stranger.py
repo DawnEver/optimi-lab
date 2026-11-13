@@ -22,7 +22,6 @@ import pytest
 
 from optimi_lab.core.errors import Refusal, coerce_enum
 from optimi_lab.core.sampling import SAMPLE_KINDS, SampleKind, SampleSpec
-from optimi_lab.model import KERNEL_FAMILIES, RADIAL_KERNELS, SURROGATES, GaussianProcess, RadialBasis, surrogate
 from optimi_lab.policy import STEERING_MODELS
 from optimi_lab.study import ALGORITHMS, SurrogateStrategy, algorithm_factory
 
@@ -32,9 +31,6 @@ _STRANGER = 'no_such_member_zzz'
 
 #: `(name, call, valid set)` -- one row per declared set that a caller can name from outside.
 _SETS: list[tuple[str, Callable[[str], object], tuple[str, ...]]] = [
-    ('surrogate registry', surrogate, tuple(SURROGATES)),
-    ('kernel families', GaussianProcess, KERNEL_FAMILIES),
-    ('radial kernels', RadialBasis, RADIAL_KERNELS),
     ('sample kinds', lambda key: coerce_enum(SampleKind, key, 'sample kind'), tuple(SAMPLE_KINDS)),
     ('study algorithms', algorithm_factory, ALGORITHMS),
     ('steering models', lambda key: SurrogateStrategy(model=key), tuple(STEERING_MODELS)),

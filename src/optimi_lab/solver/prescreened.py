@@ -12,13 +12,15 @@ picks the children to ask from the predicted rows:
 
 Only the picked children are evaluated, and only evaluated rows enter the population and the
 model: a prediction ranks a child, never replaces its evaluation (B0-08). With one objective it is a
-prescreened GA. The rebuilt 0.3 idea, now any L6 surrogate (:mod:`optimi_lab.model`).
+prescreened GA. The rebuilt 0.3 idea, now any L6 surrogate (:mod:`learn_lab.models.response`).
 """
 
 import numpy as np
+from learn_lab.models.response import GaussianProcess
+from learn_lab.protocol import Give, Surrogate
+from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import refuse
-from optimi_lab.model import GaussianProcess, Give, Surrogate
 from optimi_lab.operator import crowding_select, tournament_select
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
@@ -60,7 +62,8 @@ class Prescreened(EvolutionarySolver):
         bred = [super(Prescreened, self)._propose() for _ in range(self._oversample)]
         keep = len(bred[0])
         children = np.vstack(bred)
-        fitted = self._surrogate.fit(np.array(self._seen_x), np.array(self._seen_y))
+        unit = BoxEnvelope(np.zeros(self._width), np.ones(self._width))
+        fitted = self._surrogate.fit(np.array(self._seen_x), np.array(self._seen_y), domain=unit)
         p = fitted.predict(children, variance=self._kappa > 0.0)
         bound = p.mean if p.variance is None else p.mean - self._kappa * np.sqrt(p.variance)
         if self._problem.constraints:

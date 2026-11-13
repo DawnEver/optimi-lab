@@ -266,7 +266,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-11-11 after the CI-workflow row named its workflow set: own=523 hits=45 -> 8.60%, up from own=521 hits=45 -> 8.64% on 2026-11-07 after the no-CJK binder left for the always-on family test, down from own=527 hits=46 -> 8.73% the same day after the dated-anchor rows, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
+        'family half in it to split off. RE-MEASURED 2026-11-13 after the temp-prefix binder row: own=526 hits=45 -> 8.56%, up from own=523 hits=45 -> 8.60% on 2026-11-11 after the CI-workflow row named its workflow set, up from own=521 hits=45 -> 8.64% on 2026-11-07 after the no-CJK binder left for the always-on family test, down from own=527 hits=46 -> 8.73% the same day after the dated-anchor rows, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
         'own=519 hits=47 -> 9.06% after dev-lab delegation and new binders on 2026-10-23, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
@@ -306,7 +306,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'THE DOMAIN FACT IS THE SUBJECT: a library of interchangeable parts IS a set of registries -- which '
         'regressor, which sampler, which direction -- and the failure it refuses is the silent one where an '
         'unrecognised key falls back to a default and the caller gets a run it never asked for. That sentence '
-        'is false of every repo that is not an optimiser. RE-MEASURED 2026-11-01: own=42 hits=6 -> 14.29% (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
+        'is false of every repo that is not an optimiser. RE-MEASURED 2026-11-08: own=38 hits=4 -> 10.53% (A1: the three model sets left with the models for learn-lab), down from own=42 hits=6 -> 14.29% on 2026-11-01 (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
         'own=36 repo=4 on 2026-09-17, and under the ceiling as well.',
     ),
     'tests/architecture/test_a_pin_is_a_named_set.py': Placement(
@@ -354,7 +354,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'deleted public `optimi_lab` names outright, with no compat shim and no deprecation alias, and '
         'recorded which ones only in their commit messages. The scan that refuses a resurrection is small; '
         'the LIST of what was retired is the file, and it means nothing anywhere else. RE-MEASURED 2026-10-23 '
-        'after the development-kit migration: own=123 hits=36 -> 29.27%, up from own=111 repo=28 -> 25.23% after the '
+        'after the development-kit migration, RE-MEASURED 2026-11-08 after A1 (the model package retired): own=125 hits=28 -> 22.40%, down from own=123 hits=36 -> 29.27%, itself up from own=111 repo=28 -> 25.23% after the '
         'P12 retirements the same day, up from own=108 repo=25 -> 23.15% after the P8 retirements on '
         '2026-10-17, up from own=83 repo=8 -> 9.64% on 2026-10-03, up from own=78 repo=8 -> 10.26% on '
         '2026-09-19, itself down from own=80 repo=8 -> 10.00% on 2026-09-17. THE FIVE LINES ARE THE '
@@ -443,6 +443,12 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`dev_lab.dev.famtests.monthsummary` publishes the reader, the verdict and the planted control; '
         'what is local is the ONE memory tree this repo keeps and the first month it holds to the rule.',
     ),
+    'tests/architecture/test_every_temp_entry_carries_the_family_prefix.py': Placement(
+        STAYS,
+        'ADOPTED 2026-11-11 and a binder from its first line: `dev_lab.dev.famtests.tempprefix` owns the '
+        'walk, the verdict and the planted control; what is local is the two roots this repo walks (`src`, '
+        '`scripts`) and the measured file floor its walk must reach.',
+    ),
     'tests/architecture/test_memory_lives_under_a_date.py': Placement(
         STAYS,
         'RE-READ 2026-09-19 AGAINST THE PUBLISHED KIT, which is the reading no bar in this table takes: the '
@@ -505,7 +511,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_test_tree_collects_after_a_sync.py': Placement(
         STAYS,
         "ARRIVED 2026-10-04 with the consumer-facts merge: the family's `collectcensus` row for this repo's "
-        'test tree. RE-MEASURED 2026-10-23 after dependency-group adoption: own=21 hits=1, up from own=20 hits=1 on 2026-10-04.',
+        'test tree. RE-MEASURED 2026-11-08 after A1 (scikit-learn left the dev group): own=20 hits=2, down from own=21 hits=1 on 2026-10-23 after dependency-group adoption, itself up from own=20 hits=1 on 2026-10-04.',
     ),
     'tests/architecture/test_no_reflection.py': Placement(
         STAYS,
@@ -536,7 +542,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after '
         'AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 '
         'after lab-commons 2cca293, and 2026-10-23 after current dev-lab rule adoption: '
-        'own=152 hits=3 -> 1.97% on 2026-11-11 (the dev-lab #443 relock), up from own=151 hits=3 -> 1.99% on 2026-11-10 (LANDED-BRANCH-CONTINUES and NO-PUSH-ONTO-A-CLOSED-PR replaced the retired NO-PUSH-ONTO-A-LANDED-PR), up from own=150 hits=3 -> 2.00% on 2026-11-07 (NO-CJK-IN-TRACKED-SOURCE left for the always-on family test, PR-HEAD-IS-CURRENT joined), down from own=152 hits=3 -> 1.97% the same day (the PR-REVIEW rename and the WRITES-STAY-IN-THE-TREE row), up from own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
+        'own=155 hits=3 -> 1.94% on 2026-11-13 (the dev-lab 6cc2d023 relock: WALLS-ARE-RECORDED, BASE-HOLDS-THE-MILESTONE and VERSION-TAG-NEEDS-APPROVAL mapped), up from own=152 hits=3 -> 1.97% on 2026-11-11 (the dev-lab #443 relock), up from own=151 hits=3 -> 1.99% on 2026-11-10 (LANDED-BRANCH-CONTINUES and NO-PUSH-ONTO-A-CLOSED-PR replaced the retired NO-PUSH-ONTO-A-LANDED-PR), up from own=150 hits=3 -> 2.00% on 2026-11-07 (NO-CJK-IN-TRACKED-SOURCE left for the always-on family test, PR-HEAD-IS-CURRENT joined), down from own=152 hits=3 -> 1.97% the same day (the PR-REVIEW rename and the WRITES-STAY-IN-THE-TREE row), up from own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
         '2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 '
         'repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from '
         'own=102 repo=3 -> 2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up '
@@ -564,7 +570,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'AND NO CALLER DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against '
         "the real registry when the arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine "
         'command-plus-rule rows and the six sanctioned exits. RE-MEASURED 2026-10-23 after adopting the two '
-        'new reset/stage guards and their controls: own=71 hits=1 on 2026-11-10 (CONSENT-CODE-FROM-THE-USER and REMOTE-WRITE-THROUGH-A-DOOR pinned), up from own=69 hits=1 on 2026-11-07 (HPC-THROUGH-THE-DOOR and WRITES-STAY-IN-THE-TREE pinned), up from own=67 hits=1 on 2026-10-30 (the guard-is-live `workstation` marker dropped, user ruling 10-30), down from own=68 hits=1 on 2026-10-29 (two engine-only `workstation` markers dropped), down from own=69 hits=1 on 2026-10-26 (REVIEW-STATUS-VIA-DOORS pinned), up from own=68 hits=1 on 2026-10-25 (WORKTREE-BASE-IS-EXPLICIT is a hint now, its deny probe row gone), down from own=69 hits=1 on 2026-10-25 (BARE-PYTHON pinned), up from own=68 hits=1 on 2026-10-24 (TREE-HAS-A-LIVE-RUN pinned), up from own=67 hits=1 on 2026-10-23, up from own=61 hits=0 on 2026-10-19, '
+        'new reset/stage guards and their controls: own=72 hits=1 on 2026-11-13 (COMMIT-HOOKS-RUN pinned), up from own=71 hits=1 on 2026-11-10 (CONSENT-CODE-FROM-THE-USER and REMOTE-WRITE-THROUGH-A-DOOR pinned), up from own=69 hits=1 on 2026-11-07 (HPC-THROUGH-THE-DOOR and WRITES-STAY-IN-THE-TREE pinned), up from own=67 hits=1 on 2026-10-30 (the guard-is-live `workstation` marker dropped, user ruling 10-30), down from own=68 hits=1 on 2026-10-29 (two engine-only `workstation` markers dropped), down from own=69 hits=1 on 2026-10-26 (REVIEW-STATUS-VIA-DOORS pinned), up from own=68 hits=1 on 2026-10-25 (WORKTREE-BASE-IS-EXPLICIT is a hint now, its deny probe row gone), down from own=69 hits=1 on 2026-10-25 (BARE-PYTHON pinned), up from own=68 hits=1 on 2026-10-24 (TREE-HAS-A-LIVE-RUN pinned), up from own=67 hits=1 on 2026-10-23, up from own=61 hits=0 on 2026-10-19, '
         'up from own=58 on 2026-10-18 after SUBAGENT-NO-PUSH and REPORTS-LIVE-IN-MEMORY, up from own=57 on 2026-10-09, up from own=55 on '
         '2026-10-05, up from own=52 on 2026-10-03 after the progressive injected-text control was adopted, '
         'itself up from own=50 on 2026-10-01 by the two names lab-commons 9ce57c3 shipped (BARE-INTERPRETER, '
@@ -720,7 +726,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'path resolution, no configuration file" -- and `pyproject.toml` repeats it in a comment. Until this '
         'file both were PROSE, and a `structlog` import added to one function would have left every word of '
         "the claim reading exactly as it does now. Which three distributions are permitted is this library's "
-        "decision and nobody else's. RE-MEASURED 2026-10-23 after development-group isolation and URL-composition guards: own=150 hits=2 -> 1.33%, up from "
+        "decision and nobody else's. RE-MEASURED 2026-11-08 after A1 (learn-lab joined the runtime): own=151 hits=2 -> 1.32%, up from own=150 hits=2 -> 1.33% on 2026-10-23 after development-group isolation and URL-composition guards, itself up from "
         'own=126 hits=2 -> 1.59% after P11, up from own=125 repo=2 -> 1.6% after P9 admitted numerics-lab, up from own=109 repo=1 -> 0.92% after P12 '
         'added the R1 scipy guard, down from own=90 repo=1 -> 1.11% after P8 admitted lab_commons.outcomes on '
         '2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, down from own=86 repo=2 -> 2.33% on '

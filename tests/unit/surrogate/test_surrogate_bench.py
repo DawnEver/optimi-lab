@@ -7,12 +7,13 @@ correlation against scipy.stats (TEST ONLY, R1). The rest is closed form.
 
 import numpy as np
 import pytest
+from learn_lab.registry import surrogate
+from learn_lab.validation import cross_validate, score
 from scipy import stats
 from scipy.special import ndtr
 
 from optimi_lab.metric import igd_plus
-from optimi_lab.model import cross_validate, score, surrogate
-from optimi_lab.model.bench import (
+from optimi_lab.surrogate.bench import (
     DERIVED,
     FAMILIES,
     POOL,

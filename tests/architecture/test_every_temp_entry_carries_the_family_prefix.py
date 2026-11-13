@@ -1,4 +1,4 @@
-"""ONLY OUR OWN IS SWEPT: every shared-temp entry this repo creates carries :data:`lab_commons.temp.TEMP_PREFIX`.
+"""ONLY OUR OWN IS SWEPT: every shared-temp entry optimi-lab creates carries :data:`lab_commons.temp.TEMP_PREFIX`.
 
 dev-lab's Temp sweep removes only entries named with that prefix, so an unprefixed one piles up forever. The
 body and its planted control are :mod:`dev_lab.dev.famtests.tempprefix`; this file names this repo's facts.

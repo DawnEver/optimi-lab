@@ -1,6 +1,6 @@
 """An offline bench of surrogate families on solved rows: which model is worth steering with, measured.
 
-Every family is a registry model (:mod:`optimi_lab.model.registry`); this module declares
+Every family is a registry model (:mod:`learn_lab.registry`); this module declares
 configurations, combines predictions and scores them -- it implements no regressor of its own.
 
 * A :class:`Family` is a registry key and the configurations INNER cross-validation chooses among, on
@@ -24,13 +24,14 @@ from dataclasses import dataclass, field
 from typing import Final
 
 import numpy as np
+from learn_lab.models.response.polynomial import Ridge
+from learn_lab.registry import surrogate
+from learn_lab.validation import cross_validate, scored_fit
+from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core.pareto import constrained_non_dominated_sorting
 from optimi_lab.metric.indicators import igd_plus
 from optimi_lab.metric.statistics import kendall_tau_b, spearman
-from optimi_lab.model.polynomial import Ridge
-from optimi_lab.model.registry import surrogate
-from optimi_lab.model.validation import cross_validate, scored_fit
 from optimi_lab.operator.acquisition import log_probability_of_feasibility
 
 __all__ = [
@@ -107,18 +108,24 @@ def _inner_rmse(key: str, config: dict, x: np.ndarray, z: np.ndarray) -> np.ndar
     return np.sqrt(np.mean((mean - z) ** 2, axis=0))
 
 
+def _domain(x: np.ndarray, test: np.ndarray) -> BoxEnvelope:
+    """The bench's envelope: the box its training AND test rows span -- the region it scores a model on."""
+    return BoxEnvelope.of(np.vstack([x, test]))
+
+
 def _fit_family(family: Family, x: np.ndarray, z: np.ndarray, test: np.ndarray) -> Fit:
     started = time.perf_counter()
     if family.key == 'gaussian_process':
         # Dubrule's closed-form leave-one-out at the fitted theta: one fit, and the observation variance.
-        fitted = surrogate(family.key, **family.configs[0]).fit(x, z)
+        fitted = surrogate(family.key, **family.configs[0]).fit(x, z, domain=_domain(x, test))
         inner = np.sqrt(np.mean((np.asarray(fitted.leave_one_out().mean) - z) ** 2, axis=0))
         predicted = fitted.predict(test, variance=True)
         sd = np.sqrt(np.asarray(predicted.variance) + np.asarray(fitted.noise)[None, :])
         return Fit(np.asarray(predicted.mean), sd, inner, time.perf_counter() - started, native_sd=True)
     scores = [_inner_rmse(family.key, config, x, z) for config in family.configs]
     best = int(np.argmin([s.mean() for s in scores]))  # one configuration for every column
-    mean = np.asarray(surrogate(family.key, **family.configs[best]).fit(x, z).predict(test).mean)
+    fitted = surrogate(family.key, **family.configs[best]).fit(x, z, domain=_domain(x, test))
+    mean = np.asarray(fitted.predict(test).mean)
     return Fit(mean, np.broadcast_to(scores[best], mean.shape).copy(), scores[best], time.perf_counter() - started)
 
 
@@ -126,7 +133,7 @@ def _pool(x: np.ndarray, z: np.ndarray, test: np.ndarray) -> Fit:
     started = time.perf_counter()
     best = None
     for key in POOL:
-        fit = scored_fit(surrogate(key), x, z)  # each pool member at its defaults
+        fit = scored_fit(surrogate(key), x, z, domain=_domain(x, test))  # each pool member at its defaults
         if best is None or fit.scores['r2'] > best[1].scores['r2']:
             best = (key, fit)
     key, fit = best

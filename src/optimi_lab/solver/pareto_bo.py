@@ -17,10 +17,10 @@ told point is feasible the acquisition IS that probability.
 from collections.abc import Callable, Sequence
 
 import numpy as np
+from learn_lab.models.response import FittedGaussianProcess
+from learn_lab.models.response.likelihood import factor
 
 from optimi_lab.core import refuse
-from optimi_lab.model import FittedGaussianProcess
-from optimi_lab.model.likelihood import factor
 from optimi_lab.operator import (
     das_dennis,
     expected_hypervolume_improvement,
@@ -58,7 +58,7 @@ class ParEGO(ModelBased):
     def _pick(self, pending: np.ndarray) -> np.ndarray:
         weight = self._weights[self._rng.integers(len(self._weights))]
         scores = parego_scores(self._objectives, weight, rho=self._rho)
-        model = self._believed(self._surrogate.fit(self._inputs, scores[:, None]), pending)
+        model = self._believed(self._surrogate.fit(self._inputs, scores[:, None], domain=self._domain), pending)
         log_pf = self._log_feasibility(pending)
         if not self._feasible.any():
             return self._maximise(log_pf)

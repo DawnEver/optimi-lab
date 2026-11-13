@@ -28,9 +28,11 @@ radius falls below ``radius_end`` (unit-cube units). A constraint is an extreme 
 """
 
 import numpy as np
+from learn_lab.models.response import RadialBasis
+from learn_lab.protocol import Surrogate
+from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import refuse
-from optimi_lab.model import RadialBasis, Surrogate
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
 from optimi_lab.solver.model_based import maximise
@@ -92,7 +94,9 @@ class ModelTrustRegion(SequentialSolver):
                 improve = False
                 continue
             local = _local(stored, near, radius, n)
-            fitted = self._surrogate.fit((stored[local] - centre) / radius, told[local][:, None])
+            # The envelope is the unit cube in the scaled frame: every told point and every step lies in it.
+            cube = BoxEnvelope(-centre / radius, (1.0 - centre) / radius)
+            fitted = self._surrogate.fit((stored[local] - centre) / radius, told[local][:, None], domain=cube)
             shift = f_centre - fitted.predict(np.zeros((1, n))).mean[0, 0]
 
             def model(x: np.ndarray, fitted=fitted, shift=shift, centre=centre, radius=radius) -> np.ndarray:

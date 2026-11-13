@@ -47,12 +47,13 @@ _TESTS: Final = _ROOT / 'tests'
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 63 shipped modules.
 #: RE-TAKEN 2026-10-18 AT 66: the P9 + P12 merge read 72.
-#: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, optimi_lab.model) read 84.
+#: RE-TAKEN 2026-10-18 AT 78: P10 (surrogates, the L6 model package since moved to learn-lab) read 84.
 #: RE-TAKEN 2026-10-18 AT 65: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 73.
 #: RE-TAKEN 2026-10-18 AT 95: P11 (model-based solvers, D59-D68) read 101; already red at c028663, which read 93.
 #: RE-TAKEN 2026-10-18 AT 106: P14 (structured solvers, D126-D132) read 112; 329e959 (P11) read 101.
 #: RE-TAKEN 2026-11-01 AT 128: W3 (benchmark, policy, study and the model/analysis/metric additions) read 136.
-SOURCE_FILE_FLOOR: Final = 128
+#: RE-TAKEN 2026-11-08 AT 116: A1 (the L6 model package moved to learn-lab) read 125.
+SOURCE_FILE_FLOOR: Final = 116
 
 #: THE OTHER SIDE OF ``SOURCE_FILE_FLOOR``, which nothing here ever guarded: how far past its floor
 #: the population may grow before the number stops separating a clean scan from a walk that did not
@@ -72,7 +73,7 @@ SOURCE_FILE_HEADROOM: Final = 12
 #: RE-TAKEN 2026-10-17 by P8 (optimi-lab rebuild, plan D1-D30): the layered package re-shaped the tree.
 #: RE-TAKEN 2026-10-18 by P12 (population methods): 67 test modules.
 #: RE-TAKEN 2026-10-18 AT 69: the P9 + P12 merge read 74.
-#: RE-TAKEN 2026-10-18 AT 76: P10 (surrogates, optimi_lab.model) read 81.
+#: RE-TAKEN 2026-10-18 AT 76: P10 (surrogates, the L6 model package since moved to learn-lab) read 81.
 #: RE-TAKEN 2026-10-18 AT 70: P9 merged onto P12 (operator, gradient solvers, ruling tests) read 77.
 #: RE-TAKEN 2026-10-18 AT 90: P11 (model-based solvers, D59-D68) read 96; already red at c028663, which read 91.
 #: RE-TAKEN 2026-10-18 AT 96: P14 (structured solvers, D126-D132) read 101; 329e959 (P11) read 96.
