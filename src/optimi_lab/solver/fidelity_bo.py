@@ -10,6 +10,10 @@ at least 3 per level above the cheapest -- co-Kriging's scale, offset and discre
 is ``2 (d + 1)`` at the truth and three times the level above at each cheaper one: with fewer, the
 cheapest level's likelihood is maximised by calling all of it noise (measured on Forrester's pair
 at 6 + 3 points), and the AR1 scale that follows is meaningless.
+A finite space (categoricals, a few integers) can decode two design rows to one design: the repeat is
+asked once, and when the design leaves a level with fewer distinct told points than co-Kriging fits, the
+space holds no more to model and the solver concludes (:attr:`MultiFidelityBO.done`). A level left short by
+FAILED evaluations is not that, and the fit still refuses it.
 
 THE PICK (Huang, Allen, Notz and Miller, 2006) is the point AND the level maximising
 
@@ -97,6 +101,8 @@ class MultiFidelityBO:
         self._asked_design = 0
         self._pending: dict[str, tuple[np.ndarray, int]] = {}
         self._seen: set[str] = set()
+        self._collapsed: set[int] = set()
+        self._exhausted = False
         self._told = 0
         self._x: list[np.ndarray] = []
         self._level: list[int] = []
@@ -106,19 +112,31 @@ class MultiFidelityBO:
         room = capacity if self._max is None else min(capacity, self._max - self._told - len(self._pending))
         if self.done or room <= 0:
             return []
-        if self._asked_design < len(self._design):
+        designing = self._asked_design < len(self._design)
+        if designing:
             picks = self._design[self._asked_design : self._asked_design + room]
             self._asked_design += len(picks)
         elif self._pending:
+            return []
+        elif self._short_levels() & self._collapsed:
+            self._exhausted = True
             return []
         else:
             picks = [self._pick()]
         embedding, actions = self._embedding, []
         for row, level in picks:
             action = Action.of(self._problem, self._capability, embedding.decode(row), fidelity=self._names[level])
+            if designing and (action.identity.key in self._pending or action.identity.key in self._seen):
+                self._collapsed.add(level)  # a finite space decoded two design rows to one design
+                continue
             self._pending[action.identity.key] = (embedding.encode(action.design), level)
             actions.append(action)
-        return actions
+        return actions if actions or not designing else self.ask(capacity)
+
+    def _short_levels(self) -> set[int]:
+        """The levels with fewer told points than co-Kriging fits: 2 at the cheapest, 3 above."""
+        told = np.bincount(np.asarray(self._level, dtype=int), minlength=len(self._names))
+        return {level for level, n in enumerate(told) if n < (2 if level == 0 else 3)}
 
     def tell(self, results: Sequence[Result]) -> None:
         for result in results:
@@ -137,7 +155,7 @@ class MultiFidelityBO:
 
     @property
     def done(self) -> bool:
-        return self._max is not None and self._told >= self._max
+        return self._exhausted or (self._max is not None and self._told >= self._max)
 
     @property
     def best(self) -> Result | None:
