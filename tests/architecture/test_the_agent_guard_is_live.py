@@ -106,6 +106,7 @@ _SHIPPED: Final = frozenset({
     'BARE-INTERPRETER',
     'BARE-PYTHON',
     'BARE-TEST-INVOCATION',
+    'COMMIT-HOOKS-RUN',  # gained 2026-11-13 with the dev-lab relock (WALLS-ARE-RECORDED)
     'CONSENT-CODE-FROM-THE-USER',  # gained 2026-11-08 with the dev-lab relock
     'FORGE-WRITE-VIA-CLI',
     'FORGE-WRITE-VIA-GH-API',

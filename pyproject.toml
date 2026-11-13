@@ -27,6 +27,8 @@ authors = [{ name = "Mingyang Bao" }]
 # left with P10 (every surrogate is self-implemented, optimi_lab.model) and is a TEST oracle only.
 dependencies = [
     "lab-commons @ git+https://github.com/DawnEver/lab-commons.git",
+    # learn-lab (numpy-only leaf) owns the tuning-space vocabulary (learn_lab.space); optimi-lab searches it.
+    "learn-lab @ git+https://github.com/DawnEver/learn-lab.git",
     "numerics-lab @ git+https://github.com/DawnEver/numerics-lab.git",
     "numpy",
     "scipy",

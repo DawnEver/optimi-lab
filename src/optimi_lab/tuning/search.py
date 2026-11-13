@@ -13,7 +13,7 @@ solver drops it exactly as it drops any failed point.
 declare is refused before anything is evaluated (UNSUPPORTED-RAISES), naming the kind -- never run with
 the dimension dropped. The local continuous searches (Nelder-Mead, BOBYQA, MADS, the model trust region)
 read real dimensions only (``solver.sequential`` refuses a discrete variable), and the successive-halving
-schedules (hyperband, asha) take no embedding, so no OneOf.
+schedules (hyperband, asha) take no embedding, so no Choice.
 
 THE BUDGET COUNTS OBJECTIVE CALLS. The run charges every dispatched evaluation and asks the solver for no
 more than remain; a design asked twice is evaluated once, and a search whose whole ask repeats what it
@@ -32,13 +32,14 @@ from typing import Final
 
 import numpy as np
 from lab_commons.outcomes import Record
+from learn_lab.space import Dimension
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.oracle import Action, Capability, NotConverged, Result, from_function
 from optimi_lab.problem import Fidelity, Level, Objective, Problem
 from optimi_lab.run import Budget, run
 from optimi_lab.solver import Solver, build_solver
-from optimi_lab.tuning.space import Dimension, Kind, kind_of, problem_space
+from optimi_lab.tuning.space import Kind, kind_of, problem_space
 
 __all__ = ['TUNING_METHODS', 'Method', 'Trial', 'Tuning', 'minimise']
 

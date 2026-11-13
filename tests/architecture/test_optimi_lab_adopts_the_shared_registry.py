@@ -302,6 +302,13 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED 2026-10-29: the guard install wires the advisory `PostToolUse` `dev_lab.dev.pushwatch`
     # line into the tracked `.claude/settings.json`, and `_GUARD`'s liveness arm reads that wiring.
     'PUSHED-HEAD-IS-WATCHED': (_GUARD, '.claude/settings.json'),
+    # ADOPTED 2026-11-13 with the dev-lab relock: the guard install wires `dev_lab.dev.sessionprs`
+    # (PostToolUse) and `dev_lab.dev.walls` (PostToolUse + Stop) into the tracked `.claude/settings.json`,
+    # and `_GUARD` pins COMMIT-HOOKS-RUN, the deny row WALLS-ARE-RECORDED names, in the shipped set.
+    **dict.fromkeys(('SESSION-HEARS-ITS-PRS', 'WALLS-ARE-RECORDED'), (_GUARD, '.claude/settings.json')),
+    # ADOPTED 2026-11-13 with the dev-lab relock: the family hook base (taken as is) runs
+    # `dev_lab.dev.milestonebase` at pre-push, which refuses both.
+    **dict.fromkeys(('BASE-HOLDS-THE-MILESTONE', 'VERSION-TAG-NEEDS-APPROVAL'), (_PYPROJECT, _HOOKS)),
     # ADOPTED 2026-10-18 with `[tool.dev_lab.hooks]` (the family base as is). The commit-msg
     # `merge-audit` row refuses committing a merge that loses or rewrites a test unnamed; the pre-push
     # `session-branch` row (`dev_lab.dev.sessionbranch`) refuses publishing a session branch from
@@ -364,9 +371,9 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   `src/optimi_lab/model/registry.py`, the surrogate names already live in it, and
 #:   `test_a_declared_set_refuses_a_stranger.py` already refuses an unregistered key -- what is
 #:   missing is a SECOND kind to branch on, not a guard).
-#:   FORMATS-UPGRADE-ON-READ (arrived with lab-commons 96a90c8, measured 2026-10-18: `git grep` over
+#:   FORMATS-MIGRATE-ONCE (renamed from FORMATS-UPGRADE-ON-READ by dev-lab, 2026-11-13; arrived with lab-commons 96a90c8, measured 2026-10-18: `git grep` over
 #:   `src/` finds no `json.dump`, `pickle`, `np.save`, `write_text` or schema field -- this library
-#:   persists no format of its own, so there is no older schema for a reader to upgrade).
+#:   persists no format of its own, so there is no stored record to migrate).
 #: * WORKFLOW MACHINERY THIS REPO GENUINELY DOES NOT HAVE, measured at the filesystem rather than
 #:   asserted: NETWORK-RETRY-THEN-REPORT (this repo issues NO network verb of its own: re-measured
 #:   2026-10-18, every `git clone/fetch/pull/push/ls-remote` spelling under `scripts/`, `src/` and
@@ -382,7 +389,7 @@ _ABSENT: Final = frozenset({
     'PRODUCTION-ENTRY-POINT',
     'UNITS-GO-THROUGH-PINT',
     'REGISTRY-OWNS-THE-DECISION',
-    'FORMATS-UPGRADE-ON-READ',
+    'FORMATS-MIGRATE-ONCE',
     'NETWORK-RETRY-THEN-REPORT',
 })
 
