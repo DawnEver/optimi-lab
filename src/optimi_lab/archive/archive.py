@@ -34,11 +34,20 @@ __all__ = ['Archive']
 
 
 def _action(data: dict[str, Any]) -> Action:
+    """The submitted action in the CURRENT shape only (FORMATS-MIGRATE-ONCE, user ruling D51, 2026-11-11).
+
+    A submission filed before scenarios existed carries no ``scenario`` key; it is refused by name, never
+    upgraded on read.
+    """
+    if 'scenario' not in data:
+        refuse(
+            f'submission {data.get("key")!r} was filed before actions carried a scenario (an older record shape); '
+            'migrate it by re-running the study into a fresh record -- an older record is not read'
+        )
     identity = Identity(data['identity'], data['key'])
     want = frozenset(Information(i) for i in data['want'])
     direction = None if data['direction'] is None else tuple(data['direction'])
-    scenario = data.get('scenario')  # a record filed before scenarios existed carries none: upgraded on read
-    return Action(data['design'], data['fidelity'], want, data['replicate'], identity, direction, scenario)
+    return Action(data['design'], data['fidelity'], want, data['replicate'], identity, direction, data['scenario'])
 
 
 class Archive:

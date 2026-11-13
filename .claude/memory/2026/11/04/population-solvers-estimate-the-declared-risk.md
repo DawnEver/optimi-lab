@@ -3,7 +3,7 @@ created: 2026-11-04
 ---
 # Population solvers estimate the declared risk over shared scenarios
 
-Gap (downstream handoff 10-25): robust search was declarable but no registered solver had a risk
+Gap (motronics handoff 10-25): robust search was declarable but no registered solver had a risk
 estimator, so `match` refused every problem with `Uncertainty`.
 
 - `operator.Risk(measure, alpha=, k=)` declares one of mean / mean_plus_std / var / cvar / worst_case
@@ -21,4 +21,4 @@ estimator, so `match` refused every problem with `Uncertainty`.
   three optima (mean 0.3, worst 0.55, CVaR90 0.525); ga and cmaes land on each within 0.04. Chance
   `P(x+xi<=1)>=0.9` lands on the sample-average optimum of its 20 draws within 0.02.
 - Open: `analysis/robust.py` (post-hoc DET/WC/CC choice) is still separate from the solver path;
-  no QMC rule option for the scenario draw (MC only); the downstream side is not wired to pass `risk=`.
+  no QMC rule option for the scenario draw (MC only); motronics side not wired to pass `risk=`.
