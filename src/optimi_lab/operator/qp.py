@@ -7,8 +7,10 @@ Multiplier signs: ``H x + g + A_eq^T y + A_in^T z = 0`` with ``z >= 0``.
 
 * :func:`active_set_qp` is Nocedal and Wright's Algorithm 16.3. Each iterate solves the
   equality-constrained QP on the working set through numerics-lab's KKT solve; a blocking constraint
-  is added (it is independent of the working set because the step lies in that set's null space), a
-  constraint with a negative multiplier is dropped. An infeasible start is first moved to a feasible
+  is added, a constraint with a negative multiplier is dropped. A blocking row numerically dependent on
+  the working rows (a degenerate vertex: a box bound and a parallel linearised floor active together)
+  is never added -- it is implied there to :data:`_DEPENDENT` relative precision, and adding it would
+  make the KKT system singular or its multipliers cycle between the parallel pair. An infeasible start is first moved to a feasible
   one by a phase-1 QP in ``(x, t)``; when the constraints admit no point the least-violating point
   is returned with ``feasible=False`` -- never presented as a solution.
 * :func:`bound_qp` is Bertsekas' projected Newton method: a Newton step on the variables not held at a
@@ -33,6 +35,9 @@ __all__ = ['QPSolution', 'active_set_qp', 'bound_qp']
 
 #: Phase-1 regularisation: small enough that a feasible point is always preferred to any violation.
 _PHASE_ONE_CURVATURE = 1e-6
+#: A row whose component outside the working rows' span is below this fraction of its own norm is
+#: dependent on them: sqrt(machine epsilon), past which the KKT solve keeps under half its digits.
+_DEPENDENT = float(np.sqrt(np.finfo(float).eps))
 #: The Armijo constant of the projected search.
 _ARMIJO = 1e-4
 
@@ -54,6 +59,14 @@ def _matrix(a: np.ndarray | None, n: int) -> np.ndarray:
 
 def _vector(b: np.ndarray | None, m: int) -> np.ndarray:
     return np.zeros(m) if b is None else np.asarray(b, dtype=float).reshape(m)
+
+
+def _dependent(row: np.ndarray, rows: np.ndarray) -> bool:
+    """Whether *row* lies in the span of *rows* to :data:`_DEPENDENT` of its own norm."""
+    if not rows.shape[0]:
+        return False
+    coefficients = np.linalg.lstsq(rows.T, row, rcond=None)[0]
+    return float(np.linalg.norm(row - rows.T @ coefficients)) <= _DEPENDENT * float(np.linalg.norm(row))
 
 
 def _working_set(
@@ -82,7 +95,7 @@ def _working_set(
         alpha, blocking = 1.0, None
         for i in range(a_in.shape[0]):
             ap = float(a_in[i] @ p)
-            if i not in working and ap > tolerance:
+            if i not in working and ap > tolerance and not _dependent(a_in[i], rows):
                 limit = max(float(b_in[i] - a_in[i] @ x) / ap, 0.0)
                 if limit < alpha:
                     alpha, blocking = limit, i
