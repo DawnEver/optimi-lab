@@ -18,6 +18,7 @@ import numpy as np
 import pytest
 from scipy.optimize import linprog
 
+from optimi_lab.core.errors import Refusal
 from optimi_lab.operator import Linearization, active_set_qp
 from optimi_lab.solver import Halt, sqp
 
@@ -68,3 +69,40 @@ def test_planted_control_without_the_floors_the_box_vertex_settles_unchanged() -
     a_in = np.vstack([np.eye(_N), -np.eye(_N)])
     found = active_set_qp(np.eye(_N), _GRADIENT, a_in=a_in, b_in=np.concatenate([_HI - _START, _START - _LO]))
     assert found.x == pytest.approx(np.clip(-_GRADIENT, _LO - _START, _HI - _START), abs=1e-12)
+
+
+# The solver never emits a non-finite design (2026-11-15, HPC job 8012559: a refine from this vertex handed the
+# oracle `barrier_thickness_ratio = nan`). A non-finite oracle answer -- a value or a slope -- halts STALLED by
+# name; a non-finite start is refused before anything is evaluated.
+@pytest.mark.parametrize('bad', [np.nan, np.inf, -np.inf])
+@pytest.mark.parametrize('part', ['f', 'df', 'c', 'dc'])
+@pytest.mark.parametrize('first', [1, 2, 3])
+def test_a_non_finite_oracle_answer_halts_by_name_and_proposes_no_non_finite_design(
+    part: str, bad: float, first: int
+) -> None:
+    asked: list[np.ndarray] = []
+
+    def evaluate(x: np.ndarray) -> Linearization:
+        asked.append(np.array(x))
+        step = x - _START
+        parts = {'f': [float(_GRADIENT @ step)], 'df': [_GRADIENT.copy()], 'c': _FLOORS @ step - _SLACK}
+        parts['dc'] = _FLOORS.copy()
+        parts = {k: np.array(v, dtype=float) for k, v in parts.items()}
+        if len(asked) >= first:
+            parts[part].flat[0] = bad
+        return Linearization(x=x, f=parts['f'], df=parts['df'], c=parts['c'], dc=parts['dc'])
+
+    found = sqp(evaluate, _START, _LO, _HI)
+    assert all(np.all(np.isfinite(x)) for x in asked)
+    assert found.halt is Halt.STALLED
+    if first == 1 and part in ('df', 'dc'):
+        assert f'non-finite {part}' in found.reason
+
+
+def test_a_non_finite_start_is_refused_before_any_evaluation() -> None:
+    def evaluate(x: np.ndarray) -> Linearization:
+        msg = f'evaluated {x}'
+        raise AssertionError(msg)
+
+    with pytest.raises(Refusal, match=r'non-finite coordinates at \[0\]'):
+        sqp(evaluate, np.array([np.nan, 0.5, 0.5, 0.5]), _LO, _HI)
