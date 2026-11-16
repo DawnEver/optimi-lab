@@ -105,3 +105,40 @@ def test_d31_planted_control_a_displaced_answer_disagrees() -> None:
     reference = _reference(h, g, lo=-np.ones(3), hi=np.ones(3))
     assert agrees(bound_qp(h, g, -np.ones(3), np.ones(3)).x, reference)
     assert not agrees(reference + 10 * TOLERANCE, reference)
+
+
+# A degenerate vertex: a box bound and a linearised constraint with a (near-)parallel gradient are active
+# together at the start -- the shape an SQP refine meets when its start sits on a box bound where a
+# manufacturing floor on the same quantity is also active. The optimum is the target clipped to the box.
+_TARGET = np.array([-1.0, 0.7, 0.3, -0.5])
+_BOX = np.vstack([-np.eye(4), np.eye(4)])
+_BOX_B = np.concatenate([np.zeros(4), np.ones(4)])
+
+
+@pytest.mark.parametrize(
+    'extra',
+    [
+        np.array([[-1.0, 0.0, 0.0, 0.0]]),
+        np.array([[-1.0, 1e-9, 0.0, 0.0]]),
+        np.array([[-1.0, 0.0, 0.0, 0.0], [-2.0, 0.0, 0.0, 0.0]]),
+        np.array([[-1.0, 0.0, 0.0, 0.0], [-1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, -1.0]]),
+        np.array([[-1.0, -1e-9, 0.0, 0.0], [-1.0, 1e-9, 0.0, 0.0], [-3.0, 0.0, 1e-9, 1e-9]]),
+    ],
+    ids=['parallel', 'near-parallel', 'scaled-duplicates', 'duplicates-and-a-second-bound', 'near-duplicates'],
+)
+def test_d31_a_degenerate_vertex_settles_on_the_optimum(extra: np.ndarray) -> None:
+    a_in = np.vstack([_BOX, extra])
+    b_in = np.concatenate([_BOX_B, np.zeros(extra.shape[0])])
+    h, g = 2.0 * np.eye(4), -2.0 * _TARGET
+    found = active_set_qp(h, g, a_in=a_in, b_in=b_in, x0=np.zeros(4))
+    assert found.feasible
+    assert agrees(found.x, np.clip(_TARGET, 0.0, 1.0))
+    assert float(np.min(found.multipliers_in)) >= 0.0
+    assert agrees(h @ found.x + g + a_in.T @ found.multipliers_in, np.zeros(4))
+
+
+def test_d31_planted_control_a_non_degenerate_vertex_settles_unchanged() -> None:
+    h, g = 2.0 * np.eye(4), -2.0 * _TARGET
+    found = active_set_qp(h, g, a_in=_BOX, b_in=_BOX_B, x0=np.zeros(4))
+    assert agrees(found.x, np.clip(_TARGET, 0.0, 1.0))
+    assert not agrees(found.x + 1e-3, np.clip(_TARGET, 0.0, 1.0))

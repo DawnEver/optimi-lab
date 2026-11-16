@@ -74,19 +74,20 @@ PINNED: Final[dict[str, int]] = {
     # How work gets done here. 22 lines, and the tightest page in the family at that size.
     '.claude/rules/workflow.md': 22,
     # The family principles, RENDERED from `dev_lab.dev.principles` (e0894ea) and edited there, never
-    # here. 21 lines, RE-MEASURED 2026-11-13 after the dev-lab relock re-rendered it (up from 18 on 2026-10-29,
+    # here. 24 lines, RE-MEASURED 2026-11-16 after the dev-lab relock re-rendered it with the fan-out principle
+    # (21 on 2026-11-13, 18 on 2026-10-29,
     # when the page arrived with the dev-lab ac7db79 relock). Its lines are spent in dev_lab, not here.
-    '.claude/rules/principles.md': 21,
+    '.claude/rules/principles.md': 24,
 }
 
-#: THE TOTAL BUDGET, and it is pinned AT the measurement with ZERO headroom -- 33 + 22 + 21 = 76,
-#: re-measured 2026-11-13 (up from 73 on 2026-10-29, the family-rendered principles page alone). Headroom is the one thing this arm must not have. Slack in a total is
+#: THE TOTAL BUDGET, and it is pinned AT the measurement with ZERO headroom -- 33 + 22 + 24 = 79,
+#: re-measured 2026-11-16 (76 on 2026-11-13, 73 on 2026-10-29; each move the family-rendered principles page alone). Headroom is the one thing this arm must not have. Slack in a total is
 #: budget nobody argued for, spent by whoever arrives next, and handing it out in advance is the
 #: exact failure the ceiling exists to refuse; a zero-headroom ceiling says instead that a new page
 #: is paid for out of an existing one. The two arms are then never in tension, because the per-page
 #: ratchet already drives a pin DOWN in the edit that shrinks its page, so the sum tracks the pins
 #: exactly and the ceiling binds at precisely one moment: when somebody wants a line back.
-CEILING: Final = 76
+CEILING: Final = 79
 
 #: A floor on the scan: below this the walk did not reach `.claude/rules/` at all, and an empty page
 #: set is indistinguishable from a compressed one. Pinned AT the measured 3 -- this corpus can only

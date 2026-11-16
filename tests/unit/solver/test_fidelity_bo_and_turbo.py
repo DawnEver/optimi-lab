@@ -11,8 +11,8 @@ import numpy as np
 import pytest
 
 from optimi_lab.core import Refusal
-from optimi_lab.oracle import Capability, from_function
-from optimi_lab.problem import BlackBox, Fidelity, Level, Objective, Problem, Real, Space
+from optimi_lab.oracle import Capability, NotConverged, from_function
+from optimi_lab.problem import BlackBox, Categorical, Embedding, Fidelity, Level, Objective, Problem, Real, Space
 from optimi_lab.solver import bo, mfbo, turbo
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'benchmarks'))
@@ -99,6 +99,39 @@ def test_multi_fidelity_bo_refusals():
     )
     with pytest.raises(Refusal, match='penalise'):
         mfbo(constrained, oracle.capability)
+
+
+def test_multi_fidelity_bo_concludes_on_a_space_its_design_exhausts():
+    """Two designs cannot give co-Kriging the 3 distinct points per level it fits: the design collapses onto
+    them, every (design, level) pair is evaluated once, and the solver concludes rather than refusing to model.
+    """
+    space = Space((Categorical('k', ('x', 'y')),))
+    fidelity = Fidelity(tuple(Level(n, c) for n, c in COSTS.items()))
+    problem = Problem(space, (Objective('f'),), fidelity=fidelity)
+    oracle = from_function(
+        lambda a: {'f': 1.0 if a.design['k'] == 'x' else 2.0}, Capability(outputs=('f',), fidelities=tuple(COSTS))
+    )
+    solver = mfbo(problem, oracle.capability, initial=(12, 4), seed=0, embedding=Embedding(space))
+    results = drive(solver, oracle, 12)
+    assert solver.done
+    assert {(r.action.design['k'], r.action.fidelity) for r in results} == {(k, n) for k in 'xy' for n in COSTS}
+    assert solver.best.action.design['k'] == 'x'
+
+
+def test_multi_fidelity_bo_still_refuses_a_level_its_failures_leave_short():
+    """The control: distinct designs whose truth-level evaluations FAIL are not an exhausted space -- the fit refuses."""
+    problem, _ = _two_level()
+
+    def coarse_only(action):
+        if action.fidelity == 'fine':
+            message = 'the fine level fails'
+            raise NotConverged(message)
+        return {'f': _forrester(action.design['x'], action.fidelity)}
+
+    oracle = from_function(coarse_only, Capability(outputs=('f',), fidelities=tuple(COSTS)))
+    solver = mfbo(problem, oracle.capability, initial=(6, 3), seed=1)
+    with pytest.raises(Refusal, match='needs a told value|has 0 point|have one'):
+        drive(solver, oracle, 12)
 
 
 def test_turbo_reaches_hartmann6s_minimum():

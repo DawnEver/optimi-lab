@@ -1,4 +1,4 @@
-"""The RUNTIME of `optimi_lab` is numpy, scipy, numerics-lab and `lab_commons.outcomes` -- checked.
+"""The RUNTIME of `optimi_lab` is numpy, scipy, numerics-lab, learn-lab and `lab_commons.outcomes` -- checked.
 
 PLAN II.1 (2026-10-17) moved lab-commons into the base install for ONE module: `lab_commons.outcomes`,
 the standard-library-only task-outcome vocabulary every engine shares. Any other lab-commons module
@@ -24,6 +24,10 @@ structlog, pint and pydantic; `foreign_roots` admits `lab_commons.outcomes` and 
 NUMERICS-LAB IS THE FIFTH ENTRY, by decision (plan R4, P9): equation solving is one engine and this
 library keeps no numeric kernel of its own (`test_equation_solving_is_numerics_labs.py`). It floats
 like lab-commons -- a bare repository URL, never a ref (`test_every_engine_floats`).
+
+LEARN-LAB IS THE SIXTH ENTRY, by decision (2026-11-13): it is the numpy-only leaf that owns the tuning-space
+vocabulary (`learn_lab.space`), so the space a model family declares is the space `optimi_lab.tuning` searches,
+with one set of types. learn-lab never imports optimi_lab (its own layers test), so the edge cannot cycle.
 """
 
 from __future__ import annotations
@@ -52,6 +56,9 @@ RUNTIME_IMPORT_ROOTS: Final = frozenset({
     'scipy',
     'optimi_lab',
     'lab_commons.outcomes',
+    # ADMITTED 2026-11-13 BY NAME: `tuning.search` names its scratch run record with the family `TEMP_PREFIX`
+    # so the shared-temp sweep owns it; a stdlib-only module of the lab-commons distribution already in RUNTIME.
+    'lab_commons.temp',
     'numerics_lab',
 })
 

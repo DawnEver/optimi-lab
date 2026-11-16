@@ -12,7 +12,9 @@ replaced by the identity -- the start model -- and each reset is counted in ``ev
   the box (:func:`~optimi_lab.operator.active_set_qp`); the step is searched on the exact l1 merit by
   Armijo backtracking. An infeasible linearisation takes the QP's least-violating step, its slope
   read from the violation it actually removes and ``nu`` raised until it descends; a QP the
-  active-set method refuses halts STALLED with that refusal as its reason, never an exception.
+  active-set method refuses halts STALLED with that refusal as its reason, never an exception. A point whose
+  oracle answer is non-finite, or whose QP step is, halts STALLED by name the same way: no non-finite design is
+  ever proposed.
 * :func:`interior_point` -- a primal-dual barrier method: the bounds become inequality rows, every
   inequality gets a slack, the Newton system is condensed onto ``(dx, dy)`` and solved as a KKT
   system -- DENSE or SPARSE (``sparse=True``) through numerics-lab's ``solve_kkt``. Fraction to the
@@ -31,7 +33,7 @@ from numerics_lab.linear import LinearSolveError
 from numerics_lab.linear.kkt import solve_kkt
 from numerics_lab.quasi_newton import bfgs_update
 
-from optimi_lab.core.errors import Refusal
+from optimi_lab.core.errors import Refusal, refuse
 from optimi_lab.operator import (
     Linearization,
     active_set_qp,
@@ -83,6 +85,30 @@ def _secant(model: np.ndarray, old: Linearization, new: Linearization, y, z) -> 
     return updated, False
 
 
+def _subproblem(model: np.ndarray, point: Linearization, lo: np.ndarray, hi: np.ndarray):
+    """The SQP step's QP at *point*: refused when the linearisation or the step it returns is not finite.
+
+    A non-finite oracle answer (a NaN or inf value or slope) would otherwise flow through the QP into ``x + t d`` and
+    be proposed as a design; the solver never emits a non-finite design.
+    """
+    parts = (('f', point.f), ('df', point.df), ('c', point.c), ('dc', point.dc), ('h', point.h), ('dh', point.dh))
+    for name, value in parts:
+        if not np.all(np.isfinite(value)):
+            refuse(f'the linearisation at the current point holds a non-finite {name} (the oracle answered it)')
+    n = point.x.size
+    qp = active_set_qp(
+        model,
+        point.gradient,
+        a_eq=point.dh,
+        b_eq=-point.h,
+        a_in=np.vstack([point.dc, np.eye(n), -np.eye(n)]),
+        b_in=np.concatenate([-point.c, hi - point.x, point.x - lo]),
+    )
+    if not np.all(np.isfinite(qp.x)):
+        refuse('the active-set QP returned a non-finite step; no design is proposed from it')
+    return qp
+
+
 def _resets(count: int) -> tuple[str, ...]:
     return (f'hessian_resets:{count}',) if count else ()
 
@@ -92,7 +118,10 @@ def sqp(
 ) -> Solution:
     """Line-search SQP on the l1 merit; see the module docstring."""
     lo, hi = np.asarray(lo, dtype=float), np.asarray(hi, dtype=float)
-    point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
+    x0 = np.asarray(x0, dtype=float)
+    if not np.all(np.isfinite(x0)):
+        refuse(f'the SQP start holds non-finite coordinates at {np.flatnonzero(~np.isfinite(x0)).tolist()}')
+    point = evaluate(np.clip(x0, lo, hi))
     bar = kkt_bar(point.df[0], rtol=rtol, atol=atol)
     n = point.x.size
     model, nu, resets = np.eye(n), 1.0, 0
@@ -101,14 +130,7 @@ def sqp(
         if iteration and kkt_residual(point, lo, hi, y=y, z=z).worst <= bar:
             return _solution(point, (lo, hi), (y, z), iteration, Halt.CONVERGED, evidence=_resets(resets))
         try:
-            qp = active_set_qp(
-                model,
-                point.gradient,
-                a_eq=point.dh,
-                b_eq=-point.h,
-                a_in=np.vstack([point.dc, np.eye(n), -np.eye(n)]),
-                b_in=np.concatenate([-point.c, hi - point.x, point.x - lo]),
-            )
+            qp = _subproblem(model, point, lo, hi)
         except Refusal as refused:
             return _solution(
                 point,

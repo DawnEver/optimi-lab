@@ -6,9 +6,11 @@
 Multiplier signs: ``H x + g + A_eq^T y + A_in^T z = 0`` with ``z >= 0``.
 
 * :func:`active_set_qp` is Nocedal and Wright's Algorithm 16.3. Each iterate solves the
-  equality-constrained QP on the working set through numerics-lab's KKT solve; a blocking constraint
-  is added (it is independent of the working set because the step lies in that set's null space), a
-  constraint with a negative multiplier is dropped. An infeasible start is first moved to a feasible
+  equality-constrained QP on the working set by the null-space method (see :func:`_null_space_step`); a blocking constraint
+  is added, a constraint with a negative multiplier is dropped. A blocking row numerically dependent on
+  the working rows (a degenerate vertex: a box bound and a parallel linearised floor active together)
+  is never added -- it is implied there to :data:`_DEPENDENT` relative precision, and adding it would
+  make the KKT system singular or its multipliers cycle between the parallel pair. An infeasible start is first moved to a feasible
   one by a phase-1 QP in ``(x, t)``; when the constraints admit no point the least-violating point
   is returned with ``feasible=False`` -- never presented as a solution.
 * :func:`bound_qp` is Bertsekas' projected Newton method: a Newton step on the variables not held at a
@@ -33,6 +35,9 @@ __all__ = ['QPSolution', 'active_set_qp', 'bound_qp']
 
 #: Phase-1 regularisation: small enough that a feasible point is always preferred to any violation.
 _PHASE_ONE_CURVATURE = 1e-6
+#: A row whose component outside the working rows' span is below this fraction of its own norm is
+#: dependent on them: sqrt(machine epsilon), past which the KKT solve keeps under half its digits.
+_DEPENDENT = float(np.sqrt(np.finfo(float).eps))
 #: The Armijo constant of the projected search.
 _ARMIJO = 1e-4
 
@@ -56,6 +61,36 @@ def _vector(b: np.ndarray | None, m: int) -> np.ndarray:
     return np.zeros(m) if b is None else np.asarray(b, dtype=float).reshape(m)
 
 
+def _dependent(row: np.ndarray, rows: np.ndarray) -> bool:
+    """Whether *row* lies in the span of *rows* to :data:`_DEPENDENT` of its own norm."""
+    if not rows.shape[0]:
+        return False
+    coefficients = np.linalg.lstsq(rows.T, row, rcond=None)[0]
+    return float(np.linalg.norm(row - rows.T @ coefficients)) <= _DEPENDENT * float(np.linalg.norm(row))
+
+
+def _null_space_step(h: np.ndarray, rows: np.ndarray, gradient: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """The equality-QP step ``p`` (``rows p = 0``) and the working rows' multipliers, by the null-space method.
+
+    ``p = Z w`` with ``Z`` an orthonormal basis of the rows' null space (QR of ``rows^T``), so ``rows p = 0`` holds
+    to machine precision however ill-conditioned the rows are, and at a vertex (``n`` working rows) ``p`` is
+    exactly zero. A full KKT solve instead carries ``eps * cond(rows) * |g|`` of round-off into ``p``: at a vertex
+    of near-parallel rows that exceeds the stationarity test, and the loop takes junk steps forever.
+    """
+    n, m = gradient.size, rows.shape[0]
+    q, r = np.linalg.qr(rows.T, mode='complete')
+    z = q[:, m:]
+    p = np.zeros(n)
+    if z.shape[1]:
+        try:
+            factor = jittered_cholesky(z.T @ h @ z, max_tries=0)
+        except LinearSolveError:
+            refuse('the QP Hessian is not positive definite on the null space of the active constraints')
+        p = z @ factor.solve(-(z.T @ gradient))
+    multipliers = np.linalg.solve(r[:m, :m], -(q[:, :m].T @ (h @ p + gradient))) if m else np.zeros(0)
+    return p, multipliers
+
+
 def _working_set(
     h, g, a_eq, a_in, b_in, *, x, tolerance, max_iterations
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
@@ -66,11 +101,7 @@ def _working_set(
     for iteration in range(1, max_iterations + 1):
         rows = np.vstack([a_eq, a_in[working]])
         gradient = h @ x + g
-        try:
-            step = solve_kkt(h, rows, -gradient, np.zeros(rows.shape[0]))
-        except LinearSolveError:
-            refuse('the QP Hessian is not positive definite on the null space of the active constraints')
-        p, multipliers = step.x, step.multipliers
+        p, multipliers = _null_space_step(h, rows, gradient)
         if float(np.max(np.abs(p), initial=0.0)) <= tolerance * scale:
             z_working = multipliers[n_eq:]
             if not working or float(np.min(z_working)) >= -tolerance:
@@ -82,7 +113,7 @@ def _working_set(
         alpha, blocking = 1.0, None
         for i in range(a_in.shape[0]):
             ap = float(a_in[i] @ p)
-            if i not in working and ap > tolerance:
+            if i not in working and ap > tolerance and not _dependent(a_in[i], rows):
                 limit = max(float(b_in[i] - a_in[i] @ x) / ap, 0.0)
                 if limit < alpha:
                     alpha, blocking = limit, i
