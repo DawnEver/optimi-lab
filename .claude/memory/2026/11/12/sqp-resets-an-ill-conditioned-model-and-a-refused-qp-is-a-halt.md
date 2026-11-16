@@ -3,7 +3,7 @@ created: 2026-11-12
 ---
 # SQP resets an ill-conditioned BFGS model, and a refused QP is a halt, never an exception
 
-Incident (motronics HPC job 7990796, spline11 rib4): a memetic GA + SQP refine on 82 axes exited 2 with
+Incident (a downstream consumer's HPC job 7990796, spline11 rib4): a memetic GA + SQP refine on 82 axes exited 2 with
 `the QP Hessian is not positive definite on the null space of the active constraints`
 (`operator/qp.py`), ending the search with no report.
 
@@ -20,4 +20,6 @@ Incident (motronics HPC job 7990796, spline11 rib4): a memetic GA + SQP refine o
 - A `Refusal` from `active_set_qp` (singular KKT, cycling) now halts `sqp` STALLED with reason
   `the QP subproblem: <refusal>` at the last accepted point. Under `memetic` the refine concludes and the
   chain ends; the exploration's results stay in the archive.
-- OPEN for motronics: nothing reads a refine's `Solution` (halt/reason/evidence) onto the run report.
+- OPEN for a downstream consumer: nothing reads a refine's `Solution` (halt/reason/evidence) onto the run report.
+
+> Amended 2026-11-13: the downstream project's name replaced with "a downstream consumer" in a public repo, nothing else changed -- approved: "fix all"

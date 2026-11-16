@@ -3,7 +3,7 @@ created: 2026-11-04
 ---
 # Conditional spaces embed, and model-based solvers fit the declared risk
 
-User ruling 2026-11-04: conditional variables and robust search live in optimi-lab, not motronics.
+User ruling 2026-11-04: conditional variables and robust search live in optimi-lab, not a downstream consumer.
 
 - `problem.Embedding(space, categorical=one_hot|ordinal, inactive=neutral|indicator, neutral=0.5 | {name: u})`:
   finite rows for a model or a variation; decode goes through `Space.decode`, so it is always legal
@@ -24,3 +24,5 @@ User ruling 2026-11-04: conditional variables and robust search live in optimi-l
   switch benchmark, POSITION 0.03 on the robust one. Tests: tests/unit/problem/test_embedding.py,
   tests/unit/solver/test_conditional_embedding.py, tests/unit/solver/test_robust_model_based.py,
   tests/unit/policy/test_routing_and_replay.py, plus the existing solver/requires/transforms suites.
+
+> Amended 2026-11-13: the downstream project's name replaced with "a downstream consumer" in a public repo, nothing else changed -- approved: "批准，同样措辞"

@@ -3,7 +3,7 @@ created: 2026-11-10
 ---
 # VirtualTemperature reads source and conductance on ONE interpolation law
 
-Coordinator ruling 2026-11-10 (from motronics' topology run): the enforced-gamma measure read conductance
+Coordinator ruling 2026-11-10 (from a downstream consumer's topology run): the enforced-gamma measure read conductance
 on a derived threshold (~0.72) above the source's (0.5, beta 16), `s_min ~6.9e-10`. A gray interface cell
 between them heated but barely conducted and read as a one-cell island: a one-body design read
 `log_ratio` 4.7-8.6 filtered (0.98 exact) against `log(gamma)` 2.30, infeasible from iteration 0.
@@ -19,3 +19,5 @@ between them heated but barely conducted and read as a one-cell island: a one-bo
 - Red on e8adda0: the two-ring+spokes one-body fixture read 6.21 (beta 1) and 4.10 against 2.30.
 - FD on an island at the enforced `s_min` is roundoff-bound (K conditioned ~1/s_min); the island FD
   case uses `s_min = 1e-4`, the same code path.
+
+> Amended 2026-11-13: the downstream project's name replaced with "a downstream consumer" in a public repo, nothing else changed -- approved: "fix all"
