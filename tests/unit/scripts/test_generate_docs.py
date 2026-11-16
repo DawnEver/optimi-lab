@@ -5,6 +5,7 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -45,22 +46,23 @@ def test_the_docs_script_imports_where_the_project_is_not_installed(monkeypatch:
     importlib.reload(pdoc_module)
 
 
-def test_generate_docs_opens_the_rendered_page(mocker) -> None:
+def test_generate_docs_opens_the_rendered_page(monkeypatch: pytest.MonkeyPatch) -> None:
     """`open_webpage=True` opens the exact `file://...optimi_lab.html` URL for an explicit module list.
 
     The render is `test_generate_docs` below; here the driver is mocked (load ruling 2026-10-30: the
     second real pdoc subprocess rendered the same `['optimi_lab']` site again) and asked only what it
     was given, and the browser is patched where `scripts/pdoc.py` looks it up.
     """
-    site = mocker.patch('scripts.pdoc.pdoc_site')
-    mock_open = mocker.patch('scripts.pdoc.webbrowser.open')
+    site, mock_open = mock.MagicMock(), mock.MagicMock()
+    monkeypatch.setattr('scripts.pdoc.pdoc_site', site)
+    monkeypatch.setattr('scripts.pdoc.webbrowser.open', mock_open)
     generate_docs(modules=['optimi_lab'], open_webpage=True)
     assert site.call_args.args[1:] == (pdoc_module.root_path / 'docs', ['optimi_lab'])
     mock_open.assert_called_once_with('file://' + str(pdoc_module.root_path / 'docs' / 'optimi_lab.html'))
 
 
 @pytest.mark.parametrize(('modules', 'open_webpage'), [(None, False)])
-def test_generate_docs(modules, open_webpage: bool, mocker) -> None:
+def test_generate_docs(modules, open_webpage: bool, monkeypatch: pytest.MonkeyPatch) -> None:
     """Test pdoc.py -- the ONE real render (`modules=None` resolves to `['optimi_lab']`).
 
     `open_webpage=True` used to call the real `webbrowser.open`, popping a browser window on
@@ -81,7 +83,8 @@ def test_generate_docs(modules, open_webpage: bool, mocker) -> None:
     output_dir = Path('./docs')
     if Path.exists(output_dir):
         shutil.rmtree(output_dir)
-    mock_open = mocker.patch('scripts.pdoc.webbrowser.open')
+    mock_open = mock.MagicMock()
+    monkeypatch.setattr('scripts.pdoc.webbrowser.open', mock_open)
     generate_docs(modules=modules, open_webpage=open_webpage)
     assert Path.exists(output_dir)
     assert Path.exists(output_dir / 'optimi_lab.html')

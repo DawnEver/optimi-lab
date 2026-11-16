@@ -18,6 +18,15 @@ from optimi_lab.analysis.decision import (
     topsis,
 )
 from optimi_lab.analysis.morris import MorrisEffects, morris
+from optimi_lab.analysis.ranking import (
+    CORRELATIONS,
+    RankedRow,
+    SensitivityMeasure,
+    SensitivityRanking,
+    rank_by_correlation,
+    rank_morris,
+    rank_sobol,
+)
 from optimi_lab.analysis.robust import (
     FORMULATIONS,
     Choice,
@@ -31,10 +40,14 @@ from optimi_lab.analysis.selection import stratified_pick
 from optimi_lab.analysis.sensitivity import SobolIndices, main_effect, sobol_indices
 
 __all__ = [
+    'CORRELATIONS',
     'FORMULATIONS',
     'Choice',
     'MorrisEffects',
     'PowerLaw',
+    'RankedRow',
+    'SensitivityMeasure',
+    'SensitivityRanking',
     'SobolIndices',
     'box_corners',
     'box_draw',
@@ -48,6 +61,9 @@ __all__ = [
     'monotone_links',
     'morris',
     'power_law_fit',
+    'rank_by_correlation',
+    'rank_morris',
+    'rank_sobol',
     'robust_validation',
     'sobol_indices',
     'stratified_pick',
