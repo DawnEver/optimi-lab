@@ -91,8 +91,9 @@ def _subproblem(model: np.ndarray, point: Linearization, lo: np.ndarray, hi: np.
     A non-finite oracle answer (a NaN or inf value or slope) would otherwise flow through the QP into ``x + t d`` and
     be proposed as a design; the solver never emits a non-finite design.
     """
-    for name in ('f', 'df', 'c', 'dc', 'h', 'dh'):
-        if not np.all(np.isfinite(getattr(point, name))):
+    parts = (('f', point.f), ('df', point.df), ('c', point.c), ('dc', point.dc), ('h', point.h), ('dh', point.dh))
+    for name, value in parts:
+        if not np.all(np.isfinite(value)):
             refuse(f'the linearisation at the current point holds a non-finite {name} (the oracle answered it)')
     n = point.x.size
     qp = active_set_qp(

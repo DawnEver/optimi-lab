@@ -14,6 +14,8 @@ scipy's linprog (a REFERENCE ORACLE, tests only).
 
 from __future__ import annotations
 
+from typing import Final
+
 import numpy as np
 import pytest
 from scipy.optimize import linprog
@@ -71,12 +73,17 @@ def test_planted_control_without_the_floors_the_box_vertex_settles_unchanged() -
     assert found.x == pytest.approx(np.clip(-_GRADIENT, _LO - _START, _HI - _START), abs=1e-12)
 
 
+#: The evaluations a clean solve from this vertex makes (`test_planted_control_a_clean_solve_reaches_every_injection`):
+#: a bad answer injected later would never be asked, and the case could not say no.
+_INJECTED_AT: Final = (1, 2)
+
+
 # The solver never emits a non-finite design (2026-11-15, HPC job 8012559: a refine from this vertex handed the
 # oracle `barrier_thickness_ratio = nan`). A non-finite oracle answer -- a value or a slope -- halts STALLED by
 # name; a non-finite start is refused before anything is evaluated.
 @pytest.mark.parametrize('bad', [np.nan, np.inf, -np.inf])
 @pytest.mark.parametrize('part', ['f', 'df', 'c', 'dc'])
-@pytest.mark.parametrize('first', [1, 2, 3])
+@pytest.mark.parametrize('first', _INJECTED_AT)
 def test_a_non_finite_oracle_answer_halts_by_name_and_proposes_no_non_finite_design(
     part: str, bad: float, first: int
 ) -> None:
@@ -97,6 +104,20 @@ def test_a_non_finite_oracle_answer_halts_by_name_and_proposes_no_non_finite_des
     assert found.halt is Halt.STALLED
     if first == 1 and part in ('df', 'dc'):
         assert f'non-finite {part}' in found.reason
+
+
+def test_planted_control_a_clean_solve_reaches_every_injection() -> None:
+    """Every evaluation the injection cases poison is one a clean solve makes, so each of them can fail."""
+    asked: list[np.ndarray] = []
+
+    def evaluate(x: np.ndarray) -> Linearization:
+        asked.append(np.array(x))
+        step = x - _START
+        c = _FLOORS @ step - _SLACK
+        return Linearization(x=x, f=np.array([float(_GRADIENT @ step)]), df=_GRADIENT.copy(), c=c, dc=_FLOORS.copy())
+
+    sqp(evaluate, _START, _LO, _HI)
+    assert len(asked) >= max(_INJECTED_AT)
 
 
 def test_a_non_finite_start_is_refused_before_any_evaluation() -> None:
