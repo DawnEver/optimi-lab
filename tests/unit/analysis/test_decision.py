@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from optimi_lab.analysis import PowerLaw, effective_dimension, knee_index, monotone_links, power_law_fit, topsis
+from optimi_lab.analysis import effective_dimension, knee_index, monotone_links, topsis
 from optimi_lab.core import Refusal
 
 
@@ -29,16 +29,6 @@ def test_effective_dimension_counts_independent_directions():
     assert effective_dimension(np.column_stack([x[:, 0], 2 * x[:, 0], np.log(x[:, 0])])) == 1
     assert effective_dimension(np.column_stack([x[:, 0], x[:, 0] ** 2, x[:, 1], x[:, 2]])) == 3
     assert effective_dimension(np.ones((5, 2))) == 0
-
-
-def test_power_law_recovers_an_analytic_product():
-    x = _box()
-    fit = power_law_fit(x, 7.5e-6 * x[:, 0] * x[:, 1] * x[:, 2])
-    assert isinstance(fit, PowerLaw)
-    assert fit.exponents == pytest.approx((1.0, 1.0, 1.0))
-    assert fit.coefficient == pytest.approx(7.5e-6)
-    assert fit.r2 == pytest.approx(1.0)
-    assert power_law_fit(x, x[:, 0] - 40.0) is None
 
 
 def test_knee_of_a_convex_front_is_its_corner():

@@ -105,8 +105,10 @@ RETIRED: Final[dict[str, str]] = {
     # bench, which scores by Pareto front and feasibility (search domain), stayed as optimi_lab.surrogate.bench.
     # The import is what is retired; dated memory that names the old package is immutable history, so the
     # spelling registered is the import statement, which catches every module and submodule import.
-    'from optimi_lab.model': 'from learn_lab.models.response | learn_lab.protocol | learn_lab.registry | learn_lab.validation | learn_lab.generations import ...; the bench is optimi_lab.surrogate.bench',
+    'from optimi_lab.model': 'from learn_lab.models.response | learn_lab.protocol | learn_lab.registry | learn_lab.validation import ... (the run generations: optimi_lab.analysis.generations); the bench is optimi_lab.surrogate.bench',
     'import optimi_lab.model': 'import learn_lab (see the row above)',
+    # 2026-11-17: one power law in the family -- learn-lab's PowerLaw (fixed exponents, exact gradient).
+    'power_law_fit': 'learn_lab.models.response.PowerLaw().fit(x, y)',
 }
 
 #: The trees a retired spelling may not appear in. `archived/` and `examples/` are deliberately
