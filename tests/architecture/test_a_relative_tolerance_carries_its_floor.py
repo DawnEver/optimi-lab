@@ -83,7 +83,9 @@ PYTHON_FILE_HEADROOM: Final = 25
 #: RE-TAKEN 2026-10-18 AT 59: P10 (surrogates, the L6 model package since moved to learn-lab) read 62.
 #: RE-TAKEN 2026-10-18 AT 60: the P9 ruling tests read 63 approx call sites.
 #: RE-TAKEN 2026-10-18 AT 64: P11 (model-based solvers, D59-D68) read 67 approx call sites.
-APPROX_CALL_FLOOR: Final = 64
+#: RE-TAKEN 2026-11-18 AT 129: the tracked tree read 129 approx call sites after the population and
+#: solver tests landed since 10-18; the floor sits on the population again.
+APPROX_CALL_FLOOR: Final = 129
 
 #: THE OTHER SIDE OF `APPROX_CALL_FLOOR`. The floor sits ON the population, so any growth at all is
 #: worth re-reading; 19 + 5 = 24 is the point at which this constant must be re-measured.
