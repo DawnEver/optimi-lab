@@ -24,4 +24,4 @@ Tests: `tests/unit/operator/test_qp.py::test_d31_a_degenerate_vertex_settles_on_
 near-parallel, scaled duplicates, duplicates plus a second bound, near-duplicates; near-parallel and near-duplicates
 red before) and its planted non-degenerate control.
 
-> Amended 2026-11-18: the motronics run name and job id replaced by "a downstream HPC sweep" -- approved: "(user, translated) Approved" (2026-11-18, answering G-toolchain's question naming this rename)
+> Amended 2026-11-18: the downstream run name and job id generalised to "a downstream HPC sweep" -- approved: "(user, translated) Approved"
