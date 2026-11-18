@@ -23,3 +23,5 @@ but needs the dual ratio test; not warranted until a case needs it). No toleranc
 Tests: `tests/unit/operator/test_qp.py::test_d31_a_degenerate_vertex_settles_on_the_optimum` (parallel,
 near-parallel, scaled duplicates, duplicates plus a second bound, near-duplicates; near-parallel and near-duplicates
 red before) and its planted non-degenerate control.
+
+> Amended 2026-11-18: the motronics run name and job id replaced by "a downstream HPC sweep" -- approved: "(user, translated) Approved" (2026-11-18, answering G-toolchain's question naming this rename)
