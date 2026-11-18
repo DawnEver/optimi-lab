@@ -23,4 +23,5 @@ estimator, so `match` refused every problem with `Uncertainty`.
 - Open: `analysis/robust.py` (post-hoc DET/WC/CC choice) is still separate from the solver path;
   no QMC rule option for the scenario draw (MC only); the downstream consumer's side not wired to pass `risk=`.
 
-> Amended 2026-11-13: the downstream project's name replaced with "a downstream consumer" in a public repo, nothing else changed -- approved: "批准，同样措辞"
+> Amended 2026-11-13: the downstream project's name replaced with "a downstream consumer" in a public repo, nothing else changed -- approved: "(user, translated) approved, same wording"
+> Amended 2026-11-17: translated to English (D26) -- approved: "(user, translated) .claude/memory/ and .claude/tasks/ should also be English only"
