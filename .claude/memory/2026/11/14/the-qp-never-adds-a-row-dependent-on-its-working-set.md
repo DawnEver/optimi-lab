@@ -5,7 +5,7 @@ created: 2026-11-14
 ---
 # The active-set QP never adds a row dependent on its working set
 
-Incident (motronics HPC paramfloor6, job 8011077): an SQP refine halted `stalled after 0 iterations -- the active-set
+Incident (a downstream HPC sweep): an SQP refine halted `stalled after 0 iterations -- the active-set
 QP did not settle within 230 iterations (cycling on a degenerate vertex)`. The start (the GA best) sat 2e-4 of its
 range off a box lower bound while an Explicit floor whose gradient is nearly that bound's axis was active too.
 
