@@ -27,11 +27,14 @@ ROWS: Final[tuple[CollectRow, ...]] = (
         groups=('dev',),
         errors=frozenset(),
         degrades=frozenset(),
-        unresolved=frozenset(),
+        unresolved=frozenset({'pytest'}),
         why=(
             'The dev dependency group installs the independent development kit and test oracles. '
-            'This row checks the actual group axis, not an optional-dependency extra. Nothing is unresolved: '
-            'the scikit-learn oracle left with the surrogate models for learn-lab (A1, 2026-11-08).'
+            'This row checks the actual group axis, not an optional-dependency extra. The scikit-learn '
+            'oracle left with the surrogate models for learn-lab (A1, 2026-11-08). pytest is UNRESOLVED: '
+            'the test tools are declared only through dev-lab[test] (996d1fb), so no committed text here '
+            'names its supplier; it read as supplied only while the census walked the filesystem and '
+            'found the venv, and reads honestly since local_modules lists the checkout (2026-11-18).'
         ),
     ),
 )

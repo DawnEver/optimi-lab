@@ -108,6 +108,7 @@ _SHIPPED: Final = frozenset({
     'BARE-PYTHON',
     'BARE-TEST-INVOCATION',
     'COMMIT-HOOKS-RUN',  # gained 2026-11-13 with dev-lab 61560e40
+    'CI-CRON-NEEDS-CONSENT',  # gained 2026-11-18 with dev-lab 551ca2cc
     'CONSENT-CODE-FROM-THE-USER',
     'FORGE-WRITE-VIA-CLI',
     'FORGE-WRITE-VIA-GH-API',
@@ -116,6 +117,7 @@ _SHIPPED: Final = frozenset({
     'GIT-RESET',
     'GIT-STAGE-EVERYTHING',
     'GIT-STASH',
+    'HEAVY-IS-THE-MAIN-SESSIONS',  # gained 2026-11-18 with dev-lab 551ca2cc: a subagent runs no heavy or full selection
     'HPC-THROUGH-THE-DOOR',  # gained 2026-11-07 with dev-lab 8c4ab734
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
@@ -126,6 +128,7 @@ _SHIPPED: Final = frozenset({
     'STATUS-VIA-DOORS',  # replaced REVIEW-STATUS-VIA-DOORS (dev-lab A3 relock): review, hold and security posts
     'REPORTS-LIVE-IN-MEMORY',
     'SUBAGENT-NO-PUSH',
+    'TRACKED-CITES-NO-EPHEMERAL',  # gained 2026-11-18 with dev-lab 551ca2cc
     'TREE-HAS-A-LIVE-RUN',
     'WORKTREE-BASE-IS-EXPLICIT',
     'WORKTREES-STAY-INSIDE',

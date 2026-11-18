@@ -60,7 +60,9 @@ MEMORY_TREES: Final = ('.claude/memory',)
 #: SECOND CHECKOUTS of this repo, so the walk found a `.claude/memory` under each of them and
 #: reported trees that "appeared" -- a reading about which lanes are open on this box rather than
 #: about this tree. It is not authored content either, which is what this set is for.
-NOT_WALKED: Final = frozenset({'.git', '.venv', '__pycache__', 'node_modules', 'worktrees'})
+#: `output` is the git-ignored generated tree, and since D27 it holds the test runner's temp dirs,
+#: whose planted `.claude/memory` fixtures are a running test's sandbox, not a fork of this record.
+NOT_WALKED: Final = frozenset({'.git', '.venv', '__pycache__', 'node_modules', 'output', 'worktrees'})
 
 #: NOT ENTRIES. `_meta.json` is written beside the entries by the memory tooling and reaches no index
 #: and no other checkout; `.gitkeep` is how an empty tree stays tracked at all. Neither is a record
