@@ -13,8 +13,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from dev_lab.dev.codeplace import declared_strays, misplaced_code
+from dev_lab.dev.codeplace import misplaced_code
 from dev_lab.dev.scratch import assert_scratch_never_committed, overdue_scratch
+from dev_lab.dev.strays import declared_strays
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
