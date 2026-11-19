@@ -4,19 +4,14 @@ Domain-free like the rest of the package. :mod:`~optimi_lab.analysis.sensitivity
 output's variance among the declared variables; :mod:`~optimi_lab.analysis.decision` reads a front
 in the minimization frame of :mod:`optimi_lab.core.pareto`. :mod:`~optimi_lab.analysis.robust` chooses
 robustly from a fixed pool; :mod:`~optimi_lab.analysis.cluster` and
-:mod:`~optimi_lab.analysis.selection` label regions and pick across them.
+:mod:`~optimi_lab.analysis.selection` label regions and pick across them; :mod:`~optimi_lab.analysis.generations`
+refits a run's surrogate per generation. A power law over a sample is learn-lab's ``PowerLaw``.
 """
 
 from optimi_lab.analysis.cluster import kmeans
 from optimi_lab.analysis.conflict import conflict_matrix, essential_objectives
-from optimi_lab.analysis.decision import (
-    PowerLaw,
-    effective_dimension,
-    knee_index,
-    monotone_links,
-    power_law_fit,
-    topsis,
-)
+from optimi_lab.analysis.decision import effective_dimension, knee_index, monotone_links, topsis
+from optimi_lab.analysis.generations import RunHistory, generation_errors, generation_predictions
 from optimi_lab.analysis.morris import MorrisEffects, morris
 from optimi_lab.analysis.ranking import (
     CORRELATIONS,
@@ -44,8 +39,8 @@ __all__ = [
     'FORMULATIONS',
     'Choice',
     'MorrisEffects',
-    'PowerLaw',
     'RankedRow',
+    'RunHistory',
     'SensitivityMeasure',
     'SensitivityRanking',
     'SobolIndices',
@@ -55,12 +50,13 @@ __all__ = [
     'conflict_matrix',
     'effective_dimension',
     'essential_objectives',
+    'generation_errors',
+    'generation_predictions',
     'kmeans',
     'knee_index',
     'main_effect',
     'monotone_links',
     'morris',
-    'power_law_fit',
     'rank_by_correlation',
     'rank_morris',
     'rank_sobol',
