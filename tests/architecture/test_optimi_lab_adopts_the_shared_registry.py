@@ -306,6 +306,12 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED 2026-10-29: the re-rendered `scripts/deny_rules.py` ships the RECURSIVE-DELETE deny row
     # (exit `branchset --apply`) and `_GUARD` pins it by name in the shipped set.
     'RECURSIVE-DELETE': (_GUARD, _GUARD_RULES),
+    # Adopted 2026-11-18 with the dev-lab 551ca2cc relock, as the family does: HEAVY-IS-THE-MAIN-SESSIONS is a
+    # subagent-scoped deny row `scripts/deny_rules.py` ships and `_GUARD` pins by name (a subagent runs no heavy
+    # or full selection); HOOK-UNDER-FIVE-SECONDS (D24) is the hook dispatcher the guard install wires into the
+    # tracked `.claude/settings.json`, refusing at render time any inline row whose bound passes five seconds.
+    'HEAVY-IS-THE-MAIN-SESSIONS': (_GUARD, _GUARD_RULES),
+    'HOOK-UNDER-FIVE-SECONDS': (_GUARD, _GUARD_RULES, '.claude/settings.json'),
     # ADOPTED 2026-10-29: the guard install wires the advisory `PostToolUse` `dev_lab.dev.pushwatch`
     # line into the tracked `.claude/settings.json`, and `_GUARD`'s liveness arm reads that wiring.
     'PUSHED-HEAD-IS-WATCHED': (_GUARD, '.claude/settings.json'),
