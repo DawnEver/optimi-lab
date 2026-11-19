@@ -5,7 +5,7 @@ created: 2026-11-14
 ---
 # The active-set QP never adds a row dependent on its working set
 
-Incident (motronics HPC paramfloor6, job 8011077): an SQP refine halted `stalled after 0 iterations -- the active-set
+Incident (a downstream HPC sweep): an SQP refine halted `stalled after 0 iterations -- the active-set
 QP did not settle within 230 iterations (cycling on a degenerate vertex)`. The start (the GA best) sat 2e-4 of its
 range off a box lower bound while an Explicit floor whose gradient is nearly that bound's axis was active too.
 
@@ -23,3 +23,5 @@ but needs the dual ratio test; not warranted until a case needs it). No toleranc
 Tests: `tests/unit/operator/test_qp.py::test_d31_a_degenerate_vertex_settles_on_the_optimum` (parallel,
 near-parallel, scaled duplicates, duplicates plus a second bound, near-duplicates; near-parallel and near-duplicates
 red before) and its planted non-degenerate control.
+
+> Amended 2026-11-18: the downstream run name and job id generalised to "a downstream HPC sweep" -- approved: "(user, translated) Approved"

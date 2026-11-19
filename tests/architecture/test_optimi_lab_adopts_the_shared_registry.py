@@ -331,6 +331,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
             'SESSION-HISTORY-ONLY-GROWS',
             'INTEGRATION-IS-MERGES-ONLY',
             'ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES',  # the same row, against the pushed tip's branch set (dev-lab ea264f8)
+            'PUSHED-HEAD-CARRIES-ITS-TASK',  # adopted 2026-11-18: the same session-branch pre-push row
             'INTEGRATION-TAKES-ONLY-FORGE-MERGES',
             'ONE-WRITER-PER-SESSION-BRANCH',
         ),
