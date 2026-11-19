@@ -1,4 +1,4 @@
-"""Decision support over a finished front: redundancy, a knee, a TOPSIS ranking and a power law.
+"""Decision support over a finished front: redundancy, a knee and a TOPSIS ranking.
 
 Every objective matrix here is in the MINIMIZATION frame of :mod:`optimi_lab.core.pareto` -- the
 caller signs and normalises each column once, through :meth:`~optimi_lab.problem.Objective.minimized`
@@ -9,16 +9,14 @@ a copy. The caller declares thresholds and weights; this module only applies the
 """
 
 from collections.abc import Sequence
-from dataclasses import dataclass
 
 import numpy as np
-from numerics_lab.linear.dense import least_squares
 
 from optimi_lab.core.errors import refuse, require_finite
 from optimi_lab.core.pareto import non_dominated_sorting
 from optimi_lab.metric import rank, spearman
 
-__all__ = ['PowerLaw', 'effective_dimension', 'knee_index', 'monotone_links', 'power_law_fit', 'topsis']
+__all__ = ['effective_dimension', 'knee_index', 'monotone_links', 'topsis']
 
 
 def _matrix(values: np.ndarray, what: str) -> np.ndarray:
@@ -62,37 +60,6 @@ def effective_dimension(values: np.ndarray, *, share: float = 0.95) -> int:
         return 0
     energy = np.linalg.svd(ranks, compute_uv=False) ** 2
     return int(np.searchsorted(np.cumsum(energy) / energy.sum(), share - 1e-12) + 1)
-
-
-@dataclass(frozen=True, slots=True)
-class PowerLaw:
-    """``y = coefficient * prod(x_k ** exponents_k)`` fitted in log space; ``r2`` near 1 says it is one."""
-
-    exponents: tuple[float, ...]
-    coefficient: float
-    r2: float
-
-
-def power_law_fit(inputs: np.ndarray, outputs: np.ndarray) -> PowerLaw | None:
-    """Least squares of ``log y`` on ``log x``; ``None`` when any value is not strictly positive.
-
-    ``None`` is the answer "this is not a power law", not a failure: a non-positive value has no
-    logarithm, so no product of powers reaches it.
-    """
-    inputs = _matrix(inputs, 'the power-law inputs')
-    outputs = np.asarray(outputs, dtype=float)
-    if outputs.shape != (inputs.shape[0],):
-        refuse(f'one output per input row: got outputs {outputs.shape} for inputs {inputs.shape}')
-    require_finite(outputs, 'the power-law outputs')
-    if (inputs <= 0).any() or (outputs <= 0).any():
-        return None
-    design = np.column_stack([np.ones(len(outputs)), np.log(inputs)])
-    log_out = np.log(outputs)
-    coef = least_squares(design, log_out)
-    residual = float(((log_out - design @ coef) ** 2).sum())
-    spread = float(((log_out - log_out.mean()) ** 2).sum())
-    r2 = 1.0 - residual / spread if spread > 0 else 1.0
-    return PowerLaw(tuple(float(p) for p in coef[1:]), float(np.exp(coef[0])), r2)
 
 
 def knee_index(values: np.ndarray) -> int:
