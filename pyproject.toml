@@ -233,9 +233,13 @@ max_idle_hours = 12  # a branch idle 12 h is pruned when merged, alarmed when no
 
 [tool.dev_lab.ci."ci.yml"]
 
+# ON-DEMAND EXTRAS (dev-lab D78, #864): the extras every environment syncs; a need-set adds its own extra.
+[tool.dev_lab.dep]
+extras = []
+needs = {}
+
 [tool.lab_commons.hpc]
 # PIN + FRESHNESS (user ruling 2026-10-17): the venv is exactly the committed lock, and the lock keys it.
-install = 'uv sync --frozen --group dev'
 dependency_inputs = ['pyproject.toml', 'uv.lock']
 source_roots = ['src']
 collect = 'tests'
