@@ -10,12 +10,11 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_the_repo_runs_the_family_pr_lifecycle() -> None:
-    # review-prepare.yml gained 2026-11-10: a judge repo renders the bundle prepare its judge reads.
+    # review-prepare.yml retired by dev-lab D77: the judge fetches each head and prepares its bundle itself.
     assert set(workflows(ROOT)) == {
         'ci.yml',
         'continue.yml',
         'merge-tick.yml',
-        'review-prepare.yml',
     }
 
 
