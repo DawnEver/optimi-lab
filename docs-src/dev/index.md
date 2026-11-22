@@ -23,6 +23,8 @@
 | [Killed runs and orphans](../../../dev-lab/docs-src/dev/orphans.md) | What survives a stopped run, why a lock judges liveness, and how to reap |
 | [Box resources](../../../dev-lab/docs-src/dev/box-resources.md) | What one workstation rations, and the broker every run declares its cost to |
 | [The forge](../../../dev-lab/docs-src/dev/forge.md) | Parts, claims, `forge serve`, scheduling and `forge queue`: how a sha gets its verdict |
+| [How a task hears the forge](../../../dev-lab/docs-src/dev/forgefeed.md) | One issues-since read per repository, task:<slug> labels, inboxes |
+| [Storage kinds](../../../dev-lab/docs-src/dev/storage.md) | Where output, venvs, worktrees and caches live; one resolver, machine-bound |
 | [Adding a forge workstation](../../../dev-lab/docs-src/dev/adding-a-workstation.md) | The light role's template, the deploy step by step, verifying and retiring a host |
 | [The integration branch](../../../dev-lab/docs-src/dev/integration.md) | The path of one change, the roles, the integration tick, `forge sync`, `integrate promote`, the merge audit |
 | [Issues](../../../dev-lab/docs-src/dev/issues.md) | An issue is intent; its state is derived from refs and parts; claims and priority are labels and comments |

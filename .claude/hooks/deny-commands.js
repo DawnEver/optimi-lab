@@ -526,8 +526,17 @@ function carriesDevLab(python) {
 
 /** The exit of a per-repo-door rule when `target` declares none (2026-11-17: a pytest in one repo was sent to the
  * session repo's `scripts/gate/runner.py`, absent there): the family verify door when the target's OWN
- * interpreter carries dev_lab, else the declaration to add -- never another repo's path. */
+ * interpreter carries dev_lab, else the declaration to add -- never another repo's path. A need whose family door
+ * reads no file of the target (FAMILY_DOORS; 2026-11-22: a network verb in a repo declaring no doors was told to
+ * declare one and named none) is sent to that door, printed with the session's interpreter. */
+const FAMILY_DOORS = {
+  'retry-wrapper': 'dev_lab.dev.netverb -- git <verb> (or uv <verb>)',
+  'process-tree-killer': 'dev_lab.dev.stoprun --pid <pid>',
+};
 function undeclaredDoor(rule, target, shown) {
+  if (FAMILY_DOORS[rule.needs]) {
+    return `${shown} declares no door for it; the family door runs from any directory: ${doorPython(target)} -m ${FAMILY_DOORS[rule.needs]}`;
+  }
   const python = rule.needs === 'verdict-entry-point' ? checkoutPython(target) : null;
   if (python && carriesDevLab(python)) {
     return `${shown} declares no door for it; its own interpreter carries dev_lab: ${python} -m dev_lab.dev.verify -- <paths>`;
@@ -535,9 +544,20 @@ function undeclaredDoor(rule, target, shown) {
   return `${shown} declares no door for it: declare one in its pyproject.toml as [tool.dev_lab.doors] ${rule.name} = "<the command that runs it there>"`;
 }
 
+/** The interpreter a FAMILY door is printed with: the session checkout's, whose rendered rules named the door --
+ * never the target's, whose older kit may lack the verb (2026-11-19, `worktrees --remove` in a sibling repo). */
+function doorPython(checkout) {
+  try {
+    return remedyPython(sessionRoot || checkout || root);
+  } catch (missing) {
+    return `<${missing.message}>`;
+  }
+}
+
 /** `text` with `{root}` as the cwd and the interpreter tokens as `checkout`'s absolute interpreter. */
 function expand(text, checkout) {
-  const out = String(text).replaceAll('{root}', root);
+  let out = String(text).replaceAll('{root}', root);
+  if (out.includes('{door}')) out = out.replaceAll('{door}', doorPython(checkout));
   if (!checkout || !/\{python\}|<venv python>/.test(out)) return out;
   let python;
   try {
@@ -562,7 +582,8 @@ function reasonFor(rule, reason, cmd, cwd, sessionRoot) {
   // One header line; the full wording is docs-src/dev/refusals.md#cross-repo-refusals (dev-lab).
   const details = reason.split('\n').filter((line) => line.startsWith('details: '));
   if (door) {
-    return [`${rule.name}: refused; ${shown} declares its own door for it:`, door, ...details].join('\n');
+    const said = rule.severity === 'hint' ? 'advised' : 'refused';
+    return [`${rule.name}: ${said}; ${shown} declares its own door for it:`, door, ...details].join('\n');
   }
   if (rule.needs) return [reason.split('\n')[0], undeclaredDoor(rule, target, shown), ...details].join('\n');
   const session = sessionRoot.replace(/\\/g, '/');
@@ -605,6 +626,28 @@ function liveRunRefusal(target, sessionRoot) {
   const why = done.error ? done.error.message : `exit ${done.status}${said ? '' : ', no answer'}`;
   return `TREE-HAS-A-LIVE-RUN: could not confirm that no run executes from ${target} (${why}); re-run when ` +
     `${remedyPython(sessionRoot)} -m dev_lab.dev.liverun --tree ${target} answers.`;
+}
+
+/* ================================ A ROW THAT BINDS ONLY ON A DECLARED REPO ================================
+ *
+ * `when: 'declared-repo'` (FAMILY-REPO-IS-CHECKED-OUT): the pattern names a clone, refused only when its url is a
+ * family repo this machine already checks out. That is the machine file's answer (the family layer's remotes, the
+ * local layer's paths), which this engine does not parse: it asks `python -m dev_lab.dev.familyrepos clone-check`
+ * with the command on stdin, only AFTER the pattern matched. Exit 1 prints the refusal; anything else -- no
+ * interpreter, no kit, a crash -- refuses NOTHING, because a duplicate clone is removable and a guard that cannot
+ * read the declaration must not block every clone.
+ */
+function declaredRepoRefusal(command, sessionRoot) {
+  const python = venvPython(sessionRoot);
+  if (!python) return '';
+  const done = spawnSync(python, ['-m', 'dev_lab.dev.familyrepos', 'clone-check'], {
+    input: command,
+    encoding: 'utf8',
+    timeout: 15000,
+    windowsHide: true,
+  });
+  const said = String(done.stdout || '').trim();
+  return done.status === 1 && said ? said : '';
 }
 
 /* `when: 'background'`: `python -m dev_lab.dev.shelllife --admit` judges the line on stdin -- exit 0 admitted, exit 1
@@ -725,6 +768,103 @@ function familySiblingClone(cmd, cwd) {
   } catch {
     return false; // a tree the engine cannot read admits nothing
   }
+}
+
+/* ================================ A WORKTREE UNDER THE MACHINE'S BOUND HOME ================================
+ *
+ * `admits: 'bound-worktree-home'` (WORKTREES-STAY-INSIDE): a machine may bind the `worktrees` storage kind outside
+ * the checkout ([storage.roots] worktrees), a path no committed pattern can name. The binding is ONE fact in the
+ * machine file; `python -m dev_lab.dev.storage publish` renders it as JSON for this engine (no TOML here). A line is
+ * admitted only when EVERY `worktree add|move` / `clone` target lies inside the repository's worktree home -- the
+ * published root with `{repo}` filled by the main checkout's name, or its in-tree default. No file, no binding, a
+ * target the engine cannot place: admits nothing.
+ */
+const STORAGE_ROOTS_ENV = 'LAB_COMMONS_STORAGE_ROOTS';
+
+function publishedWorktrees() {
+  const file =
+    process.env[STORAGE_ROOTS_ENV] || path.join(require('os').homedir(), '.config', 'lab-commons', 'storage-roots.json');
+  try {
+    const kind = JSON.parse(fs.readFileSync(file, 'utf8')).worktrees;
+    return kind && typeof kind.root === 'string' && typeof kind.default === 'string' ? kind : null;
+  } catch {
+    return null;
+  }
+}
+
+function insideDir(target, base) {
+  const folded = normcase(base);
+  return normcase(target).startsWith(folded + path.sep);
+}
+
+/** The positional words after `options`: `-b`, `-B` and `--reason` consume the next word. */
+function positionalWords(words) {
+  const found = [];
+  for (let i = 0; i < words.length; i += 1) {
+    if (words[i] === '-b' || words[i] === '-B' || words[i] === '--reason') i += 1;
+    else if (!words[i].startsWith('-')) found.push(words[i]);
+  }
+  return found;
+}
+
+function boundWorktreeHome(cmd, cwd) {
+  const kind = cwd && publishedWorktrees();
+  if (!kind) return false;
+  let dir = path.resolve(cwd);
+  let placed = 0;
+  for (const segment of segments(splitHeredocs(cmd).rest)) {
+    const text = segment.replace(ENV_PREFIX, '').trim();
+    if (!text) continue;
+    const words = (text.match(/"[^"\n]*"|'[^'\n]*'|\S+/g) || []).map((word) => word.replace(/^["']|["']$/g, ''));
+    if (words[0] === 'cd' || words[0] === 'pushd') {
+      dir = path.resolve(dir, hostPath(words[1] || '.'));
+      continue;
+    }
+    let base = dir;
+    let at;
+    if (/^git(?:\.exe)?$/i.test(words[0])) {
+      at = 1;
+      while (at + 1 < words.length && (words[at] === '-C' || words[at] === '-c')) {
+        if (words[at] === '-C') base = path.resolve(base, hostPath(words[at + 1]));
+        at += 2;
+      }
+    } else if (/^(?:sh|bash)$/.test(words[0]) && /retry/i.test(words[1] || '')) {
+      at = 2;
+    } else {
+      continue;
+    }
+    const rest = words.slice(at);
+    let index;
+    let positionals;
+    if (rest[0] === 'worktree' && (rest[1] === 'add' || rest[1] === 'move')) {
+      positionals = positionalWords(rest.slice(2));
+      index = rest[1] === 'add' ? 0 : 1;
+    } else if (rest[0] === 'clone') {
+      positionals = positionalWords(rest.slice(1));
+      index = 1;
+    } else {
+      continue;
+    }
+    if (positionals.length <= index) return false;
+    const target = path.resolve(base, hostPath(positionals[index]));
+    try {
+      const own = repoRoot(base);
+      const gitDir = own && commonGitDir(own);
+      if (!gitDir) return false;
+      const main = path.dirname(gitDir);
+      const home = path.resolve(kind.root.split('{repo}').join(path.basename(main)));
+      if (!insideDir(target, home) && !insideDir(target, path.join(main, ...kind.default.split('/')))) return false;
+    } catch {
+      return false;
+    }
+    placed += 1;
+  }
+  return placed > 0;
+}
+
+/** Whether `rule` carries the filesystem admission `name` (a row may carry one or several). */
+function admitsBy(rule, name) {
+  return Array.isArray(rule.admits) ? rule.admits.includes(name) : rule.admits === name;
 }
 
 /* ================================ A GREP WHOSE OPERANDS ARE FILES WALKS NOTHING ================================
@@ -858,8 +998,9 @@ for (const rule of rules) {
   } catch {
     continue; // one malformed rule never blocks the session
   }
-  if (hit && rule.admits === 'family-sibling-clone' && familySiblingClone(cmd, input.cwd)) continue;
-  if (hit && rule.admits === 'file-operands' && fileOperands(rule, cmd, input.cwd)) continue;
+  if (hit && admitsBy(rule, 'family-sibling-clone') && familySiblingClone(cmd, input.cwd)) continue;
+  if (hit && admitsBy(rule, 'bound-worktree-home') && boundWorktreeHome(cmd, input.cwd)) continue;
+  if (hit && admitsBy(rule, 'file-operands') && fileOperands(rule, cmd, input.cwd)) continue;
   let liveReason = '';
   if (hit && rule.asks) {
     liveReason = askedRefusal(rule.asks, sessionRoot);
@@ -886,8 +1027,14 @@ for (const rule of rules) {
     liveReason = liveRunRefusal(input.cwd ? ruleTarget(rule, cmd, input.cwd) : null, sessionRoot);
     hit = liveReason !== '';
   }
+  if (hit && rule.when === 'declared-repo') {
+    liveReason = declaredRepoRefusal(cmd, sessionRoot);
+    hit = liveReason !== '';
+  }
   if (hit && rule.severity === 'hint') {
-    hints.push(expand(rule.reason || rule.name, remedyCheckout(rule, cmd, input.cwd)));
+    // A hint names the TARGET's door as a refusal does (2026-11-22: a network verb in a sibling repo was handed the
+    // session repo's wrapper, a file the sibling does not have).
+    hints.push(reasonFor(rule, expand(rule.reason || rule.name, remedyCheckout(rule, cmd, input.cwd)), cmd, input.cwd || '', sessionRoot));
   } else if (hit) {
     // A PROBE (run_engine) names where its refusal is logged, '' for nowhere; the tool never sends the key.
     const probed = typeof input.dev_lab_metrics_root === 'string';
