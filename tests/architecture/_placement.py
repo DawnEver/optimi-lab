@@ -354,7 +354,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'deleted public `optimi_lab` names outright, with no compat shim and no deprecation alias, and '
         'recorded which ones only in their commit messages. The scan that refuses a resurrection is small; '
         'the LIST of what was retired is the file, and it means nothing anywhere else. RE-MEASURED 2026-10-23 '
-        'after the development-kit migration, RE-MEASURED 2026-11-22 after 1b78ac0 (power_law_fit registered as retired): own=126 hits=28 -> 22.22%, down from own=125 hits=28 -> 22.40% on 2026-11-08 after A1 (the model package retired), down from own=123 hits=36 -> 29.27%, itself up from own=111 repo=28 -> 25.23% after the '
+        'after the development-kit migration, RE-MEASURED 2026-11-22 after 1b78ac0 (the power-law fit spelling registered as retired): own=126 hits=28 -> 22.22%, down from own=125 hits=28 -> 22.40% on 2026-11-08 after A1 (the model package retired), down from own=123 hits=36 -> 29.27%, itself up from own=111 repo=28 -> 25.23% after the '
         'P12 retirements the same day, up from own=108 repo=25 -> 23.15% after the P8 retirements on '
         '2026-10-17, up from own=83 repo=8 -> 9.64% on 2026-10-03, up from own=78 repo=8 -> 10.26% on '
         '2026-09-19, itself down from own=80 repo=8 -> 10.00% on 2026-09-17. THE FIVE LINES ARE THE '
