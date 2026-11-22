@@ -315,7 +315,20 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED 2026-10-29: the guard install wires the advisory `PostToolUse` `dev_lab.dev.pushwatch`
     # line into the tracked `.claude/settings.json`, and `_GUARD`'s liveness arm reads that wiring.
     'PUSHED-HEAD-IS-WATCHED': (_GUARD, '.claude/settings.json'),
-    'SESSION-HEARS-ITS-PRS': (_GUARD, '.claude/settings.json'),  # dev-lab #438: the Stop gate and the PR record
+    # dev-lab #438: the Stop gate and the PR record. Renamed from SESSION-HEARS-ITS-PRS by dev-lab 2adcab2c
+    # (D79, D81: one hearer per task); the mechanism is the same dispatcher wiring.
+    'TASK-HEARS-ITS-FORGE-EVENTS': (_GUARD, '.claude/settings.json'),
+    # ADOPTED 2026-11-22 with the dev-lab e8646709 relock: the re-rendered `scripts/deny_rules.py` ships the
+    # OUTPUT-HOLDS-NO-CODE deny row (a shell write of code under `output/`) and `_GUARD` pins it by name.
+    'OUTPUT-HOLDS-NO-CODE': (_GUARD, _GUARD_RULES),
+    # ADOPTED 2026-11-22 (arrived with dev-lab 2adcab2c): `[tool.dev_lab.dep] extras` + `needs` is this repo's
+    # one declaration, the rendered `ci.yml` syncs only the part's extras (`ciworkflows` refuses an
+    # `--all-extras` at render), and the render test holds the committed workflow to that rendering.
+    'ALL-EXTRAS-REFUSED': (
+        _PYPROJECT,
+        '.github/workflows/ci.yml',
+        'tests/architecture/test_the_ci_workflow_is_rendered.py',
+    ),
     # ADOPTED 2026-10-18 with `[tool.dev_lab.hooks]` (the family base as is). The commit-msg
     # `merge-audit` row refuses committing a merge that loses or rewrites a test unnamed; the pre-push
     # `session-branch` row (`dev_lab.dev.sessionbranch`) refuses publishing a session branch from

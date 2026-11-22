@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Final
 
 from dev_lab.dev.codeplace import misplaced_code
-from dev_lab.dev.datedlog import TEST_TEMP_KIND, kind_dirs
 from dev_lab.dev.scratch import assert_scratch_never_committed, overdue_scratch
 from dev_lab.dev.strays import declared_strays
 
@@ -35,9 +34,8 @@ CODE_ROOTS: Final = ('src/', 'tests/', 'scripts/', 'examples/', '.claude/hooks/'
 #: else. Added 2026-10-03, the same day and for the same reason as the identical line in the kit's
 #: and the sibling lab's copies of this guard.
 #:
-#: The test runner's dated temp dirs (D27: `<output>/<yy>/<mm>/<dd>/pytest/`) are pruned as well, the
-#: same list `dev_lab.dev.codeplace.declared_misplaced` derives: a planted file there is a fixture of a
-#: running test, not a one-off that escaped. Derived per walk, never pinned, since the dates move.
+#: The test runner's temp dirs are NOT pruned any more: since dev-lab a6d8ca36 (D104, 2026-11-20) they are
+#: system-temp entries outside every checkout, so `output/` holds no planted fixture for this walk to meet.
 PRUNED: Final = ('.claude/worktrees', 'docs', 'htmlcov')
 
 #: How long a one-off may wait in ``scratch/`` before it is archived or promoted.
@@ -45,7 +43,7 @@ SCRATCH_AGE_DAYS_CEILING: Final = 3.0
 
 
 def test_no_code_file_lives_outside_a_code_root() -> None:
-    found = misplaced_code(_ROOT, code_roots=CODE_ROOTS, pruned_paths=(*PRUNED, *kind_dirs(_ROOT, TEST_TEMP_KIND)))
+    found = misplaced_code(_ROOT, code_roots=CODE_ROOTS, pruned_paths=PRUNED)
     assert not found, f'code outside {list(CODE_ROOTS)}: {found[:10]}'
 
 
