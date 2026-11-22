@@ -321,6 +321,13 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED 2026-11-22 with the dev-lab e8646709 relock: the re-rendered `scripts/deny_rules.py` ships the
     # OUTPUT-HOLDS-NO-CODE deny row (a shell write of code under `output/`) and `_GUARD` pins it by name.
     'OUTPUT-HOLDS-NO-CODE': (_GUARD, _GUARD_RULES),
+    # ADOPTED 2026-11-22 with the dev-lab 6f785fe7 relock, both through the re-render: the re-rendered
+    # `scripts/deny_rules.py` ships the WORKTREE-NAMES-ITS-TASK deny row (a hash-like name under
+    # `.claude/worktrees/`) and `_GUARD` pins it by name; IMAGES-BY-ABSOLUTE-PATH is the Stop check
+    # (`dev_lab.dev.imagepath`) behind the hook dispatcher the guard install wires into the tracked
+    # `.claude/settings.json`, whose liveness arm `_GUARD` reads.
+    'WORKTREE-NAMES-ITS-TASK': (_GUARD, _GUARD_RULES),
+    'IMAGES-BY-ABSOLUTE-PATH': (_GUARD, '.claude/settings.json'),
     # ADOPTED 2026-11-22 (arrived with dev-lab 2adcab2c): `[tool.dev_lab.dep] extras` + `needs` is this repo's
     # one declaration, the rendered `ci.yml` syncs only the part's extras (`ciworkflows` refuses an
     # `--all-extras` at render), and the render test holds the committed workflow to that rendering.
@@ -397,6 +404,11 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   2026-10-18, every `git clone/fetch/pull/push/ls-remote` spelling under `scripts/`, `src/` and
 #:   `tests/` is a STRING FIXTURE inside `test_the_agent_guard_is_live.py`, fed to the deny engine
 #:   rather than executed, so there is no verb here for `dev_lab.dev.netverb` to wrap).
+#: * NO HOST ROLE AND NO SSH ENDPOINT, admitted 2026-11-22 (user ruling 2026-11-22; arrived with dev-lab
+#:   e8646709): SCHEDULER-ONLY-FOR-SERVING (the rule is about which ACCOUNT may reach a scheduler; this
+#:   library deploys no host role, serving or research, and touches no crontab) and SSH-HOST-KEY-DECLARED
+#:   (the rule is about a declared endpoint's host key; this library declares no ssh endpoint and opens no
+#:   ssh session, so there is no key to declare or to check).
 #: The fourth kind is gone: the REAL GAPS this set used to hold (FIX-THE-CAUSE,
 #: RETIRED-NAMES-REGISTERED, MEMORY-SHAPE, DOCS-SPLIT) were closed on 2026-09-15 and their names
 #: were deleted here in the same edit that lowered the ceiling, which is the only way this number
@@ -408,6 +420,11 @@ _ABSENT: Final = frozenset({
     'UNITS-GO-THROUGH-PINT',
     'REGISTRY-OWNS-THE-DECISION',
     'NETWORK-RETRY-THEN-REPORT',
+    # No host role is deployed from this library: there is no serving account whose scheduler path a
+    # research one could stray into (user ruling 2026-11-22).
+    'SCHEDULER-ONLY-FOR-SERVING',
+    # No ssh endpoint is declared by this library: there is no host key to declare (user ruling 2026-11-22).
+    'SSH-HOST-KEY-DECLARED',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -469,7 +486,13 @@ _ABSENT: Final = frozenset({
 #: AND 7 -> 6 on 2026-11-13: FORMATS-UPGRADE-ON-READ was retired for FORMATS-MIGRATE-ONCE (D51), and the
 #: 2026-10-18 measurement was wrong -- the archive DID upgrade a scenario-less submission on read. It now
 #: refuses one by name, and the rule left for that test.
-_ABSENT_CEILING: Final = 6
+#:
+#: AND 6 -> 8 on 2026-11-22 (user ruling 2026-11-22), a rise for two rules this repo had never carried, stated
+#: as 12 -> 14 was: the dev-lab e8646709 relock brought SCHEDULER-ONLY-FOR-SERVING and SSH-HOST-KEY-DECLARED.
+#: This library deploys no host role and declares no ssh endpoint, so both are admitted with their reasons
+#: above rather than left in neither set. The two that arrived with dev-lab 6f785fe7 the same day
+#: (IMAGES-BY-ABSOLUTE-PATH, WORKTREE-NAMES-ITS-TASK) were ADOPTED with mechanisms and never touched this number.
+_ABSENT_CEILING: Final = 8
 
 
 def _adoption() -> Adoption:
