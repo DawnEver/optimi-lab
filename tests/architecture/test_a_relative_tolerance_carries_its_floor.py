@@ -85,7 +85,10 @@ PYTHON_FILE_HEADROOM: Final = 25
 #: RE-TAKEN 2026-10-18 AT 64: P11 (model-based solvers, D59-D68) read 67 approx call sites.
 #: RE-TAKEN 2026-11-18 AT 129: the tracked tree read 129 approx call sites after the population and
 #: solver tests landed since 10-18; the floor sits on the population again.
-APPROX_CALL_FLOOR: Final = 129
+#: RE-TAKEN 2026-11-22 AT 126, from 129 (user ruling 2026-11-22): commit 1b78ac0 moved the power-law fit and
+#: its three `pytest.approx` assertions (`tests/unit/analysis/test_decision.py`) to learn-lab, so those three
+#: call sites live there now. 129 - 3 = 126 is the population the scan reads; nothing lost its floor.
+APPROX_CALL_FLOOR: Final = 126
 
 #: THE OTHER SIDE OF `APPROX_CALL_FLOOR`. The floor sits ON the population, so any growth at all is
 #: worth re-reading; 19 + 5 = 24 is the point at which this constant must be re-measured.
