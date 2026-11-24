@@ -103,6 +103,7 @@ from deny_rules import ADOPTION  # noqa: E402
 #: `BARE-PYTHON` ARRIVED WITH THE KIT AT 840e6b7 (2026-10-25), the same way: its exit is this
 #: checkout's own `.venv` interpreter, which needs nothing from this repo.
 _SHIPPED: Final = frozenset({
+    'ARCHIVE-IS-NO-STORE',  # gained 2026-11-24 with dev-lab cbecf58a (relock-family-1124)
     'BACKGROUND-SHELL-IS-BOUNDED',
     'BARE-INTERPRETER',
     'BARE-PYTHON',

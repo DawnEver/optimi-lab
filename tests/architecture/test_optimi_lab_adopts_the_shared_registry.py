@@ -287,6 +287,8 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # Adopted 2026-11-13 (user ruling): the base pre-push row `milestone-base` this pyproject's hooks table runs.
     'BASE-HOLDS-THE-MILESTONE': (_PYPROJECT,),
     'VERSION-TAG-NEEDS-APPROVAL': (_PYPROJECT,),
+    # Adopted 2026-11-24 with dev-lab cbecf58a: the same milestonebase pre-push row refuses a non-version tag.
+    'ONLY-VERSION-TAGS': (_PYPROJECT,),
     # Adopted 2026-11-13 (user ruling): the guard install wires `dev_lab.dev.walls` post-tool and stop.
     'WALLS-ARE-RECORDED': (_GUARD,),
     # Adopted 2026-11-13 (user ruling D51): the archive reads only the current submission shape.
