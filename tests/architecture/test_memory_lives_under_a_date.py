@@ -72,7 +72,10 @@ NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep'})
 #: THE SILENT ENTRIES ON RECORD -- dated markdown carrying no `created:` field. EMPTY is accepted
 #: here and is the state the ratchet exists to REACH; what stops it being vacuous is the entry floor
 #: above, which the check binds before it compares anything.
-MEMORY_FRONTMATTER_DEBT: Final[frozenset[str]] = frozenset()
+MEMORY_FRONTMATTER_DEBT: Final[frozenset[str]] = frozenset({
+    # memory is immutable: the entry landed without the field; its amendment needs the user's approval
+    '.claude/memory/2026/11/23/stale-lanes-and-hold-tags-discarded-by-the-one-day-ruling.md',
+})
 
 #: THE ENTRIES WHOSE HEADER CONTRADICTS THEIR DIRECTORY, pinned WITH the date each one claims: a name
 #: alone cannot tell a copied-forward header from a moved directory.
