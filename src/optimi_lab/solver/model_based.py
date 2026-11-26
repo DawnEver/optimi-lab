@@ -32,14 +32,14 @@ predicted mean, and :attr:`ModelBased.front` reports observed risk rows. A desig
 not OK is dropped whole.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import numpy as np
 from lab_commons.outcomes import Status
-from learn_lab.models.response import FittedGaussianProcess, GaussianProcess
-from learn_lab.models.response.likelihood import Box
 from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import non_dominated_sorting, refuse
@@ -49,6 +49,9 @@ from optimi_lab.operator.minimize import minimize_lbfgs
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import BlackBox, Chance, Embedding, Problem, Relation
 from optimi_lab.solver.scenarios import Scenarios
+
+if TYPE_CHECKING:
+    from learn_lab.models.response import FittedGaussianProcess, GaussianProcess
 
 __all__ = ['Acquisition', 'ModelBased', 'margins', 'maximize', 'refuse_uncertainty', 'require_modelable']
 
@@ -79,6 +82,8 @@ def maximize(
     hi: np.ndarray | None = None,
 ) -> np.ndarray:
     """The best point found for *acquisition* inside ``[lo, hi]`` (default the unit cube): Sobol, then L-BFGS."""
+    from learn_lab.models.response.likelihood import Box  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
     lo = np.zeros(width) if lo is None else np.asarray(lo, dtype=float)
     hi = np.ones(width) if hi is None else np.asarray(hi, dtype=float)
     points = lo + (hi - lo) * sobol(candidates, width, rng=rng)
@@ -149,6 +154,8 @@ class ModelBased(ABC):
         scenarios: int | None = None,
         embedding: Embedding | None = None,
     ) -> None:
+        from learn_lab.models.response import GaussianProcess  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
         self._embedding = require_modelable(problem, constraints=True, embedding=embedding)
         if surrogate is not None and not isinstance(surrogate, GaussianProcess):
             refuse(f'the acquisitions read a joint posterior and fantasies; pass a GaussianProcess, got {surrogate!r}')

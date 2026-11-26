@@ -28,7 +28,6 @@ radius falls below ``radius_end`` (unit-cube units). A constraint is an extreme 
 """
 
 import numpy as np
-from learn_lab.models.response import RadialBasis
 from learn_lab.protocol import Surrogate
 from learn_lab.validity import BoxEnvelope
 
@@ -58,6 +57,8 @@ class ModelTrustRegion(SequentialSolver):
         polish: int = 2,
         **base: object,
     ) -> None:
+        from learn_lab.models.response import RadialBasis  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
         if not 0.0 < radius_end < radius <= radius_max:
             refuse(f'need 0 < radius_end < radius <= radius_max, got {radius_end}, {radius}, {radius_max}')
         self._surrogate = surrogate or RadialBasis(kernel='cubic', degree=1)

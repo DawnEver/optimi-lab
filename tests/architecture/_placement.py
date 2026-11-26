@@ -715,6 +715,11 @@ PLACEMENT: Final[dict[str, Placement]] = {
         're-reads is the other, and no mechanism here catches it. That gap is named in the row for '
         '`test_a_pin_is_a_named_set.py`, not closed by this one.',
     ),
+    'tests/architecture/test_importing_optimi_lab_stays_light.py': Placement(
+        STAYS,
+        "THE IMPORT BUDGET IS THIS PACKAGE'S OWN: which modules `import optimi_lab` may load, and how many. "
+        'It names optimi_lab and the optimi_lab solvers whose surrogate imports are deferred.',
+    ),
     'tests/architecture/test_equation_solving_is_numerics_labs.py': Placement(
         STAYS,
         "THE BOUNDARY IT CHECKS IS THIS PACKAGE'S OWN (plan R4, P9): which numeric kernels optimi_lab "

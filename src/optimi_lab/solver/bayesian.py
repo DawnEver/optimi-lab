@@ -10,10 +10,11 @@ probability of feasibility (constrained EI), and while no told point is feasible
 that probability; UCB and KG take none.
 """
 
-from typing import Final
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Final
 
 import numpy as np
-from learn_lab.models.response import FittedGaussianProcess
 
 from optimi_lab.core import refuse
 from optimi_lab.operator import (
@@ -29,6 +30,9 @@ from optimi_lab.problem import Problem
 from optimi_lab.solver.model_based import ModelBased
 from optimi_lab.solver.scoring import Scalarise, require_one_score
 from optimi_lab.solver.settings import build
+
+if TYPE_CHECKING:
+    from learn_lab.models.response import FittedGaussianProcess
 
 __all__ = ['ACQUISITIONS', 'BayesianOptimization', 'bo']
 
