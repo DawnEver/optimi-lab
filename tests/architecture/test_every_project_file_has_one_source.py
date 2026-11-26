@@ -48,6 +48,7 @@ SECTION_DELTAS: Final[dict[str, SectionDelta]] = {
     '[tool.ruff.format]': SectionDelta(repo=_ALIAS, added={}, dropped={}, ceiling=0),
     '[project]': SectionDelta(repo=_ALIAS, added={}, dropped={}, ceiling=0),
     '[tool.pytest.ini_options]': SectionDelta(repo=_ALIAS, added={'testpaths': ('src',)}, dropped={}, ceiling=1),
+    '[tool.coverage.html]': SectionDelta(repo=_ALIAS, added={}, dropped={}, ceiling=0),
 }
 
 #: Tracked project-level files this repo owns beyond the family list. None, measured 2026-10-03.

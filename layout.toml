@@ -1,8 +1,13 @@
 # The placement map this repo adds to the family's (dev_lab.dev.codeplace; user ruling 2026-11-24).
 code_roots = ['examples/']
-pruned_paths = ['.claude/worktrees', 'docs', 'htmlcov']
+pruned_paths = ['.claude/worktrees', 'docs', 'output/cache']
 scratch = 'scratch/'
 max_age = "3 d"
+# output/cache/<tool>/ of each named tool holds what it writes (the family pyproject rows send the caches there).
+tool_caches = ['coverage', 'pytest', 'ruff']
+# The editable build's metadata setuptools writes beside the package; it leaves with the pending [build-system]
+# adoption (hatchling writes none) together with its [layout] row.
+stray_roots = ['src/optimi_lab.egg-info/']
 
 # DECLARED-LAYOUT (dev_lab.dev.layout): the WHOLE tree as an allow-list -- each directory pattern (one glob per
 # segment; the deepest matching row judges) and the formats a file there may be ('.suffix', an exact name, "" for
@@ -28,6 +33,7 @@ max_age = "3 d"
 'docs-src/dev' = ['.md']
 'examples' = ['.md', '.py']
 'output' = []
+'output/cache' = []
 'output/forge' = []
 'output/forge/*' = ['.json', '.tmp']
 'output/logs' = []

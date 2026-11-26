@@ -24,9 +24,9 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 CODE_ROOTS: Final = ('src/', 'tests/', 'scripts/', 'examples/', '.claude/hooks/', 'scratch/', '.claude/memory/')
 
 #: Generated trees, ignored by git and written by a tool rather than a person: the built API docs
-#: (`scripts/pdoc.py` emits `search.js`) and the coverage report.
+#: (`scripts/pdoc.py` emits `search.js`) and the tool caches, the coverage report's JS among them (`output/cache`).
 #:
-#: `.claude/worktrees/<lane>` IS THE THIRD AND IT IS NOT GENERATED -- it holds SECOND CHECKOUTS of this repo,
+#: `.claude/worktrees/<lane>` IS THE SECOND AND IT IS NOT GENERATED -- it holds SECOND CHECKOUTS of this repo,
 #: one per open lane, each with its own `src/` and `scripts/`. THE KIT'S OWN DOCSTRING IS THE
 #: ARGUMENT: another checkout's worktrees "are judged by the run that happens inside it". Walking
 #: into them made this guard report eleven files of optimi-lab's own source as code outside the code
@@ -36,7 +36,7 @@ CODE_ROOTS: Final = ('src/', 'tests/', 'scripts/', 'examples/', '.claude/hooks/'
 #:
 #: The test runner's temp dirs are NOT pruned any more: since dev-lab a6d8ca36 (D104, 2026-11-20) they are
 #: system-temp entries outside every checkout, so `output/` holds no planted fixture for this walk to meet.
-PRUNED: Final = ('.claude/worktrees', 'docs', 'htmlcov')
+PRUNED: Final = ('.claude/worktrees', 'docs', 'output/cache')
 
 #: How long a one-off may wait in ``scratch/`` before it is archived or promoted.
 SCRATCH_AGE_DAYS_CEILING: Final = 3.0

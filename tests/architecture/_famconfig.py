@@ -107,4 +107,5 @@ DELTAS: Final[dict[str, Delta]] = {
 PYPROJECT_SECTION_DELTAS: Final[dict[str, SectionDelta]] = {
     '[project]': SectionDelta(repo=REPO, added={}, dropped={}, ceiling=0),
     '[tool.pytest.ini_options]': SectionDelta(repo=REPO, added={'testpaths': ('src',)}, dropped={}, ceiling=1),
+    '[tool.coverage.html]': SectionDelta(repo=REPO, added={}, dropped={}, ceiling=0),
 }
