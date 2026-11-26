@@ -103,6 +103,7 @@ from deny_rules import ADOPTION  # noqa: E402
 #: `BARE-PYTHON` ARRIVED WITH THE KIT AT 840e6b7 (2026-10-25), the same way: its exit is this
 #: checkout's own `.venv` interpreter, which needs nothing from this repo.
 _SHIPPED: Final = frozenset({
+    'ARCHIVE-IS-NO-STORE',  # gained 2026-11-26 with dev-lab 3d36d433
     'BACKGROUND-SHELL-IS-BOUNDED',
     'BARE-INTERPRETER',
     'BARE-PYTHON',
@@ -120,8 +121,10 @@ _SHIPPED: Final = frozenset({
     'GIT-STASH',
     'HEAVY-IS-THE-MAIN-SESSIONS',  # gained 2026-11-18 with dev-lab 551ca2cc: a subagent runs no heavy or full selection
     'HPC-THROUGH-THE-DOOR',  # gained 2026-11-07 with dev-lab 8c4ab734
+    'LEDGER-WRITES-THROUGH-ITS-DOOR',  # gained 2026-11-26 with dev-lab 3d36d433
     'MACHINE-FILE-IS-RENDERED',  # gained 2026-11-21 with dev-lab 2adcab2c
     'MAIN-ONLY-DOOR',  # gained 2026-11-22 with dev-lab 6f785fe7: split out of SUBAGENT-NO-PUSH, subagent-scoped
+    'NO-BACKUP-COPIES',  # gained 2026-11-26 with dev-lab 3d36d433
     'OUTPUT-HOLDS-NO-CODE',  # gained 2026-11-22 with dev-lab e8646709
     'PUSH-FORCE',
     'PUSH-NO-VERIFY',
@@ -134,6 +137,7 @@ _SHIPPED: Final = frozenset({
     'SUBAGENT-NO-PUSH',
     'TRACKED-CITES-NO-EPHEMERAL',  # gained 2026-11-18 with dev-lab 551ca2cc
     'TREE-HAS-A-LIVE-RUN',
+    'USER-FROZEN-FILES',  # gained 2026-11-26 with dev-lab 3d36d433
     'WORKTREE-BASE-IS-EXPLICIT',
     'WORKTREE-NAMES-ITS-TASK',  # gained 2026-11-22 with dev-lab 6f785fe7
     'WORKTREES-STAY-INSIDE',
@@ -227,8 +231,9 @@ def test_a_forbidden_shape_is_refused_by_the_rule_that_owns_it(command: str, rul
         './.venv/Scripts/python.exe -m dev_lab.dev.verify',
         'git push origin main',
         # Inside the repository, as WORKTREES-STAY-INSIDE demands since 9ce57c3 -- the old `../scratch`
-        # spelling is now refused by that row.
-        'git worktree add --detach .claude/worktrees/scratch 1a2b3c4',
+        # spelling is now refused by that row -- and named for its task: since dev-lab 3d36d433
+        # NO-BACKUP-COPIES refuses a tree parked under a `scratch` name.
+        'git worktree add --detach .claude/worktrees/rank-ties 1a2b3c4',
         # The exit every FORGE-WRITE-* row names, and the reads those rows leave open.
         './.venv/Scripts/python.exe -m dev_lab.dev.forge issue create --title x --body y',
         'gh issue list --state open',
