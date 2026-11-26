@@ -734,7 +734,7 @@ units = [
 [[package]]
 name = "learn-lab"
 version = "0.1.0"
-source = { git = "https://github.com/DawnEver/learn-lab.git#ccf6fa205a121f98a84fe672c0855fe4e312e436" }
+source = { git = "https://github.com/DawnEver/learn-lab.git#c105ce08580d5c56b97c0cc1346326b04dd7debe" }
 dependencies = [
     { name = "numerics-lab" },
     { name = "numpy" },

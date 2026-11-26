@@ -71,8 +71,7 @@ class Family:
 FAMILIES: Final[dict[str, Family]] = {
     'polynomial': Family('polynomial', ({'degree': 2},), 'quadratic response surface, OLS'),
     'radial_basis': Family('radial_basis', ({},), 'thin-plate spline, interpolating'),
-    # spelling-off: learn-lab names this surrogate 'nearest_neighbours'
-    'nearest_neighbours': Family('nearest_neighbours', ({'k': 5},), '5-NN'),
+    'nearest_neighbors': Family('nearest_neighbors', ({'k': 5},), '5-NN'),
     # spelling-on
     'ridge': Family(
         'polynomial',
@@ -86,8 +85,7 @@ FAMILIES: Final[dict[str, Family]] = {
     ),
 }
 #: The models the ``pool`` entry chooses among, each fitted at its registry defaults.
-# spelling-off: learn-lab names this surrogate 'nearest_neighbours'
-POOL: Final[tuple[str, ...]] = ('polynomial', 'radial_basis', 'nearest_neighbours')
+POOL: Final[tuple[str, ...]] = ('polynomial', 'radial_basis', 'nearest_neighbors')
 # spelling-on
 #: Entries computed from the fitted families, not fitted themselves.
 DERIVED: Final[tuple[str, ...]] = ('pool', 'ensemble', 'selected')
