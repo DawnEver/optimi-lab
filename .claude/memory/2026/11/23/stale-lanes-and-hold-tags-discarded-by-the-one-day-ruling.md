@@ -1,4 +1,5 @@
 ---
+created: 2026-11-23
 name: stale-lanes-and-hold-tags-discarded-by-the-one-day-ruling
 description: "User ruling 2026-11-23: origin keeps only pr/ branches updated within one day plus the toolchain task's, and only v* tags; these stale lanes and hold/archive tags were discarded by -s ours merges, then deleted"
 metadata:
