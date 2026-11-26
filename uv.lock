@@ -734,7 +734,7 @@ units = [
 [[package]]
 name = "learn-lab"
 version = "0.1.0"
-source = { git = "https://github.com/DawnEver/learn-lab.git#2e4f9d322f8766e9dbcd9d81037e3bade90d7a9d" }
+source = { git = "https://github.com/DawnEver/learn-lab.git#ccf6fa205a121f98a84fe672c0855fe4e312e436" }
 dependencies = [
     { name = "numerics-lab" },
     { name = "numpy" },
@@ -950,7 +950,7 @@ wheels = [
 [[package]]
 name = "numerics-lab"
 version = "0.1.0"
-source = { git = "https://github.com/DawnEver/numerics-lab.git#dfdc361e5537df101fe3e6e7b6afb427aa1a0883" }
+source = { git = "https://github.com/DawnEver/numerics-lab.git#0742db11ad886e6f7db3198ef68d9feb71afbace" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
