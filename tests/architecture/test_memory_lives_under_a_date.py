@@ -67,7 +67,12 @@ NOT_WALKED: Final = frozenset({'.git', '.venv', '__pycache__', 'node_modules', '
 #: NOT ENTRIES. `_meta.json` is written beside the entries by the memory tooling and reaches no index
 #: and no other checkout; `.gitkeep` is how an empty tree stays tracked at all. Neither is a record
 #: somebody wrote, and a real fork is in neither set and is still caught.
-NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep'})
+#:
+#: THE TWO MONTH SUMMARIES are no entry either: dev-lab's SUMMARY-RETIRED (user ruling 2026-11-24)
+#: retires `<yyyy>/<mm>/SUMMARY-*.md` as a format that is "no entry". Its door is to delete the file
+#: or move it into a dated entry; memory is immutable, so that move waits for the user's approval,
+#: and until then each is named here by its exact filename so a new summary still reds.
+NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep', 'SUMMARY-2026-10.md', 'SUMMARY-2026-11.md'})
 
 #: THE SILENT ENTRIES ON RECORD -- dated markdown carrying no `created:` field. EMPTY is accepted
 #: here and is the state the ratchet exists to REACH; what stops it being vacuous is the entry floor
