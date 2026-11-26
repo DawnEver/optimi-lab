@@ -38,7 +38,7 @@ real one. A REAL mutation is still excluded, by the verdict holding this environ
 
 THE PRIVATE BOX KEEPS A FREE-SPACE FLOOR OF ITS OWN (optimi-lab #221), the shape of dev-lab's
 `tests/conftest.py::_a_box_of_its_own`. The box refuses a hold on a volume under the machine's
-`[storage] free_floor_gb` (default 50 GiB), and the private ledger sits on the system temp volume: a
+`[storage] free_floor` (default 50 GiB), and the private ledger sits on the system temp volume: a
 hosted Windows runner with 29.2 GiB free refused three arms here at once. The test's own machine file
 declares the test box's floor, so the host's free disk never decides these results; the machine
 default is untouched; `test_the_private_box_keeps_its_own_floor.py` proves both sides.
@@ -74,7 +74,7 @@ _A_TIMESTAMP: Final = '20260919T000000Z'
 
 
 #: The test box's machine file: one MiB free, never the host's 50 GiB default (dev-lab's `TEST_MACHINE`).
-_TEST_MACHINE: Final = '[storage]\nfree_floor_gb = 0.001\n'
+_TEST_MACHINE: Final = '[storage]\nfree_floor = "0.001 GiB"\n'
 
 
 @pytest.fixture(autouse=True)
