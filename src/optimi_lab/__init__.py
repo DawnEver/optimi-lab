@@ -11,8 +11,9 @@
    that did not compute carries a status and a reason, never a number.
 3. **What was learned** -- :mod:`optimi_lab.archive`: views over one ``outcomes.Record``.
 4. **How a solver searches** -- :mod:`optimi_lab.solver`: a :class:`GradientSolver` runs a gradient
-   method (L-BFGS-B, SQP, interior point, MMA, MGDA, ...) built on numerics-lab's line searches,
-   trust regions, quasi-Newton updates and KKT solves.
+   method (L-BFGS-B, SQP, interior point, MMA, MGDA, ...) built on this library's strong Wolfe search,
+   trust regions and quasi-Newton models (:mod:`optimi_lab.operator`) and numerics-lab's backtracking
+   searches, Krylov methods and KKT solves.
 5. **How a run proceeds** -- :func:`run`: ask, dispatch, file, tell, until a named reason stops it;
    an interrupted run resumes by replaying its record.
 6. **What a caller decides around it** -- :mod:`optimi_lab.policy`: batch budgets, variation rates,

@@ -31,7 +31,6 @@ import scipy.sparse as sp
 from numerics_lab.line_search import armijo
 from numerics_lab.linear import LinearSolveError
 from numerics_lab.linear.kkt import solve_kkt
-from numerics_lab.quasi_newton import bfgs_update
 
 from optimi_lab.core.errors import Refusal, refuse
 from optimi_lab.operator import (
@@ -46,6 +45,7 @@ from optimi_lab.operator import (
     l1_slope,
     lagrangian_gradient,
 )
+from optimi_lab.operator.quasi_newton import bfgs_update
 from optimi_lab.solver.bounded import lbfgsb
 from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, Solution, kkt_bar, trial
 

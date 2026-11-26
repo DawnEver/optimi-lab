@@ -11,8 +11,8 @@ starting gradient, floored by ``atol``). Constraints other than the box are refu
   subspace minimization over the variables it leaves free (conjugate gradients, truncated to the
   box -- the direct primal method), then a strong-Wolfe search capped at the box. A failed search
   discards the memory and retries from the steepest-descent model, as Byrd-Lu-Nocedal do; a failure
-  with no memory is the halt (STALLED, the search's reason quoted). The model is numerics-lab's
-  :class:`~numerics_lab.quasi_newton.LbfgsMemory` in its compact direct form ``theta I - W M W^T``; a
+  with no memory is the halt (STALLED, the search's reason quoted). The model is
+  :class:`~optimi_lab.operator.quasi_newton.LbfgsMemory` in its compact direct form ``theta I - W M W^T``; a
   singular middle matrix ``M^-1`` (in floating point, a round-off pair ``s ~ 1e-23`` against ``theta ~ 1e22``)
   refreshes the memory and continues from the steepest-descent model, as the reference code does when its
   factorization fails -- never a bare ``Singular matrix`` out of the solver (HPC 7967593).
@@ -21,7 +21,8 @@ starting gradient, floored by ``atol``). Constraints other than the box are refu
   ONLY when asked for by name, ``hvp="finite_difference"``: a forward difference of gradients, one
   evaluation per product. The choice is recorded in the solution's evidence; there is no default.
 
-Every line search, trust-region update, secant pair and Krylov solve is numerics-lab's.
+The backtracking search, the secant pair and every Krylov solve are numerics-lab's; the strong Wolfe
+search, the trust-region update and the L-BFGS memory are this library's (:mod:`optimi_lab.operator`).
 """
 
 from __future__ import annotations
@@ -29,13 +30,14 @@ from __future__ import annotations
 from collections.abc import Callable
 
 import numpy as np
-from numerics_lab.line_search import WolfeSearchFailed, backtracking, strong_wolfe
+from numerics_lab.line_search import backtracking
 from numerics_lab.linear.krylov import conjugate_gradient, steihaug_cg
-from numerics_lab.quasi_newton import LbfgsMemory
-from numerics_lab.trust_region import agreement, update_radius
 
 from optimi_lab.core.errors import refuse
 from optimi_lab.operator import Linearization, cauchy_point
+from optimi_lab.operator.quasi_newton import LbfgsMemory
+from optimi_lab.operator.trust_region import agreement, update_radius
+from optimi_lab.operator.wolfe import WolfeSearchFailed, strong_wolfe
 from optimi_lab.solver.smooth import ATOL, RTOL, Evaluate, Halt, Solution, kkt_bar, trial
 
 __all__ = ['FINITE_DIFFERENCE', 'lbfgsb', 'newton_cg', 'projected_gradient']

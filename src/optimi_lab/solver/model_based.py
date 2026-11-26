@@ -5,8 +5,8 @@ each pick refits the models on every OK told point -- objectives in the MINIMIZE
 :class:`~optimi_lab.problem.BlackBox` constraint as its signed scaled margin (``<= 0`` satisfied,
 :func:`margins`) -- and maximizes an acquisition (:mod:`optimi_lab.operator.acquisition`) with
 :func:`maximize`: ``candidates`` scrambled Sobol points scored, the best ``polish`` of them polished by
-numerics-lab's L-BFGS (``minimize_lbfgs``) in logit coordinates of the box, on central differences
-of the acquisition -- the MODEL is differenced, never the oracle.
+the L-BFGS minimizer (``optimi_lab.operator.minimize``) in logit coordinates of the box, on central
+differences of the acquisition -- the MODEL is differenced, never the oracle.
 
 FANTASIES (D64). A point asked and not yet told is PENDING. Each pick reads the models CONDITIONED
 on the pending points at their own posterior mean -- the Kriging believer (Ginsbourger, Le Riche and
@@ -41,11 +41,11 @@ from lab_commons.outcomes import Status
 from learn_lab.models.response import FittedGaussianProcess, GaussianProcess
 from learn_lab.models.response.likelihood import Box
 from learn_lab.validity import BoxEnvelope
-from numerics_lab.minimize import minimize_lbfgs
 
 from optimi_lab.core import non_dominated_sorting, refuse
 from optimi_lab.core.qmc import maximin_latin_hypercube, sobol
 from optimi_lab.operator import Risk, log_probability_of_feasibility
+from optimi_lab.operator.minimize import minimize_lbfgs
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import BlackBox, Chance, Embedding, Problem, Relation
 from optimi_lab.solver.scenarios import Scenarios

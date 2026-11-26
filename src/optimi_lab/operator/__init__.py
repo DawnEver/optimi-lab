@@ -8,8 +8,12 @@
   Monte Carlo and OCBA replicate allocation;
 * model-based -- acquisitions (log-EI, PI, UCB, KG, constrained EI, exact EHVI, NEHVI, ParEGO's
   scalarisation) over a Gaussian prediction or joint draws;
-* gradient -- the generalized Cauchy point, QPs, KKT assembly and merit functions. Every linear solve, line search, trust-region
-  step and quasi-Newton update is numerics-lab's; this layer assembles what they are applied to.
+* gradient -- the generalized Cauchy point, QPs, KKT assembly and merit functions, and the minimizer's own
+  kernels: the strong Wolfe search (:mod:`~optimi_lab.operator.wolfe`), the trust-region primitives
+  (:mod:`~optimi_lab.operator.trust_region`), the dense BFGS/SR1 updates and the L-BFGS memory
+  (:mod:`~optimi_lab.operator.quasi_newton`) and the unconstrained L-BFGS minimizer
+  (:mod:`~optimi_lab.operator.minimize`), each imported from its module. Every linear solve, the
+  backtracking/Armijo search a root finder shares, the secant pair and Broyden are numerics-lab's.
 
 Solvers (L7, :mod:`optimi_lab.solver`) bind them.
 """
