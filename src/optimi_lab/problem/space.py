@@ -74,6 +74,30 @@ class Space(_SpaceFields):
         """Dimensions of the unit-cube vector."""
         return sum(v.width for v in self.variables)
 
+    @property
+    def cardinality(self) -> int | None:
+        """How many distinct canonical designs the space holds; ``None`` when a Real or Field makes it infinite.
+
+        A variable no later one is conditional on multiplies the count by its level count; only a
+        ``When`` parent is branched on, so a wide unconditional space is counted without enumerating it.
+        """
+        if not all(isinstance(v, (Integer, Categorical)) for v in self.variables):
+            return None
+        parents = {v.active_if.name for v in self.variables if v.active_if is not None}
+
+        def count(index: int, values: dict[str, object]) -> int:
+            if index == len(self.variables):
+                return 1
+            variable = self.variables[index]
+            if not self._is_active(variable, values, set(values)):
+                return count(index + 1, values)
+            levels = variable.levels  # type: ignore[union-attr]
+            if variable.name not in parents:
+                return len(levels) * count(index + 1, values)
+            return sum(count(index + 1, {**values, variable.name: level}) for level in levels)
+
+        return count(0, {})
+
     def __getitem__(self, name: str) -> Variable:
         for variable in self.variables:
             if variable.name == name:

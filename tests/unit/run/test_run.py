@@ -233,3 +233,22 @@ def test_219_planted_control_a_generation_with_one_new_design_is_not_exhausted(t
     solver = OneNew(WIDE)
     outcome = run(WIDE, _Bits(), solver, Record(tmp_path / 'r.jsonl'), Budget(evaluations=40))
     assert outcome.stop.reason is Termination.EVALUATIONS
+
+
+def test_219_planted_control_a_repeat_generation_on_an_unexhausted_space_keeps_running(tmp_path: Path) -> None:
+    """A polish or scenario pass legitimately re-asks seen designs: only a space with every design decided ends."""
+
+    class RepeatOnce(_Generations):
+        def ask(self, capacity: int) -> Sequence[Action]:
+            batch = list(super().ask(capacity))
+            seen = [r.action for r in self.told]
+            return seen[:4] if self.generations == 2 else batch
+
+    outcome = run(WIDE, _Bits(), RepeatOnce(WIDE), Record(tmp_path / 'r.jsonl'), Budget(evaluations=60))
+    assert outcome.stop.reason is Termination.EVALUATIONS
+
+
+def test_219_a_space_with_a_real_variable_is_never_exhausted() -> None:
+    assert Space((Integer('n', 0, 1), Real('x', 0.0, 1.0))).cardinality is None
+    assert BINARY.space.cardinality == 16
+    assert WIDE.space.cardinality == 2**16
