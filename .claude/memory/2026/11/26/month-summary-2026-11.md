@@ -1,4 +1,9 @@
 ---
+name: month-summary-2026-11
+description: the 2026-11 month summary, moved into a dated entry (SUMMARY files are no entry, ruling 2026-11-24)
+---
+
+---
 name: SUMMARY-2026-11
 description: November 2026 month summary for optimi-lab; Plans catalogues the PLAN- entries
 created: 2026-11-07

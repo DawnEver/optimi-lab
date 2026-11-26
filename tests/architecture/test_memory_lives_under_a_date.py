@@ -72,7 +72,7 @@ NOT_WALKED: Final = frozenset({'.git', '.venv', '__pycache__', 'node_modules', '
 #: retires `<yyyy>/<mm>/SUMMARY-*.md` as a format that is "no entry". Its door is to delete the file
 #: or move it into a dated entry; memory is immutable, so that move waits for the user's approval,
 #: and until then each is named here by its exact filename so a new summary still reds.
-NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep', 'SUMMARY-2026-10.md', 'SUMMARY-2026-11.md'})
+NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep'})
 
 #: THE SILENT ENTRIES ON RECORD -- dated markdown carrying no `created:` field. EMPTY is accepted
 #: here and is the state the ratchet exists to REACH; what stops it being vacuous is the entry floor
