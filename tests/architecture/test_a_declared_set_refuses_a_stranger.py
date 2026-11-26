@@ -1,7 +1,7 @@
 """Every declared set in `optimi_lab` REFUSES a stranger, and names the set while doing it.
 
 A library of interchangeable parts is a set of registries: which regressor, which sampler, which
-direction. The failure this refuses is not a crash -- it is the SILENT one, where an unrecognised
+direction. The failure this refuses is not a crash -- it is the SILENT one, where an unrecognized
 key falls back to a default and the caller gets a run it never asked for, indistinguishable from
 the one it did. The old package's own history is the evidence: its refusal for an unregistered
 surrogate key printed neither the key's valid set nor a usable exception type.

@@ -1,4 +1,4 @@
-"""D65 -- multi-fidelity Bayesian optimisation: AR1 co-Kriging and the augmented expected improvement.
+"""D65 -- multi-fidelity Bayesian optimization: AR1 co-Kriging and the augmented expected improvement.
 
 The levels are :class:`~optimi_lab.problem.Fidelity`'s, cheapest first, the last the truth; an action
 at level ``l`` is asked at that level (``Action.of(..., fidelity=...)``). The model is
@@ -8,25 +8,25 @@ THE INITIAL DESIGN IS NESTED: one maximin Latin hypercube, the truth level takin
 ``initial[-1]`` rows and each cheaper level the first ``initial[l]`` (non-increasing toward the truth,
 at least 3 per level above the cheapest -- co-Kriging's scale, offset and discrepancy). The default
 is ``2 (d + 1)`` at the truth and three times the level above at each cheaper one: with fewer, the
-cheapest level's likelihood is maximised by calling all of it noise (measured on Forrester's pair
+cheapest level's likelihood is maximized by calling all of it noise (measured on Forrester's pair
 at 6 + 3 points), and the AR1 scale that follows is meaningless.
 A finite space (categoricals, a few integers) can decode two design rows to one design: the repeat is
 asked once, and when the design leaves a level with fewer distinct told points than co-Kriging fits, the
 space holds no more to model and the solver concludes (:attr:`MultiFidelityBO.done`). A level left short by
 FAILED evaluations is not that, and the fit still refuses it.
 
-THE PICK (Huang, Allen, Notz and Miller, 2006) is the point AND the level maximising
+THE PICK (Huang, Allen, Notz and Miller, 2006) is the point AND the level maximizing
 
     AEI(x, l) = EI_L(x) * corr(f_l(x), f_L(x)) * (1 - sqrt(noise_l) / sqrt(var_l(x) + noise_l)) * cost_L / cost_l
 
 with ``EI_L`` the truth level's expected improvement over the EFFECTIVE best ``min (mean_L + std_L)``
 at the told points, ``corr = prod_{t > l} scale_t sqrt(var_l / var_L)`` under the AR1 chain (clipped to
-``[0, 1]``), and the level's cost from its declaration. Each level's acquisition is maximised by
-:func:`~optimi_lab.solver.model_based.maximise`; one point is asked at a time.
+``[0, 1]``), and the level's cost from its declaration. Each level's acquisition is maximized by
+:func:`~optimi_lab.solver.model_based.maximize`; one point is asked at a time.
 
 :attr:`MultiFidelityBO.best` is the told OK TRUTH-level result of lowest score (B0-08): a cheap level
-steers, the truth reports. Constraints are refused (penalise them first), and so is declared
-uncertainty, naming why. A conditional or categorical space is modelled through the declared
+steers, the truth reports. Constraints are refused (penalize them first), and so is declared
+uncertainty, naming why. A conditional or categorical space is modeled through the declared
 ``embedding`` (:class:`optimi_lab.problem.Embedding`).
 """
 
@@ -43,7 +43,7 @@ from optimi_lab.core.qmc import maximin_latin_hypercube
 from optimi_lab.operator import expected_improvement
 from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import Embedding, Problem
-from optimi_lab.solver.model_based import maximise, refuse_uncertainty, require_modelable
+from optimi_lab.solver.model_based import maximize, refuse_uncertainty, require_modelable
 from optimi_lab.solver.scoring import Scalarise, require_one_score, score_rows
 from optimi_lab.solver.settings import build
 
@@ -198,7 +198,7 @@ class MultiFidelityBO:
         options = []
         for level in range(top + 1):
             acquisition = augmented(level)
-            point = maximise(acquisition, self._width, rng=self._rng, candidates=self._candidates, polish=self._polish)
+            point = maximize(acquisition, self._width, rng=self._rng, candidates=self._candidates, polish=self._polish)
             options.append((float(acquisition(point[None])[0]), -level, point))
         _score, negative_level, point = max(options, key=lambda option: (option[0], option[1]))
         return point, -negative_level

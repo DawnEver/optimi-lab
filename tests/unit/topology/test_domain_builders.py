@@ -1,6 +1,6 @@
-"""The design-domain builders: a simplex mesh as a cell graph, and a grid's neighbourhood.
+"""The design-domain builders: a simplex mesh as a cell graph, and a grid's neighborhood.
 
-The simplex golden is derived by hand (a square fanned into four triangles about its centre) and its array
+The simplex golden is derived by hand (a square fanned into four triangles about its center) and its array
 ORDER is the one the first downstream mesh adapter produced, so a caller moving onto
 :meth:`DesignDomain.from_simplices` reads identical arrays.
 """
@@ -13,7 +13,7 @@ import pytest
 from optimi_lab.core import Refusal
 from optimi_lab.topology import DesignDomain, component_labels, components, feature_sizes
 
-#: A 2 x 2 square, vertices 0..3 counter-clockwise from the origin, 4 at its centre; four fan triangles.
+#: A 2 x 2 square, vertices 0..3 counter-clockwise from the origin, 4 at its center; four fan triangles.
 FAN_VERTICES = np.array([[0.0, 0.0], [2.0, 0.0], [2.0, 2.0], [0.0, 2.0], [1.0, 1.0]])
 FAN_CELLS = np.array([[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]])
 
@@ -57,32 +57,32 @@ def test_a_simplex_of_the_wrong_order_is_refused() -> None:
         DesignDomain.from_simplices(FAN_VERTICES, FAN_CELLS[:, :2], 'mm')
 
 
-def test_the_full_neighbourhood_joins_corner_contacts_the_face_one_does_not() -> None:
+def test_the_full_neighborhood_joins_corner_contacts_the_face_one_does_not() -> None:
     diagonal = np.eye(3, dtype=bool).ravel()
     face = DesignDomain.grid((3, 3), spacing=1.0, length_unit='mm')
-    full = DesignDomain.grid((3, 3), spacing=1.0, length_unit='mm', neighbourhood='full')
+    full = DesignDomain.grid((3, 3), spacing=1.0, length_unit='mm', neighborhood='full')
     assert components(face, diagonal) == 3
     assert components(full, diagonal) == 1
     assert len(full.adjacency) == len(face.adjacency) + 2 * 2 * 2  # two diagonals per 2 x 2 block, four blocks
 
 
-def test_the_full_neighbourhood_reads_a_border_strip_and_no_corner_member() -> None:
+def test_the_full_neighborhood_reads_a_border_strip_and_no_corner_member() -> None:
     """A 1-cell strip along the border is 1 cell wide; a square's corner is no member on the full graph."""
     strip = np.zeros((8, 8), dtype=bool)
     strip[0, :] = True
-    full = DesignDomain.grid((8, 8), spacing=0.5, length_unit='mm', neighbourhood='full')
+    full = DesignDomain.grid((8, 8), spacing=0.5, length_unit='mm', neighborhood='full')
     assert feature_sizes(full, strip.ravel())[0] == pytest.approx(0.5)
     square = np.zeros((12, 12), dtype=bool)
     square[3:8, 3:8] = True  # five cells, 2.5 mm
-    full = DesignDomain.grid((12, 12), spacing=0.5, length_unit='mm', neighbourhood='full')
+    full = DesignDomain.grid((12, 12), spacing=0.5, length_unit='mm', neighborhood='full')
     assert feature_sizes(full, square.ravel())[0] == pytest.approx(2.5)
     face = DesignDomain.grid((12, 12), spacing=0.5, length_unit='mm')
     assert feature_sizes(face, square.ravel())[0] < 2.5, 'planted control: the face graph reads the corner'
 
 
-def test_an_unknown_neighbourhood_is_refused_naming_the_set() -> None:
+def test_an_unknown_neighborhood_is_refused_naming_the_set() -> None:
     with pytest.raises(Refusal, match="'face', 'full'"):
-        DesignDomain.grid((2, 2), spacing=1.0, length_unit='mm', neighbourhood='queen')
+        DesignDomain.grid((2, 2), spacing=1.0, length_unit='mm', neighborhood='queen')
 
 
 def test_component_labels_number_the_bodies_and_mark_void() -> None:

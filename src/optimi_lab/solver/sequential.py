@@ -35,7 +35,7 @@ Search = Generator[np.ndarray, tuple[np.ndarray, np.ndarray]]
 
 
 class SequentialSolver(ABC):
-    """Drive the generator :meth:`_search` from ``start`` (unit cube; None: the centre)."""
+    """Drive the generator :meth:`_search` from ``start`` (unit cube; None: the center)."""
 
     def __init__(
         self,

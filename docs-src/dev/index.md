@@ -31,7 +31,7 @@
 | [HPC clusters](../../../dev-lab/docs-src/dev/hpc.md) | A cluster is one more `forge serve` host: grants, the one-line deploy, runs, records |
 | [Submitting research from a workstation](../../../dev-lab/docs-src/dev/hpc-from-a-workstation.md) | A session's own cluster jobs: reach, grants, build, submit, gather, and which account takes them |
 | [Components](../../../dev-lab/docs-src/dev/components.md) | A product mounts its engines as submodules: the table, the derived-file check, the bump loop |
-| [Artefacts](../../../dev-lab/docs-src/dev/artefacts.md) | A run's declared outputs: the store, its layout and its retention |
+| [Artifacts](../../../dev-lab/docs-src/dev/artefacts.md) | A run's declared outputs: the store, its layout and its retention |
 | [Retirement](../../../dev-lab/docs-src/dev/retirement.md) | The archive keeps old code, the registry keeps a dead spelling dead |
 | [The docs pipeline](../../../dev-lab/docs-src/dev/docs-pipeline.md) | The three properties a docs builder holds, and why a skipped sub-site is announced |
 | [Translations](../../../dev-lab/docs-src/dev/translations.md) | How a `<stem>.zh.md` beside its `<stem>.md` passes the CJK guard, and the non-ASCII goal |
@@ -47,4 +47,4 @@
 - **A mechanism a page describes is not automatically present here**, and assuming it is would be an instruction this repo cannot follow.
 - PRESENT: the Makefile's lint and test targets, `scripts/pdoc.py`, and the lane and worktree hazards, which are properties of the box and of git rather than of any repo.
 - NOT PRESENT: a tiered gate runner with a case library and live solver engines. That one is a downstream repo's, and the portable substitute the family ships is `python -m dev_lab.dev.verify`, which produces the same verdict shape without needing any of it.
-- This repo's own subject — the optimisers, their operators and their problem definitions — has no page yet; when one is written it belongs here rather than in the shared tree, because its subject changes the moment you change repos.
+- This repo's own subject — the optimizers, their operators and their problem definitions — has no page yet; when one is written it belongs here rather than in the shared tree, because its subject changes the moment you change repos.

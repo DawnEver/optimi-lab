@@ -32,7 +32,7 @@ raise a number:
 2. **NOT DERIVABLE** from another line in the set -- the pages are one document for deduplication.
 3. **NOT LOCAL.** A rule governing one module belongs in that module's docstring, where the code
    consults it. A declaration next to its enforcement cannot drift; prose in a rule page can.
-4. **COSTLY IF WRONG.** Without the line the DEFAULT behaviour is wrong, not merely suboptimal.
+4. **COSTLY IF WRONG.** Without the line the DEFAULT behavior is wrong, not merely suboptimal.
 
 WIDTH IS SOMEBODY ELSE'S JOB, and deliberately so: `test_injected_doc_width_ceiling.py` scans this
 exact corpus through `dev_lab.dev.docwidth`, with its own ceiling, named set and floor. A count

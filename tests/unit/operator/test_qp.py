@@ -88,7 +88,7 @@ def test_d31_bound_qp_agrees_with_slsqp(seed: int) -> None:
     rng = np.random.default_rng(100 + seed)
     n = 6
     h, g = _convex(rng, n)
-    g = 5 * g  # push the unconstrained minimiser outside the box so bounds bind
+    g = 5 * g  # push the unconstrained minimizer outside the box so bounds bind
     lo, hi = -np.ones(n), np.ones(n)
     found = bound_qp(h, g, lo, hi)
     assert agrees(found.x, _reference(h, g, lo=lo, hi=hi))
@@ -107,7 +107,7 @@ def test_d31_planted_control_a_displaced_answer_disagrees() -> None:
     assert not agrees(reference + 10 * TOLERANCE, reference)
 
 
-# A degenerate vertex: a box bound and a linearised constraint with a (near-)parallel gradient are active
+# A degenerate vertex: a box bound and a linearized constraint with a (near-)parallel gradient are active
 # together at the start -- the shape an SQP refine meets when its start sits on a box bound where a
 # manufacturing floor on the same quantity is also active. The optimum is the target clipped to the box.
 _TARGET = np.array([-1.0, 0.7, 0.3, -0.5])

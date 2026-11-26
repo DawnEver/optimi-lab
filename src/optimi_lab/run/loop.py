@@ -16,6 +16,13 @@ ONE EVALUATION PER IDENTITY. An identity asked twice in a batch is dispatched on
 has a DECIDED result is answered from the archive and not charged again (it costs nothing). Each
 batch is told to the solver in ASK order, so a deterministic solver sees the same sequence live and
 on replay; the completion order is what the record keeps (B0-18).
+
+AN EXHAUSTED FINITE SPACE ENDS THE RUN. Once this run has told a DECIDED result for every design a
+finite space holds (:attr:`Space.cardinality`), a batch asking only decided identities costs nothing
+and can never teach anything new, so a solver would loop forever under an evaluation budget
+(optimi-lab #219): that batch stops the run as ``EXHAUSTED``. A repeat-only batch on a space with
+designs still unseen (a polish, a scenario pass) runs on: re-asking is legitimate until the space is
+spent. "Told this run" (not "in the archive") keeps a resumed run stopping where the uninterrupted one did.
 """
 
 from __future__ import annotations
@@ -89,6 +96,9 @@ async def run_async(
     replay: dict[str, deque[Result]] = defaultdict(deque)
     for recorded in archive.history():
         replay[recorded.action.identity.key].append(recorded)
+    decided: set[str] = set()
+    designs: set[str] = set()
+    cardinality = problem.space.cardinality
     while True:
         stop = ledger.exhausted(budget)
         if stop is None and solver.done:
@@ -103,10 +113,27 @@ async def run_async(
                 ledger,
                 Stop(Termination.NOTHING_ASKED, f'the solver asked nothing after {ledger.evaluations} evaluation(s)'),
             )
+        if (
+            cardinality is not None
+            and len(designs) >= cardinality
+            and all(action.identity.key in decided for action in actions)
+        ):
+            return Run(
+                archive,
+                ledger,
+                Stop(
+                    Termination.EXHAUSTED,
+                    f'every one of the {cardinality} design(s) of the space is decided and the solver proposed only '
+                    f'{len(actions)} already evaluated, after {ledger.evaluations} evaluation(s)',
+                ),
+            )
         answers = await _answer(
             actions, replay=replay, archive=archive, oracle=oracle, dispatch=dispatch, ledger=ledger
         )
-        solver.tell([answers[action.identity.key] for action in actions])
+        told = [answers[action.identity.key] for action in actions]
+        decided.update(result.action.identity.key for result in told if result.cell.status.decided)
+        designs.update(repr(sorted(result.action.design.items())) for result in told if result.cell.status.decided)
+        solver.tell(told)
 
 
 async def _answer(

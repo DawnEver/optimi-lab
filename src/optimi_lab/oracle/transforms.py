@@ -5,7 +5,7 @@
   but needs a function that accepts complex input, so it exists for a function and is refused for an
   oracle, whose designs are real.
 * :class:`Penalty` -- a constrained problem as an unconstrained one: each objective is worsened by
-  ``weight * total violation`` normalised units. A chance constraint is refused: one sample says
+  ``weight * total violation`` normalized units. A chance constraint is refused: one sample says
   nothing about a probability.
 * :func:`check_gradient` -- not a transform but its audit: an oracle's DECLARED gradient against
   finite differences of its own values, per output. A gradient that leaves out a state's
@@ -88,13 +88,13 @@ class _Differenced:
 
     async def __call__(self, action: Action) -> Result:
         plain = Action.of(self.problem, self.base.capability, action.design, fidelity=action.fidelity)
-        centre = await self.base(plain)
+        center = await self.base(plain)
         wanted = action.want & {Information.JVP, Information.VJP}
-        if not wanted or centre.cell.status is not Status.OK:
-            return replace(centre, action=action)
+        if not wanted or center.cell.status is not Status.OK:
+            return replace(center, action=action)
         u = self.problem.space.encode(action.design)
         h = self.step * np.maximum(1.0, np.abs(u))
-        names = sorted(centre.cell.values)
+        names = sorted(center.cell.values)
         columns = []
         for i in range(u.size):
             e = np.zeros_like(u)
@@ -105,18 +105,18 @@ class _Differenced:
                 ahead, behind = await asyncio.gather(self._values(action, u + e), self._values(action, u - e))
                 span = 2 * h[i]
             elif room_ahead:
-                ahead, behind, span = await self._values(action, u + e), centre, h[i]
+                ahead, behind, span = await self._values(action, u + e), center, h[i]
             else:
-                ahead, behind, span = centre, await self._values(action, u - e), h[i]
+                ahead, behind, span = center, await self._values(action, u - e), h[i]
             if ahead.cell.status is not Status.OK or behind.cell.status is not Status.OK:
                 failed = ahead if ahead.cell.status is not Status.OK else behind
                 reason = Reason('derivative_failed', f'a perturbed evaluation ended {failed.cell.status.name}')
                 return Result(
-                    action, Cell(Status.PARTIAL, values=centre.cell.values, reason=reason, cost=centre.cell.cost)
+                    action, Cell(Status.PARTIAL, values=center.cell.values, reason=reason, cost=center.cell.cost)
                 )
             columns.append([(ahead.cell.values[n] - behind.cell.values[n]) / span for n in names])
         jacobian = np.array(columns).T
-        return replace(centre, action=action, gradient={n: jacobian[k] for k, n in enumerate(names)})
+        return replace(center, action=action, gradient={n: jacobian[k] for k, n in enumerate(names)})
 
 
 def with_finite_differences(
@@ -172,7 +172,7 @@ class Penalty:
             refuse(f'a penalty weight must be > 0, got {self.weight!r}')
         chance = [c.name for c in self.original.constraints if isinstance(c, Chance)]
         if chance:
-            refuse(f'Chance constraints {chance} cannot be penalised from one sample; estimate them first')
+            refuse(f'Chance constraints {chance} cannot be penalized from one sample; estimate them first')
 
     @property
     def problem(self) -> Problem:
@@ -190,8 +190,8 @@ class Penalty:
             sign = -1.0 if o.sense is Sense.MAXIMIZE else 1.0
             values[o.name] += sign * excess * o.normalization.scale
         cell = result.cell
-        penalised = Cell(cell.status, values=values, reason=cell.reason, evidence=cell.evidence, cost=cell.cost)
-        return replace(result, cell=penalised)
+        penalized = Cell(cell.status, values=values, reason=cell.reason, evidence=cell.evidence, cost=cell.cost)
+        return replace(result, cell=penalized)
 
 
 def embed(space: Space, encoding: Encoding = Encoding.ONE_HOT) -> Space:

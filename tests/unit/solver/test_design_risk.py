@@ -33,7 +33,7 @@ def test_each_design_reads_its_risk_in_natural_units() -> None:
     (design,) = design_risk(PROBLEM, _results(0.5, (1.0, 3.0), (5.0, 9.0)), risk=Risk('mean'), scenarios=2)
     assert design.design == {'x': 0.5}
     assert design.objectives == pytest.approx({'f': 2.0, 'g': 7.0})
-    assert design.loss == pytest.approx((2.0, -3.0))  # g minimised: -(7 - 1) / 2
+    assert design.loss == pytest.approx((2.0, -3.0))  # g minimized: -(7 - 1) / 2
     assert design.feasible and design.statistic == 'mean over 2 scenarios'
     assert design.scores() == pytest.approx((2.0, 7.0))
 

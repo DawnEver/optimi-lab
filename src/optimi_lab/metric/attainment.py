@@ -3,7 +3,7 @@
 A point ``z`` is attained by a run when some point of that run's front weakly dominates it; the
 attainment function at ``z`` is the fraction of runs that attain it. Its level sets -- the 50 %
 attainment surface is the median front -- are how repeated stochastic runs are compared without
-collapsing each to one indicator. Minimisation frame.
+collapsing each to one indicator. Minimization frame.
 """
 
 from collections.abc import Sequence

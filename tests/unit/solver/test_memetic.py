@@ -1,6 +1,6 @@
 """A global search hands its best designs to a gradient method: ``memetic`` (population -> local refinement).
 
-The function has two basins; the shallow one holds the centre of the box, where a gradient method started
+The function has two basins; the shallow one holds the center of the box, where a gradient method started
 at the default ``0.5`` settles. The global stage finds the deep basin, the refinement lands on its minimum
 to the method's tolerance -- which neither stage reaches alone within the same budget.
 """
@@ -20,7 +20,7 @@ from optimi_lab.solver import GradientSolver, ga, memetic
 
 SPACE = Space((Real('x', -2.0, 2.0),))
 PROBLEM = Problem(SPACE, (Objective('f'),))
-DEEP = -1.5  # the global minimiser: f = (x + 1.5)^2 (x - 1)^2 - 0.5 exp(-(x + 1.5)^2)
+DEEP = -1.5  # the global minimizer: f = (x + 1.5)^2 (x - 1)^2 - 0.5 exp(-(x + 1.5)^2)
 
 
 def _f(x: float) -> float:

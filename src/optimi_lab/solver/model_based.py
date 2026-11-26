@@ -1,10 +1,10 @@
-"""The shell every Gaussian-process solver of P11 shares, and the one acquisition maximiser.
+"""The shell every Gaussian-process solver of P11 shares, and the one acquisition maximizer.
 
 THE LOOP. ``initial`` points of a maximin Latin hypercube (unit cube) are asked first; after that,
-each pick refits the models on every OK told point -- objectives in the MINIMISED frame, each
+each pick refits the models on every OK told point -- objectives in the MINIMIZED frame, each
 :class:`~optimi_lab.problem.BlackBox` constraint as its signed scaled margin (``<= 0`` satisfied,
-:func:`margins`) -- and maximises an acquisition (:mod:`optimi_lab.operator.acquisition`) with
-:func:`maximise`: ``candidates`` scrambled Sobol points scored, the best ``polish`` of them polished by
+:func:`margins`) -- and maximizes an acquisition (:mod:`optimi_lab.operator.acquisition`) with
+:func:`maximize`: ``candidates`` scrambled Sobol points scored, the best ``polish`` of them polished by
 numerics-lab's L-BFGS (``minimize_lbfgs``) in logit coordinates of the box, on central differences
 of the acquisition -- the MODEL is differenced, never the oracle.
 
@@ -18,10 +18,10 @@ OBSERVED, NEVER PREDICTED (B0-08). :attr:`ModelBased.front` (and each solver's `
 told OK results: a prediction steers an ask and is never reported.
 
 A told point that is not OK leaves the pending set and the data alike. :func:`require_modelable` is
-the one readiness check: a space with conditional variables or unembedded categoricals is modelled
+the one readiness check: a space with conditional variables or unembedded categoricals is modeled
 through the declared ``embedding`` (:class:`optimi_lab.problem.Embedding`) and refused without one;
 a Chance constraint is refused (a model estimates no probability); any other constraint than
-BlackBox is refused, naming the ``penalise`` transform.
+BlackBox is refused, naming the ``penalize`` transform.
 
 ROBUST (a problem declaring :class:`~optimi_lab.problem.Uncertainty`). ``scenarios`` draws are taken
 once from the seed and shared by every design (:class:`optimi_lab.solver.scenarios.Scenarios`); a
@@ -50,7 +50,7 @@ from optimi_lab.oracle import Action, Capability, Result
 from optimi_lab.problem import BlackBox, Chance, Embedding, Problem, Relation
 from optimi_lab.solver.scenarios import Scenarios
 
-__all__ = ['Acquisition', 'ModelBased', 'margins', 'maximise', 'refuse_uncertainty', 'require_modelable']
+__all__ = ['Acquisition', 'ModelBased', 'margins', 'maximize', 'refuse_uncertainty', 'require_modelable']
 
 #: Unit-cube rows ``(n, d)`` -> one score per row ``(n,)``, larger is better.
 Acquisition = Callable[[np.ndarray], np.ndarray]
@@ -68,7 +68,7 @@ def margins(problem: Problem, result: Result) -> np.ndarray:
     return np.array(rows)
 
 
-def maximise(
+def maximize(
     acquisition: Acquisition,
     width: int,
     *,
@@ -108,19 +108,19 @@ def require_modelable(problem: Problem, *, constraints: bool, embedding: Embeddi
 
     A conditional or unembedded variable needs a declared *embedding*; a Chance constraint is
     refused (a model estimates no probability); with ``constraints=False`` every constraint is
-    refused, naming the ``penalise`` transform.
+    refused, naming the ``penalize`` transform.
     """
     embedding = Embedding.declared(problem.space, embedding)
     chance = [c.name for c in problem.constraints if isinstance(c, Chance)]
     if chance:
         refuse(
-            f'a model estimates no probability, so Chance constraints {chance} cannot be modelled; '
+            f'a model estimates no probability, so Chance constraints {chance} cannot be modeled; '
             f'a population solver estimates them over its scenarios'
         )
     foreign = [c.name for c in problem.constraints if not (constraints and isinstance(c, BlackBox))]
     if foreign:
         kind = 'BlackBox constraints only' if constraints else 'no constraint'
-        refuse(f'this solver models {kind}; apply optimi_lab.oracle.penalise to {foreign}')
+        refuse(f'this solver models {kind}; apply optimi_lab.oracle.penalize to {foreign}')
     return embedding
 
 
@@ -291,8 +291,8 @@ class ModelBased(ABC):
 
         return log_pf
 
-    def _maximise(self, acquisition: Acquisition) -> np.ndarray:
-        return maximise(acquisition, self._width, rng=self._rng, candidates=self._candidates, polish=self._polish)
+    def _maximize(self, acquisition: Acquisition) -> np.ndarray:
+        return maximize(acquisition, self._width, rng=self._rng, candidates=self._candidates, polish=self._polish)
 
     def _propose(self, count: int) -> np.ndarray:
         """*count* picks, each conditioned on the pending points and on the picks before it."""

@@ -182,9 +182,9 @@ def wilson(hits: int, n: int, z: float = 1.959964) -> tuple[float, float, float]
     if n == 0:
         return float('nan'), 0.0, 1.0
     p = hits / n
-    centre = (p + z * z / (2 * n)) / (1 + z * z / n)
+    center = (p + z * z / (2 * n)) / (1 + z * z / n)
     half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / (1 + z * z / n)
-    return p, max(0.0, centre - half), min(1.0, centre + half)
+    return p, max(0.0, center - half), min(1.0, center + half)
 
 
 def cluster_bootstrap(

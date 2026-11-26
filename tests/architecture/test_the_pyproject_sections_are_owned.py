@@ -29,14 +29,14 @@ def test_every_owned_table_has_exactly_one_declared_delta() -> None:
 
 def test_no_declared_delta_is_a_fork_and_every_ceiling_is_its_measurement() -> None:
     """Driven on the DECLARATION alone; headroom nobody chose is how a waiver list stops being a delta."""
-    for artefact, delta in PYPROJECT_SECTION_DELTAS.items():
-        assert delta.repo == REPO, f'{artefact} declares itself as {delta.repo!r}'
-        assert section_problems(section_base(artefact), delta) == ()
-        assert sum(len(entries) for entries in delta.added.values()) == delta.ceiling, artefact
+    for artifact, delta in PYPROJECT_SECTION_DELTAS.items():
+        assert delta.repo == REPO, f'{artifact} declares itself as {delta.repo!r}'
+        assert section_problems(section_base(artifact), delta) == ()
+        assert sum(len(entries) for entries in delta.added.values()) == delta.ceiling, artifact
 
 
 def test_this_repo_owns_every_table_the_base_declares() -> None:
     """THE PROPERTY. The real file, through the kit's reader, against the live base and this delta."""
-    for artefact, delta in PYPROJECT_SECTION_DELTAS.items():
-        report = inspect_section(_ROOT / 'pyproject.toml', section_base(artefact), delta)
-        assert report.status == OWNED, f'{artefact} is {report.status}: {report.detail} {report.offending}'
+    for artifact, delta in PYPROJECT_SECTION_DELTAS.items():
+        report = inspect_section(_ROOT / 'pyproject.toml', section_base(artifact), delta)
+        assert report.status == OWNED, f'{artifact} is {report.status}: {report.detail} {report.offending}'

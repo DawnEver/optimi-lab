@@ -12,7 +12,7 @@ body at `0.2.2.dev98+ga330b5561` and the roster census immediately reported this
 records that the two guards were priced as possibly ONE body and refused on three measured
 differences (their surfaces share no name, this one keys its declaration by `path:line` where the
 other keys by FILE, and only this one has a ceiling on its hatch), so they are adopted as
-neighbours rather than merged.
+neighbors rather than merged.
 
 MEASURED HERE 2026-09-16, re-measured 2026-09-18 and RE-TAKEN 2026-11-02: the corpus is every
 injected document by the shared definition (`AGENTS.md` / `CLAUDE.md` by basename anywhere in the

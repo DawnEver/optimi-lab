@@ -7,7 +7,7 @@
   meets its own Armijo condition. It halts at a Pareto-critical point (``d = 0``). Several starting
   points (rows of *x0*) give several critical points -- the front is the set of them.
 * :func:`pareto_continuation` -- traces a bi-objective front by the epsilon-constraint homotopy: the
-  two anchors (each objective minimised alone), then ``min f0  s.t.  f1 <= eps`` for *points* evenly
+  two anchors (each objective minimized alone), then ``min f0  s.t.  f1 <= eps`` for *points* evenly
   spaced levels between them, each solved by :func:`~optimi_lab.solver.constrained.sqp` from a
   SECANT PREDICTOR (the last two solutions extrapolated) -- the corrector. Unlike a weighted sum it
   reaches the non-convex parts of a front. More than two objectives are refused.
@@ -47,7 +47,7 @@ def _descend(evaluate: Evaluate, x0, lo, hi, *, rtol: float, atol: float, max_it
     point = evaluate(np.clip(np.asarray(x0, dtype=float), lo, hi))
     bar = kkt_bar(point.df, rtol=rtol, atol=atol)
     if point.c.size or point.h.size:
-        refuse('mgda takes no constraints beyond the box; penalise them, or use pareto_continuation')
+        refuse('mgda takes no constraints beyond the box; penalize them, or use pareto_continuation')
     for iteration in range(max_iterations):
         d = _direction(point, lo, hi)
         size = float(np.max(np.abs(d), initial=0.0))

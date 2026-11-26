@@ -186,7 +186,7 @@ def test_every_history_exemption_names_a_file_that_is_here() -> None:
 def test_the_readers_still_convict_a_planted_dangling_citation(tmp_path: Path) -> None:
     """THE CONTROL, both ways, through the SHIPPED readers and this repo's own vocabulary.
 
-    The kit plants every distinction at once, each offender beside an honest neighbour that must NOT
+    The kit plants every distinction at once, each offender beside an honest neighbor that must NOT
     be named: a dangling path against a resolving one, a dangling name against a wrapped fragment of
     a real one, a citation in a DOCSTRING against the same path in ordinary CODE -- a path in code is
     DATA -- and a dangling citation in a ROOT CONFIG, which is the form the original incident hid in.

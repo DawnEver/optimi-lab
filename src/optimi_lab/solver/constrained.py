@@ -8,7 +8,7 @@ without limit (measured ~1e15 against ~1e-3), until the KKT solve judges it sing
 the smallest negative. So an update whose model leaves ``_CONDITION_CEILING`` (or turns indefinite) is
 replaced by the identity -- the start model -- and each reset is counted in ``evidence``.
 
-* :func:`sqp` -- each step solves the QP of the quadratic model under the linearised constraints and
+* :func:`sqp` -- each step solves the QP of the quadratic model under the linearized constraints and
   the box (:func:`~optimi_lab.operator.active_set_qp`); the step is searched on the exact l1 merit by
   Armijo backtracking. An infeasible linearisation takes the QP's least-violating step, its slope
   read from the violation it actually removes and ``nu`` raised until it descends; a QP the

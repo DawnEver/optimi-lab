@@ -118,7 +118,7 @@ class Problem(_ProblemFields):
 
     @property
     def design_constraints(self) -> tuple[Linear | Explicit, ...]:
-        """The constraints the optimiser evaluates itself, without the oracle."""
+        """The constraints the optimizer evaluates itself, without the oracle."""
         return tuple(c for c in self.constraints if isinstance(c, (Linear, Explicit)))
 
     def to_plain(self) -> dict[str, object]:

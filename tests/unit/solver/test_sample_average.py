@@ -1,4 +1,4 @@
-"""D124 sample average approximation, with the Mak-Morton-Wood optimality-gap bounds.
+"""D124 sample average approximation, with the Mak-Morton-Wood optimality-gap bounds (author names; spelling-ignore-line).
 
 ``min_x E[exp(x - xi) - 2 x]`` with ``xi ~ N(0.5, 0.4)``: ``x* = ln 2 + 0.5 - 0.08`` and
 ``v* = 2 - 2 x*`` (closed form, ``E[exp(-xi)] = exp(-0.5 + 0.4^2 / 2)``).

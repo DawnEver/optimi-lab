@@ -4,7 +4,7 @@
     -> run (L9) -> study (L10)
 
 1. **What is decided** -- :mod:`optimi_lab.problem`: a :class:`Space` of Real, Integer, Categorical
-   and Field variables, objectives with a fixed normalisation, five constraint kinds, and an
+   and Field variables, objectives with a fixed normalization, five constraint kinds, and an
    ``outcomes.Identity`` per problem and per design.
 2. **What an evaluator answers** -- :mod:`optimi_lab.oracle`: a :class:`Result` is a
    ``lab_commons.outcomes.Cell`` (status, values, reason, evidence, cost) plus derivatives. A point

@@ -219,12 +219,12 @@ def test_d36_d37_d38_planted_control_a_wrong_gradient_does_not_agree(name: str) 
 # --- MMA / GCMMA: Svanberg's two-sphere problem ----------------------------------------------------
 
 MMA_X0, MMA_LO, MMA_HI = np.array([4.0, 3.0, 2.0]), np.zeros(3), 5 * np.ones(3)
-CENTRES = np.array([[5.0, 2.0, 1.0], [3.0, 4.0, 3.0]])
+CENTERS = np.array([[5.0, 2.0, 1.0], [3.0, 4.0, 3.0]])
 
 
 def spheres(x: np.ndarray) -> Linearization:
-    """``min |x|^2`` s.t. ``|x - centre_i|^2 <= 9`` for two centres."""
-    return Linearization(x=x, f=[x @ x], df=[2 * x], c=np.sum((x - CENTRES) ** 2, axis=1) - 9, dc=2 * (x - CENTRES))
+    """``min |x|^2`` s.t. ``|x - center_i|^2 <= 9`` for two centers."""
+    return Linearization(x=x, f=[x @ x], df=[2 * x], c=np.sum((x - CENTERS) ** 2, axis=1) - 9, dc=2 * (x - CENTERS))
 
 
 def _spheres_reference() -> np.ndarray:
@@ -233,7 +233,7 @@ def _spheres_reference() -> np.ndarray:
         MMA_X0,
         method='SLSQP',
         bounds=list(zip(MMA_LO, MMA_HI, strict=True)),
-        constraints=[{'type': 'ineq', 'fun': lambda x: 9 - np.sum((x - CENTRES) ** 2, axis=1)}],
+        constraints=[{'type': 'ineq', 'fun': lambda x: 9 - np.sum((x - CENTERS) ** 2, axis=1)}],
         options={'ftol': 1e-12},
     )
     assert found.success
@@ -281,13 +281,13 @@ def two(x: np.ndarray) -> Linearization:
 
 
 def _critical_weights(point: Linearization) -> tuple[np.ndarray, float]:
-    """Weights on the simplex minimising ``|G^T a|`` (scipy nnls), and that minimum: zero iff Pareto-critical."""
+    """Weights on the simplex minimizing ``|G^T a|`` (scipy nnls), and that minimum: zero iff Pareto-critical."""
     system = np.vstack([point.df.T, 1e3 * np.ones(point.f.size)])
     weights, residual = nnls(system, np.concatenate([np.zeros(point.x.size), [1e3]]))
     return weights, residual
 
 
-def test_d40_every_mgda_point_is_pareto_critical_and_is_scipys_weighted_minimiser() -> None:
+def test_d40_every_mgda_point_is_pareto_critical_and_is_scipys_weighted_minimizer() -> None:
     starts = np.array([[2.0, -1.0], [-1.0, 2.5], [0.3, 0.3]])
     found = mgda(two, starts, TWO_LO, TWO_HI)
     assert found.halt is Halt.CONVERGED and len(found.front) == 3

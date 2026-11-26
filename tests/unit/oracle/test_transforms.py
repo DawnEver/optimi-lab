@@ -1,4 +1,4 @@
-"""D17-D18: finite differences, and the penalise and embed transforms."""
+"""D17-D18: finite differences, and the penalize and embed transforms."""
 
 from __future__ import annotations
 
@@ -97,20 +97,20 @@ CONSTRAINED = Problem(
 )
 
 
-def test_d18_penalise_worsens_each_objective_by_the_scaled_violation() -> None:
+def test_d18_penalize_worsens_each_objective_by_the_scaled_violation() -> None:
     penalty = Penalty(CONSTRAINED, weight=2.0)
     assert penalty.problem.constraints == ()
     action = Action.of(CONSTRAINED, Capability(outputs=('cost', 'gain', 'temp')), {'x': 0.5})
     hot = Result(action, Cell(Status.OK, values={'cost': 1.0, 'gain': 5.0, 'temp': 115.0}))
-    penalised = penalty.apply(hot)
-    # violation 1.5, weight 2 -> 3 normalised units: cost scale 10 -> +30, gain scale 1 -> -3
-    assert penalised.cell.values['cost'] == pytest.approx(31.0)
-    assert penalised.cell.values['gain'] == pytest.approx(2.0)
+    penalized = penalty.apply(hot)
+    # violation 1.5, weight 2 -> 3 normalized units: cost scale 10 -> +30, gain scale 1 -> -3
+    assert penalized.cell.values['cost'] == pytest.approx(31.0)
+    assert penalized.cell.values['gain'] == pytest.approx(2.0)
     cool = Result(action, Cell(Status.OK, values={'cost': 1.0, 'gain': 5.0, 'temp': 90.0}))
     assert dict(penalty.apply(cool).cell.values) == dict(cool.cell.values)
 
 
-def test_d18_planted_control_a_chance_constraint_cannot_be_penalised_from_one_sample() -> None:
+def test_d18_planted_control_a_chance_constraint_cannot_be_penalized_from_one_sample() -> None:
     chance = Problem(
         Space((Real('x', 0.0, 1.0),)),
         (Objective('f'),),

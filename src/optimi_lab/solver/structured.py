@@ -6,7 +6,7 @@ class :data:`~optimi_lab.oracle.COEFFICIENTS_FOR` names (P14 ruling 2026-10-19).
 
 1. ask one action at *start* wanting VALUES and the coefficients; each output then reads
    ``1/2 x.Q x + a.x + k`` over the natural design vector, ``k`` recovered from the value at *start*;
-2. assemble the program -- the objective (negated to maximise), one row per BlackBox constraint
+2. assemble the program -- the objective (negated to maximize), one row per BlackBox constraint
    on an output, one per side of a Linear constraint (an equality when its sides meet), the
    variable box as bounds -- and solve it with :func:`~optimi_lab.solver.lp` or
    :func:`~optimi_lab.solver.qp`;

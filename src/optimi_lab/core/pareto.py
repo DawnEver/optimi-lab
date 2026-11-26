@@ -158,7 +158,7 @@ def partition_count(n_obj: int, n_points: int) -> int:
 
 
 def total_violation(shortfalls: np.ndarray) -> np.ndarray:
-    """Per row, the sum of a ``(n_points, n_con)`` matrix of normalised shortfalls.
+    """Per row, the sum of a ``(n_points, n_con)`` matrix of normalized shortfalls.
 
     A row holding a NaN sums to NaN: a constraint that did not compute leaves its point's
     feasibility UNKNOWN, and an unknown is never read as satisfied. Zero constraint columns sum to

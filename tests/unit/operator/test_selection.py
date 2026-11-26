@@ -1,7 +1,7 @@
 """D78-D82 -- environmental selection by reference direction, angle penalty, strength and hypervolume.
 
 Each operator is checked against a hand-computed instance of its published definition (objective
-values dimensionless, minimised frame). The NSGA-III niche test is the planted control for the
+values dimensionless, minimized frame). The NSGA-III niche test is the planted control for the
 P8 fill, which counted niches over the overflowing front alone: it picks the other candidate.
 """
 

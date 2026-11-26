@@ -1,6 +1,6 @@
 """k-means labels and the stratified round-robin pick.
 
-k-means is checked on clusters separated far beyond their spread, where the labelling is unique up
+k-means is checked on clusters separated far beyond their spread, where the labeling is unique up
 to names; the pick is checked by its contract (no repeats, round-robin over sorted strata) and
 against a verbatim copy of the loop it replaces on fixed seeds.
 """
@@ -16,8 +16,8 @@ from optimi_lab.core import Refusal
 
 def test_kmeans_separates_well_separated_clusters():
     rng = np.random.default_rng(0)
-    centres = np.array([[0.0, 0.0], [10.0, 0.0], [0.0, 10.0]])
-    x = np.vstack([c + 0.1 * rng.standard_normal((20, 2)) for c in centres])
+    centers = np.array([[0.0, 0.0], [10.0, 0.0], [0.0, 10.0]])
+    x = np.vstack([c + 0.1 * rng.standard_normal((20, 2)) for c in centers])
     labels = kmeans(x, 3, np.random.default_rng(1))
     groups = [set(labels[20 * i : 20 * (i + 1)].tolist()) for i in range(3)]
     assert all(len(g) == 1 for g in groups)

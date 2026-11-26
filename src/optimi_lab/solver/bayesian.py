@@ -1,4 +1,4 @@
-"""D61 -- Bayesian optimisation of one score: a Gaussian process and one acquisition maximised on it.
+"""D61 -- Bayesian optimization of one score: a Gaussian process and one acquisition maximized on it.
 
 The loop, the fantasies (D64) and the observed-only reports are :class:`~optimi_lab.solver.model_based.ModelBased`'s.
 
@@ -30,14 +30,14 @@ from optimi_lab.solver.model_based import ModelBased
 from optimi_lab.solver.scoring import Scalarise, require_one_score
 from optimi_lab.solver.settings import build
 
-__all__ = ['ACQUISITIONS', 'BayesianOptimisation', 'bo']
+__all__ = ['ACQUISITIONS', 'BayesianOptimization', 'bo']
 
 #: The single-score acquisitions :func:`bo` takes.
 ACQUISITIONS: Final = ('log_ei', 'ei', 'pi', 'log_pi', 'ucb', 'kg')
 _CONSTRAINED: Final = frozenset({'log_ei', 'ei', 'pi', 'log_pi'})
 
 
-class BayesianOptimisation(ModelBased):
+class BayesianOptimization(ModelBased):
     """D61: one score, one acquisition from :data:`ACQUISITIONS`."""
 
     def __init__(
@@ -75,10 +75,10 @@ class BayesianOptimisation(ModelBased):
         log_pf = self._log_feasibility(pending)
         feasible = self._scores()[self._feasible]
         if not len(feasible):
-            return self._maximise(log_pf)
+            return self._maximize(log_pf)
         best = float(feasible.min())
         if self._acquisition == 'kg':
-            return self._maximise(lambda points: self._knowledge_gradient(model, points))
+            return self._maximize(lambda points: self._knowledge_gradient(model, points))
 
         def acquisition(points: np.ndarray) -> np.ndarray:
             p = model.predict(points, variance=True)
@@ -93,7 +93,7 @@ class BayesianOptimisation(ModelBased):
             closed = expected_improvement if self._acquisition == 'ei' else probability_of_improvement
             return closed(mean, std, best) * np.exp(log_pf_here)
 
-        return self._maximise(acquisition)
+        return self._maximize(acquisition)
 
     def _beta_t(self) -> float:
         if self._beta is not None:
@@ -114,6 +114,6 @@ class BayesianOptimisation(ModelBased):
         ])
 
 
-def bo(problem: Problem, capability: Capability, **settings: object) -> BayesianOptimisation:
-    """Bayesian optimisation; ``**settings`` are :class:`BayesianOptimisation`'s and :class:`ModelBased`'s."""
-    return build(BayesianOptimisation, problem, capability, 'bo', **settings)
+def bo(problem: Problem, capability: Capability, **settings: object) -> BayesianOptimization:
+    """Bayesian optimization; ``**settings`` are :class:`BayesianOptimization`'s and :class:`ModelBased`'s."""
+    return build(BayesianOptimization, problem, capability, 'bo', **settings)

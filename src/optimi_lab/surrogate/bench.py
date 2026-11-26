@@ -13,7 +13,7 @@ configurations, combines predictions and scores them -- it implements no regress
   spread) and ``selected`` (per column the lowest inner score -- the inner score travels with it, so
   the optimism of a winner read on its own holdout stays visible, :func:`naive_select_score`).
 
-Metrics are plain functions of (truth, mean, sd): range-normalised errors, Spearman / Kendall tau-b,
+Metrics are plain functions of (truth, mean, sd): range-normalized errors, Spearman / Kendall tau-b,
 central-interval coverage, Deb-front precision / recall and IGD+, and a Gaussian feasibility
 probability with its balanced accuracy and Brier score.
 """
@@ -71,7 +71,9 @@ class Family:
 FAMILIES: Final[dict[str, Family]] = {
     'polynomial': Family('polynomial', ({'degree': 2},), 'quadratic response surface, OLS'),
     'radial_basis': Family('radial_basis', ({},), 'thin-plate spline, interpolating'),
+    # spelling-off: learn-lab names this surrogate 'nearest_neighbours'
     'nearest_neighbours': Family('nearest_neighbours', ({'k': 5},), '5-NN'),
+    # spelling-on
     'ridge': Family(
         'polynomial',
         tuple({'degree': 2, 'penalty': Ridge(alpha)} for alpha in (1e-3, 1e-2, 1e-1, 1.0)),
@@ -84,7 +86,9 @@ FAMILIES: Final[dict[str, Family]] = {
     ),
 }
 #: The models the ``pool`` entry chooses among, each fitted at its registry defaults.
+# spelling-off: learn-lab names this surrogate 'nearest_neighbours'
 POOL: Final[tuple[str, ...]] = ('polynomial', 'radial_basis', 'nearest_neighbours')
+# spelling-on
 #: Entries computed from the fitted families, not fitted themselves.
 DERIVED: Final[tuple[str, ...]] = ('pool', 'ensemble', 'selected')
 _ENSEMBLE: Final[tuple[str, ...]] = ('gp', 'rbf', 'ridge')

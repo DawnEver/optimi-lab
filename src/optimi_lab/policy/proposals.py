@@ -98,7 +98,7 @@ def proposal_accuracy(
     pof: np.ndarray | None = None,
     feasible: np.ndarray | None = None,
 ) -> dict:
-    """On-policy calibration: range-normalised RMSE, 95 % coverage, feasible share, forecast and Brier."""
+    """On-policy calibration: range-normalized RMSE, 95 % coverage, feasible share, forecast and Brier."""
     error = predicted - actual
     scale = np.where(span > 0, span, 1.0)
     observed = None if feasible is None else np.asarray(feasible, dtype=float)

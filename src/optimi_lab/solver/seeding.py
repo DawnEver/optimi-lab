@@ -5,11 +5,11 @@ how the first batch is made -- because a declared initial design a solver silent
 declaration that lies:
 
 * ``POPULATION`` -- the first generation is handed in as unit-cube rows (``initial=``) or drawn by a
-  sample rule (``spec=``); a declared point list is honoured point for point.
+  sample rule (``spec=``); a declared point list is honored point for point.
 * ``MODEL`` -- a Gaussian-process solver draws its own maximin Latin hypercube of ``initial`` points.
 * ``LEVELS`` -- a multi-fidelity schedule draws its own per-level design over the declared Fidelity.
 * ``SELF`` -- CMA-ES (and IPOP restarts) draws every generation from its own distribution.
-* ``START`` -- a local search walks from ONE start (a one-row initial design, else the cube's centre).
+* ``START`` -- a local search walks from ONE start (a one-row initial design, else the cube's center).
 * ``SLOPES`` -- a gradient method walks from one start as ``START`` does, asking values and slopes.
 * ``STARTS`` / ``SCAN`` -- a chain of ``START`` searches from Sobol starts, or one per scalarisation weight.
 
@@ -84,7 +84,7 @@ SEQUENTIAL: Final = frozenset({
     *METHODS,
 })
 
-#: The sample rules a MODEL solver's own maximin Latin hypercube honours.
+#: The sample rules a MODEL solver's own maximin Latin hypercube honors.
 _LATIN: Final = frozenset({SampleKind.LATIN_HYPERCUBE, SampleKind.MAXIMIN_LATIN_HYPERCUBE})
 
 

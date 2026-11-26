@@ -85,7 +85,7 @@ RETIRED: Final[dict[str, str]] = {
     'ObjectiveSet': 'Problem.objectives, a tuple of optimi_lab.problem.Objective',
     'ConstraintSet': 'Problem.constraints, a tuple of constraint kinds',
     'Direction': 'optimi_lab.problem.Sense',
-    'to_minimization': 'optimi_lab.problem.Objective.minimized (fixed normalisation, signed)',
+    'to_minimization': 'optimi_lab.problem.Objective.minimized (fixed normalization, signed)',
     # P12 (plan D69-D115): the 0.3 algorithm package split by layer -- operators (L5) and solvers (L7).
     'intelligent_algorithm': 'optimi_lab.operator (operators) and optimi_lab.solver (solvers and factories)',
     'intelligent_algorithm.algorithms': 'optimi_lab.solver.evolutionary',

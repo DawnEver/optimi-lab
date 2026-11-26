@@ -1,6 +1,6 @@
-"""P9 ruling (a): the generalised Cauchy point of L-BFGS-B, checked along the projected path itself.
+"""P9 ruling (a): the generalized Cauchy point of L-BFGS-B, checked along the projected path itself.
 
-The GCP is the FIRST local minimiser of the quadratic model ``m(z) = g.z + z.B z / 2`` along the
+The GCP is the FIRST local minimizer of the quadratic model ``m(z) = g.z + z.B z / 2`` along the
 projected steepest-descent path ``P(x - t g) - x``. The check walks that path on a fine grid: the
 model must not rise before the GCP's ``t`` and must not fall just after it. The planted control
 displaces the point along the path and the same check refuses it.
@@ -40,7 +40,7 @@ def first_local_minimum(x, g, b, box, z) -> bool:
 
 
 @pytest.mark.parametrize('seed', range(10))
-def test_p9a_the_cauchy_point_is_the_first_minimiser_along_the_projected_path(seed: int) -> None:
+def test_p9a_the_cauchy_point_is_the_first_minimizer_along_the_projected_path(seed: int) -> None:
     rng = np.random.default_rng(seed)
     n = 5
     m = rng.normal(size=(n, n))

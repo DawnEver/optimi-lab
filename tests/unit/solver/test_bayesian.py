@@ -1,4 +1,4 @@
-"""D61-D64 -- Bayesian optimisation, ParEGO, EHVI/NEHVI and their fantasies, on closed-form optima.
+"""D61-D64 -- Bayesian optimization, ParEGO, EHVI/NEHVI and their fantasies, on closed-form optima.
 
 Objective gaps are in each problem's objective unit (Branin's and the bowl's are dimensionless);
 positions are in the unit cube. Every run is seeded, so one run is one trajectory.
@@ -16,18 +16,18 @@ from optimi_lab.core import Refusal
 from optimi_lab.metric import hypervolume
 from optimi_lab.oracle import Action, Capability, Result, from_function
 from optimi_lab.problem import BlackBox, Linear, Objective, Problem, Real, Space
-from optimi_lab.solver import ACQUISITIONS, bo, ehvi, maximise, nehvi, parego
+from optimi_lab.solver import ACQUISITIONS, bo, ehvi, maximize, nehvi, parego
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'benchmarks'))
 from catalogue import drive
 
-#: Branin's global minimum (three minimisers), its objective unit.
+#: Branin's global minimum (three minimizers), its objective unit.
 BRANIN_MIN = 0.397887
 #: Objective units: the largest MEDIAN gap (over :data:`SEEDS`) an acquisition may leave on Branin.
 BRANIN_GAP = 0.1
 #: A seeded run is ONE sample of a chaotic trajectory: a last-bit BLAS difference between platforms picks a
 #: different next point and the run diverges (measured: seed 1 of ucb leaves 0.022 on Windows, 0.569 on
-#: Linux with one BLAS thread; ucb seed 3 leaves 1.569 on Windows). An optimiser's claim is distributional,
+#: Linux with one BLAS thread; ucb seed 3 leaves 1.569 on Windows). An optimizer's claim is distributional,
 #: so it is judged by the median over five seeds -- robust to one unlucky trajectory, never to a typical one.
 SEEDS = range(1, 6)
 #: Evaluations per acquisition. Knowledge gradient spends its budget exploring: at 30 its median over SEEDS
@@ -40,7 +40,7 @@ BRANIN_EVALUATIONS = {'kg': 50}
 BRANIN_DEFAULT_EVALUATIONS = 40
 #: Share of the true front's hypervolume a multi-objective method reaches in 30 evaluations.
 HV_SHARE = 0.9
-#: Unit-cube distance: the polished maximiser of a smooth acquisition against its closed-form argmax.
+#: Unit-cube distance: the polished maximizer of a smooth acquisition against its closed-form argmax.
 ARGMAX = 1e-4
 
 
@@ -76,27 +76,27 @@ def _two_objectives() -> tuple[Problem, object]:
     return problem, oracle
 
 
-def test_maximise_polishes_onto_the_closed_form_argmax():
+def test_maximize_polishes_onto_the_closed_form_argmax():
     target = np.array([0.3, 0.71])
 
     def acquisition(points):
         return -np.sum((points - target) ** 2, axis=1)
 
-    polished = maximise(acquisition, 2, rng=np.random.default_rng(0), candidates=64, polish=2)
+    polished = maximize(acquisition, 2, rng=np.random.default_rng(0), candidates=64, polish=2)
     assert np.linalg.norm(polished - target) <= ARGMAX
     # the control: the Sobol candidates alone do not land on it
-    coarse = maximise(acquisition, 2, rng=np.random.default_rng(0), candidates=64, polish=0)
+    coarse = maximize(acquisition, 2, rng=np.random.default_rng(0), candidates=64, polish=0)
     assert np.linalg.norm(coarse - target) > ARGMAX
 
 
-def test_maximise_keeps_its_best_candidate_where_the_slope_squares_to_zero():
+def test_maximize_keeps_its_best_candidate_where_the_slope_squares_to_zero():
     # A slope of 1e-170 squares below the smallest float: the engine sees no descent and refuses
-    # the line search by its declared type, so maximise keeps the best Sobol candidate.
+    # the line search by its declared type, so maximize keeps the best Sobol candidate.
     def acquisition(points):
         return 1e-170 * points[:, 0]
 
-    found = maximise(acquisition, 2, rng=np.random.default_rng(0), candidates=16, polish=2)
-    coarse = maximise(acquisition, 2, rng=np.random.default_rng(0), candidates=16, polish=0)
+    found = maximize(acquisition, 2, rng=np.random.default_rng(0), candidates=16, polish=2)
+    coarse = maximize(acquisition, 2, rng=np.random.default_rng(0), candidates=16, polish=0)
     assert acquisition(found[None])[0] >= acquisition(coarse[None])[0]
 
 
@@ -144,7 +144,7 @@ def test_an_asynchronous_slot_is_conditioned_on_what_is_still_pending():
     second = solver.ask(1)[0]
     assert np.linalg.norm(problem.space.encode(first.design) - problem.space.encode(second.design)) > 1e-3
     solver.tell([Result(second, Cell(Status.OK, values={'f': 5.0}))])
-    solver.tell([Result(first, Cell(Status.TIMEOUT, reason=Reason('timeout', 'licence queue')))])
+    solver.tell([Result(first, Cell(Status.TIMEOUT, reason=Reason('timeout', 'license queue')))])
     assert not solver._pending and len(solver._x) == 7
 
 
@@ -192,7 +192,7 @@ def test_refusals_name_what_is_missing():
     with pytest.raises(Refusal, match='GaussianProcess'):
         bo(problem, oracle.capability, surrogate=RadialBasis())
     linear = Problem(problem.space, problem.objectives, constraints=(Linear('l', {'x': 1.0}, hi=0.5),))
-    with pytest.raises(Refusal, match='penalise'):
+    with pytest.raises(Refusal, match='penalize'):
         bo(linear, oracle.capability)
     with pytest.raises(Refusal, match='bo\\(\\)'):
         parego(problem, oracle.capability)

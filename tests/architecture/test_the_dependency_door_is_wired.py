@@ -35,6 +35,13 @@ four reds in this file. Pointing
 one the kit's own dependency-door tests apply with this same autouse shape -- at a per-test
 directory puts the arms' own seats in a private namespace while the enclosing verdict keeps the
 real one. A REAL mutation is still excluded, by the verdict holding this environment's seat.
+
+THE PRIVATE BOX KEEPS A FREE-SPACE FLOOR OF ITS OWN (optimi-lab #221), the shape of dev-lab's
+`tests/conftest.py::_a_box_of_its_own`. The box refuses a hold on a volume under the machine's
+`[storage] free_floor` (default 50 GiB), and the private ledger sits on the system temp volume: a
+hosted Windows runner with 29.2 GiB free refused three arms here at once. The test's own machine file
+declares the test box's floor, so the host's free disk never decides these results; the machine
+default is untouched; `test_the_private_box_keeps_its_own_floor.py` proves both sides.
 """
 
 from __future__ import annotations
@@ -49,6 +56,7 @@ from dev_lab.dev.datedlog import date_parts, declared_output
 from dev_lab.dev.famtests import depdoor
 from dev_lab.dev.verifysteps import LOG_KIND
 from lab_commons.box import BOX_ENV
+from lab_commons.config import CONFIG_ENV
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
@@ -65,10 +73,17 @@ REPO_NAME: Final = 'optimi-lab'
 _A_TIMESTAMP: Final = '20260919T000000Z'
 
 
+#: The test box's machine file: one MiB free, never the host's 50 GiB default (dev-lab's `TEST_MACHINE`).
+_TEST_MACHINE: Final = '[storage]\nfree_floor = "0.001 GiB"\n'
+
+
 @pytest.fixture(autouse=True)
-def _private_seat_records(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """The door's own locks contend in a private root -- see this module's docstring for the why."""
-    monkeypatch.setenv(BOX_ENV, str(tmp_path / 'box' / 'box.sqlite'))
+def _private_seat_records(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The door's own locks contend in a private root, on a box with its own floor -- see the docstring."""
+    root = tmp_path_factory.mktemp('private-box')  # never tmp_path, which the arms expect empty
+    (root / 'config.toml').write_text(_TEST_MACHINE, encoding='utf-8')
+    for env, name in ((BOX_ENV, 'box.sqlite'), (CONFIG_ENV, 'config.toml')):
+        monkeypatch.setenv(env, str(root / name))
 
 
 def _plant(tmp_path: Path) -> Path:

@@ -4,7 +4,7 @@
 
 *transition* ``(t, s, a)`` returns the next state, or -- with ``stochastic=True`` -- a sequence of
 ``(probability, next)`` pairs whose probabilities sum to one. A next state outside *states* is
-refused naming the set (a grid that does not close is a modelling error, never silently clipped).
+refused naming the set (a grid that does not close is a modeling error, never silently clipped).
 A state with no action has ``V = inf`` and no policy entry; an infinite cost marks a forbidden move.
 
 Backward induction tabulates ``values[t][s]`` and ``policy[t][s]``; :meth:`DPSolution.plan` rolls a
@@ -41,7 +41,7 @@ class DPSolution:
     def plan(self, start: Hashable) -> tuple[tuple[Hashable, ...], tuple[Hashable, ...], StructuredSolution]:
         """The visited states, the actions and the report of rolling the policy forward from *start*."""
         if self.stochastic:
-            refuse('a stochastic policy has no single plan; read policy[t][s] at each realised state')
+            refuse('a stochastic policy has no single plan; read policy[t][s] at each realized state')
         value = self.values[0].get(start)
         if value is None:
             refuse(f'{start!r} is not a declared state')

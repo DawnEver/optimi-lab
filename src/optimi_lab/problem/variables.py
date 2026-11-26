@@ -10,7 +10,7 @@ metric, so asking it for coordinates names the ``embedding=`` that would supply 
 variable is not part of the design at all: :class:`~optimi_lab.problem.space.Space` drops it from
 the canonical form, so two designs that differ only in a switched-off value are the same design.
 
-Each record normalises in an explicit ``__init__`` over a generated ``_*Fields`` base -- the
+Each record normalizes in an explicit ``__init__`` over a generated ``_*Fields`` base -- the
 package's one shape for a frozen record that coerces its input (no reflection, NO-REFLECTION).
 """
 
@@ -277,7 +277,7 @@ class Field(_FieldFields):
         edges = tuple((int(a), int(b)) for a, b in neighbors)
         bad = [e for e in edges if not (0 <= e[0] < n_cells and 0 <= e[1] < n_cells) or e[0] == e[1]]
         if bad:
-            refuse(f'field {name!r} has neighbour pairs outside cells 0..{n_cells - 1} or self-loops: {bad}')
+            refuse(f'field {name!r} has neighbor pairs outside cells 0..{n_cells - 1} or self-loops: {bad}')
         _FieldFields.__init__(self, name, n_cells, lo, hi, edges, active_if)
 
     @property

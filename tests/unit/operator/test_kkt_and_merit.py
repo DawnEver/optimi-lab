@@ -60,9 +60,9 @@ def test_d31_the_kkt_residual_is_zero_at_a_kkt_point_and_names_each_part() -> No
     )
 
 
-def test_d32_the_l1_slope_bounds_the_merit_derivative_along_a_linearised_step() -> None:
+def test_d32_the_l1_slope_bounds_the_merit_derivative_along_a_linearized_step() -> None:
     p, nu = _point(np.array([0.9, 0.5])), 3.0
-    # a step solving the linearised constraints exactly: h + dh d = 0 and c + dc d = 0
+    # a step solving the linearized constraints exactly: h + dh d = 0 and c + dc d = 0
     d = np.linalg.solve(np.vstack([p.dh, p.dc]), -np.concatenate([p.h, p.c]))
     t = 1e-7
     numeric = (l1_merit(_point(p.x + t * d), nu) - l1_merit(p, nu)) / t

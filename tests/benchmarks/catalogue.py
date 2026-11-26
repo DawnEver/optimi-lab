@@ -1,7 +1,7 @@
 """D29 -- the benchmark catalogue: problems with KNOWN answers, declared through the P8 base.
 
 Each :class:`Benchmark` is a :class:`~optimi_lab.problem.Problem`, an oracle over it, and the true
-Pareto front in the MINIMISED frame, computed in closed form rather than from any run of this
+Pareto front in the MINIMIZED frame, computed in closed form rather than from any run of this
 package (a metric verified against its own output proves only that it has not changed). ZDT1, ZDT2
 and DTLZ2 are :mod:`optimi_lab.benchmark`'s, the one owner of the analytic problems; this module
 only declares them through the P8 base.
@@ -34,7 +34,7 @@ __all__ = ['CATALOGUE', 'Benchmark', 'RandomSearch', 'drive', 'front_of']
 
 @dataclass(frozen=True)
 class Benchmark:
-    """A named problem, its oracle, and its true front sampled at *n* points (minimised frame)."""
+    """A named problem, its oracle, and its true front sampled at *n* points (minimized frame)."""
 
     name: str
     problem: Problem
@@ -153,7 +153,7 @@ def drive(solver: Solver, oracle: Oracle, evaluations: int) -> list[Result]:
 
 
 def front_of(problem: Problem, results: Sequence[Result]) -> np.ndarray:
-    """The feasible non-dominated objective rows of *results*, minimised frame."""
+    """The feasible non-dominated objective rows of *results*, minimized frame."""
     kept = [r for r in results if r.cell.status is Status.OK and r.violation(problem) == 0.0]
     if not kept:
         return np.zeros((0, len(problem.objectives)))

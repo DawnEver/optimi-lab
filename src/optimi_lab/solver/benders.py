@@ -1,6 +1,6 @@
 """D131 Benders decomposition of a two-stage linear program (Benders 1962; Conejo et al. 2006, ch. 3).
 
-    minimise c.x + q.y   subject to   master rows and bounds on x,   T x + W y <= h,   y >= 0
+    minimize c.x + q.y   subject to   master rows and bounds on x,   T x + W y <= h,   y >= 0
 
 with ``x`` possibly mixed-integer (*integrality*). The master carries ``theta``, a lower model of
 the recourse ``Q(x) = min { q.y : W y <= h - T x, y >= 0 }``, built from cuts:

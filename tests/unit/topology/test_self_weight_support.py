@@ -3,7 +3,7 @@
 A 12 x 12 mm square of right triangles, held at a 2 x 2 mm boss on the middle of its left edge: the
 self-weight support clamps the boss's edge NODES, the virtual temperature sinks at the cells on that edge.
 Each planted design is one body with the boss or not; a measure must say the same. The one legitimate
-miss: P1 elasticity carries load through a shared vertex, so only the cell-centred thermal measure refuses
+miss: P1 elasticity carries load through a shared vertex, so only the cell-centered thermal measure refuses
 a block hung on two vertex hinges (a strict xfail, so a measure that starts refusing it is noticed). One
 pin alone is a mechanism -- the block swings -- and the structural measure does refuse that.
 """

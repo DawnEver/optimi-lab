@@ -29,7 +29,7 @@ _MAX_CONDITION = 1e14
 
 
 class CMAES(PopulationSolver):
-    """CMA-ES from ``mean`` (unit cube; None: the centre) with step ``sigma`` (unit-cube units)."""
+    """CMA-ES from ``mean`` (unit cube; None: the center) with step ``sigma`` (unit-cube units)."""
 
     def __init__(
         self,

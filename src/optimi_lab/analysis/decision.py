@@ -1,7 +1,7 @@
 """Decision support over a finished front: redundancy, a knee and a TOPSIS ranking.
 
 Every objective matrix here is in the MINIMIZATION frame of :mod:`optimi_lab.core.pareto` -- the
-caller signs and normalises each column once, through :meth:`~optimi_lab.problem.Objective.minimized`
+caller signs and normalizes each column once, through :meth:`~optimi_lab.problem.Objective.minimized`
 -- so no function takes a direction and none reads a name. Feasibility is
 :meth:`~optimi_lab.oracle.Result.violation` and non-domination is
 :func:`~optimi_lab.core.pareto.non_dominated_sorting`; this module reuses both rather than holding
@@ -47,7 +47,7 @@ def monotone_links(
 
 
 def effective_dimension(values: np.ndarray, *, share: float = 0.95) -> int:
-    """How many principal components of the standardised column RANKS carry ``share`` of the variance.
+    """How many principal components of the standardized column RANKS carry ``share`` of the variance.
 
     Ranks make the count blind to monotone transforms, so ``x`` and ``log x`` are one direction. A
     matrix whose every column is constant has no direction at all and reads 0.
@@ -85,7 +85,7 @@ def knee_index(values: np.ndarray) -> int:
 
 
 def topsis(values: np.ndarray, weights: Sequence[float] | None = None) -> np.ndarray:
-    """TOPSIS closeness in ``[0, 1]`` per row, 1 at the ideal: vector-normalised, weights summed to 1."""
+    """TOPSIS closeness in ``[0, 1]`` per row, 1 at the ideal: vector-normalized, weights summed to 1."""
     values = _matrix(values, 'a set to rank')
     w = np.ones(values.shape[1]) if weights is None else np.asarray(weights, dtype=float)
     if w.shape != (values.shape[1],) or (w < 0).any() or w.sum() == 0:

@@ -8,12 +8,12 @@ A :class:`DesignDomain` is what every map of the density method needs and no mor
   measure; the outer boundary as ``boundary_cells``, ``boundary_faces`` and ``boundary_distances``
   (centroid to face) -- what a two-point flux on the cells needs, and nothing a mesh format implies;
 * PASSIVE masks: ``solid`` cells held at density 1, ``void`` cells at 0 -- held BEFORE any filter
-  (:meth:`expand` reads their state), so a neighbour's filter sees the declared state, never a gray value;
+  (:meth:`expand` reads their state), so a neighbor's filter sees the declared state, never a gray value;
 * ``design_index (n,)``: the design variable each cell reads, ``-1`` on a passive cell (no variable). Symmetry
   and periodicity are a many-to-one ``design_index`` (:meth:`mirrored` builds the mirror one); a variable
   only passive cells read is dropped. :meth:`expand` and :meth:`reduce` are the map and its adjoint.
 
-Two builders: :meth:`DesignDomain.grid` (square / cubic cells; its :class:`Neighbourhood` is the face graph or
+Two builders: :meth:`DesignDomain.grid` (square / cubic cells; its :class:`Neighborhood` is the face graph or
 every touching cell) and :meth:`DesignDomain.from_simplices` (a triangle or tetrahedron mesh: cells sharing a
 whole FACE are adjacent, a vertex- or edge-only contact is not).
 """
@@ -28,14 +28,14 @@ import numpy as np
 
 from optimi_lab.core.errors import coerce_enum, refuse
 
-__all__ = ['DesignDomain', 'Neighbourhood']
+__all__ = ['DesignDomain', 'Neighborhood']
 
 
-class Neighbourhood(StrEnum):
+class Neighborhood(StrEnum):
     """Which grid cells a :meth:`DesignDomain.grid` graph joins.
 
     ``FACE``: cells sharing a face; the outside sits half a cell from a boundary centroid (its face).
-    ``FULL``: every touching cell (a corner or an edge too -- the 8-neighbourhood in 2-D), the graph a pixel
+    ``FULL``: every touching cell (a corner or an edge too -- the 8-neighborhood in 2-D), the graph a pixel
     raster's features are read on: a ridge is a maximum over ALL touching cells, so a square corner is no
     member, and the outside is the ring of cells one spacing beyond the border. A diagonal pair's ``faces``
     entry is the axis face's measure: that graph is for reading features, not for two-point fluxes.
@@ -185,12 +185,12 @@ class DesignDomain:
         *,
         spacing: float,
         length_unit: str,
-        neighbourhood: Neighbourhood | str = Neighbourhood.FACE,
+        neighborhood: Neighborhood | str = Neighborhood.FACE,
         solid: np.ndarray | None = None,
         void: np.ndarray | None = None,
     ) -> DesignDomain:
         """A structured grid of ``prod(shape)`` square (cubic) cells, numbered C-order (last axis fastest)."""
-        neighbourhood = coerce_enum(Neighbourhood, neighbourhood, 'the grid neighbourhood')
+        neighborhood = coerce_enum(Neighborhood, neighborhood, 'the grid neighborhood')
         shape = tuple(int(s) for s in shape)
         index = np.arange(int(np.prod(shape))).reshape(shape)
         axes = np.meshgrid(*[(np.arange(s) + 0.5) * spacing for s in shape], indexing='ij')
@@ -202,7 +202,7 @@ class DesignDomain:
             trail = np.delete(index, 0, axis=axis).ravel()
             pairs.append(np.column_stack([lead, trail]))
             boundary += [np.take(index, 0, axis=axis).ravel(), np.take(index, -1, axis=axis).ravel()]
-        if neighbourhood is Neighbourhood.FULL:
+        if neighborhood is Neighborhood.FULL:
             # Every offset moving two or more axes, counted once (its first non-zero component positive).
             for offset in itertools.product((-1, 0, 1), repeat=len(shape)):
                 moved = [o for o in offset if o]
@@ -213,7 +213,7 @@ class DesignDomain:
                 pairs.append(np.column_stack([lead.ravel(), trail.ravel()]))
         adjacency = np.vstack(pairs)
         cells = np.concatenate(boundary)
-        outside = spacing if neighbourhood is Neighbourhood.FULL else 0.5 * spacing
+        outside = spacing if neighborhood is Neighborhood.FULL else 0.5 * spacing
         return cls(
             centroids,
             np.full(index.size, spacing ** len(shape)),

@@ -59,7 +59,7 @@ ROOT: Final = Path(__file__).resolve().parents[2]
 #: -- which is what a fully forked tree reports. `take_census` refuses that rather than returning it.
 KIT_PACKAGE: Final = 'dev_lab.dev'
 
-#: THE KIT FLOOR, RE-MEASURED 2026-09-19 against `0.2.2.dev166+g7b7661ba9`: `kit_modules` reads 74
+#: THE KIT FLOOR, RE-MEASURED 2026-09-19 against `0.2.2.dev166+g7b7661ba9`: `kit_modules` reads 74  # spelling-ignore-line (a version hash)
 #: modules -- 46 when this floor was first set, then 51, 57, 61, 67, and 74 now. The floor must sit
 #: below that with room for a module being renamed or withdrawn, and far above the zero a mis-resolved
 #: package returns -- against which every row grades UNTOUCHED, the answer a finished migration gives.
@@ -143,7 +143,7 @@ def test_no_row_whose_subject_the_kit_already_holds_is_still_declared_moves() ->
 #: loosened.
 #:
 #: THE READING, AND IT IS NOT AN ADOPTION. `famtests.storedreadings` shipped in
-#: `0.2.2.dev166+g7b7661ba9` and its docstring names `scripts/dep.py` at line 82 -- as a WORKED
+#: `0.2.2.dev166+g7b7661ba9` and its docstring names `scripts/dep.py` at line 82 -- as a WORKED  # spelling-ignore-line (a version hash)
 #: EXAMPLE of the calibration comment it deliberately does NOT read (`ADMIT scripts/dep.py own= 22
 #: repo=1`). So the PROVENANCE detector fires on a sentence whose whole content is that the module
 #: has nothing to do with that file, and the IMPORT detector correctly does not: `scripts/dep.py`

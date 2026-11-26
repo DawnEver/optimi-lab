@@ -7,7 +7,7 @@ one body be checked directly against a reference on a closed form, and driven by
 through :class:`~optimi_lab.solver.gradient.GradientSolver`.
 
 :class:`SmoothView` turns a :class:`~optimi_lab.problem.Problem` and an oracle :class:`Result` into a
-linearisation in the space's unit cube and the minimised, normalised objective frame:
+linearisation in the space's unit cube and the minimized, normalized objective frame:
 
 * each objective is :meth:`~optimi_lab.problem.Objective.minimized`, its gradient scaled to match;
 * each BlackBox constraint and each side of a Linear or Explicit one is a scaled ``c <= 0`` -- the
@@ -55,7 +55,7 @@ Evaluate = Callable[[np.ndarray], Linearization]
 
 #: Default relative stopping bar, against the starting gradient (dimensionless).
 RTOL = 1e-8
-#: Default absolute floor: normalised objective units per unit-cube width.
+#: Default absolute floor: normalized objective units per unit-cube width.
 ATOL = 1e-10
 
 #: The central-difference step for an Explicit constraint, relative to ``max(1, |value|)``.
@@ -171,7 +171,7 @@ class SmoothView:
             refuse(f'a gradient method needs unconditional Real or Field variables; {unfit} are not')
         unfit = [c.name for c in self.problem.constraints if not isinstance(c, (BlackBox, Linear, Explicit))]
         if unfit:
-            refuse(f'constraints {unfit} have no gradient (Chance, Path); estimate or penalise them first')
+            refuse(f'constraints {unfit} have no gradient (Chance, Path); estimate or penalize them first')
 
     @property
     def width(self) -> int:
@@ -210,7 +210,7 @@ class SmoothView:
         return c, dc, h, dh
 
     def objective_hvp(self, result: Result) -> np.ndarray:
-        """The first objective's Hessian times the action's direction, in the minimised normalised frame."""
+        """The first objective's Hessian times the action's direction, in the minimized normalized frame."""
         if result.cell.status is not Status.OK:
             msg = f'{result.cell.status.name}: an hvp evaluation did not compute'
             raise Unevaluable(msg)
@@ -256,7 +256,7 @@ class SmoothView:
 def kkt_bar(initial_gradient: np.ndarray, *, rtol: float, atol: float) -> float:
     """The stopping bar: ``max(rtol * |grad f(x0)|_max, atol)`` -- residual <= rtol x start OR <= atol.
 
-    *atol* is in the normalised objective's units per unit-cube width (the frame every method works
+    *atol* is in the normalized objective's units per unit-cube width (the frame every method works
     in) and must be > 0: it is the floor that stops a start whose gradient is ~0, where the relative
     bar alone would be ~0 and never met.
     """

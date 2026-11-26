@@ -35,7 +35,7 @@ class Publisher(Protocol):
     """``publish(points, on_result)``: answer every point, calling *on_result* as each completes.
 
     A publisher joins its workers before returning, including after a failure, so no callback can
-    reach a study that already returned; the study serialises concurrent callbacks.
+    reach a study that already returned; the study serializes concurrent callbacks.
     """
 
     def publish(self, points: Sequence[tuple[float, ...]], on_result: Callable[[Answer], None]) -> None: ...

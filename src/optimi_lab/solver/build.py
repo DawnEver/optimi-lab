@@ -213,7 +213,7 @@ def _one_row(name: str, initial: np.ndarray) -> np.ndarray:
 
 
 def _design_start(name: str, problem: Problem, initial: np.ndarray | None) -> dict[str, object]:
-    """A design-reading one-start solver's ``start=``: the one row decoded, else none (the cube's centre)."""
+    """A design-reading one-start solver's ``start=``: the one row decoded, else none (the cube's center)."""
     return {} if initial is None else {'start': problem.space.decode(_one_row(name, initial))}
 
 

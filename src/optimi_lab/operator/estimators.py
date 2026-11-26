@@ -8,7 +8,7 @@
   90.25 % only when independent (B0-03);
 * :func:`satisfied` -- the probability that sampled outputs meet a :class:`~optimi_lab.problem.Chance`
   constraint's relation and bound;
-* :func:`replicated` -- independent replicate estimates (randomised QMC, batches) pooled into their
+* :func:`replicated` -- independent replicate estimates (randomized QMC, batches) pooled into their
   mean, the standard error from their spread.
 """
 

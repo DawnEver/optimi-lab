@@ -15,7 +15,7 @@ form holds a solid cell cut off from every sink by void -- exceeds ``log(gamma)`
 
 * :class:`VirtualTemperature` (Liu et al. 2015, Front. Mech. Eng. 10:126; Li et al. 2016, Struct. Multidisc.
   Optim. 54:971): the *support* CELLS are the sink, held at zero temperature wherever they sit (a boundary
-  layer or an interior anchor). Cell-centred two-point fluxes across shared FACES with a harmonic-mean
+  layer or an interior anchor). Cell-centered two-point fluxes across shared FACES with a harmonic-mean
   conductance, so it and :func:`~optimi_lab.topology.measures.components` mean the same thing by connected.
 * :class:`SelfWeightSupport`: plane-stress self-weight over a triangle mesh, clamped at support NODES (after
   Bruyneel and Duysinx 2005, Struct. Multidisc. Optim. 29:245) -- a proxy for a mounting load, not a stress
@@ -55,8 +55,8 @@ class VirtualTemperature:
     A gray cell heats exactly as much as it conducts, so it cannot read as a hot one-cell island.
 
     The island floor. Let the BUILT form (``x > eta``, ``eta`` the build threshold of ``read_on``) hold an island
-    ``I`` reaching no sink, every face neighbour of ``I`` outside it at density ``<= v``. Each island cell sources
-    at least ``s_eta = s(H(eta))`` per unit measure; a face onto a neighbour conducts the harmonic mean
+    ``I`` reaching no sink, every face neighbor of ``I`` outside it at density ``<= v``. Each island cell sources
+    at least ``s_eta = s(H(eta))`` per unit measure; a face onto a neighbor conducts the harmonic mean
     ``2 s_i s_n / (s_i + s_n) <= 2 s(H(v))`` per ``face / distance``; temperatures are ``>= 0``, so the island's
     load leaves through its boundary at most at ``max T`` times its boundary conductance, and
     ``max T >= s_eta C / (2 s(H(v)))``, ``C`` the smallest one-cell ``measure / sum(face / distance)``. With
@@ -67,7 +67,7 @@ class VirtualTemperature:
     :attr:`island_floor` is ``floor(0)``: ``H(0) = 0`` so ``s(H(0)) = s_min`` -- an island cut off by EXACT void.
     Declared *gamma* (which needs ``read_on``) derives ``s_min = target / 2``, ``target = H(eta)^penalty C /
     (2 |domain| r_solid gamma ISLAND_MARGIN)``, so ``island_floor > log(gamma ISLAND_MARGIN)``; a given ``s_min >=
-    target`` is refused. Gray is stated, not hidden: a neighbour read near ``eta`` conducts nearly as well as the
+    target`` is refused. Gray is stated, not hidden: a neighbor read near ``eta`` conducts nearly as well as the
     island heats, so ``floor(v)`` falls toward ``log(C / (2 |domain| r_solid))`` as ``v -> eta`` -- a bridge
     just under the build threshold reads as joined, the price of a gray cell never reading as an island.
     Separately anchored pieces (one sink region each) are not islands: N anchors admit N bodies.
@@ -119,7 +119,7 @@ class VirtualTemperature:
         )
 
     def floor(self, void: float = 0.0) -> float:
-        """The lower bound on :meth:`log_ratio` over designs with a built island whose neighbours read ``<= void``."""
+        """The lower bound on :meth:`log_ratio` over designs with a built island whose neighbors read ``<= void``."""
         s_eta, s_void = self._law(_read(self.read_on, np.array([self._eta, void]))[0])[0]
         total = float(self.domain.measures.sum())
         return float(np.log(s_eta * self._capacity / (2.0 * s_void * total * self.reference)))
@@ -282,8 +282,8 @@ class SelfWeightSupport:
             return 0.0, np.zeros_like(phys)
         factor = np.divide(dj, magnitude, out=np.zeros_like(magnitude), where=magnitude > 0.0)
         lam = self._solve(k, (factor[:, None] * u.reshape(-1, 2)).ravel())
-        ue, le = u[self.dofs], lam[self.dofs]
-        return j, np.sum(le * self.fe, axis=1) - ds * np.einsum('ei,eij,ej->e', le, self.ke, ue)
+        u_e, lam_e = u[self.dofs], lam[self.dofs]
+        return j, np.sum(lam_e * self.fe, axis=1) - ds * np.einsum('ei,eij,ej->e', lam_e, self.ke, u_e)
 
     def specific(self, phys: np.ndarray) -> tuple[float, np.ndarray]:
         """``(J / Q, d / d phys)``, ``Q = sum phys A``: the response PER UNIT LOAD."""

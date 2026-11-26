@@ -14,7 +14,7 @@ here is the half the kit refuses to guess -- every repo fact arrives as a keywor
 default, and this file is where optimi-lab's five answers are written down: which trees, what is not
 an entry, what is never walked, and the two numbers that bound the population.
 
-THE SILENT ENTRY IS NOW ITS OWN POPULATION, AND THAT IS A BEHAVIOUR CHANGE RATHER THAN A SWAP. This
+THE SILENT ENTRY IS NOW ITS OWN POPULATION, AND THAT IS A BEHAVIOR CHANGE RATHER THAN A SWAP. This
 file used to fold "no `created:` field" into `date_disagreements` as the reason string ``no
 `created:` field``, so one assertion carried two populations and a pin over it could not have said
 which half moved. The kit splits them -- :func:`~dev_lab.dev.famtests.datedmemory.silent` and
@@ -67,12 +67,20 @@ NOT_WALKED: Final = frozenset({'.git', '.venv', '__pycache__', 'node_modules', '
 #: NOT ENTRIES. `_meta.json` is written beside the entries by the memory tooling and reaches no index
 #: and no other checkout; `.gitkeep` is how an empty tree stays tracked at all. Neither is a record
 #: somebody wrote, and a real fork is in neither set and is still caught.
-NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep'})
+#:
+#: THE TWO MONTH SUMMARIES are no entry either: dev-lab's SUMMARY-RETIRED (user ruling 2026-11-24)
+#: retires `<yyyy>/<mm>/SUMMARY-*.md` as a format that is "no entry". Its door is to delete the file
+#: or move it into a dated entry; memory is immutable, so that move waits for the user's approval,
+#: and until then each is named here by its exact filename so a new summary still reds.
+NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep', 'SUMMARY-2026-10.md', 'SUMMARY-2026-11.md'})
 
 #: THE SILENT ENTRIES ON RECORD -- dated markdown carrying no `created:` field. EMPTY is accepted
 #: here and is the state the ratchet exists to REACH; what stops it being vacuous is the entry floor
 #: above, which the check binds before it compares anything.
-MEMORY_FRONTMATTER_DEBT: Final[frozenset[str]] = frozenset()
+MEMORY_FRONTMATTER_DEBT: Final[frozenset[str]] = frozenset({
+    # memory is immutable: the entry landed without the field; its amendment needs the user's approval
+    '.claude/memory/2026/11/23/stale-lanes-and-hold-tags-discarded-by-the-one-day-ruling.md',
+})
 
 #: THE ENTRIES WHOSE HEADER CONTRADICTS THEIR DIRECTORY, pinned WITH the date each one claims: a name
 #: alone cannot tell a copied-forward header from a moved directory.

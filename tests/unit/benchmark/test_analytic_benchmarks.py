@@ -1,6 +1,6 @@
 """The analytic benchmark problems: every front point is optimal by its closed form.
 
-ZDT: on the optimal set (x_2.. at their g-minimising value) f2 is the front's formula of f1.
+ZDT: on the optimal set (x_2.. at their g-minimizing value) f2 is the front's formula of f1.
 DTLZ2: on the optimal set (x_m.. = 0.5) the objectives lie on the unit sphere.
 """
 

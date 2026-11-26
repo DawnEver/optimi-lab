@@ -21,13 +21,13 @@ from optimi_lab.solver.map_elites import Descriptor
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'benchmarks'))
 from catalogue import drive
 
-CENTRE = np.array([0.3, 0.7, 0.55])
+CENTER = np.array([0.3, 0.7, 0.55])
 
 
 def _bowl_problem(width: int = 3) -> tuple[Problem, object]:
     problem = Problem(Space(tuple(Real(f'x{i}', 0.0, 1.0) for i in range(width))), (Objective('f'),))
     oracle = from_function(
-        lambda a: {'f': float(np.sum((np.array([a.design[f'x{i}'] for i in range(width)]) - CENTRE[:width]) ** 2))},
+        lambda a: {'f': float(np.sum((np.array([a.design[f'x{i}'] for i in range(width)]) - CENTER[:width]) ** 2))},
         Capability(outputs=('f',)),
     )
     return problem, oracle
@@ -53,7 +53,7 @@ def test_nelder_mead_visits_exactly_the_points_scipy_visits():
 
     def f(x):
         seen.append(np.array(x))
-        return float(np.sum((x - CENTRE) ** 2))
+        return float(np.sum((x - CENTER) ** 2))
 
     minimize(f, np.full(3, 0.5), method='Nelder-Mead', bounds=[(0.0, 1.0)] * 3)
     assert len(asked) == len(seen)
@@ -85,7 +85,7 @@ def test_mads_reaches_scipys_optimum_of_a_smooth_bowl():
     a bowl it must meet scipy's optimum within 1e-8.
     """
     problem, oracle = _bowl_problem()
-    reference = minimize(lambda x: np.sum((x - CENTRE) ** 2), np.full(3, 0.5), method='L-BFGS-B', bounds=[(0, 1)] * 3)
+    reference = minimize(lambda x: np.sum((x - CENTER) ** 2), np.full(3, 0.5), method='L-BFGS-B', bounds=[(0, 1)] * 3)
     solver = mads(problem, oracle.capability, seed=3)
     drive(solver, oracle, 6000)
     assert solver.best[1] <= reference.fun + 1e-8
@@ -96,7 +96,7 @@ def test_cmaes_concludes_and_names_why():
     solver = cmaes(problem, oracle.capability, seed=0)
     drive(solver, oracle, 50_000)
     assert solver.done and isinstance(solver, CMAES) and 'tol' in solver.stop
-    assert np.allclose(solver.best[0], CENTRE, atol=1e-4)
+    assert np.allclose(solver.best[0], CENTER, atol=1e-4)
 
 
 def test_the_genetic_algorithm_approaches_the_optimum_of_one_score():

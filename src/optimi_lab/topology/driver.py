@@ -8,10 +8,10 @@ when its ``iterations`` run out, or when the optimizer converges; ``max_iter`` c
 Optimizers (:class:`Optimizer`): MMA and GCMMA are the library's own
 (:func:`optimi_lab.solver.moving_asymptotes.mma`, any number of constraints, either sign of sensitivity);
 OC is the optimality-criteria fixed point (Bendsoe 1995; "top88"), for ONE constraint whose sensitivity
-is positive and an objective that only falls as density rises, as in compliance minimisation.
+is positive and an objective that only falls as density rises, as in compliance minimization.
 
 Every evaluation is an :class:`Iteration` of the run's history: stage, ``beta``, objective (raw, the KS
-aggregate when robust), the normalised constraints (``<= 0`` is feasible), the max-norm design change and
+aggregate when robust), the normalized constraints (``<= 0`` is feasible), the max-norm design change and
 the nominal realization's grayness. GCMMA's rejected inner candidates are evaluations too, and are recorded.
 
 A NUMERICAL failure inside the loop (a singular or non-finite linear solve, a floating-point error) is a
@@ -121,7 +121,7 @@ class _Settled(Exception):
 
 
 def _oc_step(evaluation: TopologyPoint, move: float) -> np.ndarray:
-    """The optimality-criteria update, bisecting the multiplier on the linearised constraint."""
+    """The optimality-criteria update, bisecting the multiplier on the linearized constraint."""
     point = evaluation.linearization
     if point.c.size != 1:
         refuse(f'OC takes exactly one constraint, this problem has {point.c.size} -- use mma')
@@ -153,7 +153,7 @@ def topology_optimize(
     ks_rho: float = 40.0,
     move: float = 0.2,
 ) -> TopologyResult:
-    """Minimise *provider*'s objective under its constraints over density, through *density_filter*.
+    """Minimize *provider*'s objective under its constraints over density, through *density_filter*.
 
     *robust* projects at every threshold of *etas* (else at the middle one only); *x0* defaults to the
     uniform design at 0.5; *move* caps each step's change of a design variable.

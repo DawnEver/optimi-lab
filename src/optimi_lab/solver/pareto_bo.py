@@ -1,13 +1,13 @@
-"""D62-D63 -- model-based multi-objective optimisation: ParEGO, and EHVI / NEHVI on one GP per objective.
+"""D62-D63 -- model-based multi-objective optimization: ParEGO, and EHVI / NEHVI on one GP per objective.
 
 The loop, the fantasies (D64) and the observed-only front are :class:`~optimi_lab.solver.model_based.ModelBased`'s.
 
 * :func:`parego` (D62) -- Knowles (2006): every pick draws a Das-Dennis weight, scores the told rows
-  by :func:`~optimi_lab.operator.acquisition.parego_scores`, fits one GP to the scores and maximises
+  by :func:`~optimi_lab.operator.acquisition.parego_scores`, fits one GP to the scores and maximizes
   its log EI.
 * :func:`ehvi` / :func:`nehvi` (D63) -- one GP per objective; exact EHVI over the told feasible front
   plus the believed pending, or NEHVI (Daulton et al., 2021) over ``samples`` joint draws, the
-  pending points carried in its BASELINE rather than believed. ``reference`` (minimised frame)
+  pending points carried in its BASELINE rather than believed. ``reference`` (minimized frame)
   defaults to the told maximum plus a tenth of the told range, re-read at each pick.
 
 With constraints each acquisition is multiplied by the probability of feasibility, and while no
@@ -61,14 +61,14 @@ class ParEGO(ModelBased):
         model = self._believed(self._surrogate.fit(self._inputs, scores[:, None], domain=self._domain), pending)
         log_pf = self._log_feasibility(pending)
         if not self._feasible.any():
-            return self._maximise(log_pf)
+            return self._maximize(log_pf)
         best = float(scores[self._feasible].min())
 
         def acquisition(points: np.ndarray) -> np.ndarray:
             p = model.predict(points, variance=True)
             return log_expected_improvement(p.mean[:, 0], np.sqrt(p.variance[:, 0]), best) + log_pf(points)
 
-        return self._maximise(acquisition)
+        return self._maximize(acquisition)
 
 
 class HypervolumeImprovement(ModelBased):
@@ -88,7 +88,7 @@ class HypervolumeImprovement(ModelBased):
         if m < 2:
             refuse('a hypervolume acquisition needs at least two objectives; one objective is bo()')
         if reference is not None and len(reference) != m:
-            refuse(f'reference is one minimised value per objective ({m}), got {len(reference)}')
+            refuse(f'reference is one minimized value per objective ({m}), got {len(reference)}')
         if samples < 2:
             refuse(f'NEHVI averages at least 2 joint draws, got {samples}')
         super().__init__(problem, capability, **base)
@@ -96,7 +96,7 @@ class HypervolumeImprovement(ModelBased):
         self._reference = None if reference is None else np.asarray(reference, dtype=float)
 
     def reference(self) -> np.ndarray:
-        """The declared reference, else the told maximum plus a tenth of the told range (minimised frame)."""
+        """The declared reference, else the told maximum plus a tenth of the told range (minimized frame)."""
         if self._reference is not None:
             return self._reference
         values = self._objectives
@@ -107,7 +107,7 @@ class HypervolumeImprovement(ModelBased):
         model = self._fit('objectives', self._objectives)
         log_pf = self._log_feasibility(pending)
         if self._problem.constraints and not self._feasible.any():
-            return self._maximise(log_pf)
+            return self._maximize(log_pf)
         reference = self.reference()
         observed = self._objectives[self._feasible]
         if not self._noisy:
@@ -119,8 +119,8 @@ class HypervolumeImprovement(ModelBased):
                 gain = expected_hypervolume_improvement(p.mean, np.sqrt(p.variance), front, reference)
                 return gain * np.exp(log_pf(points))
 
-            return self._maximise(acquisition)
-        return self._maximise(self._nehvi(model, np.vstack([self._inputs[self._feasible], pending]), reference, log_pf))
+            return self._maximize(acquisition)
+        return self._maximize(self._nehvi(model, np.vstack([self._inputs[self._feasible], pending]), reference, log_pf))
 
     def _nehvi(
         self,
@@ -164,10 +164,10 @@ def parego(problem: Problem, capability: Capability, **settings: object) -> ParE
 
 
 def ehvi(problem: Problem, capability: Capability, **settings: object) -> HypervolumeImprovement:
-    """Exact-EHVI Bayesian optimisation; ``**settings`` are :class:`HypervolumeImprovement`'s but ``noisy``."""
+    """Exact-EHVI Bayesian optimization; ``**settings`` are :class:`HypervolumeImprovement`'s but ``noisy``."""
     return build(HypervolumeImprovement, problem, capability, 'ehvi', **settings)
 
 
 def nehvi(problem: Problem, capability: Capability, **settings: object) -> HypervolumeImprovement:
-    """NEHVI Bayesian optimisation; ``**settings`` are :class:`HypervolumeImprovement`'s but ``noisy``."""
+    """NEHVI Bayesian optimization; ``**settings`` are :class:`HypervolumeImprovement`'s but ``noisy``."""
     return build(HypervolumeImprovement, problem, capability, 'nehvi', noisy=True, **settings)

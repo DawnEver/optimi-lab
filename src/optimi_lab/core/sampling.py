@@ -268,10 +268,10 @@ def _bridson(width: int, radius: float, rng: np.random.Generator) -> np.ndarray:
     active = [0]
     while active:
         slot = rng.integers(len(active))
-        centre = accepted[active[slot]]
+        center = accepted[active[slot]]
         direction = rng.normal(size=(_DART_CANDIDATES, width))
         direction /= np.linalg.norm(direction, axis=1, keepdims=True)
-        candidates = centre + direction * radius * (1.0 + rng.random((_DART_CANDIDATES, 1)))
+        candidates = center + direction * radius * (1.0 + rng.random((_DART_CANDIDATES, 1)))
         placed = False
         for candidate in candidates[np.all((candidates >= 0.0) & (candidates < 1.0), axis=1)]:
             if np.min(np.linalg.norm(np.asarray(accepted) - candidate, axis=1)) >= radius:

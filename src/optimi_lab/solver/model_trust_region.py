@@ -3,26 +3,26 @@
 The expensive function is only ever evaluated at points a CORRECTED model proposes, and the model is
 trusted only as far as it has predicted well:
 
-* MODEL -- the surrogate fitted on the told feasible points NEAR the centre (inside twice the
+* MODEL -- the surrogate fitted on the told feasible points NEAR the center (inside twice the
   trust box, at least the ``2d + 1`` nearest, distinct, spanning the space affinely) in coordinates
   ``(x - x_c) / radius`` -- a radial basis is not scale-free, and at a small radius the raw
   interpolation matrix underflows toward singular -- plus the zero-order correction ``f(x_c) - s(x_c)`` that makes it agree with the
-  truth at the centre ``x_c`` (consistency the convergence theory asks of the model; a values-only
+  truth at the center ``x_c`` (consistency the convergence theory asks of the model; a values-only
   oracle gives no first-order term to match). The default surrogate is ORBIT's (Wild, Regis and
   Shoemaker, 2008): a cubic radial basis interpolant with a linear tail -- a GP over every point
   was measured on 4-D Rosenbrock (2026-10-18) to mis-predict until the radius collapsed at
   f = 3.0 after 20 evaluations.
-* STEP -- the corrected model minimised inside the trust box ``|x - x_c|_inf <= radius`` intersected
-  with the unit cube, by :func:`~optimi_lab.solver.model_based.maximise` (Sobol candidates, then
+* STEP -- the corrected model minimized inside the trust box ``|x - x_c|_inf <= radius`` intersected
+  with the unit cube, by :func:`~optimi_lab.solver.model_based.maximize` (Sobol candidates, then
   numerics-lab's L-BFGS polish).
-* RATIO -- ``rho = (f(x_c) - f(x)) / (m(x_c) - m(x))``; ``rho > 0`` moves the centre, ``rho > 0.75``
+* RATIO -- ``rho = (f(x_c) - f(x)) / (m(x_c) - m(x))``; ``rho > 0`` moves the center, ``rho > 0.75``
   with the step on the box boundary doubles the radius (to ``radius_max``).
 * A FAILED STEP (``rho < 0.25``, or no predicted decrease) halves the radius only when the model is
   CERTIFIED -- at least ``2d + 1`` told points inside the trust box. Otherwise the next ask is a
   model-improvement point ``x_c +- radius e_j`` (directions in turn), as in ORBIT: shrinking on a
   model that has not seen the region is how the radius collapses away from a minimum.
 
-The first ask is the centre and its ``2d`` axis neighbours at ``radius``. It concludes when the
+The first ask is the center and its ``2d`` axis neighbors at ``radius``. It concludes when the
 radius falls below ``radius_end`` (unit-cube units). A constraint is an extreme barrier, as in
 :func:`~optimi_lab.solver.bobyqa`: an infeasible or failed point scores NaN and never enters the model.
 """
@@ -35,7 +35,7 @@ from learn_lab.validity import BoxEnvelope
 from optimi_lab.core import refuse
 from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
-from optimi_lab.solver.model_based import maximise
+from optimi_lab.solver.model_based import maximize
 from optimi_lab.solver.sequential import Search, SequentialSolver
 from optimi_lab.solver.settings import build
 
@@ -68,8 +68,8 @@ class ModelTrustRegion(SequentialSolver):
     def _search(self) -> Search:
         n, radius = self._width, self._radius0
         candidates = self._candidate_count or min(128 * n, 2048)
-        centre = self._start.copy()
-        first = np.vstack([centre, np.clip(centre + np.vstack([np.eye(n), -np.eye(n)]) * radius, 0.0, 1.0)])
+        center = self._start.copy()
+        first = np.vstack([center, np.clip(center + np.vstack([np.eye(n), -np.eye(n)]) * radius, 0.0, 1.0)])
         scores, violation = yield first
         points: list[np.ndarray] = []
         values: list[float] = []
@@ -78,32 +78,32 @@ class ModelTrustRegion(SequentialSolver):
         if not values:
             return
         best = int(np.argmin(values))
-        centre, f_centre = points[best].copy(), values[best]
+        center, f_center = points[best].copy(), values[best]
         direction, improve = 0, False
         while radius >= self._radius_end:
             stored, told = np.array(points), np.array(values)
-            near = np.abs(stored - centre).max(axis=1)
+            near = np.abs(stored - center).max(axis=1)
             certified = np.count_nonzero(near <= radius * (1 + 1e-9)) >= 2 * n + 1
             if improve and not certified:
-                trial = _geometry(centre, radius, direction, n)
+                trial = _geometry(center, radius, direction, n)
                 direction = (direction + 1) % (2 * n)
                 scores, violation = yield trial[None]
                 _keep(points, values, trial, scores[0], violation[0])
-                if violation[0] == 0.0 and scores[0] < f_centre:
-                    centre, f_centre = trial, float(scores[0])
+                if violation[0] == 0.0 and scores[0] < f_center:
+                    center, f_center = trial, float(scores[0])
                 improve = False
                 continue
             local = _local(stored, near, radius, n)
             # The envelope is the unit cube in the scaled frame: every told point and every step lies in it.
-            cube = BoxEnvelope(-centre / radius, (1.0 - centre) / radius)
-            fitted = self._surrogate.fit((stored[local] - centre) / radius, told[local][:, None], domain=cube)
-            shift = f_centre - fitted.predict(np.zeros((1, n))).mean[0, 0]
+            cube = BoxEnvelope(-center / radius, (1.0 - center) / radius)
+            fitted = self._surrogate.fit((stored[local] - center) / radius, told[local][:, None], domain=cube)
+            shift = f_center - fitted.predict(np.zeros((1, n))).mean[0, 0]
 
-            def model(x: np.ndarray, fitted=fitted, shift=shift, centre=centre, radius=radius) -> np.ndarray:
-                return fitted.predict((x - centre) / radius).mean[:, 0] + shift
+            def model(x: np.ndarray, fitted=fitted, shift=shift, center=center, radius=radius) -> np.ndarray:
+                return fitted.predict((x - center) / radius).mean[:, 0] + shift
 
-            lo, hi = np.maximum(centre - radius, 0.0), np.minimum(centre + radius, 1.0)
-            step = maximise(
+            lo, hi = np.maximum(center - radius, 0.0), np.minimum(center + radius, 1.0)
+            step = maximize(
                 lambda x, model=model: -model(x),
                 n,
                 rng=self._rng,
@@ -112,20 +112,20 @@ class ModelTrustRegion(SequentialSolver):
                 lo=lo,
                 hi=hi,
             )
-            predicted = f_centre - model(step[None])[0]
+            predicted = f_center - model(step[None])[0]
             if not predicted > 0.0:
                 radius, improve = (radius * 0.5, False) if certified else (radius, True)
                 continue
             scores, violation = yield step[None]
             _keep(points, values, step, scores[0], violation[0])
             f_step = scores[0] if violation[0] == 0.0 else np.nan
-            ratio = (f_centre - f_step) / predicted if not np.isnan(f_step) else -np.inf
+            ratio = (f_center - f_step) / predicted if not np.isnan(f_step) else -np.inf
             if ratio < 0.25:
                 radius, improve = (radius * 0.5, False) if certified else (radius, True)
-            elif ratio > 0.75 and np.any(np.isclose(np.abs(step - centre), radius, rtol=1e-3)):
+            elif ratio > 0.75 and np.any(np.isclose(np.abs(step - center), radius, rtol=1e-3)):
                 radius = min(2.0 * radius, self._radius_max)
             if ratio > 0.0:
-                centre, f_centre = step.copy(), float(f_step)
+                center, f_center = step.copy(), float(f_step)
 
 
 def _local(stored: np.ndarray, near: np.ndarray, radius: float, n: int) -> np.ndarray:
@@ -154,13 +154,13 @@ def _keep(points: list[np.ndarray], values: list[float], point: np.ndarray, scor
         values.append(float(score))
 
 
-def _geometry(centre: np.ndarray, radius: float, direction: int, n: int) -> np.ndarray:
-    """The model-improvement point ``centre +- radius e_j``, turned back into the unit cube when it would leave it."""
+def _geometry(center: np.ndarray, radius: float, direction: int, n: int) -> np.ndarray:
+    """The model-improvement point ``center +- radius e_j``, turned back into the unit cube when it would leave it."""
     j, sign = direction % n, 1.0 if direction < n else -1.0
-    if not 0.0 <= centre[j] + sign * radius <= 1.0:
+    if not 0.0 <= center[j] + sign * radius <= 1.0:
         sign = -sign
-    point = centre.copy()
-    point[j] = np.clip(centre[j] + sign * radius, 0.0, 1.0)
+    point = center.copy()
+    point[j] = np.clip(center[j] + sign * radius, 0.0, 1.0)
     return point
 
 

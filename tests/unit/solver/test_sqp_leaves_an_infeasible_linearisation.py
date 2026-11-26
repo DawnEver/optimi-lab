@@ -2,12 +2,12 @@
 
 The incident (a downstream motor-design search, 2026-11-13): an SQP refine of a spline barrier, its objective gradient matching central
 differences to 2e-5, started below its own radius floors and ended ``stalled -- no step decreased the l1 merit``.
-When the linearised constraints admit no step inside the box, the QP returns its least-violating step, which removes
+When the linearized constraints admit no step inside the box, the QP returns its least-violating step, which removes
 only PART of the violation. The slope handed to Armijo was ``grad f . d - nu * violation`` -- the slope of a step
 that removes ALL of it -- so it promised a decrease the merit never had, at every step length.
 
-Planted: minimise ``0.25 x0 + (x0 - 0.1)^2 + (x1 - 0.5)^2`` on the unit box under ``x0^2 >= 0.25`` from
-``(0.1, 0.5)``. There the linearised floor needs ``d0 >= 1.2`` and the box allows 0.9: the least-violating step
+Planted: minimize ``0.25 x0 + (x0 - 0.1)^2 + (x1 - 0.5)^2`` on the unit box under ``x0^2 >= 0.25`` from
+``(0.1, 0.5)``. There the linearized floor needs ``d0 >= 1.2`` and the box allows 0.9: the least-violating step
 removes 0.18 of the 0.24 violation while the objective rises at 0.225, so with ``nu = 1`` the merit RISES along it at
 every length (+0.045 at the start, and the curvature keeps it above) although the old slope said -0.015 -- the
 stall, on exact gradients. The constrained minimum is ``(0.5, 0.5)``.

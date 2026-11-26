@@ -45,7 +45,7 @@ def test_knee_refuses_anything_but_two_objectives():
 
 
 def test_topsis_ranks_ideal_first_anti_ideal_last_and_weights_steer():
-    """Minimization frame: column 0 is a maximised objective already negated by the caller."""
+    """Minimization frame: column 0 is a maximized objective already negated by the caller."""
     values = np.array([[-10.0, 1.0], [0.0, 9.0], [-5.0, 5.0], [-10.0, 9.0]])
     closeness = topsis(values)
     assert closeness[0] == pytest.approx(1.0)

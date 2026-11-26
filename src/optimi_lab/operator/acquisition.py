@@ -1,6 +1,6 @@
 """D59-D60 -- acquisition functions: closed forms over a Gaussian prediction, sample forms over joint draws.
 
-Every acquisition reads the MINIMISED frame (:meth:`~optimi_lab.problem.Objective.minimized`) and
+Every acquisition reads the MINIMIZED frame (:meth:`~optimi_lab.problem.Objective.minimized`) and
 returns a score where LARGER IS BETTER. A prediction is ``mean`` and ``std`` (the latent standard
 deviation, ``>= 0``) per point; ``std = 0`` is the limit of each closed form, never a division.
 
@@ -15,7 +15,7 @@ Single objective, incumbent ``best`` (the lowest observed feasible value), ``z =
 * :func:`knowledge_gradient` ``E[max_i a_i + b_i Z] - max_i a_i`` over a discrete set (Frazier,
   Powell and Dayanik, 2009), the upper envelope of the lines read off exactly.
 
-Constraints: :func:`log_probability_of_feasibility` -- every modelled margin ``<= 0`` (independent
+Constraints: :func:`log_probability_of_feasibility` -- every modeled margin ``<= 0`` (independent
 Gaussians); the constrained EI (Schonlau et al., 1998) is ``log EI + log PF``.
 
 Several objectives, reference point ``reference``:
@@ -32,7 +32,7 @@ Several objectives, reference point ``reference``:
   candidate over each draw's own front, with its standard error.
 * :func:`parego_scores` -- ParEGO's scalarisation (Knowles, 2006): the augmented achievement
   function with the weights as MULTIPLIERS, ``max_j w_j f_j + rho sum_j w_j f_j`` (Tchebycheff plus
-  ``rho`` times the weighted sum), on columns normalised to ``[0, 1]`` by their range. A weight
+  ``rho`` times the weighted sum), on columns normalized to ``[0, 1]`` by their range. A weight
   row may hold zeros; a divided ASF would make a zero weight the dominant term.
 """
 
@@ -102,7 +102,7 @@ def log_h(z: object) -> np.ndarray:
     return out
 
 
-def _standardised(mean: np.ndarray, std: np.ndarray, best: float) -> tuple[np.ndarray, np.ndarray]:
+def _standardized(mean: np.ndarray, std: np.ndarray, best: float) -> tuple[np.ndarray, np.ndarray]:
     positive = std > 0.0
     z = np.where(positive, (best - mean) / np.where(positive, std, 1.0), 0.0)
     return z, positive
@@ -111,14 +111,14 @@ def _standardised(mean: np.ndarray, std: np.ndarray, best: float) -> tuple[np.nd
 def expected_improvement(mean: object, std: object, best: float) -> np.ndarray:
     """``E[max(best - Y, 0)]`` for ``Y ~ N(mean, std^2)``."""
     mean, std = _gaussian(mean, std)
-    z, positive = _standardised(mean, std, best)
+    z, positive = _standardized(mean, std, best)
     return np.where(positive, std * _h(z), np.maximum(best - mean, 0.0))
 
 
 def log_expected_improvement(mean: object, std: object, best: float) -> np.ndarray:
     """``log EI``; ``-inf`` only where ``std = 0`` and no improvement is possible."""
     mean, std = _gaussian(mean, std)
-    z, positive = _standardised(mean, std, best)
+    z, positive = _standardized(mean, std, best)
     with np.errstate(divide='ignore'):
         exact = np.log(np.maximum(best - mean, 0.0))
         return np.where(positive, np.log(np.where(positive, std, 1.0)) + log_h(z), exact)
@@ -127,20 +127,20 @@ def log_expected_improvement(mean: object, std: object, best: float) -> np.ndarr
 def probability_of_improvement(mean: object, std: object, best: float) -> np.ndarray:
     """``P(Y < best)``."""
     mean, std = _gaussian(mean, std)
-    z, positive = _standardised(mean, std, best)
+    z, positive = _standardized(mean, std, best)
     return np.where(positive, ndtr(z), (mean < best).astype(float))
 
 
 def log_probability_of_improvement(mean: object, std: object, best: float) -> np.ndarray:
     """``log P(Y < best)``, finite far into the tail."""
     mean, std = _gaussian(mean, std)
-    z, positive = _standardised(mean, std, best)
+    z, positive = _standardized(mean, std, best)
     with np.errstate(divide='ignore'):
         return np.where(positive, log_ndtr(z), np.log((mean < best).astype(float)))
 
 
 def upper_confidence_bound(mean: object, std: object, beta: float) -> np.ndarray:
-    """``-mean + sqrt(beta) std``: the optimistic bound of a minimisation, signed so larger is better."""
+    """``-mean + sqrt(beta) std``: the optimistic bound of a minimization, signed so larger is better."""
     if not beta >= 0.0:
         refuse(f'beta is a squared width multiplier >= 0, got {beta!r}')
     mean, std = _gaussian(mean, std)
@@ -151,7 +151,7 @@ def knowledge_gradient(a: object, b: object) -> float:
     """``E[max_i (a_i + b_i Z)] - max_i a_i``, ``Z ~ N(0, 1)``: the value of one more observation.
 
     ``a`` are the current values of the set (larger is better), ``b`` how each moves per unit of the
-    observation's standardised outcome. Lines sorted by slope (slopes within ``1e-12`` relative are
+    observation's standardized outcome. Lines sorted by slope (slopes within ``1e-12`` relative are
     one line, the best of them) are reduced to their upper envelope; with breakpoints ``c_j`` it is
     ``sum_j (b_{j+1} - b_j) h(-|c_j|)``.
     """
@@ -185,7 +185,7 @@ def log_probability_of_feasibility(margin_mean: object, margin_std: object) -> n
     """``sum_c log P(G_c <= 0)`` per row of ``(n, c)`` margins; a row with no margin is certain."""
     mean, std = _gaussian(margin_mean, margin_std)
     mean, std = np.atleast_2d(mean), np.atleast_2d(std)
-    z, positive = _standardised(mean, std, 0.0)
+    z, positive = _standardized(mean, std, 0.0)
     with np.errstate(divide='ignore'):
         return np.where(positive, log_ndtr(z), np.log((mean <= 0.0).astype(float))).sum(axis=1)
 
@@ -239,7 +239,7 @@ def hypervolume_improvement(points: object, front: object, reference: object) ->
     points = np.asarray(points, dtype=float).reshape(-1, reference.size)
     lower, upper = _cells(front, reference)
     # Rows are independent, so a block of them at a time bounds the ``(rows, cells, m)`` box sides
-    # instead of materialising them for every row at once, and changes no value.
+    # instead of materializing them for every row at once, and changes no value.
     gains = np.empty(len(points))
     step = max(1, _IMPROVEMENT_BLOCK // max(1, lower.size))
     for start in range(0, len(points), step):
@@ -265,7 +265,7 @@ def noisy_expected_hypervolume_improvement(baseline: object, candidate: object, 
 
 
 def parego_scores(values: object, weights: object, *, rho: float = 0.05) -> np.ndarray:
-    """ParEGO's score of each minimised row: the augmented Tchebycheff of the range-normalised columns."""
+    """ParEGO's score of each minimized row: the augmented Tchebycheff of the range-normalized columns."""
     values = np.atleast_2d(np.asarray(values, dtype=float))
     low, high = values.min(axis=0), values.max(axis=0)
     scaled = (values - low) / np.where(high > low, high - low, 1.0)

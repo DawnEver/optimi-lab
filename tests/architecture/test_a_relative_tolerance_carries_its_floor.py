@@ -6,7 +6,7 @@ THIS tree's corpus, the BAR it is judged under, and the two floors with their he
 
 THE OLD REASON, RE-MEASURED AND STILL TRUE. This repo declared `UNITS-GO-THROUGH-PINT` absent among
 the "no physical units" group: `Variable.unit` is a free-text LABEL this package never computes with,
-pint is not a dependency it may take, and there is no golden generated in millimetres waiting to be
+pint is not a dependency it may take, and there is no golden generated in millimeters waiting to be
 tightened by 1000x. None of that is the whole rule. The rule's last clause is about a tolerance's
 SHAPE rather than about a unit -- *never write a `rel=` without the `abs=` floor it is combined
 with* -- and that clause needs no unit at all, only a comparison whose two sides can both approach
@@ -125,7 +125,7 @@ def test_the_scanner_tells_every_planted_shape_apart(tmp_path: Path) -> None:
 
     An empty live answer means nothing unless the scanner is shown to answer at all -- and a lint
     convicting everything is deleted rather than obeyed, so the kit's control plants each offender
-    beside an honest neighbour that must NOT be named, including the positional pair this file's own
+    beside an honest neighbor that must NOT be named, including the positional pair this file's own
     reader was blind to before the adoption.
 
     THE AXIS THIS CONTROL IS BLIND TO: it plants SOURCE TEXT and proves nothing about the CORPUS. A

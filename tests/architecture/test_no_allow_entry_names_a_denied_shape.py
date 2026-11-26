@@ -50,7 +50,7 @@ until the user ruled. The row is deliberately ONE: the sibling lab permits seven
 is a road somebody argued for. An `allow` list is not a place to pre-pay for roads nobody has
 needed yet, and the scan below is only as sharp as the list is honest.
 
-WHAT THIS DOES NOT PROVE. That the agent client honours `permissions.allow` at all -- that is a fact
+WHAT THIS DOES NOT PROVE. That the agent client honors `permissions.allow` at all -- that is a fact
 about a tool's configuration loading, not about this tree.
 """
 
@@ -144,7 +144,7 @@ def test_a_glob_is_instantiated_at_a_command_position(entry: str, expected: str 
     """The instantiation is the only step between the two files, so it is pinned rather than trusted.
 
     The cases are the FAMILY's: the `Bash(...)` glob spelling belongs to the agent client, not to any
-    repository, and the three forked copies each pinned it with one repo-flavoured example that
+    repository, and the three forked copies each pinned it with one repo-flavored example that
     taught the next reader nothing.
     """
     assert allowguard.probe_command(entry) == expected

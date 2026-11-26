@@ -22,8 +22,8 @@ GAMMA = 10.0
 def _rings(*, bridge: bool):
     """``(domain, sink, x)``: rings at radius 6..10 and 15..19 (cells), four 4-cell-wide spokes joining them if *bridge*."""
     domain = DesignDomain.grid((N, N), spacing=1.0, length_unit='mm')
-    centre = (N - 1) / 2.0
-    dx, dy = domain.centroids[:, 0] - centre, domain.centroids[:, 1] - centre
+    center = (N - 1) / 2.0
+    dx, dy = domain.centroids[:, 0] - center, domain.centroids[:, 1] - center
     r = np.hypot(dx, dy)
     x = (((r >= 6) & (r < 10)) | ((r >= 15) & (r < 19))).astype(float)
     if bridge:
@@ -71,7 +71,7 @@ def test_a_filtered_disconnected_ring_reads_above_its_stated_gray_floor(beta: fl
     island = built(gray) & (np.hypot(*(domain.centroids - (N - 1) / 2.0).T) > 12.5)
     a, b = domain.adjacency.T
     rim = np.unique(np.concatenate([b[island[a] & ~island[b]], a[island[b] & ~island[a]]]))
-    void = float(gray[rim].max())  # the densest neighbour the island leaks through
+    void = float(gray[rim].max())  # the densest neighbor the island leaks through
     assert measure.log_ratio(gray)[0] >= measure.floor(void)
     assert measure.log_ratio(gray)[0] > np.log(GAMMA)
 

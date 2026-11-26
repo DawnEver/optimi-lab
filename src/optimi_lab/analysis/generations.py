@@ -1,10 +1,10 @@
 """A run's surrogate generations: refit on each generation's rows, scored and sampled.
 
-The analysis of an optimisation RUN, so optimi-lab's; the models it refits are learn-lab's registry rows.
+The analysis of an optimization RUN, so optimi-lab's; the models it refits are learn-lab's registry rows.
 
 A run is its complete rows -- a design point and one measured value per objective -- plus the
 cumulative row count closing each generation (:class:`RunHistory`). Per objective, a registry model
-is fitted on inputs scaled to the rows' unit box and values standardised, so one key behaves the same
+is fitted on inputs scaled to the rows' unit box and values standardized, so one key behaves the same
 whatever the units. Its error is the cross-validated MAE, relative to the objective's mean magnitude.
 A PREDICTION IS NEVER A ROW: the predictions returned are arrays, never measurements.
 """

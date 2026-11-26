@@ -15,8 +15,8 @@ WHAT CHANGES BY SUPPLYING IT, stated exactly. Without it the door's report rende
 `NO_ANCHORS_DECLARED`: H2 detected and its remedy with nowhere to land.
 `tests/architecture/test_the_dependency_door_is_wired.py` is what refuses its quiet removal.
 
-WHY A DEV SCRIPT AND NOT A PACKAGE MODULE. `optimi_lab` is a library about optimisation; where this
-checkout keeps its verdict logs is not a fact about optimisation and does not ship. It is also not
+WHY A DEV SCRIPT AND NOT A PACKAGE MODULE. `optimi_lab` is a library about optimization; where this
+checkout keeps its verdict logs is not a fact about optimization and does not ship. It is also not
 domain code wearing a script's clothes -- it knows nothing except one path in this tree.
 
 Usage: ``python scripts/dep.py <requirement> [...]`` -- add ``--dry-run`` to perform every CHECK and

@@ -4,7 +4,7 @@ Every composition here is a :class:`Chain` -- solvers run one after another, the
 when the current one concludes -- so a scan, a multistart and a restart schedule differ only in how
 their solvers are made:
 
-* :func:`scalarisation_scan` -- one single-score solver per weight vector, each minimising a
+* :func:`scalarisation_scan` -- one single-score solver per weight vector, each minimizing a
   scalarisation of the objectives (B0-02: the scalarisation's declared reach is what the scan can
   reach, so a weighted-sum scan of a concave front returns its ends only);
 * :func:`multistart` -- one local solver per start point of a scrambled Sobol set;
@@ -75,8 +75,8 @@ def scalarisation_scan(
 ) -> Chain:
     """One ``local(problem, capability, scalarise=..., **settings)`` per weight row, chained.
 
-    ``reference`` is the scalarisation's reference point in the minimised normalised frame (None:
-    the origin, the ideal of a frame normalised onto ``[0, 1]``).
+    ``reference`` is the scalarisation's reference point in the minimized normalized frame (None:
+    the origin, the ideal of a frame normalized onto ``[0, 1]``).
     """
     weights = np.atleast_2d(np.asarray(weights, dtype=float))
     if weights.shape[1] != len(problem.objectives):

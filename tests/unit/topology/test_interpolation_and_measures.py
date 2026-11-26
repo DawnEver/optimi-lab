@@ -33,7 +33,7 @@ def test_two_material_interpolation_meets_both_endpoints(scheme: str) -> None:
     np.testing.assert_allclose(value, [2.0, 7.0])
 
 
-def test_simp_penalises_gray_below_the_linear_mix() -> None:
+def test_simp_penalizes_gray_below_the_linear_mix() -> None:
     value, slope = interpolate(np.array([0.5]), (0.0, 1.0), scheme='simp', penalty=3.0)
     np.testing.assert_allclose(value, 0.125)
     np.testing.assert_allclose(slope, 0.75)

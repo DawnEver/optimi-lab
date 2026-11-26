@@ -34,7 +34,7 @@ from optimi_lab.problem import (
 SPACE = Space((Real('x', 0.0, 1.0, unit='m'), Real('y', 0.0, 2.0, unit='m')))
 
 
-def test_d7_objective_normalisation_is_fixed_and_maximize_is_negated() -> None:
+def test_d7_objective_normalization_is_fixed_and_maximize_is_negated() -> None:
     torque = Objective('torque', Sense.MAXIMIZE, unit='N m', normalization=Normalization(100.0, 50.0))
     assert torque.minimized(150.0) == -1.0
     assert Objective('loss', 'minimize').minimized(3.0) == 3.0

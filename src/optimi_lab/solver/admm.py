@@ -1,6 +1,6 @@
 """D132 the alternating direction method of multipliers in consensus form (Boyd et al. 2011, sec. 3).
 
-    minimise f(x) + g(z)   subject to   x - z = 0
+    minimize f(x) + g(z)   subject to   x - z = 0
 
 in scaled form: ``x <- prox_f(z - u)``, ``z <- prox_g(x + u)``, ``u <- u + x - z``, where
 ``prox_phi(v, rho) = argmin_x phi(x) + rho/2 |x - v|^2``. Splitting a problem this way is how a

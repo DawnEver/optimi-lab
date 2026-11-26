@@ -1,7 +1,7 @@
 """What must hold: five constraint kinds, distinguished by WHO can evaluate them.
 
-* :class:`Linear` -- a linear form of the numeric variables; the optimiser evaluates it exactly.
-* :class:`Explicit` -- a cheap closed-form function of the design; the optimiser evaluates it, and
+* :class:`Linear` -- a linear form of the numeric variables; the optimizer evaluates it exactly.
+* :class:`Explicit` -- a cheap closed-form function of the design; the optimizer evaluates it, and
   differentiates it by its declared exact ``gradient`` when it has one.
 * :class:`BlackBox` -- an oracle output; known only after an evaluation.
 * :class:`Chance` -- an oracle output that must hold with a probability under the problem's
@@ -165,7 +165,7 @@ class _ExplicitFields:
 
 @dataclass(frozen=True, slots=True, init=False)
 class Explicit(_ExplicitFields):
-    """``function(design) relation bound``, for a cheap closed form the optimiser may evaluate itself.
+    """``function(design) relation bound``, for a cheap closed form the optimizer may evaluate itself.
 
     *gradient*, when given, is the exact ``d function / d variable`` at a design in the variables' own
     (natural) coordinates: variable name -> a number (a Field: an array of its width); an omitted

@@ -51,14 +51,14 @@ def test_a_pooled_run_tells_the_same_results_as_a_serial_one(tmp_path: Path) -> 
 
 def test_the_lowest_priority_starts_first_and_the_initializer_runs_per_worker(tmp_path: Path) -> None:
     started: list[float] = []
-    initialised: list[str] = []
+    initialized: list[str] = []
 
     def evaluate(action: Action) -> dict[str, float]:
         started.append(action.design['x'])
         return {'f': action.design['x']}
 
     oracle = from_function(evaluate, Capability(outputs=('f',)))
-    with ThreadPoolExecutor(1, initializer=lambda: initialised.append(threading.current_thread().name)) as executor:
+    with ThreadPoolExecutor(1, initializer=lambda: initialized.append(threading.current_thread().name)) as executor:
         run(
             PROBLEM,
             oracle,
@@ -68,4 +68,4 @@ def test_the_lowest_priority_starts_first_and_the_initializer_runs_per_worker(tm
             dispatch=pooled(executor, priority=lambda action: action.design['x']),
         )
     assert started == [0.1, 0.5, 0.9]
-    assert len(initialised) == 1
+    assert len(initialized) == 1

@@ -177,5 +177,5 @@ def test_parego_scores_are_knowles_augmented_tchebycheff_free_of_the_objective_u
     assert np.allclose(parego_scores(values, weights), knowles, rtol=1e-12, atol=0.0)
     rescaled = values * np.array([1.0, 1e3]) + np.array([0.0, 5.0])
     assert np.allclose(parego_scores(values, weights), parego_scores(rescaled, weights), rtol=1e-12, atol=0.0)
-    # the control: without the normalisation the score moves with the unit
+    # the control: without the normalization the score moves with the unit
     assert not np.allclose(tchebycheff(values, weights, np.zeros(2)), tchebycheff(rescaled, weights, np.zeros(2)))

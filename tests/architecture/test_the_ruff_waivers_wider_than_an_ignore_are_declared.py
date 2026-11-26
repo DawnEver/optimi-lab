@@ -2,7 +2,7 @@
 
 ``exclude`` drops every selector over a subtree and names no code; ``per-file-ignores`` drops a named
 code over a glob. Every arm stated over the global ignore list is blind to both.
-`dev_lab.dev.ruffwaivers` reads them across EVERY spelling ruff honours, from the config ruff
+`dev_lab.dev.ruffwaivers` reads them across EVERY spelling ruff honors, from the config ruff
 RESOLVES, and refuses both sides of the ratchet. These rows used to live in lab-commons under a
 neutral name; a fact about this tree belongs in this tree.
 """
@@ -32,5 +32,5 @@ def test_every_exclude_that_hides_source_is_a_declared_row() -> None:
 
 
 def test_no_per_file_waiver_is_undeclared() -> None:
-    """Equality with the declared set, read across every spelling ruff honours."""
+    """Equality with the declared set, read across every spelling ruff honors."""
     assert assert_waivers_declared(_ROOT, 'per-file-ignores', PER_FILE_WAIVERS) == frozenset(PER_FILE_WAIVERS)

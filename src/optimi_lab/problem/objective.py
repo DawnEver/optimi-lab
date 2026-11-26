@@ -1,6 +1,6 @@
-"""What is wanted: a named quantity, the way it is better, and a FIXED normalisation.
+"""What is wanted: a named quantity, the way it is better, and a FIXED normalization.
 
-The normalisation is declared, never fitted to the data seen so far. A front normalised by its own
+The normalization is declared, never fitted to the data seen so far. A front normalized by its own
 running min/max changes meaning every batch -- the same design scores differently on Tuesday --
 so a scalarisation, a hypervolume or a distance read from it cannot be compared across runs.
 """
@@ -65,6 +65,6 @@ class Objective(_ObjectiveFields):
         _ObjectiveFields.__init__(self, name, sense, unit, Normalization() if normalization is None else normalization)
 
     def minimized(self, value: float) -> float:
-        """The value normalised and signed so that smaller is better."""
-        normalised = (float(value) - self.normalization.reference) / self.normalization.scale
-        return -normalised if self.sense is Sense.MAXIMIZE else normalised
+        """The value normalized and signed so that smaller is better."""
+        normalized = (float(value) - self.normalization.reference) / self.normalization.scale
+        return -normalized if self.sense is Sense.MAXIMIZE else normalized

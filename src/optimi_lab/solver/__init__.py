@@ -35,7 +35,7 @@ Operators live one layer down, in :mod:`optimi_lab.operator`.
 """
 
 from optimi_lab.solver.admm import Prox, admm, box_prox, l1_prox, quadratic_prox
-from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimisation, bo
+from optimi_lab.solver.bayesian import ACQUISITIONS, BayesianOptimization, bo
 from optimi_lab.solver.benders import benders
 from optimi_lab.solver.bounded import lbfgsb, newton_cg, projected_gradient
 from optimi_lab.solver.branch_and_bound import milp
@@ -66,7 +66,7 @@ from optimi_lab.solver.linear_program import LinearProgram, StructuredSolution
 from optimi_lab.solver.mads import MADS, mads
 from optimi_lab.solver.map_elites import Descriptor, MapElites, descriptors_of, map_elites
 from optimi_lab.solver.meta import Chain, ipop_cmaes, memetic, multistart, restarts, scalarisation_scan, warm_start
-from optimi_lab.solver.model_based import ModelBased, maximise
+from optimi_lab.solver.model_based import ModelBased, maximize
 from optimi_lab.solver.model_trust_region import ModelTrustRegion, model_trust_region
 from optimi_lab.solver.moving_asymptotes import gcmma, mma
 from optimi_lab.solver.multiobjective import mgda, pareto_continuation
@@ -121,7 +121,7 @@ __all__ = [
     'SOLVERS',
     'STRUCTURED',
     'UNDRIVEN',
-    'BayesianOptimisation',
+    'BayesianOptimization',
     'CPSolution',
     'Chain',
     'DPSolution',
@@ -197,7 +197,7 @@ __all__ = [
     'mads',
     'map_elites',
     'match',
-    'maximise',
+    'maximize',
     'memetic',
     'mfbo',
     'mgda',

@@ -1,6 +1,6 @@
 """D126 linear programs: the data, the one standard form both methods solve, and what a structured solver reports.
 
-    minimise c.x   subject to   A_ub x <= b_ub,   A_eq x = b_eq,   lo <= x <= hi
+    minimize c.x   subject to   A_ub x <= b_ub,   A_eq x = b_eq,   lo <= x <= hi
 
 (``lo`` defaults to 0 and ``hi`` to +inf, the convention of every LP code). :func:`standard_form`
 rewrites it as ``min c_s.z + offset  s.t.  A_s z = b_s,  z >= 0`` with ``x = P z + q``:
@@ -18,7 +18,7 @@ written back on ``x`` (:mod:`optimi_lab.solver.branch_and_bound`).
 :class:`StructuredSolution` is the report of every structured solver (P14): the
 :class:`~optimi_lab.solver.smooth.Halt` vocabulary is the gradient methods', so ``UNBOUNDED`` and
 ``INFEASIBLE`` mean the same thing on either side. Duals are SENSITIVITIES, ``d value / d b`` (the
-``marginals`` convention), so an active ``<=`` row of a minimisation has a non-positive dual.
+``marginals`` convention), so an active ``<=`` row of a minimization has a non-positive dual.
 """
 
 from __future__ import annotations

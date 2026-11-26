@@ -29,8 +29,8 @@ __all__ = ['DesignRisk', 'design_front', 'design_risk']
 class DesignRisk:
     """One nominal design of a robust run: its scenario results and the declared risk over them.
 
-    ``objectives`` is each objective's risk in its OWN sense and unit (the minimised risk mapped back
-    through the objective's normalization), ``loss`` the minimised row the solver ranks on, and
+    ``objectives`` is each objective's risk in its OWN sense and unit (the minimized risk mapped back
+    through the objective's normalization), ``loss`` the minimized row the solver ranks on, and
     ``violation`` the solver's: the risk of the per-scenario violation plus each chance constraint's
     shortfall from its probability. All three are None for an INCOMPLETE design -- fewer results than
     *scenarios*, or any not OK -- which, as in the solver, is never ranked.
@@ -95,7 +95,7 @@ def design_risk(problem: Problem, results: Sequence[Result], *, risk: Risk, scen
 
 
 def design_front(designs: Sequence[DesignRisk]) -> tuple[DesignRisk, ...]:
-    """The non-dominated FEASIBLE designs, ranked on their minimised risk rows, in the given order."""
+    """The non-dominated FEASIBLE designs, ranked on their minimized risk rows, in the given order."""
     ranked = [design for design in designs if design.feasible]
     if not ranked:
         return ()

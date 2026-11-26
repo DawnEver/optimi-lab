@@ -8,7 +8,7 @@
 - **Single source of truth** (`single-source-of-truth`): Each fact lives in one place; all else derives from it.
 - **Layered decoupling** (`layered-decoupling`): Depend one way through narrow interfaces; never into internals or
   upward.
-- **Names match what they do** (`names-match-behaviour`): A name says what the thing does now.
+- **Names match what they do** (`names-match-behavior`): A name says what the thing does now.
 - **No backward compatibility** (`no-backward-compatibility`): No shims, aliases or dual paths for old callers; callers
   move with the change.
 - **Progressive disclosure** (`progressive-disclosure`): An entry point states what is needed first and points to

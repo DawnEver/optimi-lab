@@ -1,7 +1,7 @@
-"""RVEA (Cheng, Jin, Olhofer and Sendhoff, 2016): reference vectors and the angle-penalised distance.
+"""RVEA (Cheng, Jin, Olhofer and Sendhoff, 2016): reference vectors and the angle-penalized distance.
 
 The generation is NSGA-II's variation over randomly paired parents; survival keeps, per reference
-vector, the member of least angle-penalised distance
+vector, the member of least angle-penalized distance
 (:func:`optimi_lab.operator.angle_penalized_select`). The penalty grows with the fraction of the
 run elapsed, so RVEA must be told how many generations it has (``generations``) -- the solver never
 sees the budget. Every ``adapt_every`` of that span the vectors are rescaled to the population's

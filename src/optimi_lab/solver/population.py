@@ -7,7 +7,7 @@ IS THE POPULATION SIZE, one number -- unless ``initial`` hands it unit-cube rows
 generation is built when the whole of the current one has been told, in any order and in any number
 of parts.
 
-Each algorithm works in the unit cube and in the MINIMISED, normalised objective frame
+Each algorithm works in the unit cube and in the MINIMIZED, normalized objective frame
 (:meth:`optimi_lab.problem.Objective.minimized`), and ranks by Deb's rule on the total scaled
 violation (:meth:`optimi_lab.oracle.Result.violation`). ``scalarise`` maps those rows to one score
 per row, which is how a single-objective algorithm is pointed at several objectives (and how a

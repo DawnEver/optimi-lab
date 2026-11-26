@@ -1,7 +1,7 @@
 r"""optimi-lab's DELTA against each family config base -- data, computed by nothing.
 
 The bases live in :mod:`dev_lab.dev._famconfig_rows` and the renderer that turns base plus delta
-into a file is :mod:`dev_lab.dev.famconfig`. What belongs HERE is only the part of each artefact
+into a file is :mod:`dev_lab.dev.famconfig`. What belongs HERE is only the part of each artifact
 that is a fact about optimi-lab: a `usr/local/` tree, a viztracer `result.json`, a coredumpy
 `dumps/`. Everything else is the family's and arrives from the kit, so a fix upstream lands here by
 upgrading the dependency rather than by remembering to copy it.
@@ -9,10 +9,10 @@ upgrading the dependency rather than by remembering to copy it.
 WHY THE DELTA IS HAND-WRITTEN AND NOT `measured_delta` OUTPUT. `measured_delta` is the SURVEY half --
 it reads the file back and reports what it would have to declare -- and it strips comments, because
 it compares meaningful lines. Handing its result straight back as the declaration would delete every
-comment in the artefact on the first render. So the survey SIZED this change (18 added / 2 dropped)
+comment in the artifact on the first render. So the survey SIZED this change (18 added / 2 dropped)
 and a human wrote the lines.
 
-THE ONE BEHAVIOUR CHANGE, STATED RATHER THAN SLIPPED IN AS FORMATTING. The base spells five patterns
+THE ONE BEHAVIOR CHANGE, STATED RATHER THAN SLIPPED IN AS FORMATTING. The base spells five patterns
 with a trailing slash -- `**/__pycache__/`, `*.egg-info/`, `.mypy_cache/`, `.pytest_cache/`,
 `.ruff_cache/` -- and this repo wrote the first two BARE. A trailing slash matches a DIRECTORY ONLY,
 so adopting the base narrows those two rules: a FILE named `__pycache__` or ending in `.egg-info`
@@ -39,7 +39,7 @@ property in the test module is written to bite if a SUBTREE negation is ever add
 subtree negation that re-includes it. The condition is BELOW EVERY RE-INCLUSION IT CLOSES; naming a
 particular line as the FINAL one was a sufficient approximation of it that no repo needs any more.
 
-`.pre-commit-config.yaml` IS NO LONGER AN ARTEFACT. Lab-commons 900c5bf retired the pre-commit
+`.pre-commit-config.yaml` IS NO LONGER AN ARTIFACT. Lab-commons 900c5bf retired the pre-commit
 framework for `[tool.dev_lab.hooks]` and the kit publishes no YAML base, so its delta, the eight
 extra stock-hook ids it anchored and the stage-narrowing pin left with the file (2026-10-18).
 """
@@ -54,10 +54,8 @@ __all__ = [
     'DELTAS',
     'GITATTRIBUTES_DELTA',
     'GITIGNORE_DELTA',
-    'MAKEFILE_DELTA',
     'PYPROJECT_SECTION_DELTAS',
     'REPO',
-    'RGIGNORE_DELTA',
 ]
 
 #: How this repo names itself in a rendered file's drop comments.
@@ -88,26 +86,16 @@ GITIGNORE_DELTA: Final = Delta(
     ceiling=10,
 )
 
-#: The Makefile base is REQUIRED rather than RENDERED -- target NAMES must be present and the recipes
-#: are this repo's. So this repo adds no lines and drops none: MEASURED 2026-09-17, all nine base
-#: lines are already satisfied here, including `verify:`'s recipe, which is the family's line
-#: verbatim because this repo declares no `slow` marker to tier against.
-MAKEFILE_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
-
 #: The `.gitattributes` base (lab-commons 9ce57c3) carries the family's one line; this repo adds
 #: nothing, so the delta is empty and its ceiling is zero.
 GITATTRIBUTES_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
 
-#: Every artefact this repo declares a delta against, by name. The test pins that this set covers the
+#: Every artifact this repo declares a delta against, by name. The test pins that this set covers the
 #: kit's bases EXACTLY, so a new base cannot arrive unnoticed.
-#: The `.rgignore` base (lab-commons 9a5adc9) skips `attic/`; this repo adds nothing.
-RGIGNORE_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
 
 DELTAS: Final[dict[str, Delta]] = {
     '.gitattributes': GITATTRIBUTES_DELTA,
     '.gitignore': GITIGNORE_DELTA,
-    'Makefile': MAKEFILE_DELTA,
-    '.rgignore': RGIGNORE_DELTA,
 }
 
 #: This repo's delta against each owned `pyproject.toml` table -- the kit's SECTION base, judged by

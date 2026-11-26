@@ -11,7 +11,7 @@ rows, 44 STAYS, 13 MOVES, 14 SPLITS). This is the same declaration for this repo
 DECLARATION ONLY: not one file is moved by the commit that lands it.
 
 THE TEST THAT DECIDES A ROW, taken from the family's and re-stated in this repo's nouns: **does this
-code name `optimi_lab` or an optimisation concept?** If it does, it is this repo's and it STAYS. If
+code name `optimi_lab` or an optimization concept?** If it does, it is this repo's and it STAYS. If
 it does not, it is a mechanism and it MOVES. The third answer is the interesting one: a file that
 does both must SPLIT, and naming the SEAM -- which half is family, which is local -- is more useful
 than forcing it into a box it does not fit.
@@ -25,7 +25,7 @@ three are more than bookkeeping:
    walk that reached nothing reports what a fully classified tree reports.
 2. A `STAYS` CLAIM MUST HAVE EVIDENCE -- the file names something this repo owns.
 3. A `MOVES` CLAIM MUST SURVIVE THE CONVERSE -- its CODE names nothing this repo owns, because
-   moving a file that does would carry an optimisation fact into a vendor-neutral package.
+   moving a file that does would carry an optimization fact into a vendor-neutral package.
 4. A `STAYS` OR `SPLITS` FILE MUST BE MOSTLY THIS REPO'S, BY DENSITY. Property 2 is a HIT test and a
    hit is one line; property 4 asks how much NON-repo code surrounds it. A label the author picks is
    not a measurement, so `SPLITS` answers to the SAME bar as `STAYS` -- an unfinished split is a
@@ -34,7 +34,7 @@ three are more than bookkeeping:
 WHAT THE MEASUREMENT CANNOT SEE, stated so a reader does not supply "everything":
 
 * IT COUNTS LINES, NOT MEANING, and property 4 reads CODE rather than prose: a docstring naming
-  optimisation forty times counts zero.
+  optimization forty times counts zero.
 * THE IDENTIFIER BOUNDARY CUTS BOTH WAYS. A repo fact written as a PATH, a NUMBER or a STRING
   LITERAL is invisible here. Several rows below are honest `BELOW_THE_BAR` entries for exactly that
   reason and say so.
@@ -140,7 +140,7 @@ REPO_NOUNS: Final = (
     'optimi_lab',
     'optimi',
     'optimization',
-    'optimisation',
+    'optimization',
     'optimizer',
     'optimizers',
     'objective',
@@ -199,7 +199,7 @@ SHELL_ROWS: Final[frozenset[str]] = frozenset()
 
 #: Keys are repo-relative POSIX paths -- DATA, so a row written on Windows matches on Linux.
 PLACEMENT: Final[dict[str, Placement]] = {
-    'tests/architecture/test_the_review_is_the_familys.py': Placement(
+    'tests/architecture/test_the_review_command_is_the_family_default.py': Placement(
         STAYS, 'Thin binder: the review table of this checkout; the refusal is famtests.reviewcommand.'
     ),
     'tests/architecture/test_modules_are_split_by_concept.py': Placement(
@@ -266,7 +266,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'walk, the docstring blanker, the delegation reader, the `Density` class and `measure_density` are '
         'DELETED from here -- what is left of the machinery is five BINDERS supplying the arguments the kit '
         'refuses to default. The row stays STAYS rather than becoming a SPLITS because there is no longer a '
-        'family half in it to split off. RE-MEASURED 2026-11-13 after the temp-prefix binder row: own=526 hits=45 -> 8.56%, up from own=523 hits=45 -> 8.60% on 2026-11-11 after the CI-workflow row named its workflow set, up from own=521 hits=45 -> 8.64% on 2026-11-07 after the no-CJK binder left for the always-on family test, down from own=527 hits=46 -> 8.73% the same day after the dated-anchor rows, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
+        'family half in it to split off. RE-MEASURED 2026-11-26 after the private-box binder and BELOW_THE_BAR rows (optimi-lab #221): own=536 hits=49 -> 9.14% once the retired month-summary row left, down from own=538 hits=48 -> 8.92% earlier that day, up from own=526 hits=45 -> 8.56% on 2026-11-13 after the temp-prefix binder row, up from own=523 hits=45 -> 8.60% on 2026-11-11 after the CI-workflow row named its workflow set, up from own=521 hits=45 -> 8.64% on 2026-11-07 after the no-CJK binder left for the always-on family test, down from own=527 hits=46 -> 8.73% the same day after the dated-anchor rows, up from own=525 hits=46 -> 8.76% on 2026-10-29 after the CI-workflow row, up from own=522 hits=46 -> 8.81% on 2026-10-27 after the A3 [tool.dev_lab] rename, down from own=524 hits=47 -> 8.97% on 2026-10-26 after the review-command binder row, up from own=523 hits=47 -> 8.99% on 2026-10-24 after the dev-lab 997e21a rows, up from '
         'own=519 hits=47 -> 9.06% after dev-lab delegation and new binders on 2026-10-23, up from '
         'own=506 hits=45 -> 8.89% after the box-marker rows, up from own=505 hits=45 -> 8.91% after the architecture-reds re-reading, down from own=557 project=48 -> 8.62% after the P9 rows on P12 the same '
         'day, up from own=553 project=48 -> 8.68% earlier the same day, up from own=548 project=44 -> 8.58% '
@@ -287,7 +287,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'drop-with-a-reason -- already lives once in `dev_lab.dev.famconfig`, so what is left here is the '
         'lines that are facts about optimi-lab: the `usr/local/` tree, the viztracer `result.json`, the '
         "coredumpy `dumps/`, and this tree's section deltas. There is no family half left to cut. RE-MEASURED "
-        '2026-10-18 after the pre-commit artefact left the family: own=34 hits=1 -> 2.94%, down from own=69 '
+        '2026-11-26 after the Makefile and rgignore bases left the family: own=30 hits=1 -> 3.33%, down from '
+        'own=34 hits=1 -> 2.94% on 2026-10-18 after the pre-commit artifact left the family, down from own=69 '
         'repo=1 -> 1.45% on 2026-10-05 -- the extra hook ids and the stage-narrowing pin went with the YAML '
         '-- so it is under the binder ceiling and owes no `BELOW_THE_BAR` row.',
     ),
@@ -305,8 +306,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         STAYS,
         'THE DOMAIN FACT IS THE SUBJECT: a library of interchangeable parts IS a set of registries -- which '
         'regressor, which sampler, which direction -- and the failure it refuses is the silent one where an '
-        'unrecognised key falls back to a default and the caller gets a run it never asked for. That sentence '
-        'is false of every repo that is not an optimiser. RE-MEASURED 2026-11-08: own=38 hits=4 -> 10.53% (A1: the three model sets left with the models for learn-lab), down from own=42 hits=6 -> 14.29% on 2026-11-01 (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
+        'unrecognized key falls back to a default and the caller gets a run it never asked for. That sentence '
+        'is false of every repo that is not an optimizer. RE-MEASURED 2026-11-08: own=38 hits=4 -> 10.53% (A1: the three model sets left with the models for learn-lab), down from own=42 hits=6 -> 14.29% on 2026-11-01 (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
         'own=36 repo=4 on 2026-09-17, and under the ceiling as well.',
     ),
     'tests/architecture/test_a_pin_is_a_named_set.py': Placement(
@@ -426,7 +427,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`assert_widths_are_the_named_set`, `assert_the_declaration_is_the_shape_the_ratchet_keys_on` and '
         "`assert_the_scanner_still_convicts` over `dev_lab.dev.docwidth`'s 120-column ceiling, corpus and two-sided "
         'ratchet; this file imports both and holds no arm of its own. THE ADOPTION IS RECORDED UPSTREAM AS A REFUSED '
-        'MERGE, which is why it is a neighbour of the CJK guard and not the same body: their surfaces share no name, '
+        'MERGE, which is why it is a neighbor of the CJK guard and not the same body: their surfaces share no name, '
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
         "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- no injected "
         "document has a line past the ceiling), that set's ceiling, and the "
@@ -436,12 +437,6 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'repo noun anywhere in it, and this file had none -- it said "this repo" throughout and never said WHICH. That '
         'is the evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan '
         'fire.',
-    ),
-    'tests/architecture/test_every_month_carries_its_plans.py': Placement(
-        STAYS,
-        'ADOPTED 2026-10-24 with dev-lab 1d74f38, and a binder from its first line: '
-        '`dev_lab.dev.famtests.monthsummary` publishes the reader, the verdict and the planted control; '
-        'what is local is the ONE memory tree this repo keeps and the first month it holds to the rule.',
     ),
     'tests/architecture/test_every_temp_entry_carries_the_family_prefix.py': Placement(
         STAYS,
@@ -460,7 +455,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'floors. THE CORRECTION THIS ROW RECORDED IN 2026-09-17 STANDS AND IS WHY THE ADOPTION IS NOT A MOVE '
         '-- the two copies were 33.2% identical, the LOWEST pair in the census, because the tree set is '
         'structural and differs per repo; the kit answered that by making the tree set a keyword with no '
-        'default. MEASURED 2026-09-19: own=21 hits=0, down from own=87, admitted by the binder ceiling. Its '
+        'default. RE-MEASURED 2026-11-26: own=23 hits=0, up from own=21 hits=0 on 2026-09-19, down from own=87, admitted by the binder ceiling. Its '
         '`BELOW_THE_BAR` entry was deleted on 2026-09-18 when its shortfall went away.',
     ),
     'tests/architecture/test_no_allow_entry_names_a_denied_shape.py': Placement(
@@ -542,7 +537,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '2026-10-04 after NO-REFLECTION, and again that day after ONE-BRANCH-PER-SESSION, 2026-10-05 after '
         'AUTO-MODE-RUNS-THE-DOORS, 2026-10-07 after MERGE-DEVIATIONS-NAMED was admitted as a gap, 2026-10-09 '
         'after lab-commons 2cca293, and 2026-10-23 after current dev-lab rule adoption: '
-        'own=168 hits=3 -> 1.79% on 2026-11-22 (the dev-lab 6f785fe7 relock: WORKTREE-NAMES-ITS-TASK and IMAGES-BY-ABSOLUTE-PATH adopted, SCHEDULER-ONLY-FOR-SERVING and SSH-HOST-KEY-DECLARED admitted absent on the user ruling of that day), up from own=164 hits=3 -> 1.83% on 2026-11-22 (the dev-lab e8646709 relock: TASK-HEARS-ITS-FORGE-EVENTS renamed, OUTPUT-HOLDS-NO-CODE and ALL-EXTRAS-REFUSED adopted), up from own=157 hits=3 -> 1.91% on 2026-11-18 (HEAVY-IS-THE-MAIN-SESSIONS and HOOK-UNDER-FIVE-SECONDS adopted), up from own=155 hits=3 -> 1.94% on 2026-11-13 (the dev-lab 6cc2d023 relock: WALLS-ARE-RECORDED, BASE-HOLDS-THE-MILESTONE and VERSION-TAG-NEEDS-APPROVAL mapped), up from own=152 hits=3 -> 1.97% on 2026-11-11 (the dev-lab #443 relock), up from own=151 hits=3 -> 1.99% on 2026-11-10 (LANDED-BRANCH-CONTINUES and NO-PUSH-ONTO-A-CLOSED-PR replaced the retired NO-PUSH-ONTO-A-LANDED-PR), up from own=150 hits=3 -> 2.00% on 2026-11-07 (NO-CJK-IN-TRACKED-SOURCE left for the always-on family test, PR-HEAD-IS-CURRENT joined), down from own=152 hits=3 -> 1.97% the same day (the PR-REVIEW rename and the WRITES-STAY-IN-THE-TREE row), up from own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
+        'own=166 hits=3 -> 1.81% on 2026-11-26 (MONTHLY-PLANS-CARRIED retired by the kit), down from own=168 hits=3 -> 1.79% on 2026-11-22 (the dev-lab 6f785fe7 relock: WORKTREE-NAMES-ITS-TASK and IMAGES-BY-ABSOLUTE-PATH adopted, SCHEDULER-ONLY-FOR-SERVING and SSH-HOST-KEY-DECLARED admitted absent on the user ruling of that day), up from own=164 hits=3 -> 1.83% on 2026-11-22 (the dev-lab e8646709 relock: TASK-HEARS-ITS-FORGE-EVENTS renamed, OUTPUT-HOLDS-NO-CODE and ALL-EXTRAS-REFUSED adopted), up from own=157 hits=3 -> 1.91% on 2026-11-18 (HEAVY-IS-THE-MAIN-SESSIONS and HOOK-UNDER-FIVE-SECONDS adopted), up from own=155 hits=3 -> 1.94% on 2026-11-13 (the dev-lab 6cc2d023 relock: WALLS-ARE-RECORDED, BASE-HOLDS-THE-MILESTONE and VERSION-TAG-NEEDS-APPROVAL mapped), up from own=152 hits=3 -> 1.97% on 2026-11-11 (the dev-lab #443 relock), up from own=151 hits=3 -> 1.99% on 2026-11-10 (LANDED-BRANCH-CONTINUES and NO-PUSH-ONTO-A-CLOSED-PR replaced the retired NO-PUSH-ONTO-A-LANDED-PR), up from own=150 hits=3 -> 2.00% on 2026-11-07 (NO-CJK-IN-TRACKED-SOURCE left for the always-on family test, PR-HEAD-IS-CURRENT joined), down from own=152 hits=3 -> 1.97% the same day (the PR-REVIEW rename and the WRITES-STAY-IN-THE-TREE row), up from own=149 hits=3 -> 2.01% on 2026-11-05 (the DRAFT-UNTIL-READY, FORGE-DOORS-ARE-CONSENT and NO-PUSH-ONTO-A-LANDED-PR rows), up from own=146 hits=3 -> 2.05% on 2026-10-29 (RECURSIVE-DELETE and PUSHED-HEAD-IS-WATCHED mapped to mechanisms), up from own=144 hits=3 -> 2.08% on 2026-10-26 (the ORIGIN-HOLDS-ONLY-DECLARED-BRANCHES row), up from own=143 hits=3 -> 2.10% on 2026-10-25 (the MERGE-RESOLUTION-DECLARED row), up from own=142 hits=3 -> 2.11% on 2026-10-24 (the MONTHLY-PLANS-CARRIED row), up from own=140 hits=3 -> 2.14% on 2026-10-23, up from own=116 repo=3 -> 2.59% on 2026-10-09, down from own=114 repo=3 -> '
         '2.63%, down from own=113 repo=3 -> 2.65%, down from own=111 repo=3 -> 2.70%, down from own=110 '
         'repo=3 -> 2.73%, down from own=108 repo=3 -> 2.78%, down from own=105 repo=3 -> 2.86%, up from '
         'own=102 repo=3 -> 2.94% earlier that day, up from own=100 repo=3 -> 3.00% on 2026-09-19, itself up '
@@ -570,7 +565,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'AND NO CALLER DEPENDED ON THE WEAKER READING: the six command-plus-rule rows were re-read against '
         "the real registry when the arm landed. LOCAL: optimi-lab's nine-name shipped set, the nine "
         'command-plus-rule rows and the six sanctioned exits. RE-MEASURED 2026-10-23 after adopting the two '
-        'new reset/stage guards and their controls: own=81 hits=1 on 2026-11-22 (the dev-lab 6f785fe7 relock: MAIN-ONLY-DOOR and WORKTREE-NAMES-ITS-TASK pinned), up from own=79 hits=1 on 2026-11-22 (FAMILY-REPO-IS-CHECKED-OUT, MACHINE-FILE-IS-RENDERED and OUTPUT-HOLDS-NO-CODE pinned), up from own=76 hits=1 on 2026-11-18 (CI-CRON-NEEDS-CONSENT, HEAVY-IS-THE-MAIN-SESSIONS and TRACKED-CITES-NO-EPHEMERAL pinned), up from own=73 hits=1 on 2026-11-16 (BACKGROUND-SHELL-IS-BOUNDED pinned), up from own=72 hits=1 on 2026-11-13 (COMMIT-HOOKS-RUN pinned), up from own=71 hits=1 on 2026-11-10 (CONSENT-CODE-FROM-THE-USER and REMOTE-WRITE-THROUGH-A-DOOR pinned), up from own=69 hits=1 on 2026-11-07 (HPC-THROUGH-THE-DOOR and WRITES-STAY-IN-THE-TREE pinned), up from own=67 hits=1 on 2026-10-30 (the guard-is-live `workstation` marker dropped, user ruling 10-30), down from own=68 hits=1 on 2026-10-29 (two engine-only `workstation` markers dropped), down from own=69 hits=1 on 2026-10-26 (REVIEW-STATUS-VIA-DOORS pinned), up from own=68 hits=1 on 2026-10-25 (WORKTREE-BASE-IS-EXPLICIT is a hint now, its deny probe row gone), down from own=69 hits=1 on 2026-10-25 (BARE-PYTHON pinned), up from own=68 hits=1 on 2026-10-24 (TREE-HAS-A-LIVE-RUN pinned), up from own=67 hits=1 on 2026-10-23, up from own=61 hits=0 on 2026-10-19, '
+        'new reset/stage guards and their controls: own=85 hits=1 on 2026-11-26 (the relock to current heads), up from own=81 hits=1 on 2026-11-22 (the dev-lab 6f785fe7 relock: MAIN-ONLY-DOOR and WORKTREE-NAMES-ITS-TASK pinned), up from own=79 hits=1 on 2026-11-22 (FAMILY-REPO-IS-CHECKED-OUT, MACHINE-FILE-IS-RENDERED and OUTPUT-HOLDS-NO-CODE pinned), up from own=76 hits=1 on 2026-11-18 (CI-CRON-NEEDS-CONSENT, HEAVY-IS-THE-MAIN-SESSIONS and TRACKED-CITES-NO-EPHEMERAL pinned), up from own=73 hits=1 on 2026-11-16 (BACKGROUND-SHELL-IS-BOUNDED pinned), up from own=72 hits=1 on 2026-11-13 (COMMIT-HOOKS-RUN pinned), up from own=71 hits=1 on 2026-11-10 (CONSENT-CODE-FROM-THE-USER and REMOTE-WRITE-THROUGH-A-DOOR pinned), up from own=69 hits=1 on 2026-11-07 (HPC-THROUGH-THE-DOOR and WRITES-STAY-IN-THE-TREE pinned), up from own=67 hits=1 on 2026-10-30 (the guard-is-live `workstation` marker dropped, user ruling 10-30), down from own=68 hits=1 on 2026-10-29 (two engine-only `workstation` markers dropped), down from own=69 hits=1 on 2026-10-26 (REVIEW-STATUS-VIA-DOORS pinned), up from own=68 hits=1 on 2026-10-25 (WORKTREE-BASE-IS-EXPLICIT is a hint now, its deny probe row gone), down from own=69 hits=1 on 2026-10-25 (BARE-PYTHON pinned), up from own=68 hits=1 on 2026-10-24 (TREE-HAS-A-LIVE-RUN pinned), up from own=67 hits=1 on 2026-10-23, up from own=61 hits=0 on 2026-10-19, '
         'up from own=58 on 2026-10-18 after SUBAGENT-NO-PUSH and REPORTS-LIVE-IN-MEMORY, up from own=57 on 2026-10-09, up from own=55 on '
         '2026-10-05, up from own=52 on 2026-10-03 after the progressive injected-text control was adopted, '
         'itself up from own=50 on 2026-10-01 by the two names lab-commons 9ce57c3 shipped (BARE-INTERPRETER, '
@@ -592,10 +587,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_family_config_is_rendered.py': Placement(
         STAYS,
         'EXECUTED 2026-09-17, RE-READ 2026-09-19 AND 2026-10-18. The verdict half is '
-        '`dev_lab.dev.famtests.configrender` and this file drives its arms over every declared artefact. '
+        '`dev_lab.dev.famtests.configrender` and this file drives its arms over every declared artifact. '
         'LOCAL: the directory floor, the re-render remedy, the planted edit and the agreed modes. RE-MEASURED '
         '2026-10-18: own=30 hits=0 -> 0.00%, down from own=67 on 2026-09-19 -- the pre-commit engine arms '
-        'left with the retired YAML artefact -- so it is twenty lines under the binder ceiling and its '
+        'left with the retired YAML artifact -- so it is twenty lines under the binder ceiling and its '
         '`BELOW_THE_BAR` entry is deleted with the shortfall.',
     ),
     'tests/architecture/test_the_ci_workflow_is_rendered.py': Placement(
@@ -622,8 +617,17 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "upstream. LOCAL: the repo name the report prints, `scripts/dep.py`'s anchor adapter and port, the "
         "dated `verify/verify-*.log` shape, the box-ledger isolation for the arms' own seats, and the one JOIN the "
         'kit cannot ask -- that the anchors are read from the directory the verdict entry point writes. '
-        'RE-MEASURED 2026-11-07: own=50 hits=1 -> 2.00% after the anchors moved to the output tree, up from own=49 on '
-        '2026-10-07, AT the binder ceiling.',
+        'RE-MEASURED 2026-11-26: own=54 hits=1 -> 1.85% with the private box machine file (optimi-lab #221), '
+        'up from own=50 hits=1 on 2026-11-07 after the anchors moved to the output tree, up from own=49 on '
+        '2026-10-07; four lines over the binder ceiling, recorded in BELOW_THE_BAR.',
+    ),
+    'tests/architecture/test_the_private_box_keeps_its_own_floor.py': Placement(
+        STAYS,
+        'A BINDER over `lab_commons.box.disk.verdict` and `lab_commons.storage.free_floor`: it proves the '
+        'dependency-door module machine file, not the host free disk, decides whether its private box is '
+        'refused (optimi-lab #221), with the 50 GiB default as the planted control. LOCAL: that module machine file '
+        'and the hosted runner free disk. MEASURED 2026-11-26: own=19 hits=0, far '
+        'under the binder ceiling.',
     ),
     'tests/architecture/test_the_migration_boundary_is_declared.py': Placement(
         STAYS,
@@ -780,7 +784,7 @@ def nouns_in_prose(rel: str, root: Path | None = None) -> set[str]:
     """Every repo noun anywhere in *rel*, PROSE INCLUDED -- what property 2 reads.
 
     Property 2 asks only whether evidence EXISTS, and it is deliberately the generous reading: a
-    file that explains in its docstring which optimisation fact it is about has said something true.
+    file that explains in its docstring which optimization fact it is about has said something true.
     That generosity is exactly why property 4 exists, and section 4's own controls pin that prose
     buys no DENSITY. Renamed from `nouns_in` in the same edit that adopted the kit, because the kit
     publishes a `nouns_in` that takes TEXT and this one takes a PATH -- one spelling for two
@@ -867,7 +871,7 @@ CEILING_REFUSES: Final = 67
 #: is TIGHT -- 3.06% clears it by six hundredths -- which is stated rather than hidden: a bar this
 #: close to a live row is a bar whose next re-measurement may move a label. All four rosters in the
 #: family measured 3.0 independently and the kit STILL does not ship it: four independent
-#: measurements of a number are evidence FOR the number, not a licence to stop measuring it.
+#: measurements of a number are evidence FOR the number, not a license to stop measuring it.
 MIN_REPO_DENSITY_PCT: Final = 3.0
 
 #: `test_optimi_lab_adopts_the_shared_registry.py`, 3.06% -- the SMALLEST percentage the bar must
@@ -903,6 +907,12 @@ MINIMUM_REFUSES: Final = 0.65
 #: `test_the_public_surface_is_declared.py` (0.62%) and the registry adoption (2.27%) sit under the
 #: bar with hits (re-read 2026-10-18, when `_famconfig.py` left the set under the binder ceiling), and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
+    'tests/architecture/test_the_dependency_door_is_wired.py': (
+        'MEASURED 2026-11-26: own=54 hits=1 -> 1.85%, four lines over the binder ceiling. The four are the '
+        'private box machine file (optimi-lab #221): a TOML string and the fixture lines that declare it, '
+        'which no noun scan sees. THE SEAM IT OWES is upstream: dev-lab ships its own `_a_box_of_its_own` '
+        'only in its tests/conftest.py; a `dev_lab.dev.famtests` fixture would leave one import here.'
+    ),
     'tests/architecture/test_equation_solving_is_numerics_labs.py': (
         'MEASURED 2026-10-18: own=57 hits=1 -> 1.75%, seven lines over the binder ceiling. The lines are '
         "the KERNEL NAME list -- numerics-lab's nouns (line search, trust region, quasi-Newton, Krylov, "

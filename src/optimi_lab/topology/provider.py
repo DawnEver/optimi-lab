@@ -8,7 +8,7 @@ field. It never sees a design variable, a filter, a projection or an optimizer.
 asks the provider once per realization it needs, and assembles the
 :class:`~optimi_lab.operator.Linearization` a gradient method reads:
 
-* the ONE objective is minimised, normalised by its magnitude at the first evaluation. A ``robust``
+* the ONE objective is minimized, normalized by its magnitude at the first evaluation. A ``robust``
   objective read on several realizations (eroded / nominal / dilated) is their KS aggregate
   (:func:`~.interpolation.ks`, sharpness *ks_rho*) -- a smooth worst case;
 * each constraint ``value <= bound`` becomes ``(value - bound) / scale <= 0`` and ``value >= lower`` becomes
@@ -44,10 +44,10 @@ class Role(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class ProviderResponse:
-    """A declared provider output: minimised (``OBJECTIVE``) or held ``lower <= value <= bound`` (``CONSTRAINT``).
+    """A declared provider output: minimized (``OBJECTIVE``) or held ``lower <= value <= bound`` (``CONSTRAINT``).
 
     A constraint declares ``bound`` (upper), ``lower`` or both -- each side is its own row. ``robust``: read on
-    every projected realization (else on the nominal one only); ``scale``: the constraint's normalisation,
+    every projected realization (else on the nominal one only); ``scale``: the constraint's normalization,
     defaulting to the side's ``|bound|`` / ``|lower|`` (or 1 for a zero one).
     """
 

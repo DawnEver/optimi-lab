@@ -1,7 +1,7 @@
 """D126 linear programming: the revised simplex and Mehrotra's interior point on one standard form.
 
 Closed forms: ``max x + y`` over ``x + 2y <= 4, 3x + y <= 6, x, y >= 0`` has its vertex at
-``(8/5, 6/5)``, value ``-14/5`` as a minimisation, with shadow prices ``(-2/5, -1/5)`` (the dual
+``(8/5, 6/5)``, value ``-14/5`` as a minimization, with shadow prices ``(-2/5, -1/5)`` (the dual
 solves ``[1 3; 2 1] u = (1, 1)``). Random instances are checked against ``scipy.optimize.linprog``
 (HiGHS), a TEST-ONLY oracle.
 """
