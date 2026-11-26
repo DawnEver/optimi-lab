@@ -164,7 +164,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # Seven names the two breaking refactors deleted, each with its replacement, and a scan that
     # reaches PROSE -- where a retired spelling survives longest -- as well as code.
     'RETIRED-NAMES-REGISTERED': (_RETIRED,),
-    # `.claude/memory/YYYY/MM/DD/`, plus the frontmatter date agreeing with the path it sits on.
+    # `.claude/memory/<yyyy>/<mm>/<dd>/`, plus the frontmatter date agreeing with the path it sits on.
     'MEMORY-SHAPE': (_MEMORY,),
     # The always-loaded rule pages are pinned per file, ratcheting down only.
     'DOCS-SPLIT': (_RULES_RATCHET,),
@@ -397,7 +397,7 @@ _ENFORCED: Final = frozenset(_MECHANISMS)
 #:   and `pyproject.toml` declares numpy/scipy/numerics-lab/lab-commons and nothing else -- pint is a dependency
 #:   this library may not take, and narrowing some other scan to say otherwise would be a fake
 #:   closure); REGISTRY-OWNS-THE-DECISION (there is one registry,
-#:   `src/optimi_lab/model/registry.py`, the surrogate names already live in it, and
+#:   learn-lab's, since the surrogate models moved there (d66911c); the surrogate names live in it, and
 #:   `test_a_declared_set_refuses_a_stranger.py` already refuses an unregistered key -- what is
 #:   missing is a SECOND kind to branch on, not a guard).
 #: * WORKFLOW MACHINERY THIS REPO GENUINELY DOES NOT HAVE, measured at the filesystem rather than

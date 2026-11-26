@@ -24,7 +24,7 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 CODE_ROOTS: Final = ('src/', 'tests/', 'scripts/', 'examples/', '.claude/hooks/', 'scratch/', '.claude/memory/')
 
 #: Generated trees, ignored by git and written by a tool rather than a person: the built API docs
-#: (`scripts/pdoc.py` emits `search.js`) and the tool caches, the coverage report's JS among them (`output/cache`).
+#: (`scripts/pdoc.py` emits `search.js`) and the tool caches, the coverage report's JS among them (`output/cache/<tool>/`).
 #:
 #: `.claude/worktrees/<lane>` IS THE SECOND AND IT IS NOT GENERATED -- it holds SECOND CHECKOUTS of this repo,
 #: one per open lane, each with its own `src/` and `scripts/`. THE KIT'S OWN DOCSTRING IS THE
