@@ -248,12 +248,6 @@ dependency_inputs = ['pyproject.toml', 'uv.lock']
 source_roots = ['src']
 collect = 'tests'
 
-[tool.dev_lab.placement]
-code_roots = ['examples/']
-pruned_paths = ['.claude/worktrees', 'docs', 'htmlcov']
-scratch = 'scratch/'
-max_age_days = 3.0
-
 [tool.dev_lab.parts]
 output = "output/logs"
 # User ruling 2026-10-30: no hosted runner is a workstation; the live-checkout tests are run by no part.
@@ -292,33 +286,3 @@ adoption = "scripts/deny_rules.py"
 # family App's review/judge check run. Keys and defaults: dev_lab.dev.forgereview_declared.
 [tool.dev_lab.review]
 judge_app = 5619495
-
-# DECLARED-LAYOUT (dev_lab.dev.layout): the WHOLE tree as an allow-list -- each directory pattern (one glob per
-# segment; the deepest matching row judges) and the formats a file there may be ('.suffix', an exact name, "" for
-# none, "*" for anything). Undeclared is refused. NO-BACKUP-COPIES: nothing under output/ or scratch/ is ever a
-# clone, worktree, exported tree, bundle or patch, whatever a row says. Formats (R3): TOML declarations, JSONL
-# machine records, CSV tables, NPZ arrays, Markdown reports, PNG figures; vendor-native only at an adapter boundary.
-[tool.dev_lab.placement.layout]
-'.' = ['.md', '.toml', '.lock', '.gitattributes', '.gitignore', '.rgignore', 'license', 'makefile']
-'.claude' = ['.json']
-'.claude/hooks' = ['.js', '.json']
-'.claude/memory' = ['.md']
-'.claude/rules' = ['.md']
-'.claude/tasks' = ['.md']
-'.codex' = []
-'.codex/rules' = ['.rules']
-'.github' = []
-'.github/workflows' = ['.yml']
-'archived' = ['.md']
-'docs-src' = ['.md']
-'examples' = ['.md', '.py']
-'output' = []
-'output/forge' = []
-'output/forge/*' = ['.json', '.tmp']
-'output/logs' = []
-'output/logs/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]/*' = ['.log', '.jsonl', '.json', '.gz', '.coverage', '.txt', '.csv', '.md', '.npz', '.png']
-'output/runcache' = ['.jsonl']
-'scratch' = ['*']
-'scripts' = ['.py', '.md']
-'src' = ['.py']
-'tests' = ['.py', '.md']
