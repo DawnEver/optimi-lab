@@ -30,85 +30,114 @@ guarantee quietly absent rather than loudly broken.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Final
 
 from dev_lab.dev import floors
+from dev_lab.dev.retirementclass import refusals
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
-#: A retired spelling to its REPLACEMENT -- what a reader who reaches for the old name writes now.
+#: A retired spelling to (its REPLACEMENT -- what a reader who reaches for the old name writes now --, the
+#: decision that retired it, its class -- `dev_lab.dev.retirementclass`, keep-valuable-options).
 #: Taken from the two breaking commits that removed them, `refactor(core)!` and
 #: `refactor(algorithms,surrogates)!`.
-RETIRED: Final[dict[str, str]] = {
+_SEP = '2026-09, refactor(core)! and refactor(algorithms,surrogates)!: the 0.3 surface removed with no shim'
+_P8 = 'P8 (D30): the 0.3 evaluation/record/driver surface replaced by the II.7 layers over lab_commons.outcomes'
+_P12 = 'P12 (D69-D115): the 0.3 algorithm package split by layer, operators (L5) and solvers (L7)'
+_P10 = 'P10 (D42-D58): the scikit-learn-backed surrogates replaced by the self-implemented L6 package'
+_A1 = 'A1 (learn-lab plan, 2026-11-07): the L6 model package moved whole to learn-lab'
+_PL = '2026-11-17: one power law in the family, learn-lab PowerLaw'
+RETIRED: Final[dict[str, tuple[str, str, str]]] = {
     # The single `inf` sentinel folded into the output matrix, defined byte-identically in two
     # modules. A non-OK cell now holds NaN and cannot be read as "very bad".
-    'PENALTY_VALUE': 'optimi_lab.core.outcomes.Outcome, one per cell',
+    'PENALTY_VALUE': ('optimi_lab.core.outcomes.Outcome, one per cell', _SEP, 'baggage'),
     # The flag that let predicted values be scored as if measured.
-    'use_surrogate_model': 'learn_lab.protocol.Prediction, filed (if at all) as Evidence.PREDICTED',
+    'use_surrogate_model': ('learn_lab.protocol.Prediction, filed (if at all) as Evidence.PREDICTED', _SEP, 'renamed'),
     # A list-valued parameter defaulting to `[]`, read at `[0]`, repaired by aliasing one dict.
-    'base_params_dict_list': 'optimi_lab.core.space.Variable',
+    'base_params_dict_list': ('optimi_lab.core.space.Variable', _SEP, 'renamed'),
     # The post-training validity flag, consulted by nothing.
-    'check_valid': 'a fitted model is the value fit returns; there is no unfitted state to check',
+    'check_valid': ('a fitted model is the value fit returns; there is no unfitted state to check', _SEP, 'baggage'),
     # The eleven one-regressor modules and the two base modules they shared.
-    'surrogate_model_base': 'learn_lab.models.response (one module per model family)',
-    'mixture_surrogate_model': 'learn_lab.models.response.Ensemble',
-    'pso_operators': 'optimi_lab.operator (pso_velocity, pso_position)',
+    'surrogate_model_base': ('learn_lab.models.response (one module per model family)', _SEP, 'renamed'),
+    'mixture_surrogate_model': ('learn_lab.models.response.Ensemble', _SEP, 'renamed'),
+    'pso_operators': ('optimi_lab.operator (pso_velocity, pso_position)', _SEP, 'renamed'),
     # The `key@oc<N>@max|min` grammar and the package that parsed it.
-    'object_function': 'optimi_lab.problem.Objective, whose fields are not a parse',
+    'object_function': ('optimi_lab.problem.Objective, whose fields are not a parse', _SEP, 'renamed'),
     # P8 (plan PLAN-engines-and-one-outcome-vocabulary, D30): the 0.3 evaluation/record/driver
     # surface, replaced by the II.7 layers over lab_commons.outcomes. Dotted spellings where the bare
     # name now means something else (`Record` is outcomes.Record, `SCREENED` an outcomes.Status).
-    'Evaluation': 'optimi_lab.oracle.Result -- an outcomes.Cell per action',
-    'Outcome': 'lab_commons.outcomes.Status, which knows its DECIDED/RETRYABLE family',
-    'core.outcomes': 'lab_commons.outcomes',
-    'core.optimize': 'optimi_lab.run.run, filing into an outcomes.Record',
-    'core.routing': 'a policy-layer screen (L8, D143) emitting Status.SCREENED cells',
-    'Router': 'a policy-layer screen (L8, D143)',
-    'core.protocols': 'optimi_lab.solver.Solver and optimi_lab.oracle.Oracle',
-    'Proposer': 'optimi_lab.solver.Solver',
-    'Evaluator': 'optimi_lab.oracle.Oracle',
-    'Tunable': 'settings fixed at construction; adaptation is the policy layer (L8)',
-    'retune': 'settings fixed at construction; adaptation is the policy layer (L8)',
-    'steer': 'the policy layer (L8)',
-    'build_proposer': 'a factory returning a Solver: nsga2(problem, capability, spec=...)',
-    'PopulationProposer': 'optimi_lab.solver.PopulationSolver',
-    'EvolutionaryProposer': 'optimi_lab.solver.EvolutionarySolver',
-    'SwarmProposer': 'optimi_lab.solver.SwarmSolver',
-    'DecompositionProposer': 'optimi_lab.solver.DecompositionSolver',
-    'intelligent_algorithm.proposers': 'optimi_lab.solver.population',
-    'SampleKind.IMPORT': 'evaluate the points you already have; a matrix handed in is not a sample',
-    'optimi_lab.benchmarks': 'optimi_lab.metric (indicators); problems with known fronts live in tests/benchmarks',
-    'core.space': 'optimi_lab.problem.Space and optimi_lab.problem.Objective',
-    'core.constraints': 'optimi_lab.problem constraint kinds (Linear, Explicit, BlackBox, Chance, Path)',
-    'VariableSet': 'optimi_lab.problem.Space',
-    'ObjectiveSet': 'Problem.objectives, a tuple of optimi_lab.problem.Objective',
-    'ConstraintSet': 'Problem.constraints, a tuple of constraint kinds',
-    'Direction': 'optimi_lab.problem.Sense',
-    'to_minimization': 'optimi_lab.problem.Objective.minimized (fixed normalization, signed)',
+    'Evaluation': ('optimi_lab.oracle.Result -- an outcomes.Cell per action', _P8, 'renamed'),
+    'Outcome': ('lab_commons.outcomes.Status, which knows its DECIDED/RETRYABLE family', _P8, 'renamed'),
+    'core.outcomes': ('lab_commons.outcomes', _P8, 'renamed'),
+    'core.optimize': ('optimi_lab.run.run, filing into an outcomes.Record', _P8, 'renamed'),
+    'core.routing': ('a policy-layer screen (L8, D143) emitting Status.SCREENED cells', _P8, 'renamed'),
+    'Router': ('a policy-layer screen (L8, D143)', _P8, 'renamed'),
+    'core.protocols': ('optimi_lab.solver.Solver and optimi_lab.oracle.Oracle', _P8, 'renamed'),
+    'Proposer': ('optimi_lab.solver.Solver', _P8, 'renamed'),
+    'Evaluator': ('optimi_lab.oracle.Oracle', _P8, 'renamed'),
+    'Tunable': ('settings fixed at construction; adaptation is the policy layer (L8)', _P8, 'renamed'),
+    'retune': ('settings fixed at construction; adaptation is the policy layer (L8)', _P8, 'renamed'),
+    'steer': ('the policy layer (L8)', _P8, 'renamed'),
+    'build_proposer': ('a factory returning a Solver: nsga2(problem, capability, spec=...)', _P8, 'renamed'),
+    'PopulationProposer': ('optimi_lab.solver.PopulationSolver', _P8, 'renamed'),
+    'EvolutionaryProposer': ('optimi_lab.solver.EvolutionarySolver', _P8, 'renamed'),
+    'SwarmProposer': ('optimi_lab.solver.SwarmSolver', _P8, 'renamed'),
+    'DecompositionProposer': ('optimi_lab.solver.DecompositionSolver', _P8, 'renamed'),
+    'intelligent_algorithm.proposers': ('optimi_lab.solver.population', _P8, 'renamed'),
+    'SampleKind.IMPORT': ('evaluate the points you already have; a matrix handed in is not a sample', _P8, 'baggage'),
+    'optimi_lab.benchmarks': (
+        'optimi_lab.metric (indicators); problems with known fronts live in tests/benchmarks',
+        _P8,
+        'renamed',
+    ),
+    'core.space': ('optimi_lab.problem.Space and optimi_lab.problem.Objective', _P8, 'renamed'),
+    'core.constraints': (
+        'optimi_lab.problem constraint kinds (Linear, Explicit, BlackBox, Chance, Path)',
+        _P8,
+        'renamed',
+    ),
+    'VariableSet': ('optimi_lab.problem.Space', _P8, 'renamed'),
+    'ObjectiveSet': ('Problem.objectives, a tuple of optimi_lab.problem.Objective', _P8, 'renamed'),
+    'ConstraintSet': ('Problem.constraints, a tuple of constraint kinds', _P8, 'renamed'),
+    'Direction': ('optimi_lab.problem.Sense', _P8, 'renamed'),
+    'to_minimization': ('optimi_lab.problem.Objective.minimized (fixed normalization, signed)', _P8, 'renamed'),
     # P12 (plan D69-D115): the 0.3 algorithm package split by layer -- operators (L5) and solvers (L7).
-    'intelligent_algorithm': 'optimi_lab.operator (operators) and optimi_lab.solver (solvers and factories)',
-    'intelligent_algorithm.algorithms': 'optimi_lab.solver.evolutionary',
-    '_reference_directions': 'optimi_lab.operator.das_dennis',
+    'intelligent_algorithm': (
+        'optimi_lab.operator (operators) and optimi_lab.solver (solvers and factories)',
+        _P12,
+        'renamed',
+    ),
+    'intelligent_algorithm.algorithms': ('optimi_lab.solver.evolutionary', _P12, 'renamed'),
+    '_reference_directions': ('optimi_lab.operator.das_dennis', _P12, 'renamed'),
     # P10 (plan D42-D58): the scikit-learn-backed surrogate package, replaced by the self-implemented
     # L6 package. Each model is a frozen declaration whose fit returns its fitted model.
-    'surrogate_model': 'learn_lab.models.response',
-    'SurrogateModel': 'a model declaration from learn_lab.models.response (e.g. GaussianProcess, Forest)',
-    'MixtureSurrogate': 'learn_lab.models.response.Ensemble',
-    'SURROGATE_KEYS': 'learn_lab.registry.SURROGATES',
-    'score_regression': 'learn_lab.validation.score',
-    'SCORE_METHODS': 'learn_lab.validation.SCORES',
-    'WEIGHT_METHODS': 'learn_lab.models.response.WEIGHTINGS',
-    'WeightMethod': 'learn_lab.models.response.WEIGHTINGS',
-    'fraction_or_count': 'Forest(max_features=<fraction in (0, 1]>), one reading',
+    'surrogate_model': ('learn_lab.models.response', _P10, 'renamed'),
+    'SurrogateModel': (
+        'a model declaration from learn_lab.models.response (e.g. GaussianProcess, Forest)',
+        _P10,
+        'renamed',
+    ),
+    'MixtureSurrogate': ('learn_lab.models.response.Ensemble', _P10, 'renamed'),
+    'SURROGATE_KEYS': ('learn_lab.registry.SURROGATES', _P10, 'renamed'),
+    'score_regression': ('learn_lab.validation.score', _P10, 'renamed'),
+    'SCORE_METHODS': ('learn_lab.validation.SCORES', _P10, 'renamed'),
+    'WEIGHT_METHODS': ('learn_lab.models.response.WEIGHTINGS', _P10, 'renamed'),
+    'WeightMethod': ('learn_lab.models.response.WEIGHTINGS', _P10, 'renamed'),
+    'fraction_or_count': ('Forest(max_features=<fraction in (0, 1]>), one reading', _P10, 'renamed'),
     # A1 (learn-lab plan, 2026-11-07): the L6 model package moved whole to the sibling library learn-lab; its
     # bench, which scores by Pareto front and feasibility (search domain), stayed as optimi_lab.surrogate.bench.
     # The import is what is retired; dated memory that names the old package is immutable history, so the
     # spelling registered is the import statement, which catches every module and submodule import.
-    'from optimi_lab.model': 'from learn_lab.models.response | learn_lab.protocol | learn_lab.registry | learn_lab.validation import ... (the run generations: optimi_lab.analysis.generations); the bench is optimi_lab.surrogate.bench',
-    'import optimi_lab.model': 'import learn_lab (see the row above)',
+    'from optimi_lab.model': (
+        'from learn_lab.models.response | learn_lab.protocol | learn_lab.registry | learn_lab.validation import ... (the run generations: optimi_lab.analysis.generations); the bench is optimi_lab.surrogate.bench',
+        _A1,
+        'renamed',
+    ),
+    'import optimi_lab.model': ('import learn_lab (see the row above)', _A1, 'renamed'),
     # 2026-11-17: one power law in the family -- learn-lab's PowerLaw (fixed exponents, exact gradient).
-    'power_law_fit': 'learn_lab.models.response.PowerLaw().fit(x, y)',
+    'power_law_fit': ('learn_lab.models.response.PowerLaw().fit(x, y)', _PL, 'renamed'),
 }
 
 #: The trees a retired spelling may not appear in. `archived/` and `examples/` are deliberately
@@ -180,7 +209,7 @@ def scanned_files(root: Path) -> list[Path]:
     )
 
 
-def resurrections(files: list[Path], retired: dict[str, str]) -> dict[str, list[str]]:
+def resurrections(files: list[Path], retired: Mapping[str, object]) -> dict[str, list[str]]:
     """THE GUARD. Each retired spelling to the files that still write it."""
     found: dict[str, list[str]] = {}
     for path in files:
@@ -199,7 +228,7 @@ def test_the_registry_has_a_subject() -> None:
     floors.assert_floor_still_binds(
         len(RETIRED), floor=REGISTRY_FLOOR, headroom=REGISTRY_HEADROOM, what='RETIRED-SPELLING registry'
     )
-    unexplained = sorted(name for name, replacement in RETIRED.items() if not replacement.strip())
+    unexplained = sorted(name for name, (replacement, _, _) in RETIRED.items() if not replacement.strip())
     assert not unexplained, (
         f'{unexplained} are registered with no replacement. A refusal that says only what not to write '
         f'sends the reader to the source for the answer it was supposed to hand them.'
@@ -215,7 +244,7 @@ def test_no_retired_spelling_is_written_anywhere() -> None:
     )
     found = resurrections(files, RETIRED)
     assert not found, '\n'.join(
-        f'{spelling!r} is retired and still written in {where} -- write {RETIRED[spelling]} instead.'
+        f'{spelling!r} is retired and still written in {where} -- write {RETIRED[spelling][0]} instead.'
         for spelling, where in sorted(found.items())
     )
 
@@ -252,3 +281,14 @@ def test_the_scan_excludes_only_this_registry() -> None:
         'the scan reaches no markdown, so prose -- where a retired spelling survives longest -- is '
         'outside it, and the guarantee is narrower than it reads.'
     )
+
+
+def test_every_retirement_is_classified() -> None:
+    """keep-valuable-options: each row says what was lost; only a user ruling drops a capability."""
+    assert refusals(RETIRED) == []
+
+
+def test_an_unclassified_retirement_is_refused() -> None:
+    """THE CONTROL: an unclassified row, and a dropped capability with no ruling, are both refused."""
+    assert refusals({'old': ('new', 'why')}) != []
+    assert refusals({'old': ('new', 'an agent refactor', 'capability-dropped')}) != []
