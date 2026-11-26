@@ -280,6 +280,9 @@ breakglass = ["app:5704921", "role:admin"]  # the ops App merges break-glass; ad
 # Git hooks: the family base (dev_lab/dev/githooks/base.toml) as is, its pre-push trunk gate included.
 [tool.dev_lab.hooks]
 
+[tool.dev_lab.doors]
+NETWORK-VERB = "<venv python> -m dev_lab.dev.netverb -- <git push|fetch|pull|clone|ls-remote ...  or  uv lock|add|remove ...>  (retries 3x, then reports a diagnosis)"
+
 [tool.dev_lab.render]
 # What the family renderers read from this repo (dev_lab.dev.famfiles.RENDERERS); a relock re-runs each one due.
 deltas = "tests/architecture/_famconfig.py"
