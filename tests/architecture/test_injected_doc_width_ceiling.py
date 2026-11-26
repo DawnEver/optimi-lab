@@ -73,9 +73,15 @@ FILES_READ_HEADROOM: Final = 1
 _WHAT: Final = 'INJECTED-DOC-WIDTH-CEILING'
 
 
+#: The prefix the kit's default no longer carries (dev-lab retired `.claude/rules/` on 2026-11-24, AGENTS.md
+#: being the one agent entry there) while this repo still tracks rules pages the client injects every turn.
+#: Passed here so the scan reads what is injected HERE; it leaves when the last page under it does.
+_RULES_PREFIX: Final = ('.claude/rules/',)
+
+
 def _corpus() -> tuple[str, ...]:
     """The injected docs of THIS repo, narrowed from what git tracks by the shared definition."""
-    return tuple(injected_docs(sorted(tracked_files(_ROOT))))
+    return tuple(injected_docs(sorted(tracked_files(_ROOT)), prefixes=_RULES_PREFIX))
 
 
 def test_the_declared_sites_are_the_named_set_and_the_floor_binds_on_both_sides() -> None:
@@ -132,4 +138,5 @@ def test_the_corpus_is_this_repo_injected_docs() -> None:
         'CLAUDE.md',
     }, _corpus()
     assert not is_injected_doc('.claude/memory/2026/09/15/entry.md'), 'a dated memory entry is not injected'
+    assert is_injected_doc('.claude/rules/x.md', prefixes=_RULES_PREFIX), 'the rules prefix has stopped matching'
     assert is_injected_doc('AGENTS.md'), 'the basename half of the corpus definition has stopped matching'
