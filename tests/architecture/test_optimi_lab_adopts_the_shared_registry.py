@@ -108,6 +108,7 @@ _ALLOW: Final = 'tests/architecture/test_no_allow_entry_names_a_denied_shape.py'
 _ADMISSION: Final = 'tests/architecture/test_push_admission_is_delegated.py'
 #: The branch-flow declaration: `[tool.dev_lab.branchset]`, `[parts]`, `[tests]`, `[integrator]`, `[hooks]`.
 _PYPROJECT: Final = 'pyproject.toml'
+_LAYOUT: Final = ('layout.toml', 'tests/architecture/test_the_layout_is_declared.py')
 
 #: THIS REPO'S MECHANISMS -- a rule ID to the tracked file(s) in THIS tree that refuse a violation
 #: of it. Not the registry's own rows: those name downstream paths, which resolve in exactly one
@@ -286,8 +287,11 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'VERSION-TAG-NEEDS-APPROVAL': (_PYPROJECT,),
     # Adopted 2026-11-24 with dev-lab cbecf58a: the same milestonebase pre-push row refuses a non-version tag.
     'ONLY-VERSION-TAGS': (_PYPROJECT,),
-    # Adopted 2026-11-24 (ruling R1): [tool.dev_lab.placement.layout] declares every directory's formats.
-    'DECLARED-LAYOUT': (_PYPROJECT,),
+    # Adopted 2026-11-24 (ruling R1): `[layout]` of `layout.toml` declares every directory's formats (moved out of
+    # pyproject.toml 2026-11-26), and the kit's layout body walks this checkout against it. Adopted 2026-11-26 on the
+    # same walk: NO-BACKUP-COPIES (a copy under output/ or scratch/ is refused whatever a row says) and
+    # ONE-FORMAT-PER-NEED (a format a directory does not declare is refused).
+    **dict.fromkeys(('DECLARED-LAYOUT', 'NO-BACKUP-COPIES', 'ONE-FORMAT-PER-NEED'), _LAYOUT),
     # Adopted 2026-11-13 (user ruling): the guard install wires `dev_lab.dev.walls` post-tool and stop.
     'WALLS-ARE-RECORDED': (_GUARD,),
     # Adopted 2026-11-13 (user ruling D51): the archive reads only the current submission shape.
@@ -322,6 +326,9 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # ADOPTED 2026-11-22 with the dev-lab e8646709 relock: the re-rendered `scripts/deny_rules.py` ships the
     # OUTPUT-HOLDS-NO-CODE deny row (a shell write of code under `output/`) and `_GUARD` pins it by name.
     'OUTPUT-HOLDS-NO-CODE': (_GUARD, _GUARD_RULES),
+    # ADOPTED 2026-11-26 with the dev-lab 3d36d433 relock: the re-rendered deny rules ship the ledger-door row and
+    # `_GUARD` pins LEDGER-WRITES-THROUGH-ITS-DOOR by name.
+    'LEDGER-WRITES-THROUGH-ITS-DOOR': (_GUARD, _GUARD_RULES),
     # ADOPTED 2026-11-22 with the dev-lab 6f785fe7 relock, both through the re-render: the re-rendered
     # `scripts/deny_rules.py` ships the WORKTREE-NAMES-ITS-TASK deny row (a hash-like name under
     # `.claude/worktrees/`) and `_GUARD` pins it by name; IMAGES-BY-ABSOLUTE-PATH is the Stop check
@@ -363,8 +370,14 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     # --part`), `main` moves only by `integrate promote` on every part a full PASS, and the admission
     # table is the kit's with no local copy (`_ADMISSION`). VERDICT-BAR-IS-THE-INCREMENT was on record
     # as absent because no increment existed for a bar to be; the trunk gate is that increment.
+    # RED-INTEGRATION-MERGES (adopted 2026-11-26) is the same forge merge decision over the same declaration.
     **dict.fromkeys(
-        ('VERDICTS-FROM-THE-FORGE', 'TRUNK-MOVES-BY-FAST-FORWARD', 'VERDICT-BAR-IS-THE-INCREMENT'),
+        (
+            'VERDICTS-FROM-THE-FORGE',
+            'TRUNK-MOVES-BY-FAST-FORWARD',
+            'VERDICT-BAR-IS-THE-INCREMENT',
+            'RED-INTEGRATION-MERGES',
+        ),
         (_PYPROJECT, _ADMISSION),
     ),
     # ADOPTED 2026-10-18: `forge sync` merges `integrate/main` only, and `forge integration` retargets a
@@ -426,6 +439,34 @@ _ABSENT: Final = frozenset({
     'SCHEDULER-ONLY-FOR-SERVING',
     # No ssh endpoint is declared by this library: there is no host key to declare (user ruling 2026-11-22).
     'SSH-HOST-KEY-DECLARED',
+    # ADMITTED 2026-11-26 (user ruling 2026-11-26), each with no subject here or no consumer body yet:
+    # No `tests/baselines.lock`: this library records no baseline in a run store; a metric is checked closed-form.
+    'BASELINE-REWRITE-QUOTED',
+    # The scan is dev-lab's own; no consumer body runs it here. This repo's one family duration is a quantity
+    # (`max_age = "3 d"` in layout.toml); `timeout = 300` is pytest-timeout's own key, not a family one.
+    'CONFIG-VALUES-CARRY-UNITS',
+    # Measured 2026-11-26: zero `os.environ` / `getenv` reads under src/, tests/ and scripts/, and no
+    # `[tool.dev_lab.env]` declared; the rule is opt-in and has nothing to refuse here.
+    'ENV-IS-READ-ONCE',
+    # No host file and no host role are declared by this library: there is no route between machines to refuse.
+    'MACHINES-MEET-ONLY-THROUGH-THE-FORGE',
+    # No crate: this repo holds no `Cargo.toml`, so no head can add one and no port is priced here.
+    'MEASURE-BEFORE-PORTING',
+    # No `[tool.dev_lab.native]` and no native module: optimi-lab is Python over numerics-lab, whose Rust owns
+    # the compute stages; the opt-in rule is not judged here until a stage is declared.
+    'NATIVE-FIRST',
+    # No log sink: `test_the_runtime_stays_pure.py` refuses any logging library at runtime, and this library holds
+    # no credential; the source scan is dev-lab's own with no consumer body.
+    'NEVER-LOG-SECRETS',
+    # No root `dependencies.toml` (both are opt-in): the layering is `test_the_layers_point_one_way.py`'s today.
+    # Adopting the declared graph is its own change, and both rules arrive with it.
+    'OWNER-DAG',
+    'NO-DETOUR',
+    # No `[tool.dev_lab.layers]`: optimi-lab is one library with no application roots for a core to be shared by.
+    'ZERO-CORE-CHANGE',
+    # The `codeplace` write hook that refuses an unreferenced namesake module is not wired in this repo's
+    # `.claude/settings.json`; it closes when the guard install wires it.
+    'PRIOR-ART-FIRST',
 })
 
 #: The ceiling on the gap, MEASURED the day this file was written. It may only go DOWN FOR A RULE
@@ -493,7 +534,12 @@ _ABSENT: Final = frozenset({
 #: This library deploys no host role and declares no ssh endpoint, so both are admitted with their reasons
 #: above rather than left in neither set. The two that arrived with dev-lab 6f785fe7 the same day
 #: (IMAGES-BY-ABSOLUTE-PATH, WORKTREE-NAMES-ITS-TASK) were ADOPTED with mechanisms and never touched this number.
-_ABSENT_CEILING: Final = 8
+#:
+#: AND 8 -> 19 on 2026-11-26, A RISE, by user ruling 2026-11-26 ("raise now, lower the hard ones in the full
+#: review"): the dev-lab relock brought fifteen rules. Four were adopted with mechanisms (NO-BACKUP-COPIES,
+#: ONE-FORMAT-PER-NEED, LEDGER-WRITES-THROUGH-ITS-DOOR, RED-INTEGRATION-MERGES); the eleven above are admitted
+#: with their reasons rather than left in neither set.
+_ABSENT_CEILING: Final = 19
 
 
 def _adoption() -> Adoption:
