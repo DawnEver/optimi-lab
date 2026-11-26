@@ -656,9 +656,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "than supporting one: MEASURED 2026-09-17, this file and the sibling lab's same-named module are 462 "
         'lines together with 410 differing -- 89% DIFFERENT, so the shared name is not shared code. '
         "Its three properties are stated in this package's terms and its size band is this "
-        "package's datum (320, measured against a largest module of 261). RE-MEASURED 2026-10-17: "
-        'own=162 repo=1 -> 0.62% (re-measured 2026-10-17), up from own=161 on 2026-09-19, up from own=153 repo=1 -> 0.65% on 2026-09-17, a '
-        '`BELOW_THE_BAR` row.',
+        "package's datum (320, measured against a largest module of 261). RE-MEASURED 2026-11-26: "
+        'own=174 hits=10 -> 5.75%, over the bar since its LAZY_IMPORT_PINS name the optimi_lab solver modules, '
+        'up from own=162 repo=1 -> 0.62% on 2026-10-17 and own=153 repo=1 -> 0.65% on 2026-09-17, when it was '
+        'a `BELOW_THE_BAR` row.',
     ),
     'tests/architecture/test_the_rules_pages_are_a_ratchet.py': Placement(
         STAYS,
@@ -888,7 +889,8 @@ MIN_REPO_DENSITY_PCT: Final = 3.0
 #: ADMIT, and the tightest bracket in the family.
 MINIMUM_ADMITS: Final = 3.06
 
-#: `test_the_public_surface_is_declared.py`, 0.65% -- the LARGEST percentage the bar must REFUSE.
+#: `test_the_public_surface_is_declared.py`, 0.65% when the interval was bounded (2026-09-17) -- the
+#: LARGEST percentage the bar must REFUSE. The calibration reading is not re-taken.
 MINIMUM_REFUSES: Final = 0.65
 
 #: THE SHORTFALL ON RECORD. FOUR `STAYS` rows fail the density guard today, and the count is
@@ -913,9 +915,10 @@ MINIMUM_REFUSES: Final = 0.65
 #:
 #: CONFIDENCE IS NOT UNIFORM AND SAYING SO IS THE POINT. ONE reads 0.00% -- re-measured 2026-09-19,
 #: down from four as the adopting rows left -- which is the same reading a
-#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (1.52%),
-#: `test_the_public_surface_is_declared.py` (0.62%) and the registry adoption (2.27%) sit under the
-#: bar with hits (re-read 2026-10-18, when `_famconfig.py` left the set under the binder ceiling), and for those this says "no evidence of density", never "this row is wrong".
+#: genuine misclassification gives. `test_the_runtime_stays_pure.py` (1.52%) and the registry
+#: adoption (2.27%) sit under the bar with hits (re-read 2026-10-18, when `_famconfig.py` left the set under the binder ceiling), and for those this says "no evidence of density", never "this row is wrong".
+#: `test_the_public_surface_is_declared.py` LEFT on 2026-11-26 (own=174 hits=10 -> 5.75%): its
+#: LAZY_IMPORT_PINS now name the optimi_lab solver modules whose surrogate imports are deferred.
 BELOW_THE_BAR: Final[dict[str, str]] = {
     'tests/architecture/test_the_dependency_door_is_wired.py': (
         'MEASURED 2026-11-26: own=54 hits=1 -> 1.85%, four lines over the binder ceiling. The four are the '
@@ -951,15 +954,6 @@ BELOW_THE_BAR: Final[dict[str, str]] = {
         'WORKTREES-STAY-INSIDE, RECURSIVE-GREP, REPORTS-LIVE-IN-MEMORY and the rest) added to the shipped-set '
         'pin -- rule IDs, which no noun scan sees. THE SEAM IT OWES is upstream: the shipped set is derivable '
         'from the adoption plus the registry, leaving only the exits here.'
-    ),
-    'tests/architecture/test_the_public_surface_is_declared.py': (
-        'RE-MEASURED 2026-10-17: own=162 repo=1 -> 0.62%, up from own=161 on 2026-09-19, up from own=153 repo=1 -> 0.65% on '
-        '2026-09-17 -- far under the bar and far over the ceiling. '
-        'THE READING IS HONEST AND THE ROW SAYS WHAT IT MISSES: this file scans `src/optimi_lab` '
-        'and reports module names, so its repo facts are a PATH and the strings it prints. THE '
-        'REMEDY IS NOT A MOVE -- the twin comparison refutes that outright (89% of the lines across '
-        'this file and the sibling lab\'s same-named module differ). At 0.65% this is "no evidence of '
-        'density", not "this row is wrong".'
     ),
     'tests/architecture/test_the_runtime_stays_pure.py': (
         'RE-MEASURED 2026-10-18: own=125 repo=2 -> 1.6%, up from own=109 repo=1 -> 0.92% (P12) the same day, down from own=90 repo=1 -> 1.11% on 2026-10-17, down from own=84 repo=2 -> 2.38% on 2026-09-19, from own=86 repo=2 -> 2.33% on '
