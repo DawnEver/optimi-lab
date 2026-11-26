@@ -61,12 +61,13 @@ DECLARED: Final[frozenset[str]] = frozenset()
 #: The largest `DECLARED` may be. ZERO -- there is no width debt here and no hatch to widen.
 DECLARED_CEILING: Final = 0
 
+#: RE-TAKEN 2026-11-26 at 4, down from 5 in the edit that deleted the family-retired `.claude/rules/principles.md`.
 #: RE-TAKEN 2026-11-02: the scan reads 5 files, the three `.claude/rules/` pages plus `AGENTS.md` and
 #: `CLAUDE.md` (up from 3 on 2026-10-29). A scan reaching fewer has stopped matching the corpus.
-FILES_READ_FLOOR: Final = 5
+FILES_READ_FLOOR: Final = 4
 
 #: How far past the floor the corpus may grow before the floor stops binding and must be re-taken.
-#: 5 + 1 = 6 against today's 5, which is as tight as this kit allows (a headroom of 0 is refused as
+#: 4 + 1 = 5 against today's 4, which is as tight as this kit allows (a headroom of 0 is refused as
 #: misdeclared).
 FILES_READ_HEADROOM: Final = 1
 
@@ -132,7 +133,6 @@ def test_the_corpus_is_this_repo_injected_docs() -> None:
     """
     assert set(_corpus()) == {
         '.claude/rules/invariant.md',
-        '.claude/rules/principles.md',
         '.claude/rules/workflow.md',
         'AGENTS.md',
         'CLAUDE.md',

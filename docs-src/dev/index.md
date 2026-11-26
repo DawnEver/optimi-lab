@@ -25,13 +25,13 @@
 | [The forge](../../../dev-lab/docs-src/dev/forge.md) | Parts, claims, `forge serve`, scheduling and `forge queue`: how a sha gets its verdict |
 | [How a task hears the forge](../../../dev-lab/docs-src/dev/forgefeed.md) | One issues-since read per repository, task:<slug> labels, inboxes |
 | [Storage kinds](../../../dev-lab/docs-src/dev/storage.md) | Where output, venvs, worktrees and caches live; one resolver, machine-bound |
+| [IR schemas](../../../dev-lab/docs-src/dev/ir-schema.md) | One TOML declaration of an IR, its quantities catalogue, and the Python and Rust generated from it |
 | [Adding a forge workstation](../../../dev-lab/docs-src/dev/adding-a-workstation.md) | The light role's template, the deploy step by step, verifying and retiring a host |
 | [The integration branch](../../../dev-lab/docs-src/dev/integration.md) | The path of one change, the roles, the integration tick, `forge sync`, `integrate promote`, the merge audit |
 | [Issues](../../../dev-lab/docs-src/dev/issues.md) | An issue is intent; its state is derived from refs and parts; claims and priority are labels and comments |
 | [HPC clusters](../../../dev-lab/docs-src/dev/hpc.md) | A cluster is one more `forge serve` host: grants, the one-line deploy, runs, records |
 | [Submitting research from a workstation](../../../dev-lab/docs-src/dev/hpc-from-a-workstation.md) | A session's own cluster jobs: reach, grants, build, submit, gather, and which account takes them |
-| [Components](../../../dev-lab/docs-src/dev/components.md) | A product mounts its engines as submodules: the table, the derived-file check, the bump loop |
-| [Artifacts](../../../dev-lab/docs-src/dev/artefacts.md) | A run's declared outputs: the store, its layout and its retention |
+| [Artifacts](../../../dev-lab/docs-src/dev/artifacts.md) | A run's declared outputs: the store, its layout and its retention |
 | [Retirement](../../../dev-lab/docs-src/dev/retirement.md) | The archive keeps old code, the registry keeps a dead spelling dead |
 | [The docs pipeline](../../../dev-lab/docs-src/dev/docs-pipeline.md) | The three properties a docs builder holds, and why a skipped sub-site is announced |
 | [Translations](../../../dev-lab/docs-src/dev/translations.md) | How a `<stem>.zh.md` beside its `<stem>.md` passes the CJK guard, and the non-ASCII goal |
