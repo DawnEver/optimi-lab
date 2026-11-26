@@ -13,10 +13,10 @@ from functools import partial
 
 import numpy as np
 import pytest
+from numerics_lab.quasi_newton import LbfgsMemory
 from scipy.optimize import NonlinearConstraint, minimize, nnls, rosen, rosen_der, rosen_hess_prod
 
 from optimi_lab.operator import Linearization
-from optimi_lab.operator.quasi_newton import LbfgsMemory
 from optimi_lab.solver import (
     Halt,
     augmented_lagrangian,

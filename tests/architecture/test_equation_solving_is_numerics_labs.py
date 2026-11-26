@@ -1,10 +1,11 @@
 """R4, checked: optimi-lab keeps no numeric kernel of its own.
 
 R4 (plan I.1): equation solving is ONE engine, numerics-lab; optimi-lab depends on it. So no shipped
-module DEFINES a backtracking/Armijo search, a secant two-loop or Broyden update, a Krylov method, a
-factorization or a KKT solve -- it calls numerics-lab's. MINIMIZATION is this library's (engine split,
-2026-11-26): the strong Wolfe search, the trust-region primitives, the dense BFGS/SR1 updates and the
-L-BFGS memory live in :mod:`optimi_lab.operator`, so their names are not kernels here. The guard reads definitions by name against
+module DEFINES a backtracking/Armijo or strong Wolfe search, a secant two-loop, L-BFGS memory or Broyden
+update, the basic L-BFGS minimizer, a Krylov method, a factorization or a KKT solve -- it calls
+numerics-lab's. Optimization STRATEGY is this library's (engine split, 2026-11-26): the trust-region
+primitives and the dense BFGS/SR1 models live in :mod:`optimi_lab.operator`, so their names are not
+kernels here. The guard reads definitions by name against
 :data:`KERNEL_NAMES`; and the gradient methods must actually import numerics-lab (a floor), so a
 method that quietly inlined its own search would show up on one side or the other.
 
@@ -29,9 +30,12 @@ _SRC: Final = _ROOT / 'src' / 'optimi_lab'
 #: A definition whose name, lower-cased without underscores, contains one of these is a numerics-lab kernel.
 KERNEL_NAMES: Final = (
     'armijo',
+    'wolfe',
     'backtrack',
     'steihaug',
     'twoloop',
+    'lbfgsmemory',
+    'minimizelbfgs',
     'broyden',
     'conjugategradient',
     'minres',
