@@ -20,12 +20,12 @@ from optimi_lab.run import Budget, run
 from optimi_lab.solver import ga, nsga2
 
 SPACE = Space(tuple(Real(f'x{index}', 0.0, 1.0) for index in range(3)))
-CENTRE, RADIUS = 0.9, 0.03
+CENTER, RADIUS = 0.9, 0.03
 OUTPUTS = ('f0', 'f1', 'cap')
 
 
 def _distance(design) -> float:
-    return float(np.sqrt(sum((float(design[f'x{i}']) - CENTRE) ** 2 for i in range(3))))
+    return float(np.sqrt(sum((float(design[f'x{i}']) - CENTER) ** 2 for i in range(3))))
 
 
 BALL = Explicit('ball', _distance, '<=', RADIUS)
@@ -63,7 +63,7 @@ def test_a_mostly_infeasible_box_is_walked_into_by_ranking_the_refused_rows(fact
 @pytest.mark.parametrize(('factory', 'objectives'), [(ga, 1), (nsga2, 2)])
 def test_the_control_with_the_ball_undeclared_drops_every_refusal_and_solves_nothing(factory, objectives, tmp_path):
     """The planted control: the same refusals with no design constraint to rank them by are dropped unscored, the
-    population is never seeded, and the same budget only redraws the box -- the old behaviour.
+    population is never seeded, and the same budget only redraws the box -- the old behavior.
     """
     outcome = _run(factory, objectives, tmp_path / 'blind.jsonl', declared=False)
     assert not outcome.archive.complete()
@@ -91,8 +91,8 @@ def test_an_evaluated_feasible_row_outranks_every_refused_row_even_with_the_wors
     problem = _problem(1)
     designs = (
         {'x0': 0.0, 'x1': 0.0, 'x2': 0.0},  # far outside the ball
-        {'x0': CENTRE, 'x1': CENTRE, 'x2': CENTRE},  # inside: solved, feasible
-        {'x0': 0.8, 'x1': CENTRE, 'x2': CENTRE},  # just outside
+        {'x0': CENTER, 'x1': CENTER, 'x2': CENTER},  # inside: solved, feasible
+        {'x0': 0.8, 'x1': CENTER, 'x2': CENTER},  # just outside
     )
     solver = ga(problem, Capability(outputs=OUTPUTS), initial=np.array([problem.space.encode(d) for d in designs]))
     admitted = []
@@ -103,7 +103,7 @@ def test_an_evaluated_feasible_row_outranks_every_refused_row_even_with_the_wors
         if _distance(action.design) > RADIUS:
             cell = Cell(Status.REJECTED, {}, reason=Reason('infeasible', 'screened'))
         else:
-            cell = Cell(Status.OK, {'f0': 3 * CENTRE, 'cap': CENTRE})
+            cell = Cell(Status.OK, {'f0': 3 * CENTER, 'cap': CENTER})
         results.append(Result(action, cell))
     solver.tell(results)
     _, values, violation, mask = admitted[0]

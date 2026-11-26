@@ -4,11 +4,11 @@ A *response* ``(x, scenarios) -> (values (N,), gradients (N, n))`` gives ``f`` a
 every scenario at once. :func:`sample_average` turns a fixed scenario set into an ordinary
 :data:`~optimi_lab.solver.smooth.Evaluate`, so ANY gradient method solves it (L-BFGS-B by default).
 
-:func:`saa` solves one SAA problem of *n* scenarios and brackets the true optimal value by Mak, Morton
+:func:`saa` solves one SAA problem of *n* scenarios and brackets the true optimal value by Mak, Morton  (author name; spelling-ignore-line)
 and Wood (1999):
 
 * ``lower`` -- the mean of *batches* independent SAA optimal values (``E[v_N] <= v*`` for a
-  minimisation), with its replicate standard error;
+  minimization), with its replicate standard error;
 * ``upper`` -- ``f`` at the SAA solution averaged over *n_check* fresh scenarios (``>= v*``);
 * ``gap = upper - lower``, the two standard errors combined in quadrature (independent samples).
 
@@ -33,7 +33,7 @@ Response = Callable[[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]
 
 @dataclass(frozen=True, slots=True, eq=False)
 class SampleAverage:
-    """The SAA *solution* and the Mak-Morton-Wood *lower* / *upper* bounds and *gap* on the optimal value."""
+    """The SAA *solution* and the Mak-Morton-Wood (author names; spelling-ignore-line) *lower* / *upper* bounds and *gap* on the optimal value."""
 
     solution: Solution
     lower: Estimate

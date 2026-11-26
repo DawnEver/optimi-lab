@@ -14,7 +14,7 @@ FIVE SECTIONS, and each one fails on a mistake somebody would actually make:
 2. `STAYS` NEEDS EVIDENCE -- a file said to be ours that names nothing we own is a guess with a
    label on it.
 3. `MOVES` MUST SURVIVE THE CONVERSE -- a file said to be vendor-neutral whose CODE names an
-   optimisation fact would carry that fact into a shared package. THE POPULATION IS EMPTY as of
+   optimization fact would carry that fact into a shared package. THE POPULATION IS EMPTY as of
    2026-09-18 and is pinned as a NAMED SET rather than held above a floor: this roster's one and
    only `MOVES` row was the rules-page ratchet, whose destination did not exist yet, and that
    adoption is now executed. A floor there would have made FINISHING the migration a red.
@@ -152,7 +152,7 @@ def test_no_recorded_shortfall_names_a_file_the_manifest_no_longer_places() -> N
 
     It still reads as a live shortfall, and its strict xfail can never fire: the parametrize that
     would have run it no longer holds the row, so the one arm that would have caught it is the arm
-    the deletion removed. `test_every_recorded_shortfall_names_a_real_row` below asks a NEIGHBOURING
+    the deletion removed. `test_every_recorded_shortfall_names_a_real_row` below asks a NEIGHBORING
     question -- that the row is a STAYS or SPLITS -- and is parametrized over `BELOW_THE_BAR`, so it
     too goes quiet rather than red when the manifest drops the key. This is the aggregate that does
     not.
@@ -194,7 +194,7 @@ def test_a_file_that_STAYS_names_something_this_repo_owns(rel: str) -> None:
 
 
 def test_a_file_that_MOVES_carries_no_repo_noun() -> None:
-    """Refuse a move that would carry an optimisation fact into a vendor-neutral package.
+    """Refuse a move that would carry an optimization fact into a vendor-neutral package.
 
     THE DISCRIMINATING PROPERTY, and the one that fails on a mistake somebody would actually make:
     such a fact is invisible in the new home BECAUSE the default works.

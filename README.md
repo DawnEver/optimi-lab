@@ -13,9 +13,9 @@ reconfiguring it. Every surrogate model is self-implemented in the sibling libra
 
 - Layered (plan II.7): `problem` -> `oracle` -> `archive` -> `metric` -> `solver` -> `run`
 - Variables: `Real` (linear or log), `Integer`, `Categorical` (metric only when embedded), `Field`,
-  with conditional `active_if`; objectives with a fixed normalisation; five constraint kinds
+  with conditional `active_if`; objectives with a fixed normalization; five constraint kinds
 - Every result is a `lab_commons.outcomes.Cell`: a status (DECIDED or RETRYABLE), values only when
-  it computed, a reason otherwise -- a licence miss is never an infeasible design
+  it computed, a reason otherwise -- a license miss is never an infeasible design
 - One append-only record per run; an interrupted run resumes by replaying it
 - Population solvers NSGA-II, NSGA-III, MODE, MOEA/D, MOPSO; IGD and exact hypervolume
 - Surrogate regressors and a weighted mixture of them
@@ -40,7 +40,7 @@ git clone https://github.com/DawnEver/optimi-lab.git
 cd optimi-lab
 ```
 
-2. Create and activate a virtual environment, uv is recommanded:
+2. Create and activate a virtual environment, uv is recommended:
 ```bash
 uv venv
 # or use venv

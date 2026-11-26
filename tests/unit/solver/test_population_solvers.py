@@ -105,8 +105,8 @@ def test_a_setting_the_algorithm_does_not_take_is_refused_with_the_valid_set():
     assert 'crossover_rate' in str(refusal.value)
 
 
-def test_a_moead_child_is_scored_under_each_neighbours_own_weight():
-    """A child displaces neighbour j when it beats j's incumbent on j's OWN Tchebycheff weight.
+def test_a_moead_child_is_scored_under_each_neighbors_own_weight():
+    """A child displaces neighbor j when it beats j's incumbent on j's OWN Tchebycheff weight.
 
     The child (0, 1) is proposed for subproblem 2 (weight 0.1/0.9), where it loses; under subproblem
     0's weight (0.9/0.1) it scores 0.1 against the incumbent's 0.45 and must take that slot. Scored

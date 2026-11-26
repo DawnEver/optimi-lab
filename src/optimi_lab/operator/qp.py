@@ -1,14 +1,14 @@
 """Convex quadratic programs: a general primal active-set method, and a projected Newton method for bounds.
 
-    minimise 1/2 x.H x + g.x   subject to   A_eq x = b_eq,   A_in x <= b_in        (active_set_qp)
-    minimise 1/2 x.H x + g.x   subject to   lo <= x <= hi                           (bound_qp)
+    minimize 1/2 x.H x + g.x   subject to   A_eq x = b_eq,   A_in x <= b_in        (active_set_qp)
+    minimize 1/2 x.H x + g.x   subject to   lo <= x <= hi                           (bound_qp)
 
 Multiplier signs: ``H x + g + A_eq^T y + A_in^T z = 0`` with ``z >= 0``.
 
 * :func:`active_set_qp` is Nocedal and Wright's Algorithm 16.3. Each iterate solves the
   equality-constrained QP on the working set by the null-space method (see :func:`_null_space_step`); a blocking constraint
   is added, a constraint with a negative multiplier is dropped. A blocking row numerically dependent on
-  the working rows (a degenerate vertex: a box bound and a parallel linearised floor active together)
+  the working rows (a degenerate vertex: a box bound and a parallel linearized floor active together)
   is never added -- it is implied there to :data:`_DEPENDENT` relative precision, and adding it would
   make the KKT system singular or its multipliers cycle between the parallel pair. An infeasible start is first moved to a feasible
   one by a phase-1 QP in ``(x, t)``; when the constraints admit no point the least-violating point
@@ -33,7 +33,7 @@ from optimi_lab.core.errors import refuse
 
 __all__ = ['QPSolution', 'active_set_qp', 'bound_qp']
 
-#: Phase-1 regularisation: small enough that a feasible point is always preferred to any violation.
+#: Phase-1 regularization: small enough that a feasible point is always preferred to any violation.
 _PHASE_ONE_CURVATURE = 1e-6
 #: A row whose component outside the working rows' span is below this fraction of its own norm is
 #: dependent on them: sqrt(machine epsilon), past which the KKT solve keeps under half its digits.
@@ -150,7 +150,7 @@ def active_set_qp(
     excess = float(np.max(a_in @ x - b_in, initial=0.0))
     spent = 0
     if excess > tolerance:
-        # Phase 1 in (x, t): minimise t (+ a vanishing proximal term) with A_in x - t <= b_in, t >= 0.
+        # Phase 1 in (x, t): minimize t (+ a vanishing proximal term) with A_in x - t <= b_in, t >= 0.
         h1 = _PHASE_ONE_CURVATURE * np.eye(n + 1)
         g1 = np.concatenate([-_PHASE_ONE_CURVATURE * x, [1.0]])
         a1_eq = np.hstack([a_eq, np.zeros((a_eq.shape[0], 1))])

@@ -1,6 +1,6 @@
-"""``minimise``: a hyper-parameter search over a tuning space, driven by the solvers this package ships.
+"""``minimize``: a hyper-parameter search over a tuning space, driven by the solvers this package ships.
 
-The caller supplies only an OBJECTIVE -- ``objective(settings) -> float`` to minimise, ``inf`` when the
+The caller supplies only an OBJECTIVE -- ``objective(settings) -> float`` to minimize, ``inf`` when the
 fit failed -- and, for a multi-fidelity method, the fidelity levels it can be evaluated at
 (``objective(settings, fidelity)``). Everything else is the existing machinery: the space becomes a
 :class:`~optimi_lab.problem.Problem` with one objective ``score``, the objective an oracle
@@ -42,7 +42,7 @@ from optimi_lab.run import Budget, run
 from optimi_lab.solver import Solver, build_solver
 from optimi_lab.tuning.space import Kind, kind_of, problem_space
 
-__all__ = ['TUNING_METHODS', 'Method', 'Trial', 'Tuning', 'minimise']
+__all__ = ['TUNING_METHODS', 'Method', 'Trial', 'Tuning', 'minimize']
 
 _SCORE: Final = 'score'
 
@@ -100,7 +100,7 @@ class Tuning:
     seed: int
 
 
-def minimise(
+def minimize(
     objective: Callable[..., float],
     space: Mapping[str, Dimension],
     *,
@@ -110,7 +110,7 @@ def minimise(
     initial: int | None = None,
     fidelities: Mapping[str, float] | None = None,
 ) -> Tuning:
-    """Minimise *objective* over *space* with *method* in at most *budget* objective calls.
+    """Minimize *objective* over *space* with *method* in at most *budget* objective calls.
 
     *initial* is the size of the first batch (a population, a model's initial design, CMA-ES's
     population); None takes ``max(2, min(budget, 2 (d + 1)))``. *fidelities* maps each level name to its cost,

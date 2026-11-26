@@ -97,7 +97,7 @@ def test_multi_fidelity_bo_refusals():
     constrained = Problem(
         problem.space, problem.objectives, constraints=(BlackBox('g', '<=', 1.0),), fidelity=problem.fidelity
     )
-    with pytest.raises(Refusal, match='penalise'):
+    with pytest.raises(Refusal, match='penalize'):
         mfbo(constrained, oracle.capability)
 
 
@@ -167,7 +167,7 @@ def test_turbo_doubles_on_successes_halves_on_failures_and_restarts_below_the_fl
 def test_turbo_refuses_constraints_and_a_foreign_surrogate():
     problem, oracle = _hartmann6()
     constrained = Problem(problem.space, problem.objectives, constraints=(BlackBox('g', '<=', 1.0),))
-    with pytest.raises(Refusal, match='penalise'):
+    with pytest.raises(Refusal, match='penalize'):
         turbo(constrained, oracle.capability)
     with pytest.raises(Refusal, match='GaussianProcess'):
         turbo(problem, oracle.capability, surrogate=object())

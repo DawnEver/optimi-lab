@@ -27,7 +27,7 @@ from catalogue import CATALOGUE, drive, front_of
 ZDT1_IGD = 0.35
 #: Objective units; a 3-D quadratic bowl, measured 2.3e-9 at 70 evaluations.
 BOWL_GAP = 1e-7
-#: Objective units; 2-D Rosenbrock on [-2, 2]^2 from the centre at 300 evaluations, measured 0.030.
+#: Objective units; 2-D Rosenbrock on [-2, 2]^2 from the center at 300 evaluations, measured 0.030.
 ROSENBROCK_GAP = 0.1
 
 
@@ -112,7 +112,7 @@ class _Negated:
         return Prediction(-self.inner.predict(x).mean)
 
 
-def test_planted_a_contrary_model_never_moves_the_centre_uphill_and_the_run_concludes():
+def test_planted_a_contrary_model_never_moves_the_center_uphill_and_the_run_concludes():
     """The control: the ratio test is what protects the search -- a model that is always wrong is never trusted."""
     problem, oracle = _bowl()
     solver = model_trust_region(problem, oracle.capability, seed=3, surrogate=_Contrary())

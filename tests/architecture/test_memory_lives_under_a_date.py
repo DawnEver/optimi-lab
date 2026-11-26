@@ -14,7 +14,7 @@ here is the half the kit refuses to guess -- every repo fact arrives as a keywor
 default, and this file is where optimi-lab's five answers are written down: which trees, what is not
 an entry, what is never walked, and the two numbers that bound the population.
 
-THE SILENT ENTRY IS NOW ITS OWN POPULATION, AND THAT IS A BEHAVIOUR CHANGE RATHER THAN A SWAP. This
+THE SILENT ENTRY IS NOW ITS OWN POPULATION, AND THAT IS A BEHAVIOR CHANGE RATHER THAN A SWAP. This
 file used to fold "no `created:` field" into `date_disagreements` as the reason string ``no
 `created:` field``, so one assertion carried two populations and a pin over it could not have said
 which half moved. The kit splits them -- :func:`~dev_lab.dev.famtests.datedmemory.silent` and

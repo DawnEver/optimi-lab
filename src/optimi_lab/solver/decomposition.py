@@ -1,12 +1,12 @@
 """MOEA/D's loop: one subproblem per weight vector, ranked by Tchebycheff distance.
 
-The weight vectors and their neighbourhoods are built from the objective count of the FIRST told
+The weight vectors and their neighborhoods are built from the objective count of the FIRST told
 evaluation rather than from a constructor argument, so the grid cannot describe a different
 problem from the matrix it ranks. The partition count comes from
 :func:`~optimi_lab.core.pareto.partition_count` -- the ceiling, the refusal of a one-objective
 grid and its coverage guarantee are that function's, not a second copy's.
 
-Under constraints a child displaces a neighbour by Deb's rule: a smaller total violation wins
+Under constraints a child displaces a neighbor by Deb's rule: a smaller total violation wins
 outright, and only an equal violation -- zero, for two feasible points -- falls through to the
 Tchebycheff comparison. With no constraint every violation is zero, which is the plain loop.
 """
@@ -39,7 +39,7 @@ class DecompositionSolver(PopulationSolver):
     The population is one solution per subproblem and never a shorter list of them: a child that
     produced no value leaves its own subproblem's parent in place, because dropping the
     subproblem would discard a solution nothing was wrong with. ``neighborhood_size`` is a count
-    of neighbours, and None is the whole population.
+    of neighbors, and None is the whole population.
     """
 
     def __init__(
@@ -90,7 +90,7 @@ class DecompositionSolver(PopulationSolver):
         self._ideal: np.ndarray | None = None
 
     def _child(self, population: np.ndarray, width: int, rng: np.random.Generator) -> np.ndarray:
-        """One child per subproblem, from two parents its own neighbourhood supplies."""
+        """One child per subproblem, from two parents its own neighborhood supplies."""
         count = len(population)
         pairs = np.empty((count, 2), dtype=np.intp)
         for row in range(count):
@@ -114,7 +114,7 @@ class DecompositionSolver(PopulationSolver):
             self._weights = np.maximum(
                 decomposition_weights(values.shape[1], len(inputs), rng=self._rng), _WEIGHT_FLOOR
             )
-            # A neighbourhood is bounded by the subproblems that exist: the first batch can lose a
+            # A neighborhood is bounded by the subproblems that exist: the first batch can lose a
             # point, and the count it was built with is the constructor's, not this batch's.
             self._neighbors = nearest_neighbors(self._weights, min(self._neighborhood_size, len(inputs)))
             self._ideal = values.min(axis=0)
@@ -123,7 +123,7 @@ class DecompositionSolver(PopulationSolver):
         self._replace(inputs, values, violation, np.flatnonzero(mask))
 
     def _replace(self, inputs: np.ndarray, values: np.ndarray, violation: np.ndarray, subproblems: np.ndarray) -> None:
-        """Let each child displace up to ``max_replace`` of the neighbours it beats on Tchebycheff.
+        """Let each child displace up to ``max_replace`` of the neighbors it beats on Tchebycheff.
 
         A child belongs to the subproblem whose row it was proposed for, so the survivors keep
         their own subproblem index, and a child that produced nothing leaves every parent alone.
@@ -146,7 +146,7 @@ class DecompositionSolver(PopulationSolver):
 def moead(problem: Problem, capability: Capability, **settings: object) -> DecompositionSolver:
     """MOEA/D (Zhang and Li, 2007): one Tchebycheff subproblem per weight vector, two objectives or more.
 
-    ``**settings`` are :class:`DecompositionSolver`'s neighbourhood and SBX/mutation rates and the base
+    ``**settings`` are :class:`DecompositionSolver`'s neighborhood and SBX/mutation rates and the base
     solver's ``spec``, ``initial`` and ``seed``.
     """
     return build(DecompositionSolver, problem, capability, 'moead', **settings)

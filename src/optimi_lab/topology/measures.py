@@ -5,9 +5,9 @@
 * :func:`member_widths` / :func:`feature_sizes` -- the narrowest solid member and void gap, in the
   domain's length unit. ``d`` is each cell's distance to the other phase (centroid to centroid, or to the
   outer boundary through ``boundary_distances`` when the outside IS the other phase); a RIDGE cell holds a
-  local maximum of ``d`` over its graph neighbours -- a member's centre line -- and reads ``2 d - h``
+  local maximum of ``d`` over its graph neighbors -- a member's center line -- and reads ``2 d - h``
   (``h`` the cell size). A tapering tip or a corner is not a ridge, so it never reads as a zero-width
-  member; a ridge on a boundary open to the same phase is not a member centre and is not read.
+  member; a ridge on a boundary open to the same phase is not a member center and is not read.
 * :func:`volume_fraction` -- the measure-weighted solid share, value and gradient.
 
 The differentiable connectivity measures live in :mod:`~optimi_lab.topology.connectivity`.
@@ -74,10 +74,10 @@ def member_widths(domain: DesignDomain, phase: np.ndarray, *, exterior: bool = F
         d = np.minimum(d, _nearest(c, c[domain.boundary_cells], domain.boundary_distances))
     d[~phase] = 0.0
     a, b = domain.adjacency.T
-    neighbour = np.zeros(domain.n_cells)
-    np.maximum.at(neighbour, a, d[b])
-    np.maximum.at(neighbour, b, d[a])
-    ridge = phase & (d >= neighbour) & np.isfinite(d) & (d > 0.0)
+    neighbor = np.zeros(domain.n_cells)
+    np.maximum.at(neighbor, a, d[b])
+    np.maximum.at(neighbor, b, d[a])
+    ridge = phase & (d >= neighbor) & np.isfinite(d) & (d > 0.0)
     if exterior:
         ridge[domain.boundary_cells] = False
     return 2.0 * d[ridge] - domain.sizes[ridge]

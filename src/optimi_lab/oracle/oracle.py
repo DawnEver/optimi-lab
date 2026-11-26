@@ -4,7 +4,7 @@ An :class:`Oracle` is asynchronous: ``await oracle(action)`` yields one :class:`
 run at once, and where, is the run layer's ``dispatch``, not the oracle's.
 
 :func:`from_function` wraps a synchronous ``function(action) -> values`` and applies the II.3
-optimisation mapping at the one place an exception becomes a status:
+optimization mapping at the one place an exception becomes a status:
 
 ========================  ===================================
 raised                    cell
@@ -17,7 +17,7 @@ nothing                   ``OK``
 any other exception       ``ERROR`` / ``error``
 ========================  ===================================
 
-A licence miss or a crash is RETRYABLE, never a verdict on the design (B0-06).
+A license miss or a crash is RETRYABLE, never a verdict on the design (B0-06).
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ class NotConverged(Exception):
 
 
 class Unavailable(Exception):
-    """A resource the evaluator needs is missing, e.g. a licence (``UNAVAILABLE``)."""
+    """A resource the evaluator needs is missing, e.g. a license (``UNAVAILABLE``)."""
 
 
 #: Exception type -> status and reason kind; anything else is ``ERROR``.

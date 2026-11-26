@@ -152,7 +152,7 @@ def test_every_cell_passive_is_refused() -> None:
 
 
 @pytest.mark.parametrize('make', [DensityFilter, HelmholtzFilter], ids=['density', 'helmholtz'])
-def test_a_passive_cell_feeds_its_declared_state_to_its_neighbours_filter(make) -> None:
+def test_a_passive_cell_feeds_its_declared_state_to_its_neighbors_filter(make) -> None:
     solid, void = np.zeros(40, dtype=bool), np.zeros(40, dtype=bool)
     solid[:5], void[-5:] = True, True
     free_cells = ~(solid | void)
@@ -163,6 +163,6 @@ def test_a_passive_cell_feeds_its_declared_state_to_its_neighbours_filter(make) 
     np.testing.assert_allclose(filtered[free_cells], expected[free_cells], atol=1e-12)
     np.testing.assert_array_equal(filtered[solid], 1.0)
     np.testing.assert_array_equal(filtered[void], 0.0)
-    # Planted control: pinned AFTER the filter, the passive cells' neighbours read the gray 0.5 they were fed.
+    # Planted control: pinned AFTER the filter, the passive cells' neighbors read the gray 0.5 they were fed.
     gray = make(domain, radius=1.2, unit='mm').forward(np.full(40, 0.5))
     assert np.max(np.abs(gray - expected)[free_cells]) > 1e-3

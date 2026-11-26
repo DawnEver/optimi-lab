@@ -243,7 +243,7 @@ def test_the_guard_names_a_planted_heavyweight(planted: str) -> None:
 
 
 #: R1 (plan PLAN-engines-and-one-outcome-vocabulary, 2026-10-17): the runtime takes from scipy only
-#: these submodules; every optimisation, sampling and statistics ALGORITHM is self-implemented, and
+#: these submodules; every optimization, sampling and statistics ALGORITHM is self-implemented, and
 #: scipy.optimize / scipy.stats appear only in tests, as reference oracles. scipy.linalg and
 #: scipy.sparse.linalg LEFT the set 2026-10-18 (R4): every linear solve -- least squares, triangular,
 #: Cholesky, KKT -- and its failure type are numerics-lab's (``numerics_lab.linear``).

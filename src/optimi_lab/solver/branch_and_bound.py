@@ -1,6 +1,6 @@
 """D128 mixed-integer linear programs: LP-based branch and bound with Gomory mixed-integer cuts at the root.
 
-    minimise c.x   subject to the rows and bounds of a LinearProgram,   x_k integer where *integrality*
+    minimize c.x   subject to the rows and bounds of a LinearProgram,   x_k integer where *integrality*
 
 * Root: the LP relaxation (revised simplex), then up to *cut_rounds* rounds of GMI cuts
   (:mod:`optimi_lab.solver.cuts`) appended as rows and re-solved -- cut-and-branch.

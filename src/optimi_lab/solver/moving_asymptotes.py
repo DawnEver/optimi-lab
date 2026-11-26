@@ -7,8 +7,8 @@ convex, separable approximation
 
 around the current point, with moving asymptotes ``L < x < U`` that contract on oscillation and
 expand on monotone progress, and solves the approximate problem through its DUAL: for multipliers
-``lam >= 0`` the primal minimiser is closed-form per coordinate, so the dual is a smooth concave
-function of ``lam`` alone, maximised here by :func:`~optimi_lab.solver.bounded.lbfgsb` on
+``lam >= 0`` the primal minimizer is closed-form per coordinate, so the dual is a smooth concave
+function of ``lam`` alone, maximized here by :func:`~optimi_lab.solver.bounded.lbfgsb` on
 ``[0, inf)``. Artificial variables ``y_i`` (cost ``1000 y + y^2 / 2``) keep every subproblem feasible.
 
 GCMMA (``conservative=True``) adds inner iterations: a candidate whose approximations are not
@@ -51,7 +51,7 @@ def _approximate(x, p, q, r, *, lower, upper) -> np.ndarray:
 
 
 def _subproblem(p, q, r, *, lower, upper, alpha, beta, lam0):
-    """The approximate problem's primal minimiser and multipliers, through its dual."""
+    """The approximate problem's primal minimizer and multipliers, through its dual."""
     m = r.size - 1
 
     def primal(lam: np.ndarray) -> np.ndarray:

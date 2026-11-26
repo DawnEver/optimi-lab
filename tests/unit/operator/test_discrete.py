@@ -59,7 +59,7 @@ def test_an_ordered_discrete_mutation_moves_one_step_on_the_level_ladder():
     start = np.tile(SPACE.encode({'r': 0.5, 'poles': 6, 'coolant': 'water'}), (200, 1))
     moved = discrete_mutation(start, lattice(SPACE), mutation_rate=1.0, rng=RNG(3))
     poles = {SPACE.decode(row)['poles'] for row in moved}
-    assert poles == {4, 8}, 'an integer moves to a neighbouring level, never further'
+    assert poles == {4, 8}, 'an integer moves to a neighboring level, never further'
     coolants = {SPACE.decode(row)['coolant'] for row in moved}
     assert coolants == {'air', 'oil'}, 'a category resets to ANOTHER level, any of them'
     assert np.array_equal(moved[:, 0], start[:, 0]), 'a Real column is not a discrete mutation subject'

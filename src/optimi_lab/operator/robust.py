@@ -4,7 +4,7 @@ A *response* maps a sample (parameter name -> ``(n,)`` physical values) to ``(n,
 vectorised call evaluates a whole batch. Points come from one of three :class:`Rule` s:
 
 * ``mc`` -- independent draws; the standard error is the CLT one;
-* ``sobol`` / ``halton`` -- RANDOMISED QMC (:mod:`optimi_lab.core.qmc`, scrambled): *replicates*
+* ``sobol`` / ``halton`` -- RANDOMIZED QMC (:mod:`optimi_lab.core.qmc`, scrambled): *replicates*
   independent scramblings of ``n / replicates`` points each, pooled by
   :func:`~optimi_lab.operator.estimators.replicated`. A single QMC set has no error bar, so fewer
   than two replicates is refused.
@@ -29,7 +29,7 @@ __all__ = ['Response', 'Rule', 'draw', 'robust_mean']
 
 Response = Callable[[dict[str, np.ndarray]], np.ndarray]
 
-#: Unit-cube points are clipped to ``[_EDGE, 1 - _EDGE]``: the 53-bit neighbours of 0 and 1.
+#: Unit-cube points are clipped to ``[_EDGE, 1 - _EDGE]``: the 53-bit neighbors of 0 and 1.
 _EDGE = 2.0**-53
 
 
@@ -73,7 +73,7 @@ def robust_mean(
     if rule is Rule.MC:
         return mean_estimate(response(draw(uncertainty, n, rng, rule=rule)))
     if replicates < 2 or n % replicates:
-        refuse(f'randomised QMC needs at least two replicates dividing n={n}, got replicates={replicates}')
+        refuse(f'randomized QMC needs at least two replicates dividing n={n}, got replicates={replicates}')
     per = n // replicates
     return replicated(
         Estimate(float(np.mean(response(draw(uncertainty, per, rng, rule=rule)))), 0.0, per) for _ in range(replicates)

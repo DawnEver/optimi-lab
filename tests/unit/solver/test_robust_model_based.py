@@ -4,11 +4,11 @@ The benchmark is the population solvers' (``test_robust_population.py``): one va
 uniform parameter ``xi ~ U(-0.5, 0.5)``, ``f(x, xi) = (x - 0.3)^2 + xi (1 - x)``. Over a fixed draw
 of scenarios the sample-average optimum is closed form: the objective is ``(x - 0.3)^2 + m (1 - x)``
 with ``m`` the risk of the drawn ``xi`` (their mean; their maximum for the worst case, since
-``1 - x >= 0``), minimised at ``x = 0.3 + m / 2``. It is computed from the very draws the solver
+``1 - x >= 0``), minimized at ``x = 0.3 + m / 2``. It is computed from the very draws the solver
 asked, read off its actions, so the bar is the estimator's own optimum and not the population one.
 
 A BlackBox ``x + xi <= 1`` under the worst case holds for every draw only while ``x <= 1 - max xi``;
-maximising ``x`` under it lands exactly there.
+maximizing ``x`` under it lands exactly there.
 
 Positions are in the variable's own (dimensionless) unit.
 """

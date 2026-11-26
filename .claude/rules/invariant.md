@@ -6,7 +6,7 @@ reader could violate in one commit, and each names the mechanism that refuses it
 - **The RUNTIME is numpy, scipy, numerics-lab and `lab_commons.outcomes`, nothing else**
   (`test_the_runtime_stays_pure.py`); no logging/unit/plotting/config library -- a downstream repo inherits
   ours. Equation solving is numerics-lab's (R4): no line search, trust region, quasi-Newton, Krylov,
-  factorisation or KKT solve of our own (`test_equation_solving_is_numerics_labs.py`); scipy only
+  factorization or KKT solve of our own (`test_equation_solving_is_numerics_labs.py`); scipy only
   `linalg`/`sparse`/`sparse.linalg`/`special`, `scipy.optimize`/`scipy.stats` in tests only (R1,
   `test_the_runtime_takes_only_the_r1_scipy_submodules`).
 - **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one

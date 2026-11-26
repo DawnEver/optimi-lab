@@ -1,4 +1,4 @@
-"""D66 -- TuRBO-1 (Eriksson et al., 2019): Bayesian optimisation inside one trust region, Thompson-sampled.
+"""D66 -- TuRBO-1 (Eriksson et al., 2019): Bayesian optimization inside one trust region, Thompson-sampled.
 
 A trust region is a box around the incumbent of the CURRENT restart, side
 ``length * w_i / prod(w)^(1/d)`` per coordinate (``w`` the fitted GP's length scales, so the box
@@ -8,7 +8,7 @@ stretches along the directions the model finds smooth), clipped to the unit cube
 * ``candidates`` scrambled Sobol points fill the box, each coordinate perturbed with probability
   ``min(1, 20 / d)`` and the rest held at the incumbent (at least one perturbed);
 * ``batch`` joint posterior draws over the candidates (one draw per pick, numerics-lab's jittered
-  Cholesky via :meth:`~learn_lab.models.response.FittedGaussianProcess.draw`) each pick their minimiser,
+  Cholesky via :meth:`~learn_lab.models.response.FittedGaussianProcess.draw`) each pick their minimizer,
   without repeats.
 
 When a batch is told, it is a SUCCESS if it improves the restart's best by more than ``1e-3`` of
@@ -18,7 +18,7 @@ most ``length_max``), ``failure_tolerance`` failures in a row halve it (default
 hypercube starts the next one with ``length`` reset; told data of earlier restarts is kept only for
 :attr:`TuRBO.best` -- the told OK result of lowest score across every restart (B0-08).
 
-One score (``scalarise`` for several); constraints are refused (penalise them first), and so is
+One score (``scalarise`` for several); constraints are refused (penalize them first), and so is
 declared uncertainty, naming why. A conditional or categorical space is searched through the declared
 ``embedding`` (:class:`optimi_lab.problem.Embedding`).
 """
@@ -168,13 +168,13 @@ class TuRBO:
         fitted = self._surrogate.fit(x, y[:, None], domain=BoxEnvelope(np.zeros(self._width), np.ones(self._width)))
         lengths = np.exp(fitted.hyperparameters[0][1:-1])
         weights = lengths / np.prod(lengths) ** (1.0 / self._width)
-        centre = x[int(np.argmin(y))]
-        lo = np.clip(centre - weights * self._length / 2.0, 0.0, 1.0)
-        hi = np.clip(centre + weights * self._length / 2.0, 0.0, 1.0)
+        center = x[int(np.argmin(y))]
+        lo = np.clip(center - weights * self._length / 2.0, 0.0, 1.0)
+        hi = np.clip(center + weights * self._length / 2.0, 0.0, 1.0)
         points = lo + (hi - lo) * sobol(self._candidates, self._width, rng=self._rng)
         mask = self._rng.random(points.shape) <= min(1.0, 20.0 / self._width)
         mask[np.arange(len(mask)), self._rng.integers(self._width, size=len(mask))] = True
-        points = np.where(mask, points, centre)
+        points = np.where(mask, points, center)
         draws = fitted.draw(points, self._rng.standard_normal((self._batch, len(points), 1)))[:, :, 0]
         chosen: list[int] = []
         for draw in draws:

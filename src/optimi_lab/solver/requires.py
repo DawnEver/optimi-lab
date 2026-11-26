@@ -145,7 +145,7 @@ def match(requires: Requires, problem: Problem, capability: Capability) -> Match
         transforms.append('embed')
     unhandled = (BlackBox, Path, Linear, Explicit)
     if any(isinstance(c, unhandled) and type(c) not in requires.constraints for c in problem.constraints):
-        transforms.append('penalise')
+        transforms.append('penalize')
     return NeedsTransform(tuple(transforms), per_action) if transforms else Eligible()
 
 
@@ -181,7 +181,7 @@ _ROWS: Final = frozenset({Linear, BlackBox})
 #: by Tchebycheff weights; a scan returns one point per scalarisation; the multi-fidelity schedules
 #: need Fidelity levels. The model-based solvers (P11) model each BlackBox constraint by its own GP;
 #: ParEGO scalarises by a fresh weight per pick (WEIGHTED), EHVI/NEHVI keep the front (NATIVE_PARETO);
-#: multi-fidelity BO and TuRBO model no constraint (penalise first); the prescreened EA ranks by
+#: multi-fidelity BO and TuRBO model no constraint (penalize first); the prescreened EA ranks by
 #: Deb's rule on predicted rows and model management is an extreme barrier, like BOBYQA. The
 #: structured solvers (P14) read algebra, not samples: each needs its outputs DECLARED in that form and the
 #: oracle's coefficients for it (``COEFFICIENTS_FOR``); lp and qp, driven by ``StructuredSolver``, read a

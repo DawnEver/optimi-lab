@@ -2,7 +2,7 @@
 
 The oracle for :func:`incremental_sort` is the fast non-dominated sort already in ``core`` and the
 brute-force definition of a front; the relaxed relations are checked against their definitions on
-hand-built pairs, objective units being whatever the minimised frame carries (here dimensionless).
+hand-built pairs, objective units being whatever the minimized frame carries (here dimensionless).
 """
 
 import numpy as np

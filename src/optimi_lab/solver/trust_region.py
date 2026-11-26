@@ -1,6 +1,6 @@
 """A BOBYQA-like derivative-free trust region (after Powell, 2009): quadratic models inside a box.
 
-Not Powell's code, the same idea: an interpolation quadratic built from evaluated points, minimised
+Not Powell's code, the same idea: an interpolation quadratic built from evaluated points, minimized
 inside the trust box ``|s|_inf <= radius`` intersected with the unit cube, and a radius driven by
 the ratio of actual to predicted decrease.
 
@@ -47,7 +47,7 @@ def _model(steps: np.ndarray, values: np.ndarray, n: int) -> tuple[np.ndarray, n
     return gradient, hessian + np.triu(hessian, 1).T
 
 
-def _minimise(gradient: np.ndarray, hessian: np.ndarray, lo: np.ndarray, hi: np.ndarray) -> np.ndarray:
+def _minimize(gradient: np.ndarray, hessian: np.ndarray, lo: np.ndarray, hi: np.ndarray) -> np.ndarray:
     lipschitz = max(np.linalg.norm(hessian, 2), 1e-12)
     step = np.zeros_like(gradient)
     for _ in range(_STEPS):
@@ -89,7 +89,7 @@ class TrustRegion(SequentialSolver):
             nearest = np.argsort(np.linalg.norm(stored - x, axis=1))[: size + n]
             gradient, hessian = _model(stored[nearest] - x, np.array(values)[nearest] - fx, n)
             lo, hi = np.maximum(-radius, -x), np.minimum(radius, 1.0 - x)
-            step = _minimise(gradient, hessian, lo, hi)
+            step = _minimize(gradient, hessian, lo, hi)
             predicted = -(gradient @ step + 0.5 * step @ hessian @ step)
             if predicted <= 0.0 or np.abs(step).max() < 1e-3 * radius:
                 radius *= 0.5

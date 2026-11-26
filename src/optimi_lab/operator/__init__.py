@@ -8,7 +8,7 @@
   Monte Carlo and OCBA replicate allocation;
 * model-based -- acquisitions (log-EI, PI, UCB, KG, constrained EI, exact EHVI, NEHVI, ParEGO's
   scalarisation) over a Gaussian prediction or joint draws;
-* gradient -- the generalised Cauchy point, QPs, KKT assembly and merit functions. Every linear solve, line search, trust-region
+* gradient -- the generalized Cauchy point, QPs, KKT assembly and merit functions. Every linear solve, line search, trust-region
   step and quasi-Newton update is numerics-lab's; this layer assembles what they are applied to.
 
 Solvers (L7, :mod:`optimi_lab.solver`) bind them.
@@ -61,7 +61,7 @@ from optimi_lab.operator.reference import (
     associate,
     das_dennis,
     niching_tournament,
-    normalise,
+    normalize,
     reference_select,
 )
 from optimi_lab.operator.reliability import (
@@ -187,7 +187,7 @@ __all__ = [
     'nearest_neighbors',
     'niching_tournament',
     'noisy_expected_hypervolume_improvement',
-    'normalise',
+    'normalize',
     'ocba',
     'order_crossover',
     'parego_scores',

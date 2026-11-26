@@ -2,7 +2,7 @@
 
 Unscrambled Sobol and Halton are deterministic sequences, so the oracle comparison is EXACT (a
 tolerance of 0 in unit-cube coordinates, which are dimensionless). A scrambled set is a random draw,
-so it is compared on the property scrambling exists to preserve -- its centred L2 discrepancy, which
+so it is compared on the property scrambling exists to preserve -- its centered L2 discrepancy, which
 must stay within a factor of the oracle's own scrambled draw -- and on balance (one point per
 elementary interval).
 """
@@ -65,7 +65,7 @@ def test_a_latin_hypercube_holds_one_point_per_stratum_in_every_column():
 
 
 def test_maximin_spreads_its_closest_pair_further_than_a_plain_hypercube():
-    """D70: the criterion it optimises is the smallest pairwise distance (unit-cube units)."""
+    """D70: the criterion it optimizes is the smallest pairwise distance (unit-cube units)."""
 
     def closest(points):
         gaps = np.linalg.norm(points[:, None] - points[None], axis=-1)

@@ -1,20 +1,20 @@
 """Design variables -> physical density: tie, FILTER, PROJECT, hold passive cells -- with the exact adjoint.
 
 ``z`` (design variables) -> ``x = expand(z)`` (one per cell, :class:`~.domain.DesignDomain`; a passive
-``solid``/``void`` cell is no variable and enters at 1/0, so its neighbours filter its declared state) -> FILTER
+``solid``/``void`` cell is no variable and enters at 1/0, so its neighbors filter its declared state) -> FILTER
 ``x~`` -> PROJECTION ``x^ = (tanh(b eta) + tanh(b (x~ - eta))) / (tanh(b eta) + tanh(b (1 - eta)))``
 (smoothed Heaviside; ``b`` raised by continuation) -> passive cells held at 1/0 (zero slope). The
 physics reads ``x^``; :meth:`DesignChain.pull_back` carries ``d f / d x^`` back to ``d f / d z``.
 
 Two filters, both LINEAR and both with a radius in the domain's length unit:
 
-* :class:`DensityFilter` -- cone weights ``w_ij = max(0, r - |c_i - c_j|) V_j``, rows normalised
-  (Bruns and Tortorelli 2001; Bourdin 2001). *void_padding* normalises every row by the largest row sum,
+* :class:`DensityFilter` -- cone weights ``w_ij = max(0, r - |c_i - c_j|) V_j``, rows normalized
+  (Bruns and Tortorelli 2001; Bourdin 2001). *void_padding* normalizes every row by the largest row sum,
   as if the domain sat in void (Clausen and Andreassen 2017), so a boundary cell does not filter to 1.
 * :class:`HelmholtzFilter` -- the PDE filter ``-r_h^2 lap x~ + x~ = x`` with ``r_h = r / (2 sqrt 3)``
   (Lazarov and Sigmund 2011), discretised on the cell graph by two-point fluxes
   ``face_ij / |c_i - c_j|``, zero-flux on the boundary: ``(M + r_h^2 L) x~ = M x``. Its cost is one
-  sparse solve per map, not a neighbour search, so it scales to large 3-D domains.
+  sparse solve per map, not a neighbor search, so it scales to large 3-D domains.
 
 ROBUST length scale: one filter, projections at ``eta`` eroded / nominal / dilated (:data:`ROBUST_ETAS`;
 Wang, Lazarov and Sigmund 2011). Asking the eroded and dilated realizations to perform too gives the

@@ -9,7 +9,7 @@ the local density ``t`` is weighted by the scheme's ``w(t)``,
 
 so the property is ``v_k + w(t) (v_{k+1} - v_k)``. Nothing here knows WHICH property it is: a caller
 interpolates a stiffness, a conductivity, a permeability or a reluctivity, and which one to interpolate
-(and in which direction) is the caller's modelling decision.
+(and in which direction) is the caller's modeling decision.
 
 :func:`p_norm` and :func:`ks` are smooth maxima with exact gradients: the p-norm
 ``(sum |v|^p)^(1/p)`` (scale-free form) bounds ``max |v|`` from above by at most a factor ``n^(1/p)``;

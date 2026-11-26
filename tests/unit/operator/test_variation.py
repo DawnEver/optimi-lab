@@ -28,7 +28,7 @@ VALUES = np.array([[1.0, 2.0], [2.0, 1.0], [1.0, 1.0], [0.5, 0.5], [0.0, 3.0]])
 
 @pytest.mark.parametrize('selector', [random_select, tournament_select])
 def test_the_two_parent_selectors_agree_on_more_than_the_population(selector):
-    """One behaviour for one request: a refusal naming both counts, never numpy's own error.
+    """One behavior for one request: a refusal naming both counts, never numpy's own error.
 
     ``RandomSelection`` raised "Cannot take a larger sample than population" from inside
     ``np.random.choice`` and ``TournamentSelection`` silently duplicated indices instead.

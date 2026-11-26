@@ -42,7 +42,7 @@ def test_d127_bounds_only_route_to_the_projected_newton_method() -> None:
 
 
 def test_d127_a_singular_hessian_is_refused_by_name_not_leaked_as_an_engine_error() -> None:
-    # diag(1, 0) is only positive SEMIdefinite: the bound route's gate must answer False (it used to catch
+    # diag(1, 0) is only positive SEMIndefinite: the bound route's gate must answer False (it used to catch
     # scipy's LinAlgError while the engine raises its own LinearSolveError), and the active set names it.
     with pytest.raises(Refusal, match='not positive definite'):
         qp(LinearProgram(np.array([-0.4, 1.0]), lo=-np.ones(2), hi=np.ones(2)), np.diag([1.0, 0.0]))

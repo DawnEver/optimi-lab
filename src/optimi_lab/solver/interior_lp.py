@@ -3,7 +3,7 @@
 ``min c.z, A z = b, z >= 0`` and its dual ``A^T y + s = c, s >= 0`` (Mehrotra 1992; Nocedal and
 Wright, Algorithm 14.3). Each iterate solves the normal equations ``A (Z/S) A^T dy = r`` through
 numerics-lab's Cholesky factor (``numerics_lab.linear.cholesky``), once for the affine predictor and
-once, on the same factor, for the centred corrector with ``sigma = (mu_aff / mu)^3``.
+once, on the same factor, for the centered corrector with ``sigma = (mu_aff / mu)^3``.
 
 It stops when the primal and dual residuals, relative to ``1 + |b|`` and ``1 + |c|``, and the duality
 gap, relative to ``1 + |c.z|``, are all below *tolerance* (dimensionless). This basic form does NOT

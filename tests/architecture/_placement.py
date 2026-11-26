@@ -11,7 +11,7 @@ rows, 44 STAYS, 13 MOVES, 14 SPLITS). This is the same declaration for this repo
 DECLARATION ONLY: not one file is moved by the commit that lands it.
 
 THE TEST THAT DECIDES A ROW, taken from the family's and re-stated in this repo's nouns: **does this
-code name `optimi_lab` or an optimisation concept?** If it does, it is this repo's and it STAYS. If
+code name `optimi_lab` or an optimization concept?** If it does, it is this repo's and it STAYS. If
 it does not, it is a mechanism and it MOVES. The third answer is the interesting one: a file that
 does both must SPLIT, and naming the SEAM -- which half is family, which is local -- is more useful
 than forcing it into a box it does not fit.
@@ -25,7 +25,7 @@ three are more than bookkeeping:
    walk that reached nothing reports what a fully classified tree reports.
 2. A `STAYS` CLAIM MUST HAVE EVIDENCE -- the file names something this repo owns.
 3. A `MOVES` CLAIM MUST SURVIVE THE CONVERSE -- its CODE names nothing this repo owns, because
-   moving a file that does would carry an optimisation fact into a vendor-neutral package.
+   moving a file that does would carry an optimization fact into a vendor-neutral package.
 4. A `STAYS` OR `SPLITS` FILE MUST BE MOSTLY THIS REPO'S, BY DENSITY. Property 2 is a HIT test and a
    hit is one line; property 4 asks how much NON-repo code surrounds it. A label the author picks is
    not a measurement, so `SPLITS` answers to the SAME bar as `STAYS` -- an unfinished split is a
@@ -34,7 +34,7 @@ three are more than bookkeeping:
 WHAT THE MEASUREMENT CANNOT SEE, stated so a reader does not supply "everything":
 
 * IT COUNTS LINES, NOT MEANING, and property 4 reads CODE rather than prose: a docstring naming
-  optimisation forty times counts zero.
+  optimization forty times counts zero.
 * THE IDENTIFIER BOUNDARY CUTS BOTH WAYS. A repo fact written as a PATH, a NUMBER or a STRING
   LITERAL is invisible here. Several rows below are honest `BELOW_THE_BAR` entries for exactly that
   reason and say so.
@@ -140,7 +140,7 @@ REPO_NOUNS: Final = (
     'optimi_lab',
     'optimi',
     'optimization',
-    'optimisation',
+    'optimization',
     'optimizer',
     'optimizers',
     'objective',
@@ -199,7 +199,7 @@ SHELL_ROWS: Final[frozenset[str]] = frozenset()
 
 #: Keys are repo-relative POSIX paths -- DATA, so a row written on Windows matches on Linux.
 PLACEMENT: Final[dict[str, Placement]] = {
-    'tests/architecture/test_the_review_is_the_familys.py': Placement(
+    'tests/architecture/test_the_review_command_is_the_family_default.py': Placement(
         STAYS, 'Thin binder: the review table of this checkout; the refusal is famtests.reviewcommand.'
     ),
     'tests/architecture/test_modules_are_split_by_concept.py': Placement(
@@ -287,7 +287,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'drop-with-a-reason -- already lives once in `dev_lab.dev.famconfig`, so what is left here is the '
         'lines that are facts about optimi-lab: the `usr/local/` tree, the viztracer `result.json`, the '
         "coredumpy `dumps/`, and this tree's section deltas. There is no family half left to cut. RE-MEASURED "
-        '2026-10-18 after the pre-commit artefact left the family: own=34 hits=1 -> 2.94%, down from own=69 '
+        '2026-10-18 after the pre-commit artifact left the family: own=34 hits=1 -> 2.94%, down from own=69 '
         'repo=1 -> 1.45% on 2026-10-05 -- the extra hook ids and the stage-narrowing pin went with the YAML '
         '-- so it is under the binder ceiling and owes no `BELOW_THE_BAR` row.',
     ),
@@ -305,8 +305,8 @@ PLACEMENT: Final[dict[str, Placement]] = {
         STAYS,
         'THE DOMAIN FACT IS THE SUBJECT: a library of interchangeable parts IS a set of registries -- which '
         'regressor, which sampler, which direction -- and the failure it refuses is the silent one where an '
-        'unrecognised key falls back to a default and the caller gets a run it never asked for. That sentence '
-        'is false of every repo that is not an optimiser. RE-MEASURED 2026-11-08: own=38 hits=4 -> 10.53% (A1: the three model sets left with the models for learn-lab), down from own=42 hits=6 -> 14.29% on 2026-11-01 (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
+        'unrecognized key falls back to a default and the caller gets a run it never asked for. That sentence '
+        'is false of every repo that is not an optimizer. RE-MEASURED 2026-11-08: own=38 hits=4 -> 10.53% (A1: the three model sets left with the models for learn-lab), down from own=42 hits=6 -> 14.29% on 2026-11-01 (the study algorithms and steering models joined the sets), up from own=38 hits=4 on 2026-10-18 and '
         'own=36 repo=4 on 2026-09-17, and under the ceiling as well.',
     ),
     'tests/architecture/test_a_pin_is_a_named_set.py': Placement(
@@ -426,7 +426,7 @@ PLACEMENT: Final[dict[str, Placement]] = {
         '`assert_widths_are_the_named_set`, `assert_the_declaration_is_the_shape_the_ratchet_keys_on` and '
         "`assert_the_scanner_still_convicts` over `dev_lab.dev.docwidth`'s 120-column ceiling, corpus and two-sided "
         'ratchet; this file imports both and holds no arm of its own. THE ADOPTION IS RECORDED UPSTREAM AS A REFUSED '
-        'MERGE, which is why it is a neighbour of the CJK guard and not the same body: their surfaces share no name, '
+        'MERGE, which is why it is a neighbor of the CJK guard and not the same body: their surfaces share no name, '
         'this one keys its declaration by `path:line` where the other keys by FILE, and only this one has a ceiling on '
         "its hatch. LOCAL: this tree's corpus, its DECLARED set of over-width `path:line` sites (EMPTY -- no injected "
         "document has a line past the ceiling), that set's ceiling, and the "
@@ -592,10 +592,10 @@ PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_family_config_is_rendered.py': Placement(
         STAYS,
         'EXECUTED 2026-09-17, RE-READ 2026-09-19 AND 2026-10-18. The verdict half is '
-        '`dev_lab.dev.famtests.configrender` and this file drives its arms over every declared artefact. '
+        '`dev_lab.dev.famtests.configrender` and this file drives its arms over every declared artifact. '
         'LOCAL: the directory floor, the re-render remedy, the planted edit and the agreed modes. RE-MEASURED '
         '2026-10-18: own=30 hits=0 -> 0.00%, down from own=67 on 2026-09-19 -- the pre-commit engine arms '
-        'left with the retired YAML artefact -- so it is twenty lines under the binder ceiling and its '
+        'left with the retired YAML artifact -- so it is twenty lines under the binder ceiling and its '
         '`BELOW_THE_BAR` entry is deleted with the shortfall.',
     ),
     'tests/architecture/test_the_ci_workflow_is_rendered.py': Placement(
@@ -789,7 +789,7 @@ def nouns_in_prose(rel: str, root: Path | None = None) -> set[str]:
     """Every repo noun anywhere in *rel*, PROSE INCLUDED -- what property 2 reads.
 
     Property 2 asks only whether evidence EXISTS, and it is deliberately the generous reading: a
-    file that explains in its docstring which optimisation fact it is about has said something true.
+    file that explains in its docstring which optimization fact it is about has said something true.
     That generosity is exactly why property 4 exists, and section 4's own controls pin that prose
     buys no DENSITY. Renamed from `nouns_in` in the same edit that adopted the kit, because the kit
     publishes a `nouns_in` that takes TEXT and this one takes a PATH -- one spelling for two
@@ -876,7 +876,7 @@ CEILING_REFUSES: Final = 67
 #: is TIGHT -- 3.06% clears it by six hundredths -- which is stated rather than hidden: a bar this
 #: close to a live row is a bar whose next re-measurement may move a label. All four rosters in the
 #: family measured 3.0 independently and the kit STILL does not ship it: four independent
-#: measurements of a number are evidence FOR the number, not a licence to stop measuring it.
+#: measurements of a number are evidence FOR the number, not a license to stop measuring it.
 MIN_REPO_DENSITY_PCT: Final = 3.0
 
 #: `test_optimi_lab_adopts_the_shared_registry.py`, 3.06% -- the SMALLEST percentage the bar must

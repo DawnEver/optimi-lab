@@ -1,21 +1,21 @@
 """Single-objective gradient methods on a box: projected gradient, L-BFGS-B, Newton-CG trust region.
 
-Each minimises ``f`` over ``lo <= x <= hi`` and halts CONVERGED when the projected gradient
+Each minimizes ``f`` over ``lo <= x <= hi`` and halts CONVERGED when the projected gradient
 ``|P(x - grad f) - x|`` falls to :func:`~optimi_lab.solver.smooth.kkt_bar` (``rtol`` against the
 starting gradient, floored by ``atol``). Constraints other than the box are refused here.
 
 * :func:`projected_gradient` -- the spectral projected gradient: a Barzilai-Borwein trial length
   along ``-grad f``, searched along the projected arc by Armijo backtracking.
 * :func:`lbfgsb` -- L-BFGS-B (Byrd, Lu, Nocedal and Zhu 1995): the limited-memory BFGS model, the
-  generalised Cauchy point along the projected path (:func:`~optimi_lab.operator.cauchy_point`),
-  subspace minimisation over the variables it leaves free (conjugate gradients, truncated to the
+  generalized Cauchy point along the projected path (:func:`~optimi_lab.operator.cauchy_point`),
+  subspace minimization over the variables it leaves free (conjugate gradients, truncated to the
   box -- the direct primal method), then a strong-Wolfe search capped at the box. A failed search
   discards the memory and retries from the steepest-descent model, as Byrd-Lu-Nocedal do; a failure
   with no memory is the halt (STALLED, the search's reason quoted). The model is numerics-lab's
   :class:`~numerics_lab.quasi_newton.LbfgsMemory` in its compact direct form ``theta I - W M W^T``; a
   singular middle matrix ``M^-1`` (in floating point, a round-off pair ``s ~ 1e-23`` against ``theta ~ 1e22``)
   refreshes the memory and continues from the steepest-descent model, as the reference code does when its
-  factorisation fails -- never a bare ``Singular matrix`` out of the solver (HPC 7967593).
+  factorization fails -- never a bare ``Singular matrix`` out of the solver (HPC 7967593).
 * :func:`newton_cg` -- a trust-region Newton method: Steihaug-CG on the free variables' Hessian.
   The Hessian-vector product is the caller's ``hvp(x, v)`` -- an oracle's declared product -- or,
   ONLY when asked for by name, ``hvp="finite_difference"``: a forward difference of gradients, one
@@ -97,7 +97,7 @@ def projected_gradient(
 
 
 def _subspace_step(point: Linearization, model: np.ndarray, z: np.ndarray, lo, hi) -> np.ndarray:
-    """From the Cauchy point ``x + z``: minimise the model over its free variables, truncated to the box."""
+    """From the Cauchy point ``x + z``: minimize the model over its free variables, truncated to the box."""
     x_c = point.x + z
     free = (x_c > lo) & (x_c < hi)
     if not free.any():

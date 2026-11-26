@@ -7,7 +7,7 @@ levels; Real and Field columns are free. On it:
 * :func:`snap` puts each discrete block on its nearest level (the repair a continuous operator
   needs before its child is a design);
 * :func:`discrete_mutation` moves an ORDERED variable (Integer) one level up or down, and resets an
-  UNORDERED one (Categorical) to a different level drawn uniformly -- a category has no neighbour.
+  UNORDERED one (Categorical) to a different level drawn uniformly -- a category has no neighbor.
 
 Permutation genomes are integer rows holding ``0 .. k-1`` once each: :func:`order_crossover` (OX1,
 Davis 1985) keeps a segment of the first parent in place and fills the rest in the second parent's

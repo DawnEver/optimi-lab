@@ -2,7 +2,7 @@
 
 The smooth problem every gradient solver sees is
 
-    minimise f(x)   subject to   h(x) = 0,   c(x) <= 0,   lo <= x <= hi
+    minimize f(x)   subject to   h(x) = 0,   c(x) <= 0,   lo <= x <= hi
 
 with multipliers ``y`` for ``h`` and ``z >= 0`` for ``c``; the Lagrangian is ``f + y.h + z.c``. The
 bounds carry no explicit multipliers: they are absorbed by PROJECTING the Lagrangian gradient onto

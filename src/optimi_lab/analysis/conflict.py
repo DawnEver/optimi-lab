@@ -8,7 +8,7 @@
   given points least, while the share of changed ordered pairs stays within ``tolerance``. What is
   kept preserves who dominates whom; a solver may then run on fewer objectives.
 
-Minimisation frame; the points are any evaluated set, a front or a whole archive.
+Minimization frame; the points are any evaluated set, a front or a whole archive.
 """
 
 import numpy as np

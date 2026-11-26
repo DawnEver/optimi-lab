@@ -2,7 +2,7 @@
 
 R4 (plan I.1): equation solving is ONE engine, numerics-lab; optimi-lab depends on it. So no shipped
 module DEFINES a line search, a trust-region step, a quasi-Newton update, a Krylov method, a
-factorisation or a KKT solve -- it calls numerics-lab's. The guard reads definitions by name against
+factorization or a KKT solve -- it calls numerics-lab's. The guard reads definitions by name against
 :data:`KERNEL_NAMES`; and the gradient methods must actually import numerics-lab (a floor), so a
 method that quietly inlined its own search would show up on one side or the other.
 

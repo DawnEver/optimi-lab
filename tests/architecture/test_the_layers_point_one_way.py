@@ -63,18 +63,18 @@ def _part(module: str) -> str:
 
 def against_the_arrow(edges: list[tuple[str, str]]) -> list[str]:
     """Every ``importer -> imported`` edge that points UP the layers, or touches an undeclared part."""
-    offences = []
+    offenses = []
     for importer, imported in edges:
         a, b = _part(importer), _part(imported)
         if a in EXEMPT or b == '__version__':
             continue
         if a not in LAYERS or b not in LAYERS:
-            offences.append(
+            offenses.append(
                 f'{importer} -> {imported}: {sorted({a, b} - set(LAYERS) - EXEMPT)} is not a declared layer'
             )
         elif LAYERS[b] > LAYERS[a]:
-            offences.append(f'{importer} (L{LAYERS[a]}) -> {imported} (L{LAYERS[b]}) points up the layers')
-    return offences
+            offenses.append(f'{importer} (L{LAYERS[a]}) -> {imported} (L{LAYERS[b]}) points up the layers')
+    return offenses
 
 
 def _edges() -> tuple[int, list[tuple[str, str]]]:

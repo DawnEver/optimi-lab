@@ -59,7 +59,7 @@ def test_planted_control_a_fixed_void_conductance_reads_a_smaller_island_cooler(
 
 
 def test_a_void_bridge_is_refused_and_a_bridge_at_the_build_threshold_reads_joined() -> None:
-    """The one law's stated price: a neighbour read near eta conducts nearly as well as the island heats."""
+    """The one law's stated price: a neighbor read near eta conducts nearly as well as the island heats."""
     measure = VirtualTemperature(*_planted(4)[:2], read_on=BUILT_READ, gamma=20.0)
     for gap, refused in ((0.3, True), (NOMINAL_ETA - 1e-3, False)):
         domain, _, x = _planted(4, gap_value=gap)

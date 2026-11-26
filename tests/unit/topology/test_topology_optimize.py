@@ -85,10 +85,10 @@ class MbbBeam:
         k = k.tocsc()[self.free][:, self.free]
         u = np.zeros(self.ndof)
         u[self.free] = np.asarray(solve_linear_system(k, self.force[self.free]), dtype=float).reshape(-1)
-        ue = u[self.edof]
+        u_elem = u[self.edof]
         m = self.domain.measures
         return {
-            'compliance': (float(self.force @ u), -de * np.einsum('ij,jk,ik->i', ue, self.k0, ue)),
+            'compliance': (float(self.force @ u), -de * np.einsum('ij,jk,ik->i', u_elem, self.k0, u_elem)),
             'volume': (float(physical @ m / m.sum()), m / m.sum()),
         }
 

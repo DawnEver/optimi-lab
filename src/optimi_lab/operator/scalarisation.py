@@ -1,6 +1,6 @@
 """Scalarisations: one objective vector to one number, each declaring how much of a front it can REACH.
 
-``scalarisation(values, weights, reference, **parameters)`` scores every row of ``values`` (minimised
+``scalarisation(values, weights, reference, **parameters)`` scores every row of ``values`` (minimized
 frame) under a weight row (or one row per value row) relative to a reference point -- the ideal for
 most, the aspiration for ASF. The ``reach`` (B0-02) says which Pareto points some setting of the
 parameter can make optimal:
@@ -103,7 +103,7 @@ def _nbi(
     theta: float = 1e3,
 ) -> np.ndarray:
     """Normal-boundary intersection (Das and Dennis, 1998) as a penalty: travel ``t`` along the
-    quasi-normal from the hull point ``reference + Phi beta``, penalised by the distance off that line.
+    quasi-normal from the hull point ``reference + Phi beta``, penalized by the distance off that line.
 
     ``anchors`` are the individual minima (one row per objective); None takes them from ``values``.
     """
@@ -155,6 +155,6 @@ def nearest_neighbors(weights: np.ndarray, size: int) -> np.ndarray:
     if size < 1:
         refuse(f'size must be at least 1, got {size!r}')
     if size > len(weights):
-        refuse(f'a neighbourhood of {size} weight vector(s) exceeds the {len(weights)} there are')
+        refuse(f'a neighborhood of {size} weight vector(s) exceeds the {len(weights)} there are')
     distances = np.linalg.norm(weights[:, np.newaxis, :] - weights[np.newaxis, :, :], axis=2)
     return np.argsort(distances, axis=1)[:, :size]

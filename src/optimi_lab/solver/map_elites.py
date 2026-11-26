@@ -1,6 +1,6 @@
-"""MAP-Elites (Mouret and Clune, 2015): the best design found in every cell of a behaviour grid.
+"""MAP-Elites (Mouret and Clune, 2015): the best design found in every cell of a behavior grid.
 
-The behaviour of a design is a tuple of :class:`Descriptor` readings, each binned evenly on
+The behavior of a design is a tuple of :class:`Descriptor` readings, each binned evenly on
 ``[lo, hi]`` (values outside fall in the end bins). A descriptor names a declared problem OUTPUT
 (an objective or a constraint's output, read from the result) or a design VARIABLE (read from the
 design) -- a result carrying an undeclared output is refused upstream, so there is no third source. A cell keeps
@@ -27,7 +27,7 @@ __all__ = ['Descriptor', 'MapElites', 'descriptors_of', 'map_elites']
 
 @dataclass(frozen=True, slots=True)
 class Descriptor:
-    """One behaviour axis: oracle output *name*, binned *bins* times evenly over ``[lo, hi]`` (its unit)."""
+    """One behavior axis: oracle output *name*, binned *bins* times evenly over ``[lo, hi]`` (its unit)."""
 
     name: str
     lo: float

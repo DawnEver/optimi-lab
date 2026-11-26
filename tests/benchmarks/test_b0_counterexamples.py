@@ -36,7 +36,7 @@ def test_b0_06_a_resource_timeout_then_a_success_is_never_infeasible(tmp_path: P
         attempts.append(action.design['x'])
         if attempts.count(action.design['x']) == 1:
             return Result(
-                action, Cell(Status.TIMEOUT, reason=Reason('timeout', 'licence queue'), cost=Cost(wall_s=1.0))
+                action, Cell(Status.TIMEOUT, reason=Reason('timeout', 'license queue'), cost=Cost(wall_s=1.0))
             )
         return Result(action, Cell(Status.OK, values={'f': 1.0, 'g': 2.0}, cost=Cost(wall_s=1.0)))
 
@@ -132,7 +132,7 @@ def test_b0_20_every_registered_solver_declares_how_it_treats_many_objectives() 
 
 
 def test_b0_02_a_weighted_sum_cannot_reach_the_middle_of_a_concave_front() -> None:
-    """Promoted by P12 (D84, D110): the reach is declared, and the scan tests hold it to behaviour."""
+    """Promoted by P12 (D84, D110): the reach is declared, and the scan tests hold it to behavior."""
     assert weighted_sum.reach == 'convex_hull'
     assert tchebycheff.reach == 'whole_front'
 

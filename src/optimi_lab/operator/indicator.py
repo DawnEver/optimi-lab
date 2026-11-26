@@ -2,7 +2,7 @@
 
 * :func:`spea2_fitness` / :func:`spea2_select` -- Zitzler, Laumanns and Thiele (2001): raw fitness is
   the summed strength of a row's dominators, density ``1 / (sigma_k + 2)`` from the distance to its
-  k-th nearest neighbour (``k = floor(sqrt(N))``); the non-dominated rows survive, truncated by
+  k-th nearest neighbor (``k = floor(sqrt(N))``); the non-dominated rows survive, truncated by
   iteratively removing the row nearest to another (ties broken by the next-nearest), or filled by
   the best dominated rows by fitness.
 * :func:`hypervolume_select` -- SMS-EMOA's reduction (Beume et al., 2007): whole fronts, then the
@@ -77,7 +77,7 @@ def hypervolume_select(
 ) -> np.ndarray:
     """Whole fronts, the overflowing one reduced by least exclusive hypervolume contribution.
 
-    ``reference`` is in the minimised normalised frame; None is that front's nadir plus one unit,
+    ``reference`` is in the minimized normalized frame; None is that front's nadir plus one unit,
     so the extreme points keep a positive contribution.
     """
     values = require_rankable(values)

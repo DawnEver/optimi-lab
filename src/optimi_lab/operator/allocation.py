@@ -1,7 +1,7 @@
 """D125 optimal computing budget allocation (Chen, Lin, Yucesan and Chick, 2000).
 
-Given the sample *means* and standard deviations *stds* of ``k`` designs (MINIMISED) and a *budget*
-of replicates, OCBA asymptotically maximises the probability of correct selection by
+Given the sample *means* and standard deviations *stds* of ``k`` designs (MINIMIZED) and a *budget*
+of replicates, OCBA asymptotically maximizes the probability of correct selection by
 
     N_i / N_j = (s_i / d_i)^2 / (s_j / d_j)^2           for i, j != b,   d_i = mean_i - mean_b
     N_b = s_b sqrt(sum_{i != b} N_i^2 / s_i^2)

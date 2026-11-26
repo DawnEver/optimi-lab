@@ -17,7 +17,7 @@ from optimi_lab.solver import Halt, Ineligible, Requires, StructuredSolver, matc
 
 SPACE = Space((Real('x', 0.0, 4.0), Real('y', -1.0, 3.0)))
 LINEAR = frozenset({Form.LINEAR})
-# maximise 3x + 2y + 1  s.t.  x + y <= 4 (oracle output 'load'),  x - y >= -2 (a Linear row),  the box
+# maximize 3x + 2y + 1  s.t.  x + y <= 4 (oracle output 'load'),  x - y >= -2 (a Linear row),  the box
 LP = Problem(
     SPACE,
     (Objective('profit', Sense.MAXIMIZE),),

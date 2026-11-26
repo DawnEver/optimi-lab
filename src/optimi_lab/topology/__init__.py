@@ -18,7 +18,7 @@ from optimi_lab.topology.density import (
     grayness,
     project,
 )
-from optimi_lab.topology.domain import DesignDomain, Neighbourhood
+from optimi_lab.topology.domain import DesignDomain, Neighborhood
 from optimi_lab.topology.driver import (
     DEFAULT_CONTINUATION,
     Continuation,
@@ -49,7 +49,7 @@ __all__ = [
     'HelmholtzFilter',
     'Interpolation',
     'Iteration',
-    'Neighbourhood',
+    'Neighborhood',
     'Optimizer',
     'PhysicsProvider',
     'ProviderResponse',

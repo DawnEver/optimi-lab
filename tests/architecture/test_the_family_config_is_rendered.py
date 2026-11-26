@@ -1,4 +1,4 @@
-r"""FAMILY-CONFIG-IS-RENDERED, for THIS checkout -- a hand edit to a shared artefact REDS.
+r"""FAMILY-CONFIG-IS-RENDERED, for THIS checkout -- a hand edit to a shared artifact REDS.
 
 THE DEFECT THIS CLOSES. `.gitignore`, `.gitattributes`, `.rgignore` and `Makefile` are hand-maintained
 once per repo across the family, so a fix in one is a fix in one. `dev_lab.dev.famconfig` owns
@@ -15,7 +15,7 @@ the declaration half plus the numbers underneath it -- the hook floor, the direc
 re-render remedy and the planted edit.
 
 WHAT GREEN MEANS, STATED EXACTLY, because overclaiming it would be the defect the family calls
-dominant. For a RENDERED artefact green means the bytes on disk are what base plus delta produce.
+dominant. For a RENDERED artifact green means the bytes on disk are what base plus delta produce.
 For a REQUIRED one it means every base line is PRESENT -- the Makefile's three shared targets share
 a NAME and no RECIPE, so demanding byte equality there would assert a portability that does not
 exist. It says nothing about whether any rule or target is CORRECT.
@@ -28,9 +28,9 @@ deliberately not repeated here: a name that resolves to nothing in THIS checkout
 looking for a guard they will not find, which is the defect `test_cited_tests_resolve.py` beside
 this file exists to refuse. A duplicate control that cannot diverge from its original is a
 maintenance cost with no evidence value, and the consumer half of all four is `assert_delta_is_not_a_fork`, which
-this file still runs on every declared artefact.
+this file still runs on every declared artifact.
 
-THE GIT-HOOK ARTEFACT LEFT THE FAMILY ON 2026-10-11 (lab-commons 900c5bf): hooks are declared in
+THE GIT-HOOK ARTIFACT LEFT THE FAMILY ON 2026-10-11 (lab-commons 900c5bf): hooks are declared in
 `[tool.dev_lab.hooks]` and run by `dev_lab.dev.githooks`, so the kit publishes no YAML base and
 the arms that read the pre-commit engine's stage resolution went with it. What the hook table holds is
 `test_the_declared_hooks_are_installed.py`'s subject now.
@@ -43,7 +43,7 @@ from typing import Final
 
 import pytest
 from _famconfig import DELTAS, REPO
-from dev_lab.dev.famconfig import RENDERED, REQUIRED, artefact_base
+from dev_lab.dev.famconfig import RENDERED, REQUIRED, artifact_base
 from dev_lab.dev.famtests import configrender
 
 #: THE TREE UNDER TEST, not the working directory: a scan rooted at the CWD answers, plausibly,
@@ -57,7 +57,7 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 #: repo has a negation at all -- a fact about one delta, where the hazard is a fact about the base.
 _DIRECTORY_FLOOR: Final = 5
 
-#: The command that re-renders this repo's artefacts. It is optimi-lab's own -- one lab runs an
+#: The command that re-renders this repo's artifacts. It is optimi-lab's own -- one lab runs an
 #: inline interpreter line and the other a Makefile target -- so a guessed remedy would be a refusal
 #: nobody can act on, which is how a refusal gets routed around.
 _RERENDER_HINT: Final = 're-render it from tests/architecture/_famconfig.py through famconfig.render'
@@ -66,28 +66,28 @@ _RERENDER_HINT: Final = 're-render it from tests/architecture/_famconfig.py thro
 def test_every_family_base_is_either_declared_or_refused() -> None:
     """COMPLETENESS, and it is what stops a new base arriving unnoticed.
 
-    A test that only ever checks the artefacts this repo happens to declare cannot tell a base this
+    A test that only ever checks the artifacts this repo happens to declare cannot tell a base this
     repo has not adopted from one the kit has not published.
     """
     configrender.assert_every_base_is_accounted_for(deltas=DELTAS, repo=REPO)
 
 
-@pytest.mark.parametrize('artefact', sorted(DELTAS))
-def test_the_artefact_on_disk_is_what_the_live_base_and_our_delta_render(artefact: str) -> None:
+@pytest.mark.parametrize('artifact', sorted(DELTAS))
+def test_the_artifact_on_disk_is_what_the_live_base_and_our_delta_render(artifact: str) -> None:
     """THE PROPERTY. Green means this file is the family's answer plus lines this repo declared."""
-    configrender.assert_artefact_is_rendered(
-        root=_ROOT, artefact=artefact, deltas=DELTAS, repo=REPO, rerender_hint=_RERENDER_HINT
+    configrender.assert_artifact_is_rendered(
+        root=_ROOT, artifact=artifact, deltas=DELTAS, repo=REPO, rerender_hint=_RERENDER_HINT
     )
 
 
-@pytest.mark.parametrize('artefact', sorted(DELTAS))
-def test_our_delta_is_a_delta_rather_than_a_fork(artefact: str) -> None:
+@pytest.mark.parametrize('artifact', sorted(DELTAS))
+def test_our_delta_is_a_delta_rather_than_a_fork(artifact: str) -> None:
     """The anti-fork arm, driven on the DECLARATION so it is a separate answer from "the file drifted".
 
     It is also the consumer half of every anchor control the kit already drives against this base,
     which is why this file no longer plants its own.
     """
-    configrender.assert_delta_is_not_a_fork(artefact=artefact, deltas=DELTAS, repo=REPO)
+    configrender.assert_delta_is_not_a_fork(artifact=artifact, deltas=DELTAS, repo=REPO)
 
 
 def test_no_delta_line_reopens_a_rule_the_base_closed() -> None:
@@ -102,7 +102,7 @@ def test_no_delta_line_reopens_a_rule_the_base_closed() -> None:
     visible to a byte comparison, because both render exactly as declared.
     """
     configrender.assert_no_rule_is_reopened(
-        base=artefact_base('.gitignore'),
+        base=artifact_base('.gitignore'),
         delta=DELTAS['.gitignore'],
         repo=REPO,
         directory_floor=_DIRECTORY_FLOOR,
@@ -112,12 +112,12 @@ def test_no_delta_line_reopens_a_rule_the_base_closed() -> None:
 def test_this_guard_can_go_both_ways(tmp_path: Path) -> None:
     """PLANTED CONTROL. A guard green on the real tree could be asserting a constant.
 
-    Both states are driven through the same function the property uses: the rendered artefact is
+    Both states are driven through the same function the property uses: the rendered artifact is
     written to a scratch path and must install, then one base line is edited by hand and it must
     not -- and the refusal has to NAME the line, or the guard reported a failure it never located.
     """
     configrender.assert_render_round_trips(
-        artefact='.gitignore',
+        artifact='.gitignore',
         deltas=DELTAS,
         repo=REPO,
         scratch=tmp_path,
@@ -135,8 +135,8 @@ def test_the_makefile_check_is_required_rather_than_rendered() -> None:
     configrender.assert_modes_are_as_agreed(modes={'.gitignore': RENDERED, 'Makefile': REQUIRED})
 
 
-@pytest.mark.parametrize('artefact', sorted(DELTAS))
-def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded(artefact: str) -> None:
+@pytest.mark.parametrize('artifact', sorted(DELTAS))
+def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded(artifact: str) -> None:
     """The instrument that sized this change, re-run against every adopted file.
 
     After adoption the survey must find NOTHING to drop: every base line is on disk. Before it, it
@@ -144,14 +144,14 @@ def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded(artefact
     bare. Pinning the post-adoption reading is what makes a silent removal of a base line visible
     here as well as in the main property, by a route that does not go through the rendered bytes.
 
-    IT IS PARAMETRIZED OVER EVERY ADOPTED ARTEFACT AND THE `Makefile` IS WHY, which is the kit's own
-    reason rather than a generalisation applied for symmetry: `assert_no_base_line_left_undeclared`
+    IT IS PARAMETRIZED OVER EVERY ADOPTED ARTIFACT AND THE `Makefile` IS WHY, which is the kit's own
+    reason rather than a generalization applied for symmetry: `assert_no_base_line_left_undeclared`
     exists so that a departing base line "is visible even where the mode is the weaker one", and
-    `Makefile` is the only REQUIRED artefact in the family. Under REQUIRED the rendered-bytes
+    `Makefile` is the only REQUIRED artifact in the family. Under REQUIRED the rendered-bytes
     property never compares this repo's 48 own lines against anything, so a base target NAME leaving
     this file was, until this arm covered it, caught by exactly one check instead of two. MEASURED
     2026-09-18: the survey reports 48 added / 0 dropped for `Makefile` and 16 / 0 for `.gitignore`,
-    so the drop set is empty for every artefact and the arm is green on arrival rather than aspirational.
+    so the drop set is empty for every artifact and the arm is green on arrival rather than aspirational.
 
     THE AXIS THIS IS BLIND TO, NAMED, because a scope claim nobody bounds is the lie shape. For
     `Makefile` the survey compares through `famconfig.satisfies`, which matches a base line ending in
@@ -164,4 +164,4 @@ def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded(artefact
     work around. DRIVEN 2026-09-18 against the real guard, both ways: with `all: fmt test` deleted
     the arm reds naming `['all:']`, and it is green with the line present.
     """
-    configrender.assert_no_base_line_left_undeclared(root=_ROOT, artefact=artefact, repo=REPO)
+    configrender.assert_no_base_line_left_undeclared(root=_ROOT, artifact=artifact, repo=REPO)

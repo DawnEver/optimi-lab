@@ -103,7 +103,7 @@ def _toy(action: Action) -> dict:
         msg = 'Newton stalled at 1e-3'
         raise NotConverged(msg)
     if design['x'] > 0.6:
-        msg = 'no solver licence'
+        msg = 'no solver license'
         raise Unavailable(msg)
     if design['x'] > 0.5:
         msg = 'boom'
@@ -133,7 +133,7 @@ def test_d16_the_sync_adapter_maps_each_exception_onto_ii3(x: float, status: Sta
 
 
 def test_d16_planted_control_an_infrastructure_failure_is_never_a_rejection() -> None:
-    """B0-06 in miniature: the adapter must not file a licence miss as an infeasible design."""
+    """B0-06 in miniature: the adapter must not file a license miss as an infeasible design."""
     oracle = from_function(_toy, FULL)
     result = asyncio.run(oracle(Action.of(PROBLEM, FULL, {'x': 0.65, 'y': 0.0})))
     assert not result.cell.status.decided

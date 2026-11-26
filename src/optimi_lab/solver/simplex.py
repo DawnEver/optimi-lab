@@ -1,9 +1,9 @@
 """D126 the revised simplex method on a :class:`~optimi_lab.solver.linear_program.StandardForm`.
 
-Two phases (Dantzig; Chvatal 1983, ch. 8): phase 1 minimises the sum of one artificial per row from
+Two phases (Dantzig; Chvatal 1983, ch. 8): phase 1 minimizes the sum of one artificial per row from
 the all-artificial basis; a positive optimum is INFEASIBLE, never a point. Artificials left basic at
 zero are pivoted out, and a row whose artificial cannot leave is linearly dependent and is dropped
-(its dual is zero). Phase 2 minimises the cost from that basis.
+(its dual is zero). Phase 2 minimizes the cost from that basis.
 
 Pricing and the ratio test follow BLAND'S RULE (smallest entering index, smallest leaving basic
 index among ties), which cannot cycle on a degenerate vertex. Every basis solve -- ``B x_B = b``,

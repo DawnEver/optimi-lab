@@ -22,7 +22,7 @@ checkout can give -- which declaration file optimi-lab renders from, which rules
 ship, which commands it refuses, and which exit it must leave open.
 
 THE DENY ARM NOW NAMES THE RULE IT EXPECTS, WHICH IS A STRENGTHENING THIS REPO DID NOT HAVE. Asking
-only "was it refused" cannot tell a working rule from one a neighbour is covering for: upstream
+only "was it refused" cannot tell a working rule from one a neighbor is covering for: upstream
 plants two real rules whose patterns both match `git push --force`, and with the wrong one first the
 weak question answers yes while the rule under test has stopped firing entirely. That is the
 count-pin failure in a different spelling, and it is measured rather than argued -- the sibling lab
@@ -150,7 +150,7 @@ def test_node_is_on_path() -> None:
     """NOT A SKIP, AND THAT IS THE POINT. No node means no guard, on this box, for every repo.
 
     The obvious spelling is `skipif(node is None)`, and it is the wrong one twice over. This repo
-    forbids a skip outright -- `test_no_test_is_skipped` refuses one -- and the reason generalises
+    forbids a skip outright -- `test_no_test_is_skipped` refuses one -- and the reason generalizes
     exactly here: the condition being skipped on is not "this check does not apply", it is "the
     thing under test cannot run at all". A suite that goes quiet precisely when the engine is
     unrunnable reports green for the state it exists to detect.

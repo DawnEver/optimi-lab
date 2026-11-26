@@ -1,7 +1,7 @@
 """Joe and Kuo's Sobol direction numbers (new-joe-kuo-6.21201), dimensions 2 to 256 -- DATA, not an algorithm.
 
 Source: S. Joe and F. Y. Kuo, "Constructing Sobol sequences with better two-dimensional projections",
-SIAM J. Sci. Comput. 30 (2008) 2635-2654; table published at https://web.maths.unsw.edu.au/~fkuo/sobol/.
+SIAM J. Sci. Compute. 30 (2008) 2635-2654; table published at https://web.maths.unsw.edu.au/~fkuo/sobol/.
 Row ``j`` is dimension ``j + 2``: ``(polynomial, initial direction numbers m_1..m_s)``, the polynomial
 written as an integer whose bits are its coefficients (leading and constant terms included), so its
 degree ``s`` is ``polynomial.bit_length() - 1``. Dimension 1 needs no row: it is the van der Corput

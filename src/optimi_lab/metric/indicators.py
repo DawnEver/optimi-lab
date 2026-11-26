@@ -1,6 +1,6 @@
 """L4 metric: front indicators -- hypervolume (exact, Monte Carlo, per-point contribution), IGD, IGD+, spread.
 
-The analytic benchmark problems are :mod:`optimi_lab.benchmark`. Minimisation frame throughout; a
+The analytic benchmark problems are :mod:`optimi_lab.benchmark`. Minimization frame throughout; a
 volume is in the product of the objectives' units, a distance in their common unit.
 
 Many-objective reading of one run against a reference set (both in ONE fixed frame,
@@ -219,7 +219,7 @@ def pinned_normalization(path: Path, points: Mapping[str, np.ndarray]) -> dict[s
 
 
 def spacing(front: np.ndarray) -> float:
-    """Schott's spacing: the standard deviation of each point's L1 distance to its nearest neighbour (0 = even)."""
+    """Schott's spacing: the standard deviation of each point's L1 distance to its nearest neighbor (0 = even)."""
     if len(front) < 2:
         return float('nan')
     d = np.abs(front[:, None, :] - front[None, :, :]).sum(axis=-1)

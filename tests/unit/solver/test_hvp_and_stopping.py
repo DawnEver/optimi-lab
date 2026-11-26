@@ -4,7 +4,7 @@
 recorded in the solution's evidence -- never a silent default.
 
 (c) A method stops when the KKT residual is ``<= rtol * |grad f(x0)|`` OR ``<= atol``, ``atol`` in the
-normalised objective's units per unit-cube width, both declared. The planted control is a start
+normalized objective's units per unit-cube width, both declared. The planted control is a start
 whose gradient is ~0: the relative bar is then ~0, and the method must stop on ``atol`` -- not
 divide by zero, not run to its iteration limit.
 """

@@ -42,7 +42,9 @@ def _answer(point) -> Result:
 
 
 def test_the_steering_constants_are_the_ones_the_records_were_drawn_with() -> None:
+    # spelling-off: learn-lab names this surrogate 'nearest_neighbours'
     assert SURROGATE_POOL == ('polynomial', 'radial_basis', 'nearest_neighbours')
+    # spelling-on
     assert (MIN_SURROGATE_POINTS, SURROGATE_STEERING_SEED_OFFSET, FALLBACK_PROPOSALS) == (8, 1, 8)
 
 

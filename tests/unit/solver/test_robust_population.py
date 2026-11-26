@@ -1,7 +1,7 @@
 """Population solvers estimate a declared risk over the problem's Uncertainty and select on it.
 
 The benchmark is one variable against one uniform parameter ``xi ~ U(-0.5, 0.5)``:
-``f(x, xi) = (x - 0.3)^2 + xi (1 - x)``. Its expectation is minimised at ``x = 0.3``, its worst
+``f(x, xi) = (x - 0.3)^2 + xi (1 - x)``. Its expectation is minimized at ``x = 0.3``, its worst
 case (``xi = 0.5``) at ``x = 0.55``, its CVaR at 90 % (the tail mean of xi is 0.45) at
 ``x = 0.525`` -- three measures, three different optima, so a solver that ignores the measure
 lands on the wrong one. A chance constraint ``P(x + xi <= 1) >= 0.9`` caps ``x`` at 0.6.

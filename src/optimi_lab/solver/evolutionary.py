@@ -1,7 +1,7 @@
 """The (mu + lambda) evolutionary algorithms, as factories of :class:`EvolutionarySolver`.
 
 Each factory takes the problem and the oracle capability and returns a solver for
-:func:`optimi_lab.run.run`. They are PARAMETERISATIONS of one loop -- a variation, a survivor
+:func:`optimi_lab.run.run`. They are PARAMETERIZATIONS of one loop -- a variation, a survivor
 selection, a mating selection -- so each is a few lines naming its operators:
 
 ==========  ==================================  ===================================  ==================
@@ -232,7 +232,7 @@ def rnsga3(
 ) -> EvolutionarySolver:
     """R-NSGA-III: reference niching over directions clustered around *aspiration* points.
 
-    *aspiration* rows are in the minimised normalised objective frame; ``spread`` is how far (on
+    *aspiration* rows are in the minimized normalized objective frame; ``spread`` is how far (on
     the unit simplex) the directions around one point reach.
     """
     directions, _ = aspiration_directions(np.atleast_2d(aspiration), partitions=partitions, spread=spread)
@@ -257,7 +257,7 @@ def sms_emoa(
 ) -> EvolutionarySolver:
     """SMS-EMOA (Beume et al., 2007): steady state, one child, the least hypervolume contributor leaves.
 
-    ``reference`` is the hypervolume reference point in the minimised normalised frame (None: the
+    ``reference`` is the hypervolume reference point in the minimized normalized frame (None: the
     overflowing front's nadir plus one).
     """
     return evolutionary(

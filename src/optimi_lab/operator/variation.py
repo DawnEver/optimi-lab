@@ -251,7 +251,7 @@ def pso_velocity(
 ) -> np.ndarray:
     """``v <- inertia*v + c1*r1*(pbest - x) + c2*r2*(gbest - x)``, held inside a fraction of the range.
 
-    ``max_velocity_fraction`` multiplies each variable's OWN span, so one setting is one behaviour
+    ``max_velocity_fraction`` multiplies each variable's OWN span, so one setting is one behavior
     everywhere. An empty archive means there is no leader and the social term is zero -- the swarm
     is pulled by its own bests alone until a point has been ranked onto the archive.
     """

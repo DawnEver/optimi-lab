@@ -6,7 +6,7 @@ FORWARD-CHECKS every rule left with one unassigned variable, deleting the values
 emptied domain backtracks at once. :func:`all_different` is the pairwise decomposition.
 
 * No *objective*: the first solution (or, with ``count=True``, every one, counted).
-* An *objective* ``(assignment) -> float`` is minimised; an optional *bound* ``(partial) -> float``
+* An *objective* ``(assignment) -> float`` is minimized; an optional *bound* ``(partial) -> float``
   is a LOWER bound on every completion, and a branch whose bound cannot beat the incumbent is cut.
 
 "Small" is the claim: no global propagators, no learning -- the solver for a slot/pole table, a

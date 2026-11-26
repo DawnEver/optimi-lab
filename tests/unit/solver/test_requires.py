@@ -48,11 +48,11 @@ def test_d27_planted_control_finite_differences_are_refused_over_noise_or_a_disc
     assert isinstance(verdict, Ineligible) and "'n'" in verdict.reason
 
 
-def test_d27_an_unembedded_categorical_needs_embed_and_a_blackbox_constraint_needs_penalise() -> None:
+def test_d27_an_unembedded_categorical_needs_embed_and_a_blackbox_constraint_needs_penalize() -> None:
     space = Space((Categorical('coolant', ('air', 'oil')), Real('x', 0.0, 1.0)))
     problem = Problem(space, TWO, constraints=(BlackBox('t', '<=', 1.0),))
     requires = Requires(objectives=MultiObjective.NATIVE_PARETO, metric=True)
-    assert match(requires, problem, VALUES) == NeedsTransform(('embed', 'penalise'), evaluations_per_action=1.0)
+    assert match(requires, problem, VALUES) == NeedsTransform(('embed', 'penalize'), evaluations_per_action=1.0)
 
 
 def test_d27_b0_20_how_a_solver_handles_many_objectives_is_declared_and_single_is_refused() -> None:
@@ -102,12 +102,12 @@ def test_every_registered_solver_names_a_shipped_factory_and_back():
     assert {'bo', 'parego', 'ehvi', 'nehvi', 'mfbo', 'turbo', 'prescreened', 'model_trust_region'} <= set(SOLVERS)
 
 
-def test_population_and_derivative_free_solvers_take_an_explicit_constraint_without_penalising_it() -> None:
+def test_population_and_derivative_free_solvers_take_an_explicit_constraint_without_penalizing_it() -> None:
     problem = Problem(REAL, (Objective('f'),), constraints=(Explicit('sum', _sum, Relation.AT_LEAST, 1.0),))
     for name in ('nsga2', 'ga', 'cmaes', 'mads', 'nelder_mead', 'bobyqa', 'moead'):
         assert match(SOLVERS[name], problem, VALUES) == Eligible(), name
-    # Planted control: a solver that ranks by no violation still has to penalise it first.
-    assert match(SOLVERS['turbo'], problem, VALUES) == NeedsTransform(('penalise',), evaluations_per_action=1.0)
+    # Planted control: a solver that ranks by no violation still has to penalize it first.
+    assert match(SOLVERS['turbo'], problem, VALUES) == NeedsTransform(('penalize',), evaluations_per_action=1.0)
 
 
 def _sum(design) -> float:

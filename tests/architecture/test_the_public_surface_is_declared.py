@@ -19,7 +19,7 @@ AND EVERY SCAN HERE NOW HAS A PLANTED CONTROL, which it did not until 2026-09-15
 date this module was cited as the mechanism for SEVEN rules while containing no test that could
 demonstrate any of its guards failing: `OVERSIZE_PINS` and `LAZY_IMPORT_PINS` are both EMPTY, so
 `found == set(PINS)` compared an empty set to an empty set and the two-sided ratchet those rules
-claim never executed in either direction. An empty set equalling an empty set is the same shape
+claim never executed in either direction. An empty set equaling an empty set is the same shape
 that let an emptied table pass elsewhere in this family. The fix is not to seed a fake pin -- a
 pin nothing needs is the OTHER side of the same defect -- it is to extract the comparison into
 :func:`pin_gap`, :func:`oversize`, :func:`skipping` and :func:`assert_floor`, have the live tests

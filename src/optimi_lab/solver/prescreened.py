@@ -2,7 +2,7 @@
 
 An NSGA-II generation (SBX + polynomial mutation, tournament mating, fronts-and-crowding survival)
 breeds ``oversample`` times the offspring it will ask. A surrogate fitted on EVERY told OK row so
-far -- the minimised (or scalarised) objectives, and the total scaled violation as one more output
+far -- the minimized (or scalarised) objectives, and the total scaled violation as one more output
 when the problem has constraints -- predicts each child, and the solver's own survival operator
 picks the children to ask from the predicted rows:
 

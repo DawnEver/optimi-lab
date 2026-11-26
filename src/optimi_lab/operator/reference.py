@@ -2,7 +2,7 @@
 
 * :func:`reference_select` -- NSGA-III's survivor selection (Deb and Jain, 2014): whole fronts,
   then the overflowing front filled by niching over the Das-Dennis :func:`das_dennis` directions,
-  after the hyperplane normalisation of :func:`normalise`. The niche counts are taken over EVERY
+  after the hyperplane normalization of :func:`normalize`. The niche counts are taken over EVERY
   survivor already chosen; ties go to the lowest direction index and the nearest member, so the
   operator is deterministic and a run replays.
 * :func:`niching_tournament` -- U-NSGA-III's mating selection (Seada and Deb, 2016): two rows of
@@ -11,7 +11,7 @@
   aspiration point's projection onto the unit simplex.
 * :func:`angle_penalized_select` and :func:`adapt_directions` -- RVEA (Cheng et al., 2016).
 
-Minimised frame throughout; values are the normalised objectives of
+Minimized frame throughout; values are the normalized objectives of
 :meth:`optimi_lab.problem.Objective.minimized`.
 """
 
@@ -29,7 +29,7 @@ __all__ = [
     'associate',
     'das_dennis',
     'niching_tournament',
-    'normalise',
+    'normalize',
     'reference_select',
 ]
 
@@ -50,8 +50,8 @@ def das_dennis(n_obj: int, partitions: int) -> np.ndarray:
     return grid
 
 
-def normalise(values: np.ndarray, first_front: np.ndarray) -> np.ndarray:
-    """Deb-Jain normalisation: translate by the ideal, divide by the extreme points' hyperplane intercepts.
+def normalize(values: np.ndarray, first_front: np.ndarray) -> np.ndarray:
+    """Deb-Jain normalization: translate by the ideal, divide by the extreme points' hyperplane intercepts.
 
     A degenerate hyperplane (singular, or a non-positive intercept) falls back to the first front's
     nadir, and a zero span to one, so every column is divided by a positive number.
@@ -73,13 +73,13 @@ def normalise(values: np.ndarray, first_front: np.ndarray) -> np.ndarray:
     return shifted / np.where(intercepts > 0.0, intercepts, 1.0)
 
 
-def associate(normalised: np.ndarray, directions: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def associate(normalized: np.ndarray, directions: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Each row's nearest direction by perpendicular distance, and that distance."""
     unit = directions / np.linalg.norm(directions, axis=1, keepdims=True)
-    projection = normalised @ unit.T
-    distance = np.linalg.norm(normalised[:, None, :] - projection[:, :, None] * unit[None, :, :], axis=2)
+    projection = normalized @ unit.T
+    distance = np.linalg.norm(normalized[:, None, :] - projection[:, :, None] * unit[None, :, :], axis=2)
     nearest = np.argmin(distance, axis=1)
-    return nearest, distance[np.arange(len(normalised)), nearest]
+    return nearest, distance[np.arange(len(normalized)), nearest]
 
 
 def _directions_for(values: np.ndarray, n_selected: int, directions: np.ndarray | None, partitions: int | None):
@@ -117,7 +117,7 @@ def reference_select(
         if len(chosen) + len(front) > n_selected:
             survivors = np.array(chosen + [int(i) for i in front], dtype=np.intp)
             first = np.flatnonzero(np.isin(survivors, fronts[0]))
-            nearest, distance = associate(normalise(values[survivors], first), directions)
+            nearest, distance = associate(normalize(values[survivors], first), directions)
             counts = np.bincount(nearest[: len(chosen)], minlength=len(directions))
             members = {
                 j: sorted(np.flatnonzero(nearest[len(chosen) :] == j).tolist(), key=lambda p: distance[len(chosen) + p])
@@ -150,7 +150,7 @@ def niching_tournament(
     rank = np.empty(len(values), dtype=int)
     for depth, front in enumerate(fronts):
         rank[front] = depth
-    niche, distance = associate(normalise(values, fronts[0]), directions)
+    niche, distance = associate(normalize(values, fronts[0]), directions)
     winners = np.empty(n_selected, dtype=np.intp)
     for slot in range(n_selected):
         a, b = rng.choice(len(values), 2, replace=False)
@@ -171,7 +171,7 @@ def aspiration_directions(points: np.ndarray, *, partitions: int, spread: float)
     """
     points = np.asarray(points, dtype=float)
     if points.ndim != 2 or np.any(points < 0.0) or np.any(points.sum(axis=1) <= 0.0):
-        refuse('aspiration points are rows of non-negative normalised objectives with a positive sum')
+        refuse('aspiration points are rows of non-negative normalized objectives with a positive sum')
     if not 0.0 < spread <= 1.0:
         refuse(f'spread is the shrink factor of the simplex around each point, in (0, 1], got {spread!r}')
     projected = points / points.sum(axis=1, keepdims=True)
@@ -184,7 +184,7 @@ def aspiration_directions(points: np.ndarray, *, partitions: int, spread: float)
 def angle_penalized_select(
     values: np.ndarray, *, directions: np.ndarray, progress: float, alpha: float = 2.0
 ) -> np.ndarray:
-    """RVEA: per niche (largest cosine), the member of least angle-penalised distance.
+    """RVEA: per niche (largest cosine), the member of least angle-penalized distance.
 
     ``APD = (1 + M (progress ** alpha) theta / gamma) |f - z|``, ``z`` the population's ideal,
     ``theta`` the angle to the niche's direction, ``gamma`` that direction's smallest angle to

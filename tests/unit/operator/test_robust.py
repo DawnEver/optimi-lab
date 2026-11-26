@@ -1,4 +1,4 @@
-"""D118 MC / randomised-QMC robust evaluation of a response under a problem's Uncertainty.
+"""D118 MC / randomized-QMC robust evaluation of a response under a problem's Uncertainty.
 
 The truth is closed form: ``E[x^2 + y]`` with ``x ~ N(0, 2)`` and ``y ~ U(0, 1)`` is ``4.5``.
 """

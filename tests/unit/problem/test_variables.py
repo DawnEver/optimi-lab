@@ -68,7 +68,7 @@ def test_d3_planted_control_an_embedding_that_merges_two_levels_is_refused() -> 
         Categorical('steel', ('a', 'a'))
 
 
-def test_d4_field_carries_cells_and_a_neighbourhood() -> None:
+def test_d4_field_carries_cells_and_a_neighborhood() -> None:
     density = Field('rho', 4, 0.0, 1.0, neighbors=((0, 1), (1, 2), (2, 3)))
     assert density.width == 4
     assert density.contains([0.0, 0.5, 1.0, 0.2])
@@ -76,7 +76,7 @@ def test_d4_field_carries_cells_and_a_neighbourhood() -> None:
     assert density.decode(np.array([0.0, 0.5, 2.0, -1.0])) == (0.0, 0.5, 1.0, 0.0)
 
 
-def test_d4_planted_control_a_neighbour_outside_the_field_is_refused() -> None:
+def test_d4_planted_control_a_neighbor_outside_the_field_is_refused() -> None:
     with pytest.raises(Refusal, match='outside cells'):
         Field('rho', 3, 0.0, 1.0, neighbors=((0, 3),))
     with pytest.raises(Refusal, match='outside cells'):

@@ -63,7 +63,7 @@ def _oracle(planted: float = 0.0, *, flaky: bool = False):
         key = tuple(x)
         if flaky and key not in seen:
             seen.add(key)
-            return Result(action, Cell(Status.TIMEOUT, reason=Reason('timeout', 'licence queue')))
+            return Result(action, Cell(Status.TIMEOUT, reason=Reason('timeout', 'license queue')))
         values = _values(x)
         if Information.VJP not in action.want:
             return Result(action, Cell(Status.OK, values=values))
@@ -130,7 +130,7 @@ def test_p9_an_interrupted_run_resumes_by_replay_to_the_same_solution(tmp_path: 
     assert resumed_run.ledger.evaluations == whole_run.ledger.evaluations
 
 
-def test_p9_a_box_method_reads_sense_normalisation_and_a_log_scale(tmp_path: Path) -> None:
+def test_p9_a_box_method_reads_sense_normalization_and_a_log_scale(tmp_path: Path) -> None:
     space = DesignSpace((Real('x', 1.0, 3.0), Real('y', 0.1, 1.0, scale=Scale.LOG)))
     problem = Problem(space, (Objective('g', sense='maximize', normalization=Normalization(reference=1.0, scale=2.0)),))
 

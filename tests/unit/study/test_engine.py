@@ -111,7 +111,7 @@ def _total(design) -> float:
 
 
 def test_nsga2_searches_under_an_explicit_constraint_and_its_front_holds_it(tmp_path: Path) -> None:
-    # y = a + b is minimised against a + b >= 3: unconstrained, the front would reach a + b = 2.
+    # y = a + b is minimized against a + b >= 3: unconstrained, the front would reach a + b = 2.
     held = Problem(SPACE, PROBLEM.objectives, constraints=(Explicit('total', _total, Relation.AT_LEAST, 3.0),))
     searched = search(held, Toy(), Record(tmp_path / 'e.jsonl'), algorithm='nsga2', population=12, generations=6)
     assert searched.search_refusal is None
@@ -135,7 +135,7 @@ def test_a_named_solver_is_refused_by_its_own_requires(tmp_path: Path) -> None:
 
 def test_build_solver_validates_a_name_without_evaluating() -> None:
     solver = build_solver('lbfgsb', SMOOTH, Sloped.capability, seed=0, population=1, initial=None, generations=1)
-    assert dict(solver.ask(1)[0].design) == {'a': 0.5, 'b': 3.0}  # no start: the cube's centre
+    assert dict(solver.ask(1)[0].design) == {'a': 0.5, 'b': 3.0}  # no start: the cube's center
     with pytest.raises(Refusal, match='only after'):
         build_solver('lbfgsb', SMOOTH, Toy.capability, seed=0, population=1, initial=None, generations=1)
 
@@ -256,15 +256,15 @@ SMOOTH = Problem(Space((Real('a', 0.0, 1.0), Real('b', 2.0, 4.0))), (Objective('
 OPTIMUM = (0.3, 3.5)
 #: Two levels of one objective: the cheap level is a biased, scaled copy of the truth.
 LEVELS = {'coarse': 1.0, 'fine': 10.0}
-LEVELLED = Problem(
+LEVELED = Problem(
     SMOOTH.space, SMOOTH.objectives, fidelity=Fidelity(tuple(Level(name, cost) for name, cost in LEVELS.items()))
 )
 
 
-class Levelled(Toy):
+class Leveled(Toy):
     """A two-leg screening oracle: leg 0 is the truth ``fine``, leg 1 the cheap ``coarse``; it records each level."""
 
-    capability = Capability(outputs=('f',), fidelities=tuple(LEVELS), version='levelled')
+    capability = Capability(outputs=('f',), fidelities=tuple(LEVELS), version='leveled')
     evaluators = 2
 
     def __init__(self) -> None:
@@ -278,7 +278,7 @@ class Levelled(Toy):
         return Result(action, Cell(Status.OK, values={'f': value}))
 
     def routed(self, action: Action, index: int) -> Action:
-        return Action.of(LEVELLED, self.capability, action.design, fidelity=('fine', 'coarse')[index])
+        return Action.of(LEVELED, self.capability, action.design, fidelity=('fine', 'coarse')[index])
 
     def publish_batch(self, actions, on_result) -> None:
         self.levels.extend(action.fidelity for action in actions)
@@ -286,8 +286,8 @@ class Levelled(Toy):
 
 
 def test_a_level_seeded_solver_picks_each_points_level_and_its_population_is_the_truth_design(tmp_path: Path) -> None:
-    oracle = Levelled()
-    searched = search(LEVELLED, oracle, Record(tmp_path / 'mf.jsonl'), algorithm='mfbo', population=3, solves=16)
+    oracle = Leveled()
+    searched = search(LEVELED, oracle, Record(tmp_path / 'mf.jsonl'), algorithm='mfbo', population=3, solves=16)
     assert searched.search_refusal is None
     # The nested design: the declared population at the truth, three times it at the cheaper level.
     assert sorted(oracle.levels[:12]) == ['coarse'] * 9 + ['fine'] * 3
@@ -297,15 +297,15 @@ def test_a_level_seeded_solver_picks_each_points_level_and_its_population_is_the
 def test_a_router_and_a_level_seeded_solver_are_two_choosers_and_many_legs_need_one(tmp_path: Path) -> None:
     with pytest.raises(Refusal, match='picks its own level'):
         search(
-            LEVELLED,
-            Levelled(),
+            LEVELED,
+            Leveled(),
             Record(tmp_path / 'two.jsonl'),
             algorithm='mfbo',
             population=3,
             router=lambda points, _results: np.zeros(len(points), dtype=int),
         )
     with pytest.raises(Refusal, match='selection policy'):
-        search(LEVELLED, Levelled(), Record(tmp_path / 'none.jsonl'), algorithm='cmaes', population=4)
+        search(LEVELED, Leveled(), Record(tmp_path / 'none.jsonl'), algorithm='cmaes', population=4)
 
 
 class PredictingToy(Toy):

@@ -1,6 +1,6 @@
 """D127 convex quadratic programs over a :class:`~optimi_lab.solver.linear_program.LinearProgram`'s rows.
 
-    minimise 1/2 x.H x + c.x   subject to   A_ub x <= b_ub,   A_eq x = b_eq,   lo <= x <= hi
+    minimize 1/2 x.H x + c.x   subject to   A_ub x <= b_ub,   A_eq x = b_eq,   lo <= x <= hi
 
 This is a ROUTE, not a third QP method: the two methods are P9's, in :mod:`optimi_lab.operator.qp`.
 

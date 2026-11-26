@@ -46,8 +46,8 @@ class MADS(SequentialSolver):
         steps = mesh * np.round(frame / mesh * columns)
         return np.vstack([steps.T, -steps.T])
 
-    def _poll(self, centre: np.ndarray, level: int) -> np.ndarray:
-        trial = centre + self._directions(level)
+    def _poll(self, center: np.ndarray, level: int) -> np.ndarray:
+        trial = center + self._directions(level)
         return trial[np.all((trial >= 0.0) & (trial <= 1.0), axis=1)]
 
     def _search(self) -> Search:
@@ -71,8 +71,8 @@ class MADS(SequentialSolver):
         admit(self._start, scores[0], violation[0])
         while 2.0**-level >= self._tol:
             infeasible = min(filter_, key=lambda e: (e[0], e[1])) if filter_ else None
-            centres = [c for c in (feasible and feasible[0], infeasible and infeasible[2]) if c is not None]
-            points = np.vstack([self._poll(c, level) for c in centres]) if centres else np.empty((0, self._width))
+            centers = [c for c in (feasible and feasible[0], infeasible and infeasible[2]) if c is not None]
+            points = np.vstack([self._poll(c, level) for c in centers]) if centers else np.empty((0, self._width))
             if len(points) == 0:
                 level += 1
                 continue
