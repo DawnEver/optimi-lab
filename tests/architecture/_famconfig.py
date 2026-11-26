@@ -54,10 +54,8 @@ __all__ = [
     'DELTAS',
     'GITATTRIBUTES_DELTA',
     'GITIGNORE_DELTA',
-    'MAKEFILE_DELTA',
     'PYPROJECT_SECTION_DELTAS',
     'REPO',
-    'RGIGNORE_DELTA',
 ]
 
 #: How this repo names itself in a rendered file's drop comments.
@@ -88,26 +86,16 @@ GITIGNORE_DELTA: Final = Delta(
     ceiling=10,
 )
 
-#: The Makefile base is REQUIRED rather than RENDERED -- target NAMES must be present and the recipes
-#: are this repo's. So this repo adds no lines and drops none: MEASURED 2026-09-17, all nine base
-#: lines are already satisfied here, including `verify:`'s recipe, which is the family's line
-#: verbatim because this repo declares no `slow` marker to tier against.
-MAKEFILE_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
-
 #: The `.gitattributes` base (lab-commons 9ce57c3) carries the family's one line; this repo adds
 #: nothing, so the delta is empty and its ceiling is zero.
 GITATTRIBUTES_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
 
 #: Every artifact this repo declares a delta against, by name. The test pins that this set covers the
 #: kit's bases EXACTLY, so a new base cannot arrive unnoticed.
-#: The `.rgignore` base (lab-commons 9a5adc9) skips `attic/`; this repo adds nothing.
-RGIGNORE_DELTA: Final = Delta(repo=REPO, added=(), dropped={}, ceiling=0)
 
 DELTAS: Final[dict[str, Delta]] = {
     '.gitattributes': GITATTRIBUTES_DELTA,
     '.gitignore': GITIGNORE_DELTA,
-    'Makefile': MAKEFILE_DELTA,
-    '.rgignore': RGIGNORE_DELTA,
 }
 
 #: This repo's delta against each owned `pyproject.toml` table -- the kit's SECTION base, judged by

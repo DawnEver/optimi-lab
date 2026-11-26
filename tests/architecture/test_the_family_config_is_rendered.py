@@ -1,6 +1,6 @@
 r"""FAMILY-CONFIG-IS-RENDERED, for THIS checkout -- a hand edit to a shared artifact REDS.
 
-THE DEFECT THIS CLOSES. `.gitignore`, `.gitattributes`, `.rgignore` and `Makefile` are hand-maintained
+THE DEFECT THIS CLOSES. `.gitignore` and `.gitattributes` are hand-maintained
 once per repo across the family, so a fix in one is a fix in one. `dev_lab.dev.famconfig` owns
 each BASE as data plus a renderer; `_famconfig` here declares only what is a fact about optimi-lab;
 the assertions are `dev_lab.dev.famtests.configrender`, which re-renders from the LIVE base and
@@ -14,11 +14,8 @@ other side of a seam this tree had already cut, so what moved is the verdict hal
 the declaration half plus the numbers underneath it -- the hook floor, the directory floor, the
 re-render remedy and the planted edit.
 
-WHAT GREEN MEANS, STATED EXACTLY, because overclaiming it would be the defect the family calls
-dominant. For a RENDERED artifact green means the bytes on disk are what base plus delta produce.
-For a REQUIRED one it means every base line is PRESENT -- the Makefile's three shared targets share
-a NAME and no RECIPE, so demanding byte equality there would assert a portability that does not
-exist. It says nothing about whether any rule or target is CORRECT.
+WHAT GREEN MEANS, STATED EXACTLY: the bytes on disk are what base plus delta produce. It says nothing
+about whether any rule is CORRECT.
 
 THREE ARMS THIS FILE USED TO HOLD ARE GONE BECAUSE THE KIT ALREADY DRIVES THEM AGAINST THE REAL
 BASE. They planted an ambiguous anchor, an anchor on a line the base lacks and an anchor carrying no
@@ -43,7 +40,7 @@ from typing import Final
 
 import pytest
 from _famconfig import DELTAS, REPO
-from dev_lab.dev.famconfig import RENDERED, REQUIRED, artifact_base
+from dev_lab.dev.famconfig import RENDERED, artifact_base
 from dev_lab.dev.famtests import configrender
 
 #: THE TREE UNDER TEST, not the working directory: a scan rooted at the CWD answers, plausibly,
@@ -125,43 +122,21 @@ def test_this_guard_can_go_both_ways(tmp_path: Path) -> None:
     )
 
 
-def test_the_makefile_check_is_required_rather_than_rendered() -> None:
-    """The weaker mode is NAMED so that applying it stayed a decision somebody typed.
+def test_every_artifact_is_judged_rendered() -> None:
+    """The mode is NAMED so a base arriving in another mode changes a byte here, not only a meaning.
 
-    If `Makefile` ever arrives as RENDERED, every recipe in this tree -- the `purity` and `adoption`
-    targets, the `rm -rf` clean -- becomes a diff against a family file that cannot hold them. That
-    is a change to argue with the kit, not to absorb here.
+    The kit retired the weaker REQUIRED mode with its `Makefile` and `.rgignore` bases; both
+    artifacts this repo declares are judged byte for byte.
     """
-    configrender.assert_modes_are_as_agreed(modes={'.gitignore': RENDERED, 'Makefile': REQUIRED})
+    configrender.assert_modes_are_as_agreed(modes=dict.fromkeys(DELTAS, RENDERED))
 
 
 @pytest.mark.parametrize('artifact', sorted(DELTAS))
 def test_the_survey_still_sizes_this_repo_the_way_the_adoption_recorded(artifact: str) -> None:
     """The instrument that sized this change, re-run against every adopted file.
 
-    After adoption the survey must find NOTHING to drop: every base line is on disk. Before it, it
-    found two in `.gitignore` -- the slashed `**/__pycache__/` and `*.egg-info/` this repo wrote
-    bare. Pinning the post-adoption reading is what makes a silent removal of a base line visible
-    here as well as in the main property, by a route that does not go through the rendered bytes.
-
-    IT IS PARAMETRIZED OVER EVERY ADOPTED ARTIFACT AND THE `Makefile` IS WHY, which is the kit's own
-    reason rather than a generalization applied for symmetry: `assert_no_base_line_left_undeclared`
-    exists so that a departing base line "is visible even where the mode is the weaker one", and
-    `Makefile` is the only REQUIRED artifact in the family. Under REQUIRED the rendered-bytes
-    property never compares this repo's 48 own lines against anything, so a base target NAME leaving
-    this file was, until this arm covered it, caught by exactly one check instead of two. MEASURED
-    2026-09-18: the survey reports 48 added / 0 dropped for `Makefile` and 16 / 0 for `.gitignore`,
-    so the drop set is empty for every artifact and the arm is green on arrival rather than aspirational.
-
-    THE AXIS THIS IS BLIND TO, NAMED, because a scope claim nobody bounds is the lie shape. For
-    `Makefile` the survey compares through `famconfig.satisfies`, which matches a base line ending in
-    a colon by TARGET NAME ALONE -- `all:` is satisfied by `all: fmt test` -- and that leniency is
-    deliberate upstream, since a target carries its prerequisites on its own line and a contract that
-    reds on those is a contract about punctuation. The consequence here is that this arm sees a
-    target DISAPPEAR and cannot see its RECIPE gutted: `verify:` followed by nothing still satisfies
-    the base. Under REQUIRED nothing else byte-checks that recipe either, so the gap is real rather
-    than covered elsewhere, and it is the family's to close in `satisfies` rather than this repo's to
-    work around. DRIVEN 2026-09-18 against the real guard, both ways: with `all: fmt test` deleted
-    the arm reds naming `['all:']`, and it is green with the line present.
+    After adoption the survey must find NOTHING to drop: every base line is on disk. Pinning that
+    reading makes a silent removal of a base line visible by a route that does not go through the
+    rendered bytes.
     """
     configrender.assert_no_base_line_left_undeclared(root=_ROOT, artifact=artifact, repo=REPO)

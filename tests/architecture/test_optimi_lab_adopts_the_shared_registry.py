@@ -88,7 +88,6 @@ _ADOPTION: Final = 'tests/architecture/test_optimi_lab_adopts_the_shared_registr
 _PIN_SHAPE: Final = 'tests/architecture/test_a_pin_is_a_named_set.py'
 _RETIRED: Final = 'tests/architecture/test_a_retired_spelling_stays_retired.py'
 _MEMORY: Final = 'tests/architecture/test_memory_lives_under_a_date.py'
-_MONTHS: Final = 'tests/architecture/test_every_month_carries_its_plans.py'
 _RULES_RATCHET: Final = 'tests/architecture/test_the_rules_pages_are_a_ratchet.py'
 _DOC_WIDTH: Final = 'tests/architecture/test_injected_doc_width_ceiling.py'
 _HOOKS: Final = 'tests/architecture/test_the_declared_hooks_are_installed.py'
@@ -167,8 +166,6 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'RETIRED-NAMES-REGISTERED': (_RETIRED,),
     # `.claude/memory/YYYY/MM/DD/`, plus the frontmatter date agreeing with the path it sits on.
     'MEMORY-SHAPE': (_MEMORY,),
-    # Adopted 2026-10-24 with dev-lab 1d74f38: the October summary is the first month this tree holds.
-    'MONTHLY-PLANS-CARRIED': (_MONTHS,),
     # The always-loaded rule pages are pinned per file, ratcheting down only.
     'DOCS-SPLIT': (_RULES_RATCHET,),
     # The same shape over the injected-doc corpus (here: the two `.claude/rules/` pages), measured
