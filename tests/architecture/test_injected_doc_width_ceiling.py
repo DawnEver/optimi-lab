@@ -16,7 +16,7 @@ neighbors rather than merged.
 
 MEASURED HERE 2026-09-16, re-measured 2026-09-18 and RE-TAKEN 2026-11-02: the corpus is every
 injected document by the shared definition (`AGENTS.md` / `CLAUDE.md` by basename anywhere in the
-tree, plus everything under `.claude/rules/`); `test_the_corpus_is_this_repo_injected_docs` names it.
+tree; `.claude/rules/` retired 2026-11-24 and its pages moved into `AGENTS.md`); `test_the_corpus_is_this_repo_injected_docs` names it.
 Scanning it finds ZERO lines past the ceiling, so `DECLARED` is empty and there is no width debt to
 record. NOTHING WAS REFLOWED to reach that: the pages were already inside.
 
@@ -61,28 +61,23 @@ DECLARED: Final[frozenset[str]] = frozenset()
 #: The largest `DECLARED` may be. ZERO -- there is no width debt here and no hatch to widen.
 DECLARED_CEILING: Final = 0
 
-#: RE-TAKEN 2026-11-26 at 4, down from 5 in the edit that deleted the family-retired `.claude/rules/principles.md`.
+#: RE-TAKEN 2026-11-26 at 2, down from 5 in the edit that deleted the three family-retired rules pages it counted
+#: (the principles page, and the two whose text moved into `AGENTS.md`).
 #: RE-TAKEN 2026-11-02: the scan reads 5 files, the three `.claude/rules/` pages plus `AGENTS.md` and
 #: `CLAUDE.md` (up from 3 on 2026-10-29). A scan reaching fewer has stopped matching the corpus.
-FILES_READ_FLOOR: Final = 4
+FILES_READ_FLOOR: Final = 2
 
 #: How far past the floor the corpus may grow before the floor stops binding and must be re-taken.
-#: 4 + 1 = 5 against today's 4, which is as tight as this kit allows (a headroom of 0 is refused as
+#: 2 + 1 = 3 against today's 2, which is as tight as this kit allows (a headroom of 0 is refused as
 #: misdeclared).
 FILES_READ_HEADROOM: Final = 1
 
 _WHAT: Final = 'INJECTED-DOC-WIDTH-CEILING'
 
 
-#: The prefix the kit's default no longer carries (dev-lab retired `.claude/rules/` on 2026-11-24, AGENTS.md
-#: being the one agent entry there) while this repo still tracks rules pages the client injects every turn.
-#: Passed here so the scan reads what is injected HERE; it leaves when the last page under it does.
-_RULES_PREFIX: Final = ('.claude/rules/',)
-
-
 def _corpus() -> tuple[str, ...]:
     """The injected docs of THIS repo, narrowed from what git tracks by the shared definition."""
-    return tuple(injected_docs(sorted(tracked_files(_ROOT)), prefixes=_RULES_PREFIX))
+    return tuple(injected_docs(sorted(tracked_files(_ROOT))))
 
 
 def test_the_declared_sites_are_the_named_set_and_the_floor_binds_on_both_sides() -> None:
@@ -132,11 +127,8 @@ def test_the_corpus_is_this_repo_injected_docs() -> None:
     pages, passes every control and is caught only here and by the floor.
     """
     assert set(_corpus()) == {
-        '.claude/rules/invariant.md',
-        '.claude/rules/workflow.md',
         'AGENTS.md',
         'CLAUDE.md',
     }, _corpus()
     assert not is_injected_doc('.claude/memory/2026/09/15/entry.md'), 'a dated memory entry is not injected'
-    assert is_injected_doc('.claude/rules/x.md', prefixes=_RULES_PREFIX), 'the rules prefix has stopped matching'
     assert is_injected_doc('AGENTS.md'), 'the basename half of the corpus definition has stopped matching'

@@ -96,3 +96,60 @@ _Each rule is cited by ID; its full statement and refusing mechanism live in `de
   the code happens to live in.
 
 <!-- END dev-lab family section -->
+
+## Invariants — facts about THIS library that no unit test states
+
+`optimi_lab` is a generic multi-objective optimization library. Everything below is a property a
+reader could violate in one commit, and each names the mechanism that refuses it.
+
+- **The RUNTIME is numpy, scipy, numerics-lab and `lab_commons.outcomes`, nothing else**
+  (`test_the_runtime_stays_pure.py`); no logging/unit/plotting/config library; a downstream repo inherits ours.
+  Equation solving is numerics-lab's (R4): no backtracking/Armijo or strong Wolfe search, secant two-loop, L-BFGS
+  memory or minimizer, Broyden, Krylov, factorization or KKT solve here (`test_equation_solving_is_numerics_labs.py`);
+  the trust region and dense BFGS/SR1 models are ours; scipy only `linalg`/`sparse`/`sparse.linalg`/`special`,
+  `scipy.optimize`/`scipy.stats` in tests only (R1, `test_the_runtime_takes_only_the_r1_scipy_submodules`).
+- **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one
+  task-outcome vocabulary for every engine). The base install takes it without extras; the dev kit
+  (`dev-lab`) stays in the `dev` dependency group. Both use bare `git+https` URLs (R8):
+  a pin is a ceiling nobody re-argued. Any other `lab_commons.*` import is refused by that guard.
+- **Importing the package does nothing.** No file is read, no directory is created, no global
+  (numpy print options, matplotlib backend, warnings filters, random seed) is mutated at import.
+  A library that reconfigures its host process is unusable inside another library.
+- **A member of a declared set is resolved through that set, and a stranger RAISES** — `Refusal` from
+  `optimi_lab.core.errors.refuse`, quoting the valid set. `SURROGATES`, `KERNEL_FAMILIES`, `RADIAL_KERNELS`,
+  `SampleKind` / `SAMPLE_KINDS` and every `StrEnum` are those sets. A silent fallback to a default model or
+  sampler is the forbidden shape: the caller asked for something specific and cannot tell it did not get it.
+- **A point that did not compute is never a number.** An `outcomes.Cell` carries values only as
+  `OK` or `PARTIAL`; every other status carries a reason and no value (II.3). Nothing
+  downstream — a front, a metric, a surrogate fit — may reintroduce a placeholder number for a
+  failed evaluation.
+- **A benchmark metric is verified against a CLOSED-FORM value, never against its own output.**
+  `igd` of a true front against itself is exactly 0; `hypervolume_2d` of a known box set is
+  arithmetic done by hand. A golden captured from a previous run of the same function proves only
+  that the function has not changed, which is not what a metric is for.
+- **Randomness enters through an explicit seed or generator argument**, never `np.random` global
+  state: two callers running concurrently in one process must not be able to perturb each other,
+  and an unreproducible optimization run is not evidence of anything.
+
+## Workflow — how work gets done in optimi-lab
+
+- **The shared rules live in `dev_lab.dev.rules`; this repo supplies the MECHANISM.**
+  `tests/architecture/test_optimi_lab_adopts_the_shared_registry.py` names, as a NAMED SET, every
+  rule this repo enforces and every rule it does not. A rule added upstream reds that test until
+  someone here decides about it — it never arrives adopted by default, and it never arrives
+  silently unadopted.
+- **A gap is DECLARED with a ceiling, never left silent.** The seven rules optimi-lab does not
+  enforce are listed by name with a ceiling that may only go DOWN. Closing one deletes its name
+  and lowers the number in the same edit.
+- **This section and the invariants above are HARD CONSTRAINTS ONLY.** Reasoning, incident write-ups and
+  measurements go to `.claude/memory/`; how a thing works goes in the module docstring next to it.
+  A rule that no reader could violate does not belong here — it is a description.
+- **A new public name is exported from its module's `__all__` in the same commit that defines it**,
+  and one name has one definition across the package. The package `__init__` re-exports; it does
+  not redefine.
+- **Tests before commit.** Measure changed tests with `python -m dev_lab.dev.verify -- <paths>`.
+  Full-suite verdicts belong to the forge after publishing the PR, not a developer's local run.
+  A known failure is a strict `xfail` with its reason, never a `skip` that records nothing.
+- **No `_legacy` / `_compat` shim and no deprecation alias.** This package was already rewritten
+  once to remove that shape (`refactor(core)!: the library becomes pure numerics`); callers and
+  tests move WITH the code, in the same commit.

@@ -168,7 +168,7 @@ _MECHANISMS: Final[dict[str, tuple[str, ...]]] = {
     'MEMORY-SHAPE': (_MEMORY,),
     # The always-loaded rule pages are pinned per file, ratcheting down only.
     'DOCS-SPLIT': (_RULES_RATCHET,),
-    # The same shape over the injected-doc corpus (here: the two `.claude/rules/` pages), measured
+    # The same shape over the injected-doc corpus (here: `AGENTS.md` and `CLAUDE.md`), measured
     # 2026-09-16 at zero lines past 120 columns. It is the WIDTH dimension the line-count ratchet
     # in `_RULES_RATCHET` cannot see, over the same pages.
     'INJECTED-DOC-WIDTH-CEILING': (_DOC_WIDTH, _RULES_RATCHET),
