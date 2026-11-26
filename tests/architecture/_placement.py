@@ -622,8 +622,17 @@ PLACEMENT: Final[dict[str, Placement]] = {
         "upstream. LOCAL: the repo name the report prints, `scripts/dep.py`'s anchor adapter and port, the "
         "dated `verify/verify-*.log` shape, the box-ledger isolation for the arms' own seats, and the one JOIN the "
         'kit cannot ask -- that the anchors are read from the directory the verdict entry point writes. '
-        'RE-MEASURED 2026-11-07: own=50 hits=1 -> 2.00% after the anchors moved to the output tree, up from own=49 on '
-        '2026-10-07, AT the binder ceiling.',
+        'RE-MEASURED 2026-11-26: own=54 hits=1 -> 1.85% with the private box machine file (optimi-lab #221), '
+        'up from own=50 hits=1 on 2026-11-07 after the anchors moved to the output tree, up from own=49 on '
+        '2026-10-07; four lines over the binder ceiling, recorded in BELOW_THE_BAR.',
+    ),
+    'tests/architecture/test_the_private_box_keeps_its_own_floor.py': Placement(
+        STAYS,
+        'A BINDER over `lab_commons.box.disk.verdict` and `lab_commons.storage.free_floor`: it proves the '
+        'dependency-door module machine file, not the host free disk, decides whether its private box is '
+        'refused (optimi-lab #221), with the 50 GiB default as the planted control. LOCAL: that module machine file '
+        'and the hosted runner free disk. MEASURED 2026-11-26: own=19 hits=0, far '
+        'under the binder ceiling.',
     ),
     'tests/architecture/test_the_migration_boundary_is_declared.py': Placement(
         STAYS,
@@ -903,6 +912,12 @@ MINIMUM_REFUSES: Final = 0.65
 #: `test_the_public_surface_is_declared.py` (0.62%) and the registry adoption (2.27%) sit under the
 #: bar with hits (re-read 2026-10-18, when `_famconfig.py` left the set under the binder ceiling), and for those this says "no evidence of density", never "this row is wrong".
 BELOW_THE_BAR: Final[dict[str, str]] = {
+    'tests/architecture/test_the_dependency_door_is_wired.py': (
+        'MEASURED 2026-11-26: own=54 hits=1 -> 1.85%, four lines over the binder ceiling. The four are the '
+        'private box machine file (optimi-lab #221): a TOML string and the fixture lines that declare it, '
+        'which no noun scan sees. THE SEAM IT OWES is upstream: dev-lab ships its own `_a_box_of_its_own` '
+        'only in its tests/conftest.py; a `dev_lab.dev.famtests` fixture would leave one import here.'
+    ),
     'tests/architecture/test_equation_solving_is_numerics_labs.py': (
         'MEASURED 2026-10-18: own=57 hits=1 -> 1.75%, seven lines over the binder ceiling. The lines are '
         "the KERNEL NAME list -- numerics-lab's nouns (line search, trust region, quasi-Newton, Krylov, "
