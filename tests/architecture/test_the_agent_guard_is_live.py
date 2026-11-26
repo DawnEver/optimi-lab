@@ -111,6 +111,7 @@ _SHIPPED: Final = frozenset({
     'COMMIT-HOOKS-RUN',  # gained 2026-11-13 with dev-lab 61560e40
     'CI-CRON-NEEDS-CONSENT',  # gained 2026-11-18 with dev-lab 551ca2cc
     'CONSENT-CODE-FROM-THE-USER',
+    'ENVIRONMENT-THROUGH-DEP',  # gained 2026-11-26 with dev-lab 9d847c66: an environment moves only through the dep door
     'FAMILY-REPO-IS-CHECKED-OUT',  # gained 2026-11-21 with dev-lab 2adcab2c
     'FORGE-WRITE-VIA-CLI',
     'FORGE-WRITE-VIA-GH-API',
