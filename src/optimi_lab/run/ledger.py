@@ -25,6 +25,7 @@ class Termination(StrEnum):
     COST = 'cost'
     SOLVER_DONE = 'solver_done'
     NOTHING_ASKED = 'nothing_asked'
+    EXHAUSTED = 'exhausted'
 
 
 @dataclass(frozen=True, slots=True)

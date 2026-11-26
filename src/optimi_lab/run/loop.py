@@ -16,6 +16,11 @@ ONE EVALUATION PER IDENTITY. An identity asked twice in a batch is dispatched on
 has a DECIDED result is answered from the archive and not charged again (it costs nothing). Each
 batch is told to the solver in ASK order, so a deterministic solver sees the same sequence live and
 on replay; the completion order is what the record keeps (B0-18).
+
+A FINITE SPACE ENDS THE RUN. A batch that asks only identities this run has already told a DECIDED
+result for costs nothing and teaches nothing, so a solver over an exhausted space would loop forever
+under an evaluation budget (optimi-lab #219): such a batch stops the run as ``EXHAUSTED``. "Told
+this run" (not "in the archive") keeps a resumed run stopping exactly where the uninterrupted one did.
 """
 
 from __future__ import annotations
@@ -89,6 +94,7 @@ async def run_async(
     replay: dict[str, deque[Result]] = defaultdict(deque)
     for recorded in archive.history():
         replay[recorded.action.identity.key].append(recorded)
+    decided: set[str] = set()
     while True:
         stop = ledger.exhausted(budget)
         if stop is None and solver.done:
@@ -103,10 +109,22 @@ async def run_async(
                 ledger,
                 Stop(Termination.NOTHING_ASKED, f'the solver asked nothing after {ledger.evaluations} evaluation(s)'),
             )
+        if all(action.identity.key in decided for action in actions):
+            return Run(
+                archive,
+                ledger,
+                Stop(
+                    Termination.EXHAUSTED,
+                    f'the solver proposed only {len(actions)} design(s) already evaluated, '
+                    f'after {ledger.evaluations} evaluation(s): the space it searches is exhausted',
+                ),
+            )
         answers = await _answer(
             actions, replay=replay, archive=archive, oracle=oracle, dispatch=dispatch, ledger=ledger
         )
-        solver.tell([answers[action.identity.key] for action in actions])
+        told = [answers[action.identity.key] for action in actions]
+        decided.update(result.action.identity.key for result in told if result.cell.status.decided)
+        solver.tell(told)
 
 
 async def _answer(

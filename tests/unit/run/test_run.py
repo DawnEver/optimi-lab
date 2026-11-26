@@ -12,7 +12,7 @@ from lab_commons.outcomes import Cell, Cost, Reason, Record, Status
 
 from optimi_lab.core.errors import Refusal
 from optimi_lab.oracle import Action, Capability, Oracle, Result
-from optimi_lab.problem import Fidelity, Level, Objective, Problem, Real, Space
+from optimi_lab.problem import Fidelity, Integer, Level, Objective, Problem, Real, Space
 from optimi_lab.run import Budget, Ledger, Termination, run, serial
 
 PROBLEM = Problem(Space((Real('x', 0.0, 1.0), Real('y', 0.0, 1.0))), (Objective('f'), Objective('g')))
@@ -179,3 +179,57 @@ def test_d26_serial_yields_in_order() -> None:
         return [r.action.design['x'] async for r in serial(_Toy(), actions)]
 
     assert asyncio.run(collect()) == [0.1, 0.2, 0.3]
+
+
+#: optimi-lab #219: a finite space of 2^4 binary designs, and a binary space too large to exhaust here.
+BINARY = Problem(Space(tuple(Integer(f'b{i}', 0, 1) for i in range(4))), (Objective('f'),))
+WIDE = Problem(Space(tuple(Integer(f'b{i}', 0, 1) for i in range(16))), (Objective('f'),))
+BINARY_CAPABILITY = Capability(outputs=('f',), version='bits')
+
+
+class _Bits:
+    capability = BINARY_CAPABILITY
+
+    async def __call__(self, action: Action) -> Result:
+        return Result(action, Cell(Status.OK, values={'f': float(sum(action.design.values()))}, cost=Cost(wall_s=1.0)))
+
+
+class _Generations(_Search):
+    """A population of 24 per generation that never concludes; past *ceiling* generations it is a hang, named."""
+
+    def __init__(self, problem: Problem, *, ceiling: int = 200) -> None:
+        super().__init__(problem, BINARY_CAPABILITY, seed=3, batch=24)
+        self.generations, self._ceiling = 0, ceiling
+
+    def ask(self, capacity: int) -> Sequence[Action]:
+        self.generations += 1
+        if self.generations > self._ceiling:
+            msg = f'run() still asking after {self._ceiling} generations: it never ends'
+            raise AssertionError(msg)
+        return super().ask(capacity)
+
+
+def test_219_a_run_stops_when_a_generation_proposes_only_designs_already_seen(tmp_path: Path) -> None:
+    solver = _Generations(BINARY)
+    outcome = run(BINARY, _Bits(), solver, Record(tmp_path / 'r.jsonl'), Budget(evaluations=1000))
+    assert outcome.stop.reason is Termination.EXHAUSTED
+    assert outcome.ledger.evaluations == 16 == len(outcome.archive.complete())
+    assert 'already' in outcome.stop.detail
+
+
+def test_219_planted_control_a_space_not_exhausted_keeps_running(tmp_path: Path) -> None:
+    """2^16 designs: every generation proposes something new, so only the budget stops it."""
+    outcome = run(WIDE, _Bits(), _Generations(WIDE), Record(tmp_path / 'r.jsonl'), Budget(evaluations=200))
+    assert outcome.stop.reason is Termination.EVALUATIONS
+
+
+def test_219_planted_control_a_generation_with_one_new_design_is_not_exhausted(tmp_path: Path) -> None:
+    class OneNew(_Generations):
+        def ask(self, capacity: int) -> Sequence[Action]:
+            batch = list(super().ask(capacity))
+            seen = [r.action for r in self.told]
+            return [*seen[:23], batch[0]] if seen else batch
+
+    solver = OneNew(WIDE)
+    outcome = run(WIDE, _Bits(), solver, Record(tmp_path / 'r.jsonl'), Budget(evaluations=40))
+    assert outcome.stop.reason is Termination.EVALUATIONS
