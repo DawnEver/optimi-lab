@@ -4,12 +4,11 @@
 reader could violate in one commit, and each names the mechanism that refuses it.
 
 - **The RUNTIME is numpy, scipy, numerics-lab and `lab_commons.outcomes`, nothing else**
-  (`test_the_runtime_stays_pure.py`); no logging/unit/plotting/config library -- a downstream repo inherits
-  ours. Equation solving is numerics-lab's (R4): no backtracking/Armijo or strong Wolfe search, secant
-  two-loop, L-BFGS memory or minimizer, Broyden, Krylov, factorization or KKT solve of our own
-  (`test_equation_solving_is_numerics_labs.py`); the trust region and dense BFGS/SR1 models are ours; scipy only
-  `linalg`/`sparse`/`sparse.linalg`/`special`, `scipy.optimize`/`scipy.stats` in tests only (R1,
-  `test_the_runtime_takes_only_the_r1_scipy_submodules`).
+  (`test_the_runtime_stays_pure.py`); no logging/unit/plotting/config library; a downstream repo inherits ours.
+  Equation solving is numerics-lab's (R4): no backtracking/Armijo or strong Wolfe search, secant two-loop, L-BFGS
+  memory or minimizer, Broyden, Krylov, factorization or KKT solve here (`test_equation_solving_is_numerics_labs.py`);
+  the trust region and dense BFGS/SR1 models are ours; scipy only `linalg`/`sparse`/`sparse.linalg`/`special`,
+  `scipy.optimize`/`scipy.stats` in tests only (R1, `test_the_runtime_takes_only_the_r1_scipy_submodules`).
 - **Of lab-commons, ONLY `lab_commons.outcomes` is runtime** (plan II.1/II.3: stdlib-only, one
   task-outcome vocabulary for every engine). The base install takes it without extras; the dev kit
   (`dev-lab`) stays in the `dev` dependency group. Both use bare `git+https` URLs (R8):
