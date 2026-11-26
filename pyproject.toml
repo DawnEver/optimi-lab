@@ -64,6 +64,10 @@ dev-lab = { git = "https://github.com/DawnEver/dev-lab.git", branch = "integrate
 [tool.setuptools_scm]
 version_file = "src/optimi_lab/__version__.py"
 
+# A non-version tag in a clone (a `hold/*` lane tag) must be skipped, never break the build.
+[tool.setuptools_scm.tag]
+strict = true
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["optimi_lab*"]
