@@ -437,12 +437,6 @@ PLACEMENT: Final[dict[str, Placement]] = {
         'is the evidence the label is paid for, so the pronoun is now the name; no sentence was added to make a scan '
         'fire.',
     ),
-    'tests/architecture/test_every_month_carries_its_plans.py': Placement(
-        STAYS,
-        'ADOPTED 2026-10-24 with dev-lab 1d74f38, and a binder from its first line: '
-        '`dev_lab.dev.famtests.monthsummary` publishes the reader, the verdict and the planted control; '
-        'what is local is the ONE memory tree this repo keeps and the first month it holds to the rule.',
-    ),
     'tests/architecture/test_every_temp_entry_carries_the_family_prefix.py': Placement(
         STAYS,
         'ADOPTED 2026-11-11 and a binder from its first line: `dev_lab.dev.famtests.tempprefix` owns the '
