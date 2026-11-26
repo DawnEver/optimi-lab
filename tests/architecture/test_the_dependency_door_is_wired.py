@@ -35,10 +35,18 @@ four reds in this file. Pointing
 one the kit's own dependency-door tests apply with this same autouse shape -- at a per-test
 directory puts the arms' own seats in a private namespace while the enclosing verdict keeps the
 real one. A REAL mutation is still excluded, by the verdict holding this environment's seat.
+
+THE PRIVATE BOX KEEPS A FREE-SPACE FLOOR OF ITS OWN (optimi-lab #221), the shape of dev-lab's
+`tests/conftest.py::_a_box_of_its_own`. The box refuses a hold on a volume under the machine's
+`[storage] free_floor_gb` (default 50 GiB), and the private ledger sits on the system temp volume: a
+hosted Windows runner with 29.2 GiB free refused three arms here at once. The test's own machine file
+declares the test box's floor, so the host's free disk never decides these results; the machine
+default is untouched, and the control below shows it still refuses.
 """
 
 from __future__ import annotations
 
+import os
 import sys
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
@@ -48,7 +56,11 @@ import pytest
 from dev_lab.dev.datedlog import date_parts, declared_output
 from dev_lab.dev.famtests import depdoor
 from dev_lab.dev.verifysteps import LOG_KIND
-from lab_commons.box import BOX_ENV
+from lab_commons.box import BOX_ENV, box_path
+from lab_commons.box.disk import verdict
+from lab_commons.compute import floor
+from lab_commons.config import CONFIG_ENV
+from lab_commons.storage import FREE_FLOOR_GB_DEFAULT, free_floor
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:
@@ -65,10 +77,44 @@ REPO_NAME: Final = 'optimi-lab'
 _A_TIMESTAMP: Final = '20260919T000000Z'
 
 
+#: The test box's machine file: one MiB free, never the host's 50 GiB default (dev-lab's `TEST_MACHINE`).
+_TEST_MACHINE: Final = '[storage]\nfree_floor_gb = 0.001\n'
+
+_GIB: Final = 1024**3
+#: What the hosted Windows runner's system drive had free when these arms were refused.
+_HOSTED_FREE: Final = 29 * _GIB
+
+
 @pytest.fixture(autouse=True)
-def _private_seat_records(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """The door's own locks contend in a private root -- see this module's docstring for the why."""
+def _private_seat_records(
+    tmp_path: Path, tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The door's own locks contend in a private root, on a box with its own floor -- see the docstring."""
     monkeypatch.setenv(BOX_ENV, str(tmp_path / 'box' / 'box.sqlite'))
+    machine = tmp_path_factory.mktemp('lab-commons-machine') / 'config.toml'  # beside tmp_path, which starts empty
+    machine.write_text(_TEST_MACHINE, encoding='utf-8')
+    monkeypatch.setenv(CONFIG_ENV, str(machine))
+
+
+def _refusal(monkeypatch: pytest.MonkeyPatch) -> str | None:
+    """What the box says of this test's volumes (its ledger's and its cwd's) on the hosted runner's free disk."""
+    monkeypatch.setattr(floor, 'free_bytes', lambda _volume: _HOSTED_FREE)
+    return verdict((box_path(), Path.cwd()), free_floor())[0]
+
+
+def test_the_private_box_is_not_refused_on_a_host_under_the_machine_default(monkeypatch: pytest.MonkeyPatch) -> None:
+    """optimi-lab #221: the hosted runner's free disk does not refuse this module's box."""
+    assert _HOSTED_FREE < FREE_FLOOR_GB_DEFAULT * _GIB, 'the planted volume must sit under the default floor'
+    assert _refusal(monkeypatch) is None
+
+
+def test_planted_control_the_machine_default_floor_refuses_that_host(monkeypatch: pytest.MonkeyPatch) -> None:
+    """PLANTED CONTROL: without the test machine's floor, the same reading is the refusal the runner gave."""
+    declared = f'[storage]\nfree_floor_gb = {FREE_FLOOR_GB_DEFAULT}\n'
+    Path(os.environ[CONFIG_ENV]).write_text(declared, encoding='utf-8')
+    said = _refusal(monkeypatch)
+    assert said is not None
+    assert 'floor' in said
 
 
 def _plant(tmp_path: Path) -> Path:
