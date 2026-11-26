@@ -23,12 +23,14 @@ declared uncertainty, naming why. A conditional or categorical space is searched
 ``embedding`` (:class:`optimi_lab.problem.Embedding`).
 """
 
+from __future__ import annotations
+
 from collections.abc import Sequence
 from math import ceil
+from typing import TYPE_CHECKING
 
 import numpy as np
 from lab_commons.outcomes import Status
-from learn_lab.models.response import GaussianProcess
 from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import refuse
@@ -38,6 +40,9 @@ from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.model_based import refuse_uncertainty, require_modelable
 from optimi_lab.solver.scoring import Scalarise, require_one_score, score_rows
 from optimi_lab.solver.settings import build
+
+if TYPE_CHECKING:
+    from learn_lab.models.response import GaussianProcess
 
 __all__ = ['TuRBO', 'turbo']
 
@@ -64,6 +69,8 @@ class TuRBO:
         seed: int = 0,
         embedding: Embedding | None = None,
     ) -> None:
+        from learn_lab.models.response import GaussianProcess  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
         require_one_score(problem, scalarise, 'turbo')
         refuse_uncertainty(
             problem,

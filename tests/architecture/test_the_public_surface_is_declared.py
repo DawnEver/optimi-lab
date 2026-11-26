@@ -7,8 +7,8 @@ package can trust what it says about itself.
 * `__all__` in EVERY shipped module, and one name with one definition. A second spelling of the
   same name is a defect only the whole tree can see: each module reads fine on its own.
 * No import inside a function body. The rule allows an unavoidable circular or heavy-optional
-  import WITH its reason written down -- and this package has neither, since its entire runtime is
-  three eagerly-imported distributions, so the exemption set is empty and must stay empty by name.
+  import WITH its reason written down; the pinned set is the model-based solvers' surrogate imports,
+  each by name, and nothing else.
 * A module size BAND, with the oversize set pinned by NAME. The band is repo data (this package's
   largest module is 261 lines); that there IS one is not.
 
@@ -94,9 +94,22 @@ MODULE_SIZE_BAND: Final = 320
 #: evidence that it would.
 OVERSIZE_PINS: Final = frozenset()
 
-#: Functions allowed to import lazily, by NAME, each with its reason. Empty: nothing in this
-#: package is circular and nothing in it is optional. Same emptiness, same control.
-LAZY_IMPORT_PINS: Final[dict[str, str]] = {}
+#: Functions allowed to import lazily, by NAME, each with its reason. Nothing here is circular; the
+#: model-based solvers build learn-lab surrogates whose import is the heaviest in the package, so they
+#: import them where they build them (2026-11-26, `test_importing_optimi_lab_stays_light.py`).
+_SURROGATE_DEFERRED: Final = (
+    'heavy-optional: learn_lab.models.response loads scipy.interpolate/optimize; `import optimi_lab` must not'
+)
+LAZY_IMPORT_PINS: Final[dict[str, str]] = {
+    'src/optimi_lab/solver/fidelity_bo.py::__init__': _SURROGATE_DEFERRED,
+    'src/optimi_lab/solver/fidelity_bo.py::_pick': _SURROGATE_DEFERRED,
+    'src/optimi_lab/solver/model_based.py::__init__': _SURROGATE_DEFERRED,
+    'src/optimi_lab/solver/model_based.py::maximize': _SURROGATE_DEFERRED,
+    'src/optimi_lab/solver/model_trust_region.py::__init__': _SURROGATE_DEFERRED,
+    'src/optimi_lab/solver/pareto_bo.py::_nehvi': _SURROGATE_DEFERRED,
+    'src/optimi_lab/solver/prescreened.py::__init__': _SURROGATE_DEFERRED,
+    'src/optimi_lab/solver/turbo.py::__init__': _SURROGATE_DEFERRED,
+}
 
 #: The skip marker, in either spelling. `xfail` is deliberately NOT matched: an xfail records the
 #: failure and is the shape this rule asks for.
@@ -242,8 +255,8 @@ def test_no_module_imports_lazily() -> None:
     found = {f'{_name(path)}::{name}' for path in files for name in lazy_imports(_tree(path))}
     unpinned, stale = pin_gap(found, LAZY_IMPORT_PINS)
     assert not unpinned and not stale, (
-        f'lazy imports that are not pinned: {unpinned} -- this package has three eagerly imported '
-        f'dependencies, so there is no circular and no optional import to defer. Pins with nothing '
+        f'lazy imports that are not pinned: {unpinned} -- only a heavy-optional import may be deferred, '
+        f'pinned here by name with its reason. Pins with nothing '
         f'behind them: {stale} -- a waiver nothing uses is a hole that reads as a decision.'
     )
 

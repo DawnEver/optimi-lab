@@ -36,8 +36,7 @@ __all__ = [
 ]
 
 #: Three deliberately unlike regressors: a pool can only be measured where its members disagree.
-# spelling-off: learn-lab names this surrogate 'nearest_neighbours'
-SURROGATE_POOL: Final[tuple[str, ...]] = ('polynomial', 'radial_basis', 'nearest_neighbours')
+SURROGATE_POOL: Final[tuple[str, ...]] = ('polynomial', 'radial_basis', 'nearest_neighbors')
 # spelling-on
 #: The selectable steering models; ``gp`` also models the constraints (probability of feasibility).
 STEERING_MODELS: Final[dict[str, tuple[str, ...]]] = {'pool': SURROGATE_POOL, 'gp': ('gaussian_process',)}
