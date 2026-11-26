@@ -16,7 +16,6 @@ prescreened GA. The rebuilt 0.3 idea, now any L6 surrogate (:mod:`learn_lab.mode
 """
 
 import numpy as np
-from learn_lab.models.response import GaussianProcess
 from learn_lab.protocol import Give, Surrogate
 from learn_lab.validity import BoxEnvelope
 
@@ -43,6 +42,8 @@ class Prescreened(EvolutionarySolver):
         kappa: float = 1.0,
         **base: object,
     ) -> None:
+        from learn_lab.models.response import GaussianProcess  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
         surrogate = surrogate or GaussianProcess(restarts=0)
         if oversample < 1 or not kappa >= 0.0:
             refuse(f'oversample is >= 1 and kappa >= 0, got {oversample!r} and {kappa!r}')

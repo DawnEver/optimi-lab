@@ -14,11 +14,12 @@ With constraints each acquisition is multiplied by the probability of feasibilit
 told point is feasible the acquisition IS that probability.
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
-from learn_lab.models.response import FittedGaussianProcess
-from learn_lab.models.response.likelihood import factor
 
 from optimi_lab.core import refuse
 from optimi_lab.operator import (
@@ -32,6 +33,9 @@ from optimi_lab.oracle import Capability
 from optimi_lab.problem import Problem
 from optimi_lab.solver.model_based import Acquisition, ModelBased
 from optimi_lab.solver.settings import build
+
+if TYPE_CHECKING:
+    from learn_lab.models.response import FittedGaussianProcess
 
 __all__ = ['HypervolumeImprovement', 'ParEGO', 'ehvi', 'nehvi', 'parego']
 
@@ -130,6 +134,8 @@ class HypervolumeImprovement(ModelBased):
         log_pf: Callable[[np.ndarray], np.ndarray],
     ) -> Acquisition:
         """NEHVI with the baseline drawn once and each candidate drawn CONDITIONALLY on it (exactly joint)."""
+        from learn_lab.models.response.likelihood import factor  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
         m, s = len(self._problem.objectives), self._samples
         drawn = model.draw(baseline, self._rng.standard_normal((s, len(baseline), m))) if len(baseline) else None
         own = self._rng.standard_normal((s, m))

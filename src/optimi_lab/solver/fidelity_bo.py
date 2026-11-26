@@ -30,12 +30,14 @@ uncertainty, naming why. A conditional or categorical space is modeled through t
 ``embedding`` (:class:`optimi_lab.problem.Embedding`).
 """
 
+from __future__ import annotations
+
 import itertools
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from lab_commons.outcomes import Status
-from learn_lab.models.response import CoKriging, FittedCoKriging
 from learn_lab.validity import BoxEnvelope
 
 from optimi_lab.core import refuse
@@ -46,6 +48,9 @@ from optimi_lab.problem import Embedding, Problem
 from optimi_lab.solver.model_based import maximize, refuse_uncertainty, require_modelable
 from optimi_lab.solver.scoring import Scalarise, require_one_score, score_rows
 from optimi_lab.solver.settings import build
+
+if TYPE_CHECKING:
+    from learn_lab.models.response import CoKriging
 
 __all__ = ['MultiFidelityBO', 'mfbo']
 
@@ -67,6 +72,8 @@ class MultiFidelityBO:
         seed: int = 0,
         embedding: Embedding | None = None,
     ) -> None:
+        from learn_lab.models.response import CoKriging  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
         require_one_score(problem, scalarise, 'mfbo')
         refuse_uncertainty(
             problem,
@@ -170,6 +177,8 @@ class MultiFidelityBO:
         return score_rows(self._problem, self._scalarise, results)[0][:, 0]
 
     def _pick(self) -> tuple[np.ndarray, int]:
+        from learn_lab.models.response import FittedCoKriging  # noqa: PLC0415 -- heavy-optional: loads scipy.interpolate/optimize; deferred to the call
+
         x, levels = np.array(self._x), np.array(self._level)
         present = sorted(set(levels.tolist()))
         if present != list(range(len(self._names))):

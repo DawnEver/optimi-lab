@@ -1,8 +1,11 @@
 """R4, checked: optimi-lab keeps no numeric kernel of its own.
 
 R4 (plan I.1): equation solving is ONE engine, numerics-lab; optimi-lab depends on it. So no shipped
-module DEFINES a line search, a trust-region step, a quasi-Newton update, a Krylov method, a
-factorization or a KKT solve -- it calls numerics-lab's. The guard reads definitions by name against
+module DEFINES a backtracking/Armijo or strong Wolfe search, a secant two-loop, L-BFGS memory or Broyden
+update, the basic L-BFGS minimizer, a Krylov method, a factorization or a KKT solve -- it calls
+numerics-lab's. Optimization STRATEGY is this library's (engine split, 2026-11-26): the trust-region
+primitives and the dense BFGS/SR1 models live in :mod:`optimi_lab.operator`, so their names are not
+kernels here. The guard reads definitions by name against
 :data:`KERNEL_NAMES`; and the gradient methods must actually import numerics-lab (a floor), so a
 method that quietly inlined its own search would show up on one side or the other.
 
@@ -29,13 +32,10 @@ KERNEL_NAMES: Final = (
     'armijo',
     'wolfe',
     'backtrack',
-    'dogleg',
     'steihaug',
-    'updateradius',
     'twoloop',
-    'bfgsupdate',
-    'bfgsinverse',
-    'sr1update',
+    'lbfgsmemory',
+    'minimizelbfgs',
     'broyden',
     'conjugategradient',
     'minres',
@@ -90,8 +90,8 @@ def test_the_gradient_methods_import_numerics_lab() -> None:
 def test_planted_controls_each_guard_names_its_violation() -> None:
     planted = ast.parse(
         'from scipy.optimize import minimize\nimport scipy.stats\nfrom scipy.sparse.linalg import spsolve\n\n\n'
-        'def strong_wolfe_search(phi):\n    return phi\n\n\nclass LBFGSUpdate:\n    pass\n'
+        'def armijo_search(phi):\n    return phi\n\n\nclass TwoLoopRecursion:\n    pass\n'
     )
-    assert kernels_defined(planted) == ['LBFGSUpdate', 'strong_wolfe_search']
+    assert kernels_defined(planted) == ['TwoLoopRecursion', 'armijo_search']
     assert _imports_numerics(ast.parse('from numerics_lab.line_search import armijo\n'))
     assert not _imports_numerics(planted)
