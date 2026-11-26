@@ -89,7 +89,7 @@ def strong_wolfe(
         value, slope = phi_and_slope(a)
         return float(value), float(slope)
 
-    def armijo_holds(a: float, value: float) -> bool:
+    def decrease_holds(a: float, value: float) -> bool:
         return math.isfinite(value) and value <= phi0 + c1 * a * slope0
 
     def zoom(lo: float, f_lo: float, g_lo: float, hi: float, f_hi: float, g_hi: float) -> WolfeStep:  # noqa: PLR0917 -- two bracket ends, each (step, phi, slope)
@@ -103,7 +103,7 @@ def strong_wolfe(
             if trial is None or not left + margin <= trial <= right - margin:
                 trial = 0.5 * (lo + hi)
             f, g = evaluate(trial)
-            if not armijo_holds(trial, f) or f >= f_lo:
+            if not decrease_holds(trial, f) or f >= f_lo:
                 hi, f_hi, g_hi = trial, f, g
                 continue
             if abs(g) <= -c2 * slope0:
@@ -116,7 +116,7 @@ def strong_wolfe(
     a = float(step)
     while True:
         f, g = evaluate(a)
-        if not armijo_holds(a, f) or (evaluations > 1 and f >= f_previous):
+        if not decrease_holds(a, f) or (evaluations > 1 and f >= f_previous):
             return zoom(previous, f_previous, g_previous, a, f, g)
         if abs(g) <= -c2 * slope0:
             return WolfeStep(a, f, g, evaluations)

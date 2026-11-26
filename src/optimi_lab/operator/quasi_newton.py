@@ -13,12 +13,9 @@ The secant pair, its two-loop recursion and Broyden's root-finding updates are n
 
 from __future__ import annotations
 
-import warnings
-
 import numpy as np
 from numerics_lab.quasi_newton import SECANT_FLOOR, SecantPair, two_loop
 from numpy.typing import NDArray
-from scipy.linalg import LinAlgError, LinAlgWarning, solve
 
 __all__ = [
     'CURVATURE_EPS',
@@ -36,7 +33,7 @@ CURVATURE_EPS = float(np.finfo(float).eps)
 Vector = NDArray[np.float64]
 
 
-class SingularCompactModel(LinAlgError):
+class SingularCompactModel(np.linalg.LinAlgError):
     """The compact L-BFGS middle matrix is singular in floating point; reset the memory."""
 
 
@@ -124,13 +121,16 @@ class LbfgsMemory:
         sy = s.T @ y
         lower = np.tril(sy, -1)
         middle = np.block([[-np.diag(np.diag(sy)), lower.T], [lower, theta * (s.T @ s)]])
-        with warnings.catch_warnings():
-            warnings.simplefilter('error', LinAlgWarning)
-            try:
-                m = solve(middle, np.eye(middle.shape[0]))
-            except (LinAlgError, LinAlgWarning) as exc:
-                msg = f'the compact L-BFGS middle matrix ({middle.shape[0]}x{middle.shape[0]}) is singular'
-                raise SingularCompactModel(msg) from exc
+        msg = f'the compact L-BFGS middle matrix ({middle.shape[0]}x{middle.shape[0]}) is singular'
+        # Singular IN FLOATING POINT, as LAPACK's gesv judges it: a reciprocal 1-norm condition below eps.
+        with np.errstate(divide='ignore', invalid='ignore'):
+            rcond = 1.0 / float(np.linalg.cond(middle, 1))
+        if not rcond >= np.finfo(float).eps:
+            raise SingularCompactModel(msg)
+        try:
+            m = np.linalg.solve(middle, np.eye(middle.shape[0]))
+        except np.linalg.LinAlgError as exc:
+            raise SingularCompactModel(msg) from exc
         return theta, np.hstack([y, theta * s]), m
 
     def hessian(self) -> NDArray[np.float64]:
