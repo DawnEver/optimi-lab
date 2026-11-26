@@ -80,11 +80,17 @@ NON_ENTRY_NAMES: Final = frozenset({'_meta.json', '.gitkeep'})
 MEMORY_FRONTMATTER_DEBT: Final[frozenset[str]] = frozenset({
     # memory is immutable: the entry landed without the field; its amendment needs the user's approval
     '.claude/memory/2026/11/23/stale-lanes-and-hold-tags-discarded-by-the-one-day-ruling.md',
+    # the memory door's delete record is written without the field (a dev-lab door defect, reported)
+    '.claude/memory/2026/11/26/month-summaries-moved.md',
 })
 
 #: THE ENTRIES WHOSE HEADER CONTRADICTS THEIR DIRECTORY, pinned WITH the date each one claims: a name
 #: alone cannot tell a copied-forward header from a moved directory.
-MEMORY_DATE_DISAGREEMENT: Final[dict[str, str]] = {}
+MEMORY_DATE_DISAGREEMENT: Final[dict[str, str]] = {
+    # moved forward on 2026-11-26 (user): each keeps the date its summary was written
+    '.claude/memory/2026/11/26/month-summary-2026-10.md': '2026-10-23',
+    '.claude/memory/2026/11/26/month-summary-2026-11.md': '2026-11-07',
+}
 
 
 def scan() -> datedmemory.MemoryScan:
