@@ -18,6 +18,7 @@ from typing import Final
 
 import pytest
 from _famconfig import DELTAS, REPO
+from dev_lab.dev.devdocs import pinned_base
 from dev_lab.dev.famconfig import SectionDelta
 from dev_lab.dev.famtests import configrender, devdocs, famfiles, worktreeplace
 
@@ -26,9 +27,9 @@ _ROOT: Final = Path(__file__).resolve().parents[2]
 #: The alias the kit uses for this repo in its family tables.
 _ALIAS: Final = 'consumer-c'
 
-#: Where the family's dev pages live relative to `docs-src/dev/` when lab-commons is checked out
-#: beside this repo -- the base the committed pointer table is rendered against.
-_DEVDOCS_BASE: Final = '../../../dev-lab/docs-src/dev'
+#: The family's dev pages at the dev-lab this repo's lock pins -- the base the committed pointer
+#: table is rendered against (never a sibling clone).
+_DEVDOCS_BASE: Final = pinned_base((_ROOT / 'uv.lock').read_text(encoding='utf-8'))
 
 _RERENDER: Final = 'python -m dev_lab.dev.famfiles --deltas tests/architecture/_famconfig.py'
 
