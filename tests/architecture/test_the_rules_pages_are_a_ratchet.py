@@ -1,6 +1,7 @@
 """The always-loaded rule pages may only SHRINK, and their SUM is capped -- this repo's answers only.
 
-`.claude/rules/*.md` is re-read on every turn, so every line in it is a cost paid on every
+`AGENTS.md` is re-read on every turn (since 2026-11-24, when the family retired `.claude/rules/` and this repo's
+two pages moved into it beside the rendered family section), so every line in it is a cost paid on every
 request. Nothing measured that cost in this repo until 2026-09-15, which was the whole of the
 DOCS-SPLIT gap: the two pages existed and could grow without limit, and mechanism could migrate
 into them from the module docstrings that own it.
@@ -48,17 +49,13 @@ from typing import Final
 from dev_lab.dev.famtests import rulespages
 
 _ROOT: Final = Path(__file__).resolve().parents[2]
-_RULES: Final = _ROOT / '.claude' / 'rules'
 
 
-#: WHICH FILES ARE PAGES, and it is a repo decision rather than an obvious one. This repo WALKS the
-#: directory: the cost `.claude/rules/` imposes is paid by whatever is on disk when the turn starts,
-#: so an untracked page is a page. lab-commons takes its corpus from `git ls-files` instead, on the
-#: opposite and equally good ground that what is not tracked is not the fleet's. Neither default
-#: would be right for the other, which is why the kit has none.
+#: WHICH FILES ARE PAGES: `AGENTS.md` alone, the one always-loaded page (user ruling 2026-11-24). Until then this
+#: repo walked `.claude/rules/`; the walk left with the directory.
 def _pages() -> list[Path]:
-    """THE CORPUS: every markdown file under `.claude/rules/`, recursively, sorted."""
-    return sorted(_RULES.rglob('*.md'))
+    """THE CORPUS: the one always-loaded page."""
+    return [_ROOT / 'AGENTS.md']
 
 
 #: Every always-loaded page, to its line count RE-MEASURED 2026-09-18 and unchanged since
@@ -67,33 +64,24 @@ def _pages() -> list[Path]:
 #: existing line fails a criterion above, and that claim belongs in the commit message where a
 #: reader can refuse it.
 PINNED: Final[dict[str, int]] = {
-    # The domain facts no test catches: what this library refuses to become. 33 lines, and JUDGED
-    # rather than recorded -- every line is a refusal the code cannot make for itself, and the
-    # longest section is the reference-ladder ruling that has already been mis-applied once.
-    '.claude/rules/invariant.md': 33,
-    # How work gets done here. 22 lines, and the tightest page in the family at that size.
-    '.claude/rules/workflow.md': 22,
-    # The family principles, RENDERED from `dev_lab.dev.principles` (e0894ea) and edited there, never
-    # here. 28 lines, RE-MEASURED 2026-11-22 after the dev-lab 6f785fe7 relock re-rendered it with the two
-    # principles the user ruled that day (`images-by-absolute-path`, `worktree-names-its-task`): the same
-    # +4 dev-lab took (24 on 2026-11-16 with the fan-out principle, 21 on 2026-11-13, 18 on 2026-10-29,
-    # when the page arrived with the dev-lab ac7db79 relock). Its lines are spent in dev_lab, not here.
-    '.claude/rules/principles.md': 28,
+    # The repo's header, the rendered family section, then the invariants (33 lines) and the workflow (22) that
+    # were `.claude/rules/` pages until 2026-11-26. 155 lines, the family section's 82 spent in dev_lab, not here.
+    'AGENTS.md': 155,
 }
 
-#: THE TOTAL BUDGET, and it is pinned AT the measurement with ZERO headroom -- 33 + 22 + 28 = 83,
-#: re-measured 2026-11-22 (79 on 2026-11-16, 76 on 2026-11-13, 73 on 2026-10-29; each move the family-rendered principles page alone). Headroom is the one thing this arm must not have. Slack in a total is
+#: THE TOTAL BUDGET, and it is pinned AT the measurement with ZERO headroom -- 155, re-measured 2026-11-26 when the
+#: two pages folded into AGENTS.md (its family section now counted here); 55 earlier that day, when the family retired the principles page (down from 83; principles render only in AGENTS.md),
+#: 83 re-measured 2026-11-22 (79 on 2026-11-16, 76 on 2026-11-13, 73 on 2026-10-29; each move the family-rendered principles page alone). Headroom is the one thing this arm must not have. Slack in a total is
 #: budget nobody argued for, spent by whoever arrives next, and handing it out in advance is the
 #: exact failure the ceiling exists to refuse; a zero-headroom ceiling says instead that a new page
 #: is paid for out of an existing one. The two arms are then never in tension, because the per-page
 #: ratchet already drives a pin DOWN in the edit that shrinks its page, so the sum tracks the pins
 #: exactly and the ceiling binds at precisely one moment: when somebody wants a line back.
-CEILING: Final = 83
+CEILING: Final = 155
 
-#: A floor on the scan: below this the walk did not reach `.claude/rules/` at all, and an empty page
-#: set is indistinguishable from a compressed one. Pinned AT the measured 3 -- this corpus can only
-#: grow, so a page that stops being seen is a defect rather than noise.
-PAGE_FLOOR: Final = 3
+#: A floor on the scan: an empty page set is indistinguishable from a compressed one. Pinned AT the measured 1,
+#: down from 2 on 2026-11-26 in the edit that deleted the two `.claude/rules/` pages it counted.
+PAGE_FLOOR: Final = 1
 
 
 def test_the_rule_pages_hold_their_measured_budget_per_page_and_in_total() -> None:

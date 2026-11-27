@@ -93,7 +93,7 @@ omit = [
     "tests/*",
 ]
 [tool.coverage.html]
-directory = "htmlcov"
+directory = "output/cache/coverage/html"
 
 # ===================
 # Ruff
@@ -102,6 +102,7 @@ directory = "htmlcov"
 [tool.ruff]
 target-version = "py313"
 line-length = 120
+cache-dir = "output/cache/ruff"
 unsafe-fixes = true
 exclude = [
     "ignore",
@@ -198,6 +199,7 @@ docstring-code-line-length = "dynamic"
 # Pytest
 # ===================
 [tool.pytest.ini_options]
+cache_dir = "output/cache/pytest"
 filterwarnings = [
     # "error",
     "ignore::UserWarning",
@@ -238,6 +240,12 @@ max_idle = "24 h"  # a branch idle 24 h is pruned when merged, alarmed when not
 [tool.dev_lab.ci."ci.yml"]
 
 # ON-DEMAND EXTRAS (dev-lab D78, #864): the extras every environment syncs; a need-set adds its own extra.
+# ADOPTION IN WAVES (user ruling 2026-11-24): family sections not adopted yet, judged once adopted. The build
+# backend moves setuptools/setuptools-scm -> hatchling/hatch-vcs in its own change, and [tool.pyright] brings
+# the TYPES-RATCHET with its first measured counts; neither is a one-line config take.
+[tool.dev_lab.pyproject]
+pending = ["[build-system]", "[tool.hatch.version]", "[tool.pyright]"]
+
 [tool.dev_lab.dep]
 extras = []
 needs = {}
@@ -247,12 +255,6 @@ needs = {}
 dependency_inputs = ['pyproject.toml', 'uv.lock']
 source_roots = ['src']
 collect = 'tests'
-
-[tool.dev_lab.placement]
-code_roots = ['examples/']
-pruned_paths = ['.claude/worktrees', 'docs', 'htmlcov']
-scratch = 'scratch/'
-max_age_days = 3.0
 
 [tool.dev_lab.parts]
 output = "output/logs"

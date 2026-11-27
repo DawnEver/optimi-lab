@@ -1,0 +1,53 @@
+# The placement map this repo adds to the family's (dev_lab.dev.codeplace; user ruling 2026-11-24).
+code_roots = ['examples/']
+pruned_paths = ['.claude/worktrees', 'docs', 'output/cache']
+scratch = 'scratch/'
+max_age = "3 d"
+# output/cache/<tool>/ of each named tool holds what it writes (the family pyproject rows send the caches there).
+tool_caches = ['coverage', 'pytest', 'ruff']
+# The editable build's metadata setuptools writes beside the package; it leaves with the pending [build-system]
+# adoption (hatchling writes none) together with its [layout] row.
+stray_roots = ['src/optimi_lab.egg-info/']
+
+# DECLARED-LAYOUT (dev_lab.dev.layout): the WHOLE tree as an allow-list -- each directory pattern (one glob per
+# segment; the deepest matching row judges) and the formats a file there may be ('.suffix', an exact name, "" for
+# none, "*" for anything). Undeclared is refused. NO-BACKUP-COPIES: nothing under output/ or scratch/ is ever a
+# clone, worktree, exported tree, bundle or patch, whatever a row says. Formats (R3): TOML declarations, JSONL
+# machine records, CSV tables, NPZ arrays, Markdown reports, PNG figures; vendor-native only at an adapter boundary.
+[layout]
+'.' = ['.md', '.toml', '.lock', '.gitattributes', '.gitignore', 'license', 'makefile']
+'.claude' = ['.json']
+'.claude/hooks' = ['.js', '.json']
+'.claude/memory' = ['.md']
+'.claude/memory/[0-9][0-9][0-9][0-9]' = []
+'.claude/memory/[0-9][0-9][0-9][0-9]/[0-9][0-9]' = ['.md']
+'.claude/memory/[0-9][0-9][0-9][0-9]/[0-9][0-9]/[0-9][0-9]' = ['.md']
+'.claude/tasks' = ['.md']
+'.codex' = []
+'.codex/rules' = ['.rules']
+'.github' = []
+'.github/workflows' = ['.yml']
+'archived' = ['.md']
+'docs-src' = ['.md']
+'docs-src/dev' = ['.md']
+'examples' = ['.md', '.py']
+'output' = []
+'output/cache' = []
+'output/forge' = []
+'output/forge/*' = ['.json', '.tmp']
+'output/logs' = []
+'output/logs/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]/*' = ['.log', '.jsonl', '.json', '.gz', '.coverage', '.txt', '.csv', '.md', '.npz', '.png']
+'output/runcache' = ['.jsonl']
+'scratch' = ['*']
+'scripts' = ['.py', '.md']
+'src' = ['.py']
+'src/*.egg-info' = ['.txt', '.json', 'pkg-info']
+'src/optimi_lab' = ['.py']
+'src/optimi_lab/*' = ['.py']
+'tests' = ['.py', '.md']
+'tests/architecture' = ['.py']
+'tests/benchmarks' = ['.py']
+'tests/e2e' = ['.md']
+'tests/intergration' = ['.md']
+'tests/unit' = ['.md']
+'tests/unit/*' = ['.py']

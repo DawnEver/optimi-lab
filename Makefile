@@ -40,7 +40,7 @@ test:
 # runnable on a headless box (`open` is not a command on CI, and not on Windows either).
 .PHONY: test-open
 test-open: test
-	open htmlcov/index.html
+	open output/cache/coverage/html/index.html
 
 .PHONY: adoption
 adoption:
@@ -83,7 +83,7 @@ verify:
 # every run is an interruption rather than feedback: it steals focus on every GREEN run, and it
 # reports nothing back -- a human still has to read the page, so nothing is learned unless somebody
 # was already looking. `open` is also not a command on Windows or on CI, so these targets were
-# headless-hostile as well. Coverage still lands in `htmlcov/` every run; ASKING to see it is now
+# headless-hostile as well. Coverage still lands in `output/cache/coverage/html/` every run; ASKING to see it is now
 # exactly one target, `test-open`.
 .PHONY: test-parallel
 test-parallel:
@@ -106,7 +106,7 @@ clean:
 	rm -rf .pytest_cache/
 	rm -rf .ruff_cache/
 	rm -rf .mypy_cache/
-	rm -rf htmlcov/
+	rm -rf output/cache/coverage/html/
 	rm -rf *.egg-info
 	rm -f .coverage
 	rm -f .coverage.*

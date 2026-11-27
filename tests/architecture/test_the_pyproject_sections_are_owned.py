@@ -11,6 +11,7 @@ waiver, and a base entry gone with no declared drop is the base leaving through 
 
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 from typing import Final
 
@@ -20,11 +21,16 @@ from dev_lab.dev.famconfig import OWNED, PYPROJECT_SECTIONS, inspect_section, se
 _ROOT: Final = Path(__file__).resolve().parents[2]
 
 
+def _pending() -> set[str]:
+    """`[tool.dev_lab.pyproject] pending`: family sections not adopted yet (user ruling 2026-11-24), unjudged."""
+    data = tomllib.loads((_ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
+    return set(data['tool']['dev_lab']['pyproject']['pending'])
+
+
 def test_every_owned_table_has_exactly_one_declared_delta() -> None:
     """A table with no delta is unjudged; a delta for a table the base does not own judges nothing."""
-    assert set(PYPROJECT_SECTION_DELTAS) == set(PYPROJECT_SECTIONS), sorted(
-        set(PYPROJECT_SECTION_DELTAS) ^ set(PYPROJECT_SECTIONS)
-    )
+    owned = set(PYPROJECT_SECTIONS) - _pending()
+    assert set(PYPROJECT_SECTION_DELTAS) == owned, sorted(set(PYPROJECT_SECTION_DELTAS) ^ owned)
 
 
 def test_no_declared_delta_is_a_fork_and_every_ceiling_is_its_measurement() -> None:

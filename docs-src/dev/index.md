@@ -2,7 +2,7 @@
 
 - **This repo's development MECHANISM is the family's, and it lives in `dev-lab`.** Until 2026-09-16 there was none written here at all — no `docs-src/` tree and no page describing how a verdict is produced, how a lane lands, or what the box rations. This directory is that tree's first content.
 - **These pages are POINTED AT, never copied.** A shared document each repo copies is the fork the sharing removes. The table below is what `dev_lab.dev.devdocs.pointer_table` renders, so a page renamed there does not leave this one quietly wrong.
-- **The rule split:** `.claude/rules/**` here is HARD CONSTRAINTS ONLY and is read on every turn; the universal rule STATEMENTS are `dev_lab.dev.rules` rows cited by ID; the MECHANISM is below.
+- **The rule split:** `AGENTS.md` is the one always-loaded page and holds HARD CONSTRAINTS ONLY (`.claude/rules/` retired 2026-11-24); the universal rule STATEMENTS are `dev_lab.dev.rules` rows cited by ID; the MECHANISM is below.
 - Reach the shared tree at `../../../dev-lab/docs-src/dev/` when dev-lab is checked out beside this repo, or read the same files on the forge. **The tree is rendered only as a downstream repo's `family` sub-site; this repo has no hand-written-markdown renderer** — `scripts/pdoc.py` builds the API reference and nothing else, so here these pages are read as markdown. Saying so is the point: a reader expecting a portal and finding markdown has been told something false.
 
 ## The family's pages
@@ -25,13 +25,13 @@
 | [The forge](../../../dev-lab/docs-src/dev/forge.md) | Parts, claims, `forge serve`, scheduling and `forge queue`: how a sha gets its verdict |
 | [How a task hears the forge](../../../dev-lab/docs-src/dev/forgefeed.md) | One issues-since read per repository, task:<slug> labels, inboxes |
 | [Storage kinds](../../../dev-lab/docs-src/dev/storage.md) | Where output, venvs, worktrees and caches live; one resolver, machine-bound |
+| [IR schemas](../../../dev-lab/docs-src/dev/ir-schema.md) | One TOML declaration of an IR, its quantities catalogue, and the Python and Rust generated from it |
 | [Adding a forge workstation](../../../dev-lab/docs-src/dev/adding-a-workstation.md) | The light role's template, the deploy step by step, verifying and retiring a host |
 | [The integration branch](../../../dev-lab/docs-src/dev/integration.md) | The path of one change, the roles, the integration tick, `forge sync`, `integrate promote`, the merge audit |
 | [Issues](../../../dev-lab/docs-src/dev/issues.md) | An issue is intent; its state is derived from refs and parts; claims and priority are labels and comments |
 | [HPC clusters](../../../dev-lab/docs-src/dev/hpc.md) | A cluster is one more `forge serve` host: grants, the one-line deploy, runs, records |
 | [Submitting research from a workstation](../../../dev-lab/docs-src/dev/hpc-from-a-workstation.md) | A session's own cluster jobs: reach, grants, build, submit, gather, and which account takes them |
-| [Components](../../../dev-lab/docs-src/dev/components.md) | A product mounts its engines as submodules: the table, the derived-file check, the bump loop |
-| [Artifacts](../../../dev-lab/docs-src/dev/artefacts.md) | A run's declared outputs: the store, its layout and its retention |
+| [Artifacts](../../../dev-lab/docs-src/dev/artifacts.md) | A run's declared outputs: the store, its layout and its retention |
 | [Retirement](../../../dev-lab/docs-src/dev/retirement.md) | The archive keeps old code, the registry keeps a dead spelling dead |
 | [The docs pipeline](../../../dev-lab/docs-src/dev/docs-pipeline.md) | The three properties a docs builder holds, and why a skipped sub-site is announced |
 | [Translations](../../../dev-lab/docs-src/dev/translations.md) | How a `<stem>.zh.md` beside its `<stem>.md` passes the CJK guard, and the non-ASCII goal |
