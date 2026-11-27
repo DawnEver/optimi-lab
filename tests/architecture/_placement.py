@@ -200,8 +200,9 @@ SHELL_ROWS: Final[frozenset[str]] = frozenset()
 #: Keys are repo-relative POSIX paths -- DATA, so a row written on Windows matches on Linux.
 PLACEMENT: Final[dict[str, Placement]] = {
     'tests/architecture/test_the_layout_is_declared.py': Placement(
-        STAYS, 'Thin binder: the layout floor of this checkout; the walk and refusal are famtests.layout. '
-        'MEASURED 2026-11-26: own=7 hits=0.'
+        STAYS,
+        'Thin binder: the layout floor of this checkout; the walk and refusal are famtests.layout. '
+        'MEASURED 2026-11-26: own=7 hits=0.',
     ),
     'tests/architecture/test_the_review_command_is_the_family_default.py': Placement(
         STAYS, 'Thin binder: the review table of this checkout; the refusal is famtests.reviewcommand.'
